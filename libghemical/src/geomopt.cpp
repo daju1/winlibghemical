@@ -9,7 +9,29 @@
 #include "stdafx.h"
 
 #include "geomopt.h"
+geomopt_param::geomopt_param(setup * su)
+{
+	confirm = false;
+	show_dialog = true;
 
+	enable_nsteps	= true;
+	enable_grad		= true;
+	enable_delta_e	= true;
+	
+	treshold_nsteps = 2500;
+	treshold_grad = 1.0e-3;
+	treshold_delta_e = 1.0e-7;
+	
+	setup1_qm * suqm = dynamic_cast<setup1_qm *>(su);
+	if (suqm != NULL) treshold_nsteps = 500;		// override...
+
+	// my correct
+	treshold_nsteps = 500;
+	//treshold_nsteps = 10;
+
+	box_opt = geomopt_param::box_optimization_type::no;
+	box_opt = geomopt_param::box_optimization_type::xy;
+}
 /*################################################################################################*/
 
 geomopt::geomopt(engine * p1, i32s p2, f64 p3, f64 p4) : conjugate_gradient(p2, p3, p4)

@@ -4618,6 +4618,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 
 void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s div1, fGL start1, fGL end1, i32s optsteps)
 {
+printf("project::DoEnergyPlot1D 0\n");
 	// 2003-11-17 : for IC modification and structure refinement, make a temporary molecular mechanics model.
 	
 	i32s curr_eng_index = 0;	// if current setup is molecular mechanics, get the eng class...
@@ -4635,6 +4636,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s di
 		av.push_back(& (* it1));
 		av_tmp.push_back(& tmpmdl->GetLastAtom());
 	}
+printf("project::DoEnergyPlot1D 1\n");
 	{
 	for (iter_bl it1 = GetBondsBegin();it1 != GetBondsEnd();it1++)
 	{
@@ -4651,6 +4653,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s di
 	}
 	}
 	engine * tmpeng = tmpmdl->GetCurrentSetup()->CreateEngineByIndex(curr_eng_index);
+printf("project::DoEnergyPlot1D 2\n");
 	
 	// the temporary model is now ok, continue...
 	
@@ -4663,6 +4666,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s di
 	atom * atmr1[4]; f64 range1[2];
 	range1[0] = M_PI * start1 / 180.0;
 	range1[1] = M_PI * end1 / 180.0;
+printf("project::DoEnergyPlot1D 3\n");
 
 	for (i32s n1 = 0;n1 < 4;n1++)
 	{
@@ -4672,28 +4676,29 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s di
 		if (it1 == tmpmdl->GetAtomsEnd()) { PrintToLog("ERROR : atom not found!\n"); return; }
 		atmr1[n1] = & (* it1);
 	}
-	
+printf("project::DoEnergyPlot1D 4\n");
 // must call SortGroups() here because intcrd needs it ; however that might change the indices?!?!?! note that we convert to pointers above...
 // must call SortGroups() here because intcrd needs it ; however that might change the indices?!?!?! note that we convert to pointers above...
 // must call SortGroups() here because intcrd needs it ; however that might change the indices?!?!?! note that we convert to pointers above...
 	if (!tmpmdl->IsGroupsClean()) tmpmdl->UpdateGroups();		// for internal coordinates...
 	if (!tmpmdl->IsGroupsSorted()) tmpmdl->SortGroups(true);	// for internal coordinates...
-	
+printf("project::DoEnergyPlot1D 5 molnum = %d\n", molnum);
 	intcrd * tmpic = new intcrd((* tmpmdl), molnum, in_crdset);
+printf("project::DoEnergyPlot1D 5 1\n");
 	i32s ict1 = tmpic->FindTorsion(atmr1[1], atmr1[2]);
 if (ict1 < 0) { PrintToLog("ERROR : could not find ic.\n"); return; }
-	
+printf("project::DoEnergyPlot1D 6\n");
 	v3d<fGL> v1a(atmr1[1]->GetCRD(in_crdset), atmr1[0]->GetCRD(in_crdset));
 	v3d<fGL> v1b(atmr1[1]->GetCRD(in_crdset), atmr1[2]->GetCRD(in_crdset));
 	v3d<fGL> v1c(atmr1[2]->GetCRD(in_crdset), atmr1[3]->GetCRD(in_crdset));
 	f64 oldt1 = v1a.tor(v1b, v1c);
-	
+printf("project::DoEnergyPlot1D 7\n");
 	i32s fft1 = tmpeng->FindTorsion(atmr1[0], atmr1[1], atmr1[2], atmr1[3]);
 if (fft1 < 0) { PrintToLog("ERROR : could not find tor-term.\n"); return; }
-	
+printf("project::DoEnergyPlot1D 8\n");
 	const char * s1 = "tor(deg)"; const char * sv = "E(kJ/mol)";
 	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
-	
+printf("project::DoEnergyPlot1D 9\n");
 	f64 tor1 = range1[0];
 	{
 	for (i32s s1 = 0; s1 < (div1 + 1);s1++)

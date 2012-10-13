@@ -90,6 +90,7 @@ intcrd::intcrd(model & p1, i32s p2, i32s p3)
 	
 	while (true)
 	{
+printf ("intcrd::intcrd while (true) 0\n");
 		// first, try to find a not-yet-added atom
 		// that is connected to an already-added one.
 		
@@ -135,11 +136,12 @@ intcrd::intcrd(model & p1, i32s p2, i32s p3)
 			}
 			else it1++;
 		}
-		
+printf ("intcrd::intcrd while (true) 1\n");
 		// if none was found, all atoms are added,
 		// so we can leave the loop.
 		
 		if (it1 == range[1]) break;
+printf ("intcrd::intcrd while (true) 2\n");
 		
 		// now determine if we should mark this as variable...
 		
@@ -160,10 +162,13 @@ intcrd::intcrd(model & p1, i32s p2, i32s p3)
 		// AMIDE GROUPS!??!!?!
 		
 		// ...and add it.
+printf ("intcrd::intcrd while (true) 3\n");
 		
 		added_atoms.push_back(& (* it1));
 		AddNewPoint(& (* it1), ic_vector[added_index], flag);
+printf ("intcrd::intcrd while (true) 4\n");
 	}
+printf ("intcrd::intcrd end\n");
 }
 
 intcrd::~intcrd(void)

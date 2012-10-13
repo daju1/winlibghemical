@@ -648,6 +648,7 @@ void model::GetRange(i32s molecule, iter_bl * result)
 
 i32s model::FindPath(atom * ref1, atom * ref2, i32s max, i32s flag, i32s dist)
 {
+printf ("model::FindPath (%d, %d) max = %d flag = %d dist = %d\n", ref1->index, ref2->index, max, flag, dist);
 	if (ref1 == ref2) return dist;
 	if (dist == max) return NOT_FOUND;
 	
@@ -2366,7 +2367,14 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	
 	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);		// optimal settings?!?!?
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
-	boundary_opt * b_opt = new boundary_opt(this, eng, 100, 0.025, 10.0);
+	boundary_opt * b_opt = NULL;
+	//printf("param.box_opt = %d\n", param.box_opt);
+	if(param.box_opt != geomopt_param::box_optimization_type::no)
+	{
+		b_opt = new boundary_opt(param.box_opt, this, eng, 100, 0.025, 10.0);
+	}
+
+
 #endif
 	char buffer[1024];
 	f64  last_energy = 0.0;		// this is for output and delta_e test...
@@ -2382,7 +2390,8 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 		opt->TakeCGStep(conjugate_gradient::Newton2An);
 
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
-		b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+		if (b_opt)
+			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif	
 // problem: the gradient information is in fact not precise in this stage. the current gradient
 // is the one that was last calculated in the search, and it is not necessarily the best one.
@@ -2468,7 +2477,8 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	
 	delete opt;
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
-	delete b_opt;
+	if (b_opt)
+		delete b_opt;
 #endif
 // we will not delete current_eng here, so that we can draw plots using it...
 // we will not delete current_eng here, so that we can draw plots using it...
@@ -2582,7 +2592,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	//#######################################################################
 	//#######################################################################
 	if (false)
-		new moldyn_atomlist_dialog( dyn);		// the object will call delete itself...
+		new moldyn_atomlist_dialog(dyn);		// the object will call delete itself...
 	//#######################################################################
 	//#######################################################################
 
@@ -2774,7 +2784,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #endif /*PROBNIY_ATOM_WORKING*/
 
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-	boundary_opt * b_opt = new boundary_opt(this, eng, 100, 0.025, 10.0);
+	boundary_opt * b_opt = new boundary_opt(
+		geomopt_param::box_optimization_type::xyz,
+		this, eng, 100, 0.025, 10.0);
 #endif
 
 	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)

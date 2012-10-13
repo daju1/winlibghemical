@@ -1513,7 +1513,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 
-			case ID_TRAJECTORY_VIEWDISANCEPLOT:
+			case ID_TRAJECTORY_VIEWDISTANCEPLOT:
 				{
 					//######################################################
 					win_ogl_view * wgrv = 

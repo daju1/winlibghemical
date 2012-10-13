@@ -47,29 +47,21 @@ class geomopt_param
 	
 	bool enable_delta_e;
 	f64  treshold_delta_e;
+
+	enum box_optimization_type
+	{
+		no = 0,
+		xyz,
+		xy,
+		z
+	};
+
+	box_optimization_type box_opt;
 	
 	public:
 	
-	geomopt_param(setup * su)
-	{
-		confirm = false;
-		show_dialog = true;
+	geomopt_param(setup * su);
 
-		enable_nsteps	= true;
-		enable_grad		= true;
-		enable_delta_e	= true;
-		
-		treshold_nsteps = 2500;
-		treshold_grad = 1.0e-3;
-		treshold_delta_e = 1.0e-7;
-		
-		setup1_qm * suqm = dynamic_cast<setup1_qm *>(su);
-		if (suqm != NULL) treshold_nsteps = 500;		// override...
-
-		// my correct
-		treshold_nsteps = 500;
-		//treshold_nsteps = 10;
-	}
 	
 	~geomopt_param(void) { }
 };

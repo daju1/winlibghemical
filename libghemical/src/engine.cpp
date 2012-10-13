@@ -468,7 +468,9 @@ void CalcMaxMinCoordinates(model * p1, engine * p2, i32u p3)
 	p1->periodic_box_HALFdim[0] = (p1->maxCRD[0] - p1->minCRD[0]) / 2. + 0.08;
 	p1->periodic_box_HALFdim[1] = (p1->maxCRD[1] - p1->minCRD[1]) / 2. + 0.07;
 	p1->periodic_box_HALFdim[2] = (p1->maxCRD[2] - p1->minCRD[2]) / 2. + 0.08;
+
 	p1->m_bMaxMinCoordCalculed = true;
+
 printf("periodic_box_HALFdim[0] = %f\n", p1->periodic_box_HALFdim[0]);
 printf("periodic_box_HALFdim[1] = %f\n", p1->periodic_box_HALFdim[1]);
 printf("periodic_box_HALFdim[2] = %f\n", p1->periodic_box_HALFdim[2]);

@@ -23,6 +23,8 @@ class boundary_opt;
 
 #include "conjgrad.h"
 
+#include "geomopt.h"
+
 /*################################################################################################*/
 
 class boundary_opt_param
@@ -84,7 +86,7 @@ class boundary_opt : public conjugate_gradient
 	
 	public:
 	
-	boundary_opt(model* , engine *, i32s, f64, f64);
+	boundary_opt(geomopt_param::box_optimization_type box_opt, model* , engine *, i32s, f64, f64);
 	~boundary_opt(void);
 	
 	f64 GetValue(void);		// virtual

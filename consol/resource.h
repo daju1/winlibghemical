@@ -24,6 +24,7 @@
 #define IDD_DIALOG_SETUP                137
 #define IDD_DIALOG_ELEMENT              138
 #define IDD_DIALOG_BOND                 139
+#define IDD_DIALOG_GEOMOPT              140
 #define IDC_EDIT_COMMAND                1000
 #define IDC_BUTTON_TRAJ_VIEW_BEGIN      1001
 #define IDC_BUTTON_TRAJ_VIEW_PREV       1002
@@ -40,6 +41,16 @@
 #define IDC_EDIT_TIMESTEP               1013
 #define IDC_EDIT_TRAJFILE               1014
 #define IDC_MOL_DYN_ATOM_LIST           1015
+#define IDC_EDIT_DELTA_E                1016
+#define IDC_CHECK_DELTA_E               1017
+#define IDC_EDIT_GRAD                   1018
+#define IDC_CHECK_GRAD                  1019
+#define IDC_EDIT_NSTEPS                 1020
+#define IDC_CHECK_NSTEPS                1021
+#define IDC_RADIO_BOX_OPT_NO            1023
+#define IDC_RADIO_BOX_OPT_XYZ           1025
+#define IDC_RADIO_BOX_OPT_XY            1026
+#define IDC_RADIO_BOX_OPT_Z             1027
 #define ID_FILE_INITOG                  32771
 #define ID_FILE_INITOG2                 32772
 #define ID_VIEW_UPDATEALLVIEWS          32774
@@ -144,9 +155,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32874
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
