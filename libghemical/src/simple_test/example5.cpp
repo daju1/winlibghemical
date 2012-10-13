@@ -20,7 +20,7 @@
 #include <windows.h>
 
 #include "../../../consol/filedlg.h"
-
+#include "../../src/glade/geomopt_dialog.h"
 #define _USE_WINGHEMICAL_ 0
 #if _USE_WINGHEMICAL_
 #include "../../../src/win32_app.h"
@@ -136,11 +136,41 @@ int main(int argc, char ** argv)
 #endif
 
 #if PROBNIY_ATOM_GEOMOPT
+	int total_frames = 100;
+
+	cout << "Enter total frames (steps of simulations) number:" << endl;
+	cin >> total_frames;
+
+
+
+
+	setup * su = mdl->GetCurrentSetup();
+
+
+	geomopt_param param = geomopt_param(su);
+
+	param.show_dialog = false;
+	param.treshold_nsteps = 500;
+	param.treshold_grad = 1.0e-3;
+	param.treshold_delta_e = 1.0e-7;	
+	param.treshold_delta_e = 1.0e-10;	
+
+	param.enable_nsteps = true;
+	param.enable_grad = false;
+	param.enable_delta_e = false;// если мы запрещаем выход по дельта ≈, то наш алгоритм становитс€ "равновесным". ѕри этом величина потенциального барьера практически не зависит от направлени€
+	//param.enable_delta_e = true;// если мы разрешаем выход по дельта ≈, то наш алгоритм становитс€ "неравновесным". ѕри этом величина потенциального барьера зависит от направлени€
+
+	param.treshold_nsteps = 500;
+
+	new geomopt_dialog(&param);
+	//if (param.confirm)
+	{
 #if _USE_WINGHEMICAL_
-	app->GetWinProject()->popup_Comp_work_prob_atom_GeomOpt(infile_name, trgtlst_name, box_name, fixed_name);
+		app->GetWinProject()->popup_Comp_work_prob_atom_GeomOpt(param, infile_name, trgtlst_name, box_name, fixed_name, total_frames);
 #else
-	mdl->work_prob_atom_GeomOpt(infile_name, trgtlst_name, box_name, fixed_name);
+		mdl->work_prob_atom_GeomOpt(param, infile_name, trgtlst_name, box_name, fixed_name, total_frames);
 #endif
+	}
 #endif
 
 #if DIFFUSE_WORKING

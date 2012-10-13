@@ -199,7 +199,7 @@ friend class win_eld_view;
 	static void popup_CompMolDyn(HWND, void*);
 
 #if PROBNIY_ATOM_GEOMOPT
-	void popup_Comp_work_prob_atom_GeomOpt(char * infile_name,	char * trgtlst_name, char * box_name, char * fixed_name);
+	void popup_Comp_work_prob_atom_GeomOpt(geomopt_param & param, char * infile_name,	char * trgtlst_name, char * box_name, char * fixed_name, int total_frames);
 #endif
 	static void popup_CompRandomSearch(HWND, void*);
 	static void popup_CompSystematicSearch(HWND, void*);

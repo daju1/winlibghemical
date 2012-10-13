@@ -1251,7 +1251,7 @@ void win_project::popup_CompEnergy(HWND widget, void * data)
 	if (prj) prj->DoEnergy();
 }
 #if PROBNIY_ATOM_GEOMOPT
-void win_project::popup_Comp_work_prob_atom_GeomOpt(char * infile_name, char * trgtlst_name, char * box_name, char * fixed_name)
+void win_project::popup_Comp_work_prob_atom_GeomOpt(geomopt_param & param, char * infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames)
 {
 	win_project * prj = this;
 	if (prj)
@@ -1260,7 +1260,9 @@ void win_project::popup_Comp_work_prob_atom_GeomOpt(char * infile_name, char * t
 		static jobinfo_work_prob_atom_GeomOpt ji;
 		
 		ji.prj = prj;
-		ji.go = geomopt_param(su);
+		//ji.go = geomopt_param(su);
+		ji.go = &param;
+		ji.total_frames		= total_frames;
 
 		ji.infile_name		= infile_name;
 		ji.trgtlst_name		= trgtlst_name;

@@ -65,14 +65,15 @@ class jobinfo_work_prob_atom_GeomOpt
 	public:
 	
 	project * prj;
-	geomopt_param go;	// this is a class...
+	geomopt_param * go;	// this is a class...
 
 	char * infile_name; 
 	char * trgtlst_name;
 	char * box_name;
 	char * fixed_name;
+	int total_frames;
 	
-	jobinfo_work_prob_atom_GeomOpt(void) : go(NULL) { prj = NULL; }
+	jobinfo_work_prob_atom_GeomOpt(void){go = NULL; prj = NULL; }
 };
 #endif
 

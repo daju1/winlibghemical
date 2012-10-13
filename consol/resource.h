@@ -47,6 +47,7 @@
 #define IDC_CHECK_GRAD                  1019
 #define IDC_EDIT_NSTEPS                 1020
 #define IDC_CHECK_NSTEPS                1021
+#define IDC_EDIT_DELTA_E_MIN_NSTEPS     1022
 #define IDC_RADIO_BOX_OPT_NO            1023
 #define IDC_RADIO_BOX_OPT_XYZ           1025
 #define IDC_RADIO_BOX_OPT_XY            1026

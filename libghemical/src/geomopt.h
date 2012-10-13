@@ -47,6 +47,7 @@ class geomopt_param
 	
 	bool enable_delta_e;
 	f64  treshold_delta_e;
+	i32s treshold_delta_e_min_nsteps;
 
 	enum box_optimization_type
 	{
@@ -55,6 +56,8 @@ class geomopt_param
 		xy,
 		z
 	};
+
+	bool Write(char * filename);
 
 	box_optimization_type box_opt;
 	

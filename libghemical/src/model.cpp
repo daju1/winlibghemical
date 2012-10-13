@@ -1653,9 +1653,18 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 	
 	if (density <= 0.0) return;	// zero density -> infinite distance.
 //	const fGL distance = S_Initialize(density, & solvent);		// H2O
-	const fGL distance = S_Initialize(density, & solvent, element_number);	
-//	const fGL distance = S_Initialize(density, & solvent, 2);	// He
-//	const fGL distance = S_Initialize(density, & solvent, 10);	// Ne
+//	const fGL distance = S_Initialize(density, & solvent, element_number);	
+
+	fGL distance;
+
+	if (element_number > 0)
+	{
+		distance = S_Initialize(density, & solvent, element_number);
+	}
+	else
+	{
+		distance = S_Initialize(density, & solvent);		// H2O
+	}
 	
 	bool system_was_empty = (!atom_list.size() && !bond_list.size());
 	
@@ -2447,9 +2456,10 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 		
 		if (param.enable_delta_e)	// the delta_e test...
 		{
-			bool flag = false; const f64 treshold_step = 1.0e-12;		// can we keep this as a constant???
-			if (n1 != 0 && (last_energy - opt->optval) != 0.0 && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
-			if ((opt->optstp != 0.0) && (opt->optstp < treshold_step)) flag = true;
+			bool flag = false; //const f64 treshold_step = 1.0e-12;		// can we keep this as a constant???
+			//if (n1 != 0 && (last_energy - opt->optval) != 0.0 && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
+			if (n1 > param.treshold_delta_e_min_nsteps && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
+			//if ((opt->optstp != 0.0) && (opt->optstp < treshold_step)) flag = true;
 			
 			if (flag)
 			{
@@ -4431,15 +4441,17 @@ bool model::Read_GPR(char *infile_name)
 }
 
 #if PROBNIY_ATOM_GEOMOPT
-void model::work_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name)//my experiment
+void model::work_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames)//my experiment
 {
+	param.Write("geomopt_param.txt");
+
 	this->prob_atom_move_direction = true;
-	this->working_prob_atom_GeomOpt(infile_name, trgtlst_name, box_name, fixed_name);
+	this->working_prob_atom_GeomOpt(param, infile_name, trgtlst_name, box_name, fixed_name, total_frames);
 	this->prob_atom_move_direction = false;
-	this->working_prob_atom_GeomOpt(infile_name, trgtlst_name, box_name, fixed_name);
+	this->working_prob_atom_GeomOpt(param, infile_name, trgtlst_name, box_name, fixed_name, total_frames);
 
 }
-void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name)//my experiment
+void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames)//my experiment
 {
 	//очищаем модель
 	this->ClearModel();
@@ -4453,26 +4465,11 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 	// производим оптимизацию геометрии молекулы по общеприн€тому алгоритму
 	// здесь же происходит оптимизаци€ граничных условий
 	const bool updt = true;
-	setup * su = this->GetCurrentSetup();
 
 	printf("periodic_box_HALFdim[0] = %f\n", this->periodic_box_HALFdim[0]);
 	printf("periodic_box_HALFdim[1] = %f\n", this->periodic_box_HALFdim[1]);
 	printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
-	geomopt_param param = geomopt_param(su);
-
-	param.show_dialog = false;
-	param.treshold_nsteps = 2500;
-	param.treshold_grad = 1.0e-3;
-	param.treshold_delta_e = 1.0e-7;	
-	param.treshold_delta_e = 1.0e-10;	
-
-	param.enable_nsteps = true;
-	param.enable_grad = true;
-	//param.enable_delta_e = false;// если мы запрещаем выход по дельта ≈, то наш алгоритм становитс€ "равновесным". ѕри этом величина потенциального барьера практически не зависит от направлени€
-	param.enable_delta_e = true;// если мы разрешаем выход по дельта ≈, то наш алгоритм становитс€ "неравновесным". ѕри этом величина потенциального барьера зависит от направлени€
-
-	param.treshold_nsteps = 500;
 #if 0
 	// отмен€ем оптимизацию геометрии, потому что имеем в виду, 
 	// что мы имеем на входе уже молекулу с оптимизированной геометрией
@@ -4513,8 +4510,7 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 	const int number_of_atoms = GetAtomCount();
 	const char file_id[10] = "traj_v10";
 	
-	//const int frame_save_frq = 100;
-	const int total_frames = 100;
+	
 
 	ofile.write((char *) file_id, 8);					// file id, 8 chars.
 	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
@@ -4541,10 +4537,6 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 
 	// копируем координаты атомов из модели в вычислительную машину	
 	CopyCRD(this, eng, 0);
-
-/*	eng->Compute(0);
-	f64 energy0 = eng->GetEnergy();*/
-
 
 
 	f64 energy00 = 0.0;
@@ -4588,6 +4580,14 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
 	boundary_opt * b_opt = new boundary_opt(this, eng, 100, 0.025, 10.0);
 #endif
+	// открываем лог файл
+	char datfilename[1024];
+	sprintf(datfilename, "prob_at_mv_dir_%d_geomopt.dat", prob_atom_move_direction ? +1 : -1);
+	printf("datfilename = %s\n", datfilename);
+
+	FILE * dat = fopen(datfilename, "wt");
+
+
 
 	// открываем лог файл
 	char logfilename[1024];
@@ -4613,7 +4613,7 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 	//str2b << "target_crd[0],";
 	//str2b << "target_crd[1],";
 	//str2b << "target_crd[2]";
-	str2b << "n_steps_of_optimization,";
+	str2b << "n_steps_of_optimization";
 
 /*
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
@@ -4696,7 +4696,6 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 		//dyn->SetProbAtom(n_prob_atom, prob_atom_crd);
 		//устанавливаем координаты пробного атома в модели
 		atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
-		//i32s n_1 = n_prob_atom ;
 		if (n_prob_atom < eng->GetSetup()->GetAtomCount())
 		{
 			fGL x = prob_atom_crd[0];
@@ -4708,135 +4707,138 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 		// производим оптимизацию геометрии при фиксированной z координате пробного атома и атомов цели
 		// this->working_prob_atom_GeomOpt(go);			
 		//{					
-			//const bool updt = true;
+		//const bool updt = true;
 
-			// копируем координаты из модели в машину - здесь координата пробного атома уже изменена
+		// копируем координаты из модели в машину - здесь координата пробного атома уже изменена
 
-			CopyCRD(this, eng, 0);
+		CopyCRD(this, eng, 0);
 
+		//#############################################
+		eng1_mm * engmm = dynamic_cast<eng1_mm *>(eng);
+		if (engmm)	engmm->UpdateTerms();
+		//#############################################
+
+
+		char buffer[1024];
+		f64  last_energy = 0.0;		// this is for output and delta_e test...
+		
+		PrintToLog("Cycle    Energy            Gradient       Step        Delta E\n");
+		
+		//ThreadUnlock();
+		
+		i32s n1 = 0;		// n1 counts the number of steps...
+		bool cancel = false;
+		while (!cancel)
+		{
+			Sleep(10);
+			opt->TakeCGStep(conjugate_gradient::Newton2An);
+
+	#if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
+			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+	#endif	
 			//#############################################
 			eng1_mm * engmm = dynamic_cast<eng1_mm *>(eng);
 			if (engmm)	engmm->UpdateTerms();
 			//#############################################
+			// problem: the gradient information is in fact not precise in this stage. the current gradient
+			// is the one that was last calculated in the search, and it is not necessarily the best one.
+			// to update the gradient, we need to Compute(1) here. JUST SLOWS GEOMOPT DOWN -> DISABLE!
+			///////////////////////////////////////////////////////////////////////////////////////////////
+			eng->Compute(1);	// this is not vital, but will update the gradient vector length...
+			///////////////////////////////////////////////////////////////////////////////////////////////
+			//printf("eng->GetEnergy() = %f\n", eng->GetEnergy());
+			//ThreadLock();
 
-
-			char buffer[1024];
-			f64  last_energy = 0.0;		// this is for output and delta_e test...
+			fprintf(dat, "%d,%d,%e\n", iframe, n1, eng->GetEnergy());
 			
-			PrintToLog("Cycle    Energy            Gradient       Step        Delta E\n");
+			if (!(n1 % 5))
+			{
+				double progress = 0.0;
+				if (param.enable_nsteps) progress = (double) n1 / (double) (param.treshold_nsteps);
+				
+				double graphdata = opt->optval;		// this is an array of size 1...
+				
+				cancel = SetProgress(progress, & graphdata);
+				
+				if (n1 != 0)
+				{
+					sprintf(buffer, "%4d %12.5f kJ/mol  %10.4e %10.4e %10.4e \n", n1,
+					opt->optval, eng->GetGradientVectorLength(), opt->optstp, last_energy - opt->optval);
+				}
+				else
+				{
+					sprintf(buffer, "%4d %12.5f kJ/mol  %10.4e %10.4e ********** \n", n1,
+					opt->optval, eng->GetGradientVectorLength(), opt->optstp);
+				}
+				
+				PrintToLog(buffer);
+			}
+			
+			bool terminate = false;
+			
+			if (param.enable_nsteps)	// the nsteps test...
+			{
+				if (n1 >= param.treshold_nsteps)
+				{
+					terminate = true;
+					PrintToLog("the nsteps termination test was passed.\n");
+				}
+			}
+			
+			if (param.enable_grad)		// the grad test...
+			{
+				if (eng->GetGradientVectorLength() < param.treshold_grad)
+				{
+					terminate = true;
+					PrintToLog("the grad termination test was passed.\n");
+				}
+			}
+			
+			if (param.enable_delta_e)	// the delta_e test...
+			{
+				bool flag = false; const f64 treshold_step = 1.0e-12;		// can we keep this as a constant???
+				//if (n1 != 0 && (last_energy - opt->optval) != 0.0 && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
+				if (n1 > param.treshold_delta_e_min_nsteps && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
+				//if ((opt->optstp != 0.0) && (opt->optstp < treshold_step)) flag = true;
+				
+				if (flag)
+				{
+					terminate = true;
+					PrintToLog("the delta_e termination test was passed.\n");
+				}
+			}
+
+			
+			
+			last_energy = opt->optval;
+			
+			if (!(n1 % 10) || terminate)
+			{
+				CopyCRD(eng, this, 0);
+				//CenterCRDSet(0, false);
+				
+				UpdateAllGraphicsViews(updt);
+			}
 			
 			//ThreadUnlock();
 			
-			i32s n1 = 0;		// n1 counts the number of steps...
-			bool cancel = false;
-			while (!cancel)
-			{
-				Sleep(10);
-				opt->TakeCGStep(conjugate_gradient::Newton2An);
-
-		#if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
-				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
-		#endif	
-				//#############################################
-				eng1_mm * engmm = dynamic_cast<eng1_mm *>(eng);
-				if (engmm)	engmm->UpdateTerms();
-				//#############################################
-				// problem: the gradient information is in fact not precise in this stage. the current gradient
-				// is the one that was last calculated in the search, and it is not necessarily the best one.
-				// to update the gradient, we need to Compute(1) here. JUST SLOWS GEOMOPT DOWN -> DISABLE!
-				///////////////////////////////////////////////////////////////////////////////////////////////
-				eng->Compute(1);	// this is not vital, but will update the gradient vector length...
-				///////////////////////////////////////////////////////////////////////////////////////////////
-				//printf("eng->GetEnergy() = %f\n", eng->GetEnergy());
-				//ThreadLock();
-				
-				if (!(n1 % 5))
-				{
-					double progress = 0.0;
-					if (param.enable_nsteps) progress = (double) n1 / (double) (param.treshold_nsteps);
-					
-					double graphdata = opt->optval;		// this is an array of size 1...
-					
-					cancel = SetProgress(progress, & graphdata);
-					
-					if (n1 != 0)
-					{
-						sprintf(buffer, "%4d %12.5f kJ/mol  %10.4e %10.4e %10.4e \n", n1,
-						opt->optval, eng->GetGradientVectorLength(), opt->optstp, last_energy - opt->optval);
-					}
-					else
-					{
-						sprintf(buffer, "%4d %12.5f kJ/mol  %10.4e %10.4e ********** \n", n1,
-						opt->optval, eng->GetGradientVectorLength(), opt->optstp);
-					}
-					
-					PrintToLog(buffer);
-				}
-				
-				bool terminate = false;
-				
-				if (param.enable_nsteps)	// the nsteps test...
-				{
-					if (n1 >= param.treshold_nsteps)
-					{
-						terminate = true;
-						PrintToLog("the nsteps termination test was passed.\n");
-					}
-				}
-				
-				if (param.enable_grad)		// the grad test...
-				{
-					if (eng->GetGradientVectorLength() < param.treshold_grad)
-					{
-						terminate = true;
-						PrintToLog("the grad termination test was passed.\n");
-					}
-				}
-				
-				if (param.enable_delta_e)	// the delta_e test...
-				{
-					bool flag = false; const f64 treshold_step = 1.0e-12;		// can we keep this as a constant???
-					if (n1 != 0 && (last_energy - opt->optval) != 0.0 && fabs(last_energy - opt->optval) < param.treshold_delta_e) flag = true;
-					if ((opt->optstp != 0.0) && (opt->optstp < treshold_step)) flag = true;
-					
-					if (flag)
-					{
-						terminate = true;
-						PrintToLog("the delta_e termination test was passed.\n");
-					}
-				}
-
-				
-				
-				last_energy = opt->optval;
-				
-				if (!(n1 % 10) || terminate)
-				{
-					CopyCRD(eng, this, 0);
-					//CenterCRDSet(0, false);
-					
-					UpdateAllGraphicsViews(updt);
-				}
-				
-				//ThreadUnlock();
-				
-				if (terminate) break;		// exit the loop here!!!
-				
-				n1++;	// update the number of steps...
-			}
+			if (terminate) break;		// exit the loop here!!!
+			
+			n1++;	// update the number of steps...
+		}
 			
 		// we will not delete current_eng here, so that we can draw plots using it...
 		// we will not delete current_eng here, so that we can draw plots using it...
 		// we will not delete current_eng here, so that we can draw plots using it...
 			
-			// above, CopyCRD was done eng->mdl and then CenterCRDSet() was done for mdl.
-			// this might cause that old coordinates remain in eng object, possibly affecting plots.
-			// here we sync the coordinates and other plotting data in the eng object.
-			
-			ThreadLock();
-			//CopyCRD(this, eng, 0);
-			SetupPlotting();
-			ThreadUnlock();
+		// above, CopyCRD was done eng->mdl and then CenterCRDSet() was done for mdl.
+		// this might cause that old coordinates remain in eng object, possibly affecting plots.
+		// here we sync the coordinates and other plotting data in the eng object.
+		
+		ThreadLock();
+		//CopyCRD(this, eng, 0);
+		SetupPlotting();
+		ThreadUnlock();
 		//}
 
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
@@ -4907,7 +4909,6 @@ cin >> old;*/
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		// запись фрейма в файл траектории
-		//if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
 		{
 			CopyCRD(eng, this, 0);
 			
@@ -4932,22 +4933,8 @@ cin >> old;*/
 	}
 	ofile.close();
 	logfile2.close();
-/*
-	// открываем box файл
-	char boxfilename[1024];
-	sprintf(boxfilename, "prob_at_mv_dir_%d_geomopt.box", prob_atom_move_direction ? +1 : -1);
-	printf("boxfilename = %s\n", logfilename);
-	//////////////////////////////////////////
-	ofstream boxfile;
-	boxfile.open(boxfilename, ios::out);
-	// пишем box файл
-	ostrstream str3b(mbuff1, sizeof(mbuff1));
-	str3b << this->periodic_box_HALFdim[0] << " ";
-	str3b << this->periodic_box_HALFdim[1] << " ";
-	str3b << this->periodic_box_HALFdim[2] << endl << ends;
-	boxfile << mbuff1;
-	boxfile.close();
-*/
+	fclose(dat);
+
 	delete opt;
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
 	delete b_opt;

@@ -419,8 +419,8 @@ public:
 #endif
 
 #if PROBNIY_ATOM_GEOMOPT
-	void work_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name);//my experiment
-	void working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name);//my experiment
+	void work_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames);//my experiment
+	void working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames);//my experiment
 #endif
 
 	void SaveBox(char * boxfilename);

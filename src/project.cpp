@@ -2231,22 +2231,31 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		fGL zdim = strtod(kw4, endptr);
 		
 		fGL density = 1.00; if (strlen(kw5) > 0) density = strtod(kw5, endptr);
-		char * export_fn = NULL; if (!strcmp(kw7, "export")) export_fn = kw6;
+		
+		char * export_fn = NULL;		
+		if (!strcmp(kw7, "export")) export_fn = kw6;
 
 		int element_number = 2; if (strlen(kw5_) > 0) element_number = atoi(kw5_);
 
 		dummy_project * solvent = NULL;
 		if (strlen(kw6) > 0)
 		{
-			solvent = new dummy_project(NULL);
 			
 			char fn[256];
 			ostrstream fns(fn, sizeof(fn));
 			fns << kw6 << ".gpr" << ends;
+
+			DWORD nFilterIndex;
+			if (OpenFileDlg(0, "Ghemical Project File (*.gpr)\0*.gpr\0All files \0*.*\0", 
+				fn, nFilterIndex) 
+				== S_OK)
+			{
+				solvent = new dummy_project(NULL);
+				ifstream ifile(fn, ios::in);
+				ReadGPR(* solvent, ifile, false);
+				ifile.close();
+			}
 			
-			ifstream ifile(fn, ios::in);
-			ReadGPR(* solvent, ifile, false);
-			ifile.close();
 		}
 		
 		SolvateBox(xdim, ydim, zdim, density, element_number, solvent, export_fn);
@@ -2271,15 +2280,20 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		dummy_project * solvent = NULL;
 		if (strlen(kw5) > 0)
 		{
-			solvent = new dummy_project(NULL);
-			
 			char fn[256];
 			ostrstream fns(fn, sizeof(fn));
 			fns << kw5 << ".gpr" << ends;
-			
-			ifstream ifile(fn, ios::in);
-			ReadGPR(* solvent, ifile, false);
-			ifile.close();
+
+			DWORD nFilterIndex;
+			if (OpenFileDlg(0, "Ghemical Project File (*.gpr)\0*.gpr\0All files \0*.*\0", 
+				fn, nFilterIndex) 
+				== S_OK)
+			{
+				solvent = new dummy_project(NULL);
+				ifstream ifile(fn, ios::in);
+				ReadGPR(* solvent, ifile, false);
+				ifile.close();
+			}
 		}
 		
 		SolvateSphere(rad1, rad2, density, solvent);
@@ -2376,7 +2390,7 @@ DWORD WINAPI project::pcs_job_work_prob_atom_GeomOpt(void* p)
 	const bool updt = true;
 #endif	// ENABLE_THREADS
 	
-	ji->prj->work_prob_atom_GeomOpt(ji->infile_name, ji->trgtlst_name, ji->box_name, ji->fixed_name);
+	ji->prj->work_prob_atom_GeomOpt(*ji->go, ji->infile_name, ji->trgtlst_name, ji->box_name, ji->fixed_name, ji->total_frames);
 	
 #ifdef ENABLE_THREADS
 	ji->prj->ThreadLock();

@@ -135,6 +135,11 @@ void geomopt_dialog::OnInitDialog()
 	//gtk_entry_set_text(GTK_ENTRY(entry_delta_e), buffer);
 	SetDlgItemText(hDlg,IDC_EDIT_DELTA_E, str_delta_e.str());
 
+	ostrstream str_delta_e_min_nsteps(buffer, sizeof(buffer));
+	str_delta_e_min_nsteps << param->treshold_delta_e_min_nsteps << ends;
+	//gtk_entry_set_text(GTK_ENTRY(entry_delta_e), buffer);
+	SetDlgItemText(hDlg,IDC_EDIT_DELTA_E_MIN_NSTEPS, str_delta_e_min_nsteps.str());
+
 	CheckDlgButton( hDlg, IDC_CHECK_DELTA_E,
 		param->enable_delta_e ? BST_CHECKED : BST_UNCHECKED );
 
@@ -219,6 +224,10 @@ void geomopt_dialog::handler_ButtonOK(HWND, void * data)
 	istrstream istr3(buffer, strlen(buffer) + 1);
 	istr3 >> ref->param->treshold_delta_e;
 
+	GetDlgItemText(ref->hDlg,IDC_EDIT_DELTA_E_MIN_NSTEPS, buffer, 63);
+	istrstream istr4(buffer, strlen(buffer) + 1);
+	istr4 >> ref->param->treshold_delta_e_min_nsteps;
+
 	ref->param->enable_delta_e	= IsDlgButtonChecked( ref->hDlg, IDC_CHECK_DELTA_E) 
 				== BST_CHECKED;
 	ref->param->enable_grad		= IsDlgButtonChecked( ref->hDlg, IDC_CHECK_GRAD) 
@@ -240,6 +249,8 @@ void geomopt_dialog::handler_ButtonCancel(HWND, void * data)		// not really need
 	geomopt_dialog * ref = (geomopt_dialog *) data;
 	//cout << "handler_ButtonCancel() : ref = " << ref << endl;
 }
+	
+
 
 /*################################################################################################*/
 
