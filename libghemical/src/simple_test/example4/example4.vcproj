@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="babel.lib win_project.lib libghemical.lib comctl32.lib"
-				OutputFile="$(OutDir)/../../../../../../example.exe"
+				OutputFile="$(OutDir)/../../../../../../example300_033.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../../../"
 				GenerateDebugInformation="TRUE"

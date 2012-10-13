@@ -400,7 +400,7 @@ public:
 	bool Read_GPR(char * infile_name);
 
 
-#if DIFFUSE_WORKING
+#if DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING
 	void work_diffuse(char *infile_name);
 #endif
 

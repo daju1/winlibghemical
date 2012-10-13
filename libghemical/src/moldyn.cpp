@@ -19,6 +19,7 @@
 using namespace std;
 
 #define T_BUFF_SIZE	500
+#define PI		3.14159265358979323846
 
 /*################################################################################################*/
 moldyn_param::moldyn_param(setup * su)
@@ -74,6 +75,39 @@ moldyn_param::moldyn_param(setup * su)
 	constant_e = true;
 	strcpy(filename, "prob.traj");
 #endif
+
+#if GRAVI_OSCILLATOR_WORKING 	
+	//len_n_len_g = 0.1;
+	//len_n_len_g = 0.33;
+	//nsteps_h = 500;
+	//nsteps_e = 500;
+	//nsteps_s = 1000000;
+
+	cout << "Enter nsteps_h(1000)\n";
+	cin >> nsteps_h;
+	cout << "Enter nsteps_e(1000)\n";
+	cin >> nsteps_e;
+	cout << "Enter nsteps_s(1000000)\n";
+	cin >> nsteps_s;
+
+	//temperature = 300.0;
+	cout << "Enter temperature\n";
+	cin >> temperature;
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+	cout << "Enter len_n_len_g\n";
+	cin >> len_n_len_g;
+	sprintf(filename, "gravi_%0.2f_%0.0f.traj", len_n_len_g, temperature);
+#else
+	cout << "Enter k_lin_gravi\n";
+	cin >> k_lin_gravi;
+	sprintf(filename, "lin_gravi_%0.2f_%0.0f_%d.traj", 
+		k_lin_gravi, 
+		temperature, 
+		nsteps_h + nsteps_e);
+#endif
+
+#endif
+
 }
 moldyn::moldyn(engine * p1, f64 p2)
 {
@@ -108,6 +142,7 @@ moldyn::moldyn(engine * p1, f64 p2)
 		
 		mass[counter] = glob_atmtab[counter]->mass;
 		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
+		// умножаем на массу единицы атомного веса углеродной шкалы в кг и на число Авогадро
 		
 		locked[counter] = lflag;
 
@@ -151,6 +186,17 @@ moldyn::moldyn(engine * p1, f64 p2)
 	temperature = 300.0;
 	
 	temperature_coupling = 0.010;
+#if GRAVI_OSCILLATOR_WORKING 
+// режим работы с наложением броуновского осциллятора 
+// в виде гравитационной осцилляции
+	v_pract = 0.0; // m/s
+	v_theor = 0.0;
+    v0 = 0.0; // m/s
+	g0 = 0;//амплитуда гравитационногоосциллятора [m/s^2]
+	omega = 0;//круговая частота гравитационного осциллятора [s^-1]
+	start_gravi_step_counter = 0;
+	to_start_gravi = false;
+#endif
 
 #if SNARJAD_TARGET_WORKING
 	n_snarjad = -1;
@@ -171,8 +217,14 @@ moldyn::~moldyn(void)
 //	delete[] target;
 	delete[] gravi;
 }
-
-void moldyn::SetGraviG(double *p)
+f64 moldyn::GetGravi(i32s dim)
+{
+	if (dim >= 0 && dim < 3)
+		return this->m_g[dim];
+	else
+		return 0.0;
+}
+void moldyn::SetGraviG(f64 *p)
 {
 	if (p)
 	{
@@ -182,6 +234,95 @@ void moldyn::SetGraviG(double *p)
 		}
 	}
 }
+#if GRAVI_OSCILLATOR_WORKING 
+// режим работы с наложением броуновского осциллятора 
+// в виде гравитационной осцилляции
+//функция инициализации гравитационного осциллятора, вызывается перед началом работы
+void moldyn::InitGraviOscillator(moldyn_param& param, engine_pbc2 * eng_pbc)
+{
+	this->len_n_len_g = param.len_n_len_g;
+	this->len_n = 2.0 * eng->GetSetup()->GetModel()->periodic_box_HALFdim[2];
+	this->len_g = this->len_n / this->len_n_len_g;
+	this->N_mol = eng_pbc->n_solvent_molecules;
+	this->M = eng_pbc->M_solvent;
+	printf("M = %f\n", this->M);
+	gamma = 5.0 / 3.0;
+
+	double RT_M = 8.314510 * param.temperature / M; // Дж/кг = m^2/s^2
+	g0 = ( RT_M * sqrt(2.0) * PI / (len_g * 1.0e-9) ) * sqrt(gamma * len_n_len_g / N_mol); // m/s^2
+	omega = ( PI / (len_g * 1.0e-9) ) * sqrt(gamma * RT_M); // s^-1
+	v0 = sqrt(2.0 * RT_M * len_n_len_g / N_mol);
+
+	printf("omega = %e\tg0 = %e\tv0 = %e\n", omega, g0, v0);
+
+	omega *= 1.0e-15;
+	g0 *= 1.0e-12;
+	v0 *= 1.0e-3;
+
+	to_start_gravi = true;
+	start_gravi_step_counter = step_counter;
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+#else
+		this->k_lin_gravi = param.k_lin_gravi;
+#endif
+
+
+}
+// на каждом шаге вычисляется значение амплитуды g в центре осцилляторе
+void moldyn::TakeGraviStep()
+{
+	if(to_start_gravi)
+	{
+		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//момент времени в секундах
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+		m_g[2] = g0 * cos(omega * t)/* * 1.0e-12*/; //амплитуда в центре осциллятора
+		v_theor = v0 * sin(omega * t);
+#else
+		m_g[2] = k_lin_gravi * t/* * 1.0e-12*/; //амплитуда в центре осциллятора
+		//printf("m_g[2] %f = k_lin_gravi %f  * t %f\n", m_g[2], k_lin_gravi, t);
+		v_theor = 0.0;
+#endif
+		v_pract += tstep1 * m_g[2] * 1.0e-6;
+	}
+}
+double moldyn::GetTheorV()
+{
+	return v_theor;
+}
+double moldyn::GetPractV()
+{
+	return v_pract;
+}
+
+#endif
+void moldyn::LockAtoms(char * fn)
+{
+	vector<i32s> fixed_list;
+	ReadTargetListFile(fn, fixed_list);
+	this->LockAtoms(fixed_list);
+}
+
+void moldyn::LockAtoms(vector<i32s>& nAtoms)
+{
+	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
+
+	for(int i = 0; i < nAtoms.size(); i++)
+	{	
+		i32s nAtom = nAtoms[i];
+		if (nAtom < eng->GetAtomCount())
+		{
+			bool lflag = false;
+			glob_atmtab[nAtom]->flags |= ATOMFLAG_IS_LOCKED;
+			if (glob_atmtab[nAtom]->flags & ATOMFLAG_IS_LOCKED)
+			{
+				lflag = true;
+				num_locked++;
+			}		
+			locked[nAtom] = lflag;		
+		}
+	}
+}
+
 
 #if SNARJAD_TARGET_WORKING
 void moldyn::ShootSnarjad(i32s nAtom, f64* v, f64* c)
@@ -383,6 +524,19 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
 			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
 			
+#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 
+			if (n2 == 2 && locked[n1])
+			{
+				tmpA = 0.0;	// make sure that locked atoms remain locked!
+				tmp1 = 0.0;	// make sure that locked atoms remain locked!
+				tmp2 = 0.0;	// make sure that locked atoms remain locked!
+				
+				// the engine class really cannot compute and return zero forces
+				// for the locked atoms.
+				
+				// then how to ensure translational invariance and stuff like that?
+			}
+#else
 			if (locked[n1])
 			{
 				tmpA = 0.0;	// make sure that locked atoms remain locked!
@@ -394,6 +548,7 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 				
 				// then how to ensure translational invariance and stuff like that?
 			}
+#endif
 			
 			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
 			
@@ -407,6 +562,39 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 	epot = eng->energy;
 
 	{	
+#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		//a = -F/m
+		//dv = a*dt
+		
+		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
+		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];				
+		if (!locked[n1]) 
+			acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+
+		if (gravi[n1])
+		{
+#if GRAVI_OSCILLATOR_WORKING 
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+			if (!locked[n1]) acc[n1 * 3 + 2] += this->m_g[2] * cos (eng->crd[n1 * 3 + 2] / len_g);
+#else
+			if (!locked[n1]) acc[n1 * 3 + 2] += this->m_g[2];
+#endif
+#else
+			acc[n1 * 3 + 0] += this->m_g[0];
+			acc[n1 * 3 + 1] += this->m_g[1];
+			if (!locked[n1]) 
+				acc[n1 * 3 + 2] += this->m_g[2];
+#endif
+		}
+		
+		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
+		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
+		if (!locked[n1]) 
+			vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
+	}
+# else
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		if (locked[n1]) continue;
@@ -419,15 +607,24 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 
 		if (gravi[n1])
 		{
+#if GRAVI_OSCILLATOR_WORKING 
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+			acc[n1 * 3 + 2] += this->m_g[2] * cos (eng->crd[n1 * 3 + 2] / len_g);
+#else
+			acc[n1 * 3 + 2] += this->m_g[2]);
+#endif
+#else
 			acc[n1 * 3 + 0] += this->m_g[0];
 			acc[n1 * 3 + 1] += this->m_g[1];
 			acc[n1 * 3 + 2] += this->m_g[2];
+#endif
 		}
 		
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
+#endif
 	}
 	
 	ekin = KineticEnergy();

@@ -20,6 +20,10 @@ class moldyn_langevin;
 class temperature_meter;
 class pressure_meter;
 
+#if GRAVI_OSCILLATOR_WORKING 
+class engine_pbc2;
+#endif
+
 /*################################################################################################*/
 
 #include "engine.h"
@@ -63,6 +67,14 @@ class moldyn_param
 	// список номеров атомов - целей
 	vector<i32s> target_list;
 #endif
+
+#if GRAVI_OSCILLATOR_WORKING 	
+	f64 len_n_len_g;
+#if GRAVI_OSCILLATOR_WORKING_LINEAR
+	f64 k_lin_gravi;
+#endif
+#endif
+
 	public:
 	
 	moldyn_param(setup * su);	
@@ -99,7 +111,7 @@ class moldyn
 	
 	char * gravi;
 	int num_gravi;
-	double m_g[3];
+	f64 m_g[3];
 	
 	f64 tstep1;	// timestep
 	f64 tstep2;	// timestep ^ 2
@@ -132,7 +144,11 @@ class moldyn
 	
 	void SetEKin(f64);
 
-	void SetGraviG(double *p);
+	void SetGraviG(f64 *p);
+	f64 GetGravi(i32s);
+	
+	void LockAtoms(vector<i32s>& nAtoms);
+	void LockAtoms(char * fn);
 
 #if SNARJAD_TARGET_WORKING
 	// my functions:
@@ -157,7 +173,31 @@ class moldyn
 	void SetProbAtom(i32s nAtom, f64* c);
 	bool GetProbAtomForce(f64* f);
 #endif
+#if GRAVI_OSCILLATOR_WORKING 
+// режим работы с наложением броуновского осцилл€тора 
+// в виде гравитационной осцилл€ции
+	i32s start_gravi_step_counter;
+	bool to_start_gravi;
+	double v_pract, v_theor, v0; // m/s
+	double g0;//амплитуда гравитационногоосцилл€тора [m/s^2]
+	double omega;//кругова€ частота гравитационного осцилл€тора [s^-1]
+	double len_g;// длина гравитационного осцилл€тора, нм
+	double len_n;// длина нанотрубки вычисл€етс€ как удвоенное значение полудлины периодич. €чейки дл€ оси z, нм
+	double len_n_len_g;// отношение длины нанотрубки к длине осцилл€тора, меньше или равно 1.0, рекоменд. 0.1
+	double gamma; //показатель адиабаты газа в осцилл€торе, , дл€ одноатомного газа равен 5.0/3.0
+	double N_mol; // число молекул газа в центральной части осцилл€тора
+	double M; // мол€рна€ масса газа в осцилл€торе,кг/моль
+	//функци€ инициализации гравитационного осцилл€тора, вызываетс€ перед началом работы
+	void InitGraviOscillator(moldyn_param& , engine_pbc2 * );
+	// на каждом шаге вычисл€етс€ значение амплитуды g в центре осцилл€торе
+	void TakeGraviStep();
+	double GetTheorV();
+	double GetPractV();
+#if GRAVI_OSCILLATOR_WORKING_LINEAR
+	double k_lin_gravi;
+#endif
 
+#endif
 };
 
 /*################################################################################################*/

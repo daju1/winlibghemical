@@ -86,7 +86,7 @@ class win_ogl_view : public win_view, virtual public ogl_view
 	
 public:
 	// my insertions ########################################
-	SetWindow (HWND hWnd){detached = hWnd;}
+	void SetWindow (HWND hWnd){detached = hWnd;}
 
 	HGLRC		m_hRC;
 	HDC			m_hdc; 

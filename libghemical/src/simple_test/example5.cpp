@@ -101,7 +101,6 @@ int main(int argc, char ** argv)
 	{
 		return -1;
 	}
-#endif
 
 	if (OpenFileDlg(0, "Fixed List File (*.dat)\0*.dat\0All files \0*.*\0", 
 		fixed_name, nFilterIndex) 
@@ -110,6 +109,7 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 
+#endif
 
 
 #if _USE_WINGHEMICAL_
@@ -123,7 +123,7 @@ int main(int argc, char ** argv)
 	model * mdl = new model();
 #endif
 
-#if DIFFUSE_WORKING
+#if DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING
 	mdl->work_diffuse(infile_name);
 #endif
 
@@ -173,7 +173,7 @@ int main(int argc, char ** argv)
 	}
 #endif
 
-#if DIFFUSE_WORKING
+#if DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING
 
 	// finally release all allocated memory and leave.
 	//------------------------------------------------------------------

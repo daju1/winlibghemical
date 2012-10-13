@@ -736,103 +736,151 @@ void engine_pbc::CheckLocations(void)
 
 engine_pbc2::engine_pbc2(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p2)
 {
-//printf("engine_pbc2::engine_pbc\np1 = %x p2 = %d", p1, p2);
-	n_through_z = 0;
-//	n_through_z_min = 0;
-//	n_through_z_max = 0;
+	n_solvent_through_z = 0;
+	n_solvent_through_klapan = 0;
 
-//	n_above_z_min = 0;
-//	n_above_z_max = 0;
-//	n_below_z_min = 0;
-//	n_below_z_max = 0;
+	num_klap = 0;
+	//Вычисляем число молекул растворителя
+	n_solvent_molecules = 0;
+	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+	{
+		// число атомов в молекуле
+		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
+		if (ac <= 3) // если это молекула растворителя - определяем по числу атомов
+			n_solvent_molecules++;
+	}
+	printf("engine_pbc2::engine_pbc\np1 = %x p2 = %d", p1, p2);
+	printf("n_solvent_molecules = %d", n_solvent_molecules);
+
 }
 
 engine_pbc2::~engine_pbc2(void)
 {
 }
+#if GRAVI_OSCILLATOR_WORKING 	
+void engine_pbc2::SetGraviAtomFlagOnSolvent()
+{
+	M_solvent = 0.0;
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+	{
+		// число атомов в молекуле
+		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
+		if (ac <= 3) // если это молекула растворителя - определяем по числу атомов
+		{
+			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+			{
+				atmtab[n2]->flags |= ATOMFLAG_IS_GRAVI;
+				M_solvent += atmtab[n2]->mass;
+			}
+		}
+	}
+	M_solvent /= n_solvent_molecules;
+	M_solvent *= 1.6605402e-27 * 6.0221367e+23;
+	// умножаем на массу единицы атомного веса углеродной шкалы в кг и на число Авогадро
+}
+#endif
+#if KLAPAN_DIFFUSE_WORKING
+void engine_pbc2::ReadClapanList(char * fn)
+{
+	ReadTargetListFile(fn, klapan_list);
+	num_klap = klapan_list.size();
+	vz_klap.resize(num_klap);
+	if(num_klap > 0) vdz_klap.resize(num_klap - 1);
+}
+#endif
 
 void engine_pbc2::CheckLocations(void)
 {
-//	static DWORD nchecking = 0;
+	static DWORD nchecking = 0;
 	atom ** atmtab = GetSetup()->GetMMAtoms();
-//	int nz = 0;
-	// определяем координаты основной молекулы - мембранонанотрубки:
-	// максимум и минимум z
-	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+	// вычисляем z-координату клапана
+	if (num_klap > 0)
 	{
-		f64 sum[3] = { 0.0, 0.0, 0.0 };
-		// число атомов в молекуле
-		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
-		/*if (ac > 3) // если это не молекула растворителя - определяем по числу атомов
+		//заполняем вектор координат атомов клапана
+		for(int i = 0; i < num_klap; i++)
+			vz_klap[i] = crd[this->klapan_list[i] * 3 + 2];
+		// сортировка z координаты атомов клапана
+		std::sort(vz_klap.begin(), vz_klap.end());
+		// размах объекта клапана по оси z
+		double Dz = vz_klap[num_klap - 1] - vz_klap[0];
+
+		if (Dz == 0.0)
 		{
-			bool start = true;
-			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+			z_klapan = vz_klap[0];
+		}
+		else
+		{
+			// вектор расстояний между атомами клапана
+			for(i = 0; i < num_klap - 1; i++)
+				vdz_klap[i] = vz_klap[i+1] - vz_klap[i];
+			// дополнение к размеру ячейки от размаха клапана
+			double box_Dz = 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2] - Dz;
+			// максимальное расстояние между атомами объекта
+			double max_dz = - 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2];
+			for(i = 0; i < num_klap - 1; i++)
+				if (max_dz < vdz_klap[i]) max_dz = vdz_klap[i];
+
+			if (box_Dz > max_dz)
 			{
-				i32u index = atmtab[n2]->varind;
-				for (i32s n3 = 0;n3 < 3;n3++)
+				z_klapan = 0.0;
+				for(int i = 0; i < num_klap; i++)
+					z_klapan += vz_klap[i];
+				z_klapan /= num_klap;
+			}
+			else
+			{
+				int i_razdel;
+				for(i = 0; i < num_klap - 1; i++)
 				{
-					sum[n3] += crd[index * 3 + n3];
+					if (max_dz == vdz_klap[i]) 
+					{
+						i_razdel = i; 
+						break;
+					}
 				}
-				double z = crd[index * 3 + 2];
-				if (start)
+
+				if (z_klapan > 0)
 				{
-					z_min = z;
-					z_max = z;
-					start = false;
+					z_klapan = 0.0;
+					for(int i = 0; i <= i_razdel; i++)
+						z_klapan += vz_klap[i] + 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2];
+					for(int i = i_razdel+1; i < num_klap; i++)
+						z_klapan += vz_klap[i];
 				}
 				else
 				{
-					if (z_min > z) z_min = z;
-					if (z_max < z) z_max = z;
-				}
+					z_klapan = 0.0;
+					for(int i = 0; i <= i_razdel; i++)
+						z_klapan += vz_klap[i];
+					for(int i = i_razdel+1; i < num_klap; i++)
+						z_klapan += vz_klap[i] - 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2];
+				}				
+				z_klapan /= num_klap;
 			}
-//			for ( n2 = 0;n2 < 3;n2++)
-//			{
-//				// средняя координата молекулы
-//				f64 test = sum[n2] / ac;
-//			}
-		}*/
-//	}
+		}
+	}
+	else
+		z_klapan = 0.0;
+	// показатель корректировалась ли координата клапана
+	int d_klap_through_z = 0; // равен нулю если координата клапана не корректировлась
+	if (z_klapan < -GetSetup()->GetModel()->periodic_box_HALFdim[2])
+	{
+		z_klapan  += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2];
+		d_klap_through_z = -1;
+	}
+	else if (z_klapan > +GetSetup()->GetModel()->periodic_box_HALFdim[2])
+	{
+		z_klapan  -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[2];
+		d_klap_through_z = +1;
+	}
 
-		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
-//		for ( n2 = 0;n2 < GetSetup()->GetMMAtomCount();n2++)
-		{
-			i32u index = atmtab[n2]->varind;
-			for (i32s n3 = 0;n3 < 3;n3++)
-			{
-//				i32u index = atmtab[n2]->varind;
-				//i32u index = n2;
-				f64 test = crd[index * 3 + n3];
-				
-				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n3])
-				{
-					// считаем проникновение атомов растворителя сквозь z
-					if (n3 == 2 && ac <= 3) {n_through_z--; /*nz--;*/}
-					crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
-				}
-				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n3])
-				{
-					// считаем проникновение атомов растворителя сквозь z
-					if (n3 == 2 && ac <= 3) {n_through_z++; /*nz++;*/}
-					crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
-				}
-			}
-		}	
-	}//new close bracket
+	n_solvent_above_klapan = 0;
+	dn_solvent_through_z   = 0;
 
-	// вычисляем число атомов растворителя выше и ниже мембраны
-	// в качестве координаты мембраны выбираем z_max или z_min в зависимости от ориентации молекулы
-//	int pre_n_above_z_min = n_above_z_min;
-//	int pre_n_above_z_max = n_above_z_max;
-//	int pre_n_below_z_min = n_below_z_min;
-//	int pre_n_below_z_max = n_below_z_max;
+	z_solvent = 0.0;
 
-//	n_above_z_min = 0;
-//	n_above_z_max = 0;
-//	n_below_z_min = 0;
-//	n_below_z_max = 0;
-
-/*	for ( n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
 	{
 		f64 sum[3] = { 0.0, 0.0, 0.0 };
 		// число атомов в молекуле
@@ -842,29 +890,109 @@ void engine_pbc2::CheckLocations(void)
 			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
 			{
 				i32u index = atmtab[n2]->varind;
-				double z = crd[index * 3 + 2];
-
-				if (z > z_min) n_above_z_min++;
-				if (z > z_max) n_above_z_max++;
-
-//				if (z < z_min) n_below_z_min++;
-//				if (z < z_max) n_below_z_max++;
-
+				for (i32s n3 = 0;n3 < 3;n3++)
+				{
+					sum[n3] += crd[index * 3 + n3];
+				}
 			}
-		}*/
-	//}
-/*	if (nchecking > 0)
-	{
-		n_through_z_min =+ n_above_z_min - pre_n_above_z_min + nz;
-		n_through_z_max =+ n_above_z_max - pre_n_above_z_max + nz;
-	}*/
+			for ( n2 = 0;n2 < 3;n2++)
+			{
+				f64 test = sum[n2] / ac;
+				
+				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					// считаем проникновение молекул растворителя сквозь z
+					if (n2 == 2)
+					{
+						dn_solvent_through_z--;
+						z_solvent += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+					
+				}
+				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					// считаем проникновение молекул растворителя сквозь z
+					if (n2 == 2)
+					{
+						dn_solvent_through_z++;
+						z_solvent -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+				}
+
+				if (n2 == 2)
+				{
+					if (
+						(test > z_klapan && test <= +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+						||
+						(test < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+						) 
+						n_solvent_above_klapan++;
+
+					z_solvent += test;
+				}
+			}
+		}
+		else
+		{
+			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+			{
+				i32u index = atmtab[n2]->varind;
+				for (i32s n3 = 0;n3 < 3;n3++)
+				{
+					f64 test = crd[index * 3 + n3];
+					
+					if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+					{
+						crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+					}
+					else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+					{
+						crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+					}
+				}
+			}	
+		}
+	}
+
+	z_solvent /= n_solvent_molecules;
+
+	if (nchecking)
+	{ 
+		dn_solvent_through_klapan = -d_klap_through_z * n_solvent_molecules 
+			+ n_solvent_above_klapan - pre_solvent_above_klapan + dn_solvent_through_z;
+	}
+	else
+		dn_solvent_through_klapan = 0;
+
+	pre_solvent_above_klapan = n_solvent_above_klapan;
+
+	n_solvent_through_z    += dn_solvent_through_z;
+	n_solvent_through_klapan += dn_solvent_through_klapan;
+	
+
+	FILE * out;
+	out = fopen("diffuse_klap.txt", "at");
+	fprintf(out, "%d,%d,%f,%d\n", nchecking, n_solvent_through_z, z_klapan, n_solvent_through_klapan);
+	fclose (out);
+
+	nchecking++;
+
 #if DIFFUSE_WORKING
 	FILE * out;
 	out = fopen("diffuse.txt", "at");
 	fprintf(out, "%d\n",n_through_z);
 	fclose (out);
 #endif
-	//nchecking++;
 }
 
 // TODO :

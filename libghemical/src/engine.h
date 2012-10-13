@@ -32,6 +32,9 @@ class model;	// model.h
 
 #include <stdlib.h>
 
+#include <vector>
+using namespace std;
+
 /*################################################################################################*/
 
 /// The setup class is used to define the submodel boundaries in the model.
@@ -325,28 +328,43 @@ class engine_pbc : virtual public engine
 
 class engine_pbc2 : /*virtual*/ public engine_pbc
 {
-	int n_through_z;
-///	int n_through_z_min;
-//	int n_through_z_max;
+#if KLAPAN_DIFFUSE_WORKING
 
-//	int n_above_z_min;
-//	int n_above_z_max;
-//	int n_below_z_min;
-//	int n_below_z_max;
+	int num_klap;
+	double z_klapan;
+	double z_solvent;
 
-//	double 
-///		z_min, 
-///		z_max;
+	long n_solvent_above_klapan;
+	long pre_solvent_above_klapan;
+	long dn_solvent_through_klapan;
+	
+	vector<i32s> klapan_list;
+	vector<f64> vz_klap;
+	vector<f64> vdz_klap;
+	long n_solvent_through_klapan;
+#endif
+	long dn_solvent_through_z;
+	long n_solvent_through_z;
+public:
+#if KLAPAN_DIFFUSE_WORKING
+	int GetSolventNumberThroughKlapan(){return n_solvent_through_klapan;}
+	void ReadClapanList(char * fn);
+	double GetKlapanZ(){return z_klapan;}
+	double GetSolventZ(){return z_solvent;}
+#endif
 
-	protected:
+	double M_solvent;
+	int n_solvent_molecules;
+
+
+protected:
 	//bool update;
 	
 	friend class model;
 
-	public:
-		int GetNThroughZ(){return n_through_z;}
-		//int GetNThroughZmin(){return n_through_z_min;}
-		//int GetNThroughZmax(){return n_through_z_max;}
+public:
+	int GetSolventNumberThroughZ(){return n_solvent_through_z;}
+
 	
 	engine_pbc2(setup *, i32u);
 	virtual ~engine_pbc2(void);
@@ -355,6 +373,9 @@ class engine_pbc2 : /*virtual*/ public engine_pbc
 	If we doing geometry optimization or molecular dynamics for periodic models, 
 	we should remember to call this at suitable intervals...
 */
+#if GRAVI_OSCILLATOR_WORKING 
+	void SetGraviAtomFlagOnSolvent();
+#endif
 	void CheckLocations(void);
 };
 

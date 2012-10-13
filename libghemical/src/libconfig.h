@@ -14,10 +14,18 @@
 // перемещение фиксируемого пробного атома 
 // с оптимизацией геометрии мембраны
 // исследование потенциального барьера
-#define PROBNIY_ATOM_GEOMOPT 1
+#define PROBNIY_ATOM_GEOMOPT 0
 #define PROBNIY_ATOM_GEOMOPT_TRADITIONAL 0
 #define USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT 0
 
+// режим работы с наложением броуновского осцилл€тора 
+// в виде гравитационной осцилл€ции
+#define GRAVI_OSCILLATOR_WORKING 1
+#define GRAVI_OSCILLATOR_WORKING_LINEAR 1
+#define GRAVI_OSCILLATOR_START_ON_T_USTANOV 1
+
+#define KLAPAN_DIFFUSE_WORKING 1
+#define MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 1
 
 #define DIFFUSE_WORKING 0
 

@@ -25,6 +25,8 @@
 #include "moldyn.h"
 #include "search.h"
 
+#include "../../../consol/filedlg.h"
+
 #include <stdio.h>
 
 #include <iomanip>
@@ -33,7 +35,7 @@
 using namespace std;
 
 bool ReadGPR(model &, istream &, bool, bool);			// see fileio.cpp!!!
-
+void WriteGPR_v100(model &, ostream &);
 /*################################################################################################*/
 const char model::libversion[16] = LIBVERSION;
 const char model::libdata_path[256] = LIBDATA_PATH;
@@ -2523,6 +2525,11 @@ void model::DoMolDyn(moldyn_param & param, bool updt)
 	out = fopen("diffuse.txt", "wt");
 	fclose (out);
 #endif
+#if KLAPAN_DIFFUSE_WORKING
+	FILE * out;
+	out = fopen("diffuse_klap.txt", "wt");
+	fclose (out);
+#endif
 // make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // this means: 1) make sure that PrintToLog() is safe, 2) only call UpdateAllGraphicsViews(false) because
@@ -2570,6 +2577,21 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
 #endif /*USE_ENGINE_PBC2*/
 	
+#if KLAPAN_DIFFUSE_WORKING
+	char klap_name[1048];
+	DWORD nFilterIndex;
+	if (OpenFileDlg(0, "Klapan List File (*.dat)\0*.dat\0All files \0*.*\0", 
+		klap_name, nFilterIndex) 
+		!= S_OK)
+	{
+		return;
+	}
+	eng_pbc->ReadClapanList(klap_name);
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+	eng_pbc->SetGraviAtomFlagOnSolvent();
+#endif
+
 // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
 //if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
 // THIS IS OPTIONAL!!! FOR RADIAL DENSITY FUNCTION STUFF ONLY!!!
@@ -2599,6 +2621,21 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
 	else dyn = new moldyn_langevin(eng, param.timestep);
 
+#if !GRAVI_OSCILLATOR_START_ON_T_USTANOV
+#if GRAVI_OSCILLATOR_WORKING 	
+	dyn->InitGraviOscillator(param, eng_pbc);
+#endif
+#endif
+
+#if KLAPAN_DIFFUSE_WORKING || GRAVI_OSCILLATOR_WORKING 	
+	DWORD nFilter_Index;
+	char fixed_name[1048];
+	if (S_OK == OpenFileDlg(0, "Fixed List File (*.dat)\0*.dat\0All files \0*.*\0", fixed_name, nFilter_Index))
+	{
+		dyn->LockAtoms(fixed_name);
+	}
+#endif
+
 	//#######################################################################
 	//#######################################################################
 	if (false)
@@ -2609,7 +2646,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	moldyn_langevin * dyn_l = dynamic_cast<moldyn_langevin *>(dyn);
 	
 	dyn->temperature_coupling = 0.075;				// set the initial MD settings...
+#if !GRAVI_OSCILLATOR_WORKING 	
 	dyn->SetGraviG(param.g);
+#endif
 
 	if (dyn_l != NULL) dyn_l->langevin_coupling = 0.000;		// set the initial MD settings...
 	/////////////////////////////////////////////////////
@@ -2681,7 +2720,15 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //	str2b << "E_solute,";		// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solvent,";	// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solusolv,";	// a primitive implementation for energy components ; FIXME!!!
-	str2b << "NThroughZ";
+	str2b << "SolventMolsThroughZ,";
+#if KLAPAN_DIFFUSE_WORKING
+	str2b << "SolventMolsThroughKlap,";
+	str2b << "Klapan_Z,";
+	str2b << "Solvent_Z,";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+	str2b << "G,v_theor,v_pract";
+#endif
 	//str2b << "NThroughZmin,";
 	//str2b << "NThroughZmax";
 	str2b << endl << ends;
@@ -2904,6 +2951,16 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		}
 
 #endif
+
+#if GRAVI_OSCILLATOR_START_ON_T_USTANOV
+#if GRAVI_OSCILLATOR_WORKING 	
+	if (n1 == param.nsteps_h + param.nsteps_e)
+		dyn->InitGraviOscillator(param, eng_pbc);
+#endif
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+		dyn->TakeGraviStep();
+#endif
 		dyn->TakeMDStep(enable_tc);
 #if USE_BOUNDARY_OPT_ON_MOLDYN
 		if (!(n1 % 10)) b_opt->TakeCGStep(conjugate_gradient::Newton2An);
@@ -3024,7 +3081,17 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ostrstream str2a(mbuff1, sizeof(mbuff1));
 			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
 			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
-			str2a << "NThroughZ = "  <<  eng_pbc->GetNThroughZ() << "";
+			str2a << "GetSolventNumberThroughZ = "  <<  eng_pbc->GetSolventNumberThroughZ() << " ";
+#if KLAPAN_DIFFUSE_WORKING
+			str2a << "GetSolventNumberThroughKlapan = "  <<  eng_pbc->GetSolventNumberThroughKlapan() << " ";
+			str2a << "Z_Klapan = "  <<  eng_pbc->GetKlapanZ() << " ";
+			str2a << "Z_Solvent = "  <<  eng_pbc->GetSolventZ() << " ";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+			str2a << "G = " << dyn->GetGravi(2) << " ";
+			str2a << "v_theor = " << dyn->GetTheorV() << " ";
+			str2a << "v_pract = " << dyn->GetPractV() << " ";
+#endif
 //			str2a << "NThroughZmin = "  <<  eng_pbc->GetNThroughZmin() << "";
 //			str2a << "NThroughZmax = "  <<  eng_pbc->GetNThroughZmax() << "";
 			str2a << endl << ends;
@@ -3041,14 +3108,28 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #else			
 			
 			ostrstream str2b(mbuff1, sizeof(mbuff1));
+#if 1
+			str2b << /*`"time " <<*/ n1 * param.timestep * 1.0e-15 << ",";
+#else
 			str2b << /*`"step " <<*/ n1 << ",";
+#endif
 			str2b << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
 			str2b << /*"Epot = " <<*/ dyn->GetEPot() << ",";
 			str2b << (dyn->GetEKin() + dyn->GetEPot()) << ",";
 //			str2b << /*"E_solute = " <<*/ eng->E_solute << ",";		// a primitive implementation for energy components ; FIXME!!!
 //			str2b << /*"E_solvent = " <<*/ eng->E_solvent << ",";	// a primitive implementation for energy components ; FIXME!!!
 //			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << ",";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << eng_pbc->GetNThroughZ();// << ",";
+			str2b << eng_pbc->GetSolventNumberThroughZ() << ",";
+#if KLAPAN_DIFFUSE_WORKING
+			str2b << eng_pbc->GetSolventNumberThroughKlapan() << ",";
+			str2b << eng_pbc->GetKlapanZ() << ",";
+			str2b << eng_pbc->GetSolventZ() << ",";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+			str2b << dyn->GetGravi(2) << ",";
+			str2b << dyn->GetTheorV() << ",";
+			str2b << dyn->GetPractV();
+#endif
 //			str2b << eng_pbc->GetNThroughZmin() << ",";
 //			str2b << eng_pbc->GetNThroughZmax() << ",";
 			str2b << endl << ends;
@@ -4218,7 +4299,8 @@ void model::ecomp_Register(void)
 	// kopioi/luo ryhmien nimet
 	// kopioi/luo muut taulukot
 }
-#if DIFFUSE_WORKING
+
+#if DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING
 void model::work_diffuse(char *infile_name)
 {
 	this->ClearModel();
@@ -4248,7 +4330,7 @@ printf("periodic_box_HALFdim[0] = %f\n", this->periodic_box_HALFdim[0]);
 printf("periodic_box_HALFdim[1] = %f\n", this->periodic_box_HALFdim[1]);
 printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
-		this->periodic_box_HALFdim[2] = 10.0;
+		// this->periodic_box_HALFdim[2] = 10.0;
 
 		geomopt_param go = geomopt_param(su);
 		this->DoGeomOpt(go, updt);
@@ -4257,10 +4339,11 @@ printf("periodic_box_HALFdim[0] = %f\n", this->periodic_box_HALFdim[0]);
 printf("periodic_box_HALFdim[1] = %f\n", this->periodic_box_HALFdim[1]);
 printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
+#if 0
+
 		fGL xdim = this->periodic_box_HALFdim[0];
 		fGL ydim = this->periodic_box_HALFdim[1];
 		fGL zdim = this->periodic_box_HALFdim[2];
-
 		//fGL density = 1.00;;
 		fGL density = 0.5;;
 
@@ -4269,15 +4352,37 @@ printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 		char * export_fn = NULL;
 		SolvateBox(xdim, ydim, zdim, density, element_number, solvent, export_fn);
 
+	
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		TCHAR filter[] =     TEXT("Ghemical Project File (*.gpr)\0*.gpr\0")
+			TEXT("All Files (*.*)\0*.*\0");
 
+		DWORD nFilterIndex;
+		char outfile_name[1048];
+		sprintf(outfile_name, "\0");
+		if (SaveFileDlg(0, outfile_name, filter, nFilterIndex) == S_OK)
+		{
+			cout << "now saving file after solvate box" << outfile_name << endl;
+			ofstream ofile;
+			ofile.open(outfile_name, ios::out);
+			
+			WriteGPR_v100(* this, ofile);
+			ofile.close();
+		}
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#endif
 		moldyn_param md = moldyn_param(su);
 
 		this->DoMolDyn(md,updt);
 	}
 }
+#endif/*DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING*/
 
 
-#endif/*DIFFUSE_WORKING*/
 #if SNARJAD_TARGET_WORKING
 void model::working(double vel, char *infile_name, char * trgtlst_name)
 {

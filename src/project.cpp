@@ -2412,7 +2412,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 	ostrstream strE(mbuff1, sizeof(mbuff1)); strE << "ERROR : Unknown command : " << command << endl << ends;
 	PrintToLog(mbuff1); PrintToLog("The \"help\" command will give more information about command strings.\n");
 }
-
+#if PROBNIY_ATOM_GEOMOPT
 HANDLE  project::start_job_work_prob_atom_GeomOpt(jobinfo_work_prob_atom_GeomOpt * ji)
 {
 #ifdef ENABLE_THREADS
@@ -2463,6 +2463,7 @@ DWORD WINAPI project::pcs_job_work_prob_atom_GeomOpt(void* p)
 
 
 
+#endif
 HANDLE  project::start_job_GeomOpt(jobinfo_GeomOpt * ji)
 {
 #ifdef ENABLE_THREADS
