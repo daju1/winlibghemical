@@ -323,8 +323,38 @@ class engine_pbc : virtual public engine
 	If we doing geometry optimization or molecular dynamics for periodic models, 
 	we should remember to call this at suitable intervals...
 */
-	void CheckLocations(void);
+	virtual void CheckLocations(void);
 };
+/*################################################################################################*/
+
+/// A base engine class for systems that utiliza a wall boundary potential 
+// by Z dimension and periodic boundary potencial by other XY dimentions.
+
+class engine_wbp : virtual public engine, virtual public engine_pbc
+{
+	protected:
+	
+	bool use_upp_wall; 
+	bool use_down_wall; 
+
+	int N2;//индекс стенки = 2 for Z!!!
+	
+	f64 bp_wall_crd; //координата стенки
+	f64 bp_fc_wall;	// силовая константа взаимодействия со стенкой
+
+	friend class model;
+	
+	
+	public:
+	
+	engine_wbp(setup *, i32u);
+	virtual ~engine_wbp(void);
+
+	void CheckLocations(void);
+
+};
+
+/*################################################################################################*/
 
 class engine_pbc2 : /*virtual*/ public engine_pbc
 {

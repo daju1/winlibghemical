@@ -52,6 +52,7 @@ class moldyn_param
 	f64 timestep;
 	bool constant_e;
 	bool langevin;
+	bool recalc_box, box_optimization;
 
 
 	double g[3];
@@ -73,6 +74,10 @@ class moldyn_param
 #if GRAVI_OSCILLATOR_WORKING_LINEAR
 	f64 k_lin_gravi;
 #endif
+#endif
+#if SOUND_GRAVI_OSCILLATOR
+	f64 g0, m_T, m_g_gravi_dim;
+	int gravi_dim;
 #endif
 
 	public:
@@ -197,6 +202,19 @@ class moldyn
 	double k_lin_gravi;
 #endif
 
+#endif
+#if SOUND_GRAVI_OSCILLATOR
+	void InitGraviOscillator(moldyn_param&);
+	void TakeGraviStep();
+	f64 g0, m_T, omega, m_g_gravi_dim;
+	int gravi_dim;
+	i32s start_gravi_step_counter;
+	bool to_start_gravi;
+#endif
+#if WRITE_LOCKED_FORCES
+	void WriteLockedForcesHeader();
+
+	char locked_forces_fn[1024];
 #endif
 };
 

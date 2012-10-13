@@ -17,6 +17,10 @@ geomopt_param::geomopt_param(setup * su)
 	enable_nsteps	= true;
 	enable_grad		= false;
 	enable_delta_e	= false;
+
+	recalc_box = false;
+	box_optimization = false;
+
 	
 	treshold_nsteps = 500;
 	treshold_grad = 1.0e-3;

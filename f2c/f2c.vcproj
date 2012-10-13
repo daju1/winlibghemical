@@ -161,9 +161,6 @@
 				RelativePath=".\src\mem.c">
 			</File>
 			<File
-				RelativePath=".\src\memset.c">
-			</File>
-			<File
 				RelativePath=".\src\misc.c">
 			</File>
 			<File

@@ -34,6 +34,8 @@ moldyn_param::moldyn_param(setup * su)
 	timestep = 0.5;
 	constant_e = false;
 	langevin = false;
+	recalc_box = false;
+	box_optimization = false;
 
 	g[0] = 0.0; //Gx
 	g[1] = 0.0; //Gy
@@ -107,6 +109,9 @@ moldyn_param::moldyn_param(setup * su)
 #endif
 
 #endif
+
+
+
 
 }
 moldyn::moldyn(engine * p1, f64 p2)
@@ -259,6 +264,8 @@ void moldyn::InitGraviOscillator(moldyn_param& param, engine_pbc2 * eng_pbc)
 	g0 *= 1.0e-12;
 	v0 *= 1.0e-3;
 
+	printf("omega = %e\tg0 = %e\tv0 = %e\n", omega, g0, v0);
+
 	to_start_gravi = true;
 	start_gravi_step_counter = step_counter;
 #if !GRAVI_OSCILLATOR_WORKING_LINEAR
@@ -295,6 +302,47 @@ double moldyn::GetPractV()
 }
 
 #endif
+
+#if SOUND_GRAVI_OSCILLATOR
+// на каждом шаге вычисляется значение амплитуды g
+void moldyn::TakeGraviStep()
+{
+	if(to_start_gravi)
+	{
+		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//момент времени в секундах
+		m_g_gravi_dim = g0 * sin(omega * t)/* * 1.0e-12*/; //амплитуда в центре осциллятора
+	}
+}
+void moldyn::InitGraviOscillator(moldyn_param& param)
+{
+	cout << "SOUND_GRAVI_OSCILLATOR\n";
+
+	cout << "Enter gravi_dim: 0-x, 1-y, 2-z\n";
+	cin >> gravi_dim;
+
+	cout << "Enter g0, m/s^2\n";
+	cin >> g0;
+
+	cout << "Enter m_T period in pikaseconds\n";
+	cout << "One pikasecond correspond 10^12 Hz\n";
+	cout << "Hypersound 10^9 - 10^13 Hz\n";
+	cout << "correspond interval 0.1 pikaseconds (10^13 Hz) - 1000 pikaseconds (10^9 Hz)\n";
+	cout << "So, m_T period in pikaseconds?\n";
+	cin >> m_T;
+
+	to_start_gravi = true;
+	start_gravi_step_counter = step_counter;
+	//gravi_dim = param.gravi_dim;
+	//g0 = param.g0;
+	//пеерводим период из пикасекунд в фемтосекунды
+	//и получаем круговую частоту в обратных фемтосекунды
+	omega = 2.0 * M_PI / (1000.0 * m_T);
+	m_g_gravi_dim = 0.0;
+
+
+}
+#endif
+
 void moldyn::LockAtoms(char * fn)
 {
 	vector<i32s> fixed_list;
@@ -513,9 +561,48 @@ void moldyn::SetProbAtom(i32s nAtom, f64* c)
 }
 
 #endif
+#if WRITE_LOCKED_FORCES
+void moldyn::WriteLockedForcesHeader()
+{
+	SYSTEMTIME time;
+	GetLocalTime(&time);
 
+	WORD y = time.wYear;
+	WORD mo = time.wMonth;
+	WORD d = time.wDay;
+
+	WORD h = time.wHour;
+	WORD mi = time.wMinute;
+	WORD s = time.wSecond;
+
+	sprintf(locked_forces_fn, "D://locked_forces_%d.%d.%d_%d.%d.%d.txt", y,mo,d,h,mi,s);
+	FILE * stream = fopen(locked_forces_fn, "wt");
+	if (stream)
+	{
+		fprintf(stream,"t");
+		for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+		{
+			if (locked[n1])
+			{
+				fprintf(stream,",x%d", n1);
+				fprintf(stream,",y%d", n1);
+				fprintf(stream,",z%d", n1);
+			}
+		}
+		fprintf(stream,",m_g_gravi_dim\n");
+		fprintf(stream,"\n");
+		fclose(stream);
+	}
+}
+#endif
 void moldyn::TakeMDStep(bool enable_temperature_control)
 {
+#if WRITE_LOCKED_FORCES
+	double sum_vel[3];
+	sum_vel[0] = 0.0;
+	sum_vel[1] = 0.0;
+	sum_vel[2] = 0.0;
+#endif
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		for (i32s n2 = 0;n2 < 3;n2++)
@@ -553,6 +640,9 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
 			
 			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
+#if WRITE_LOCKED_FORCES
+			sum_vel[n2] += vel[n1 * 3 + n2];
+#endif
 		}
 	}
 	
@@ -594,9 +684,24 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		if (!locked[n1]) 
 			vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
-# else
+#else
+#if WRITE_LOCKED_FORCES
+	FILE * locked_forces_stream = fopen(locked_forces_fn, "at");
+	fprintf(locked_forces_stream, "%f", tstep1*step_counter);
+#endif /*WRITE_LOCKED_FORCES*/
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
+#if WRITE_LOCKED_FORCES
+		if (locked[n1])
+		{
+			if (locked_forces_stream)
+			{
+				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 0]);
+				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 1]);
+				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 2]);
+			}
+		}
+#endif /*WRITE_LOCKED_FORCES*/
 		if (locked[n1]) continue;
 		//a = -F/m
 		//dv = a*dt
@@ -604,6 +709,10 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
 		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
 		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+
+#if SOUND_GRAVI_OSCILLATOR
+		acc[n1 * 3 + gravi_dim] += m_g_gravi_dim;
+#endif
 
 		if (gravi[n1])
 		{
@@ -625,6 +734,18 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
 #endif
+#if WRITE_LOCKED_FORCES
+	if (locked_forces_stream)
+	{
+		fprintf(locked_forces_stream, ",%f", m_g_gravi_dim);
+		fprintf(locked_forces_stream, ",%f", temperature);
+		fprintf(locked_forces_stream, ",%f", sum_vel[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel[2]);
+		fprintf(locked_forces_stream, "\n");
+		fclose(locked_forces_stream);
+	}
+#endif /*WRITE_LOCKED_FORCES*/
 	}
 	
 	ekin = KineticEnergy();

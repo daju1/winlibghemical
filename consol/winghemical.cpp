@@ -556,6 +556,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//######################################################
 				}
 				break;
+			case ID_BUILD_NEMATICBOX:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_NematicBox(hWnd,NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
 			case ID_BUILD_SOLVATEBOX:
 				{
 					//######################################################
@@ -1434,6 +1452,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//######################################################
 				}
 				break;		
+
+			case ID_SELECT_SELECTLOCKEDATOMS:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectLockedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
 
 			case ID_SELECTEDATOMS_LOCK:
 				{

@@ -670,7 +670,7 @@ bool eng1_mm_prmfit::SetTorsionConstraint(i32s ind_bt3, f64 opt, f64 fc, bool lo
 
 void eng1_mm_prmfit::ComputeBT1(i32u p1)
 {
-printf("eng1_mm_prmfit::ComputeBT1 = %d\n", p1);
+//printf("eng1_mm_prmfit::ComputeBT1 = %d\n", p1);
 	energy_bt1 = 0.0;
 	
 	// len -> length of the bond vector, in nanometers [nm].
@@ -733,7 +733,7 @@ printf("eng1_mm_prmfit::ComputeBT1 = %d\n", p1);
 
 void eng1_mm_prmfit::ComputeBT2(i32u p1)
 {
-printf("eng1_mm_prmfit::ComputeBT2 = %d\n", p1);
+//printf("eng1_mm_prmfit::ComputeBT2 = %d\n", p1);
 	energy_bt2 = 0.0;
 	
 	// ang -> cosine of the bond angle, in the usual range [-1.0, +1.0]
@@ -811,7 +811,7 @@ printf("eng1_mm_prmfit::ComputeBT2 = %d\n", p1);
 
 void eng1_mm_prmfit::ComputeBT3(i32u p1)
 {
-printf("eng1_mm_prmfit::ComputeBT3 = %d\n", p1);
+//printf("eng1_mm_prmfit::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	for (i32s n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
@@ -953,7 +953,7 @@ printf("eng1_mm_prmfit::ComputeBT3 = %d\n", p1);
 
 void eng1_mm_prmfit::ComputeBT4(i32u p1)
 {
-printf("eng1_mm_prmfit::ComputeBT4 = %d\n", p1);
+//printf("eng1_mm_prmfit::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 	
 	for (i32s n1 = 0;n1 < (i32s) bt4_vector.size();n1++)
@@ -1077,7 +1077,7 @@ printf("eng1_mm_prmfit::ComputeBT4 = %d\n", p1);
 
 void eng1_mm_prmfit::ComputeNBT1(i32u p1)
 {
-printf("eng1_mm_prmfit::ComputeNBT1 = %d\n", p1);
+//printf("eng1_mm_prmfit::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;

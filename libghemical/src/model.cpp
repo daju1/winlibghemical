@@ -1644,6 +1644,274 @@ void model::RemoveHydrogens(void)
 		else ita1++;
 	}
 }
+fGL model::Nematic_Initialize(fGL density, model ** ref2solv)
+{
+	// here we set H2O to default solvent if there is no other molecule set,
+	// and calculate the distances between the solvent molecules using density.
+	
+	if (!(* ref2solv))
+	{
+		// build a water molecule!!!
+		// ^^^^^^^^^^^^^^^^^^^^^^^^^
+		
+		(* ref2solv) = new model();
+		const fGL angle = 109.5 * M_PI / 180.0;
+		
+		fGL crdO[3] = { 0.0, 0.0, 0.0 };
+		atom newO(element(8), crdO, (* ref2solv)->GetCRDSetCount());
+		(* ref2solv)->Add_Atom(newO); atom * ref_O = & (* ref2solv)->GetLastAtom();
+		
+		fGL crdH1[3] = { 0.095, 0.0, 0.0 };
+		atom newH1(element(1), crdH1, (* ref2solv)->GetCRDSetCount());
+		(* ref2solv)->Add_Atom(newH1); atom * ref_H1 = & (* ref2solv)->GetLastAtom();
+		
+		fGL crdH2[3] = { cos(angle)*0.095, sin(angle)*0.095, 0.0 };
+		atom newH2(element(1), crdH2, (* ref2solv)->GetCRDSetCount());
+		(* ref2solv)->Add_Atom(newH2); atom * ref_H2 = & (* ref2solv)->GetLastAtom();
+		
+		bond newb1(ref_O, ref_H1, bondtype('S')); (* ref2solv)->AddBond(newb1);
+		bond newb2(ref_O, ref_H2, bondtype('S')); (* ref2solv)->AddBond(newb2);
+	}
+	
+	f64 molarmass = 0.0;
+	for (iter_al it1 = (* ref2solv)->GetAtomsBegin();it1 != (* ref2solv)->GetAtomsEnd();it1++)
+	{
+		molarmass += (* it1).el.GetAtomicMass();
+	}
+	
+	if (molarmass < 0.1)
+	{
+		Message("Could not calculate molar mass!\nFailed to read the solvent file.");
+		return NOT_DEFINED;
+	}
+	
+	// density = mass / volume   ->   mass = density * volume
+	// calculate the mass (in grams) for 1 dm^3 of solvent.
+	
+	f64 m1 = 1000.0 * density * 1.0;
+	
+	// quantity = mass / molar_mass ; convert the mass into quantity
+	// and further into number of particles using Avogadro's constant.
+	
+	f64 n1 = m1 / molarmass;
+	f64 n2 = n1 * 6.022e+23;
+	
+	// now assume that all these particles are placed into a cubic lattice
+	// of volume 1 dm^3 with even spacings ; calculate the distance (in nm)
+	// between the particles in this lattice.
+	
+	f64 distance = pow(1.0e+24 / n2, 1.0 / 3.0);
+	return distance;
+}
+
+
+void model::NematicBox(fGL dimx, fGL dimy, fGL dimz, model * solvent)
+{					
+	f64 rot[3];
+	bool to_fix_rotate = true;
+	rot[0] = 2.0 * M_PI * 0.0; // rotate x (y,z)...
+	rot[1] = 2.0 * M_PI * 0.0; // rotate y (z,x)...
+	rot[2] = 2.0 * M_PI * 0.125; // rotate z (x,y)...
+	bool to_rand_rotate = false;
+
+	bool to_an_octahedral_lattice = false;
+
+//	use_periodic_boundary_conditions = true;	// DO NOT SET THIS!!! this is broken apparently...
+	periodic_box_HALFdim[0] = dimx;
+	periodic_box_HALFdim[1] = dimy;
+	periodic_box_HALFdim[2] = dimz;
+	SystemWasModified();
+
+//	printf("element_number = %d\n", element_number);
+	printf("dimx = %f dimy = %f dimz = %f\n", dimx, dimy, dimz);
+	
+//	if (density <= 0.0) return;	// zero density -> infinite distance.
+//	const fGL distance = S_Initialize(density, & solvent);		// H2O
+//	const fGL distance = S_Initialize(density, & solvent, element_number);	
+
+	//fGL distance;
+    //distance = Nematic_Initialize(density, & solvent);		// H2O
+	engine * eng = solvent->GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
+	CalcMaxMinCoordinates(solvent, eng, 0);
+	fGL distance_x = 2 * solvent->periodic_box_HALFdim[0];
+	fGL distance_y = 2 * solvent->periodic_box_HALFdim[1];
+	fGL distance_z = 2 * solvent->periodic_box_HALFdim[2];
+
+distance_y*=0.5;
+distance_x/=0.5;
+
+
+	printf("distance_x = %f\n", distance_x);
+	printf("distance_y = %f\n", distance_y);
+	printf("distance_z = %f\n", distance_z);
+
+	
+	bool system_was_empty = (!atom_list.size() && !bond_list.size());
+	
+	// make the box...
+	// ^^^^^^^^^^^^^^^
+	
+//	dimx *= 0.5; dimy *= 0.5; dimz *= 0.5;	// convert to half-dimensions!!!
+//	dimx *= 0.75; dimy *= 0.75; dimz *= 0.75;	// convert to half-dimensions!!!
+	
+	i32s limx = (i32s) floor(dimx / distance_x) + 2;		// +1 is the minimum.
+	i32s limy = (i32s) floor(dimy / distance_y) + 2;		// +1 is the minimum.
+	i32s limz = (i32s) floor(dimz / distance_z) + 2;		// +1 is the minimum.
+	
+	printf("limx = %d limy = %d limz = %d\n", limx, limy, limz);
+
+
+	i32s solvent_molecules_added = 0;
+	for (i32s lx = -limx + 1;lx < limx;lx++)
+	{
+		for (i32s ly = -limy + 1;ly < limy;ly++)
+		{
+rot[2] += M_PI;
+			for (i32s lz = -limz + 1;lz < limz;lz++)
+			{
+				fGL crdS[3];
+				crdS[0] = distance_x * lx;
+				crdS[1] = distance_y * ly;
+				crdS[2] = distance_z * lz;
+
+					
+				printf("lx = %d ly = %d lz = %d\n", lx, ly, lz);
+
+				printf("crdS[0] = %f crdS[1] = %f crdS[2] = %f\n", crdS[0], crdS[1], crdS[2]);
+				
+				/*if (to_an_octahedral_lattice && lz % 2)	// twist the cubic lattice to an octahedral one ; OPTIONAL!
+				{
+					crdS[0] += 0.5 * distance;
+					crdS[1] += 0.5 * distance;
+					
+					printf("crdS[0] = %f crdS[1] = %f\n", crdS[0], crdS[1]);
+				}*/
+					
+
+				if (crdS[0] < -dimx || crdS[0] > +dimx) continue;	// skip if the molecule is too far...
+				if (crdS[1] < -dimy || crdS[1] > +dimy) continue;	// skip if the molecule is too far...
+				if (crdS[2] < -dimz || crdS[2] > +dimz) continue;	// skip if the molecule is too far...
+				
+				bool skip = false;	// skip if there is overlap with solute atoms ; FOR SMALL SOLVENTS ONLY?!?
+				for (iter_al it1 = GetAtomsBegin();it1 != GetAtomsEnd();it1++)
+				{
+					if ((* it1).flags & ATOMFLAG_IS_SOLVENT_ATOM) continue;
+					
+					const fGL * crdX = (* it1).GetCRD(0);
+					
+					fGL dx = crdS[0] - crdX[0];
+					fGL dy = crdS[1] - crdX[1];
+					fGL dz = crdS[2] - crdX[2];
+					
+					fGL d2s = sqrt(dx * dx + dy * dy + dz * dz);
+					if (d2s < 0.175) skip = true;
+					
+					if (skip) break;
+				}	if (skip) continue;
+				
+				solvent_molecules_added++;
+					
+				cout << "added " << solvent_molecules_added << "-st solvent molecule." << endl;
+
+				if (to_rand_rotate)
+				{
+					rot[0] = 2.0 * M_PI * (f64) rand() / (f64) RAND_MAX;
+					rot[1] = 2.0 * M_PI * (f64) rand() / (f64) RAND_MAX;
+					rot[2] = 2.0 * M_PI * (f64) rand() / (f64) RAND_MAX;
+				}
+				
+				vector<atom *> av1;
+				vector<atom *> av2;
+
+
+				// add atoms
+				{				
+				for (iter_al it1 = solvent->GetAtomsBegin();it1 != solvent->GetAtomsEnd();it1++)
+				{
+					const fGL * orig = (* it1).GetCRD(0);
+
+					fGL d2b[3];		// rotate x (y,z)...
+					d2b[0] = orig[0];
+					d2b[1] = orig[1] * cos(rot[0]) - orig[2] * sin(rot[0]);
+					d2b[2] = orig[1] * sin(rot[0]) + orig[2] * cos(rot[0]);
+					
+					fGL d2c[3];		// rotate y (z,x)...
+					d2c[0] = d2b[2] * sin(rot[1]) + d2b[0] * cos(rot[1]);
+					d2c[1] = d2b[1];
+					d2c[2] = d2b[2] * cos(rot[1]) - d2b[0] * sin(rot[1]);
+					
+					fGL d2d[3];		// rotate z (x,y)...
+					d2d[0] = d2c[0] * cos(rot[2]) - d2c[1] * sin(rot[2]);
+					d2d[1] = d2c[0] * sin(rot[2]) + d2c[1] * cos(rot[2]);
+					d2d[2] = d2c[2];					
+
+					if (to_rand_rotate || to_fix_rotate)
+					{
+						d2d[0] += crdS[0];
+						d2d[1] += crdS[1];
+						d2d[2] += crdS[2];
+					}	
+					else
+					{	
+						d2d[0] = orig[0] + crdS[0];
+						d2d[1] = orig[1] + crdS[1];
+						d2d[2] = orig[2] + crdS[2];
+					}
+
+
+					atom newA((* it1).el, d2d, GetCRDSetCount());
+
+					newA.flags |= ATOMFLAG_IS_SOLVENT_ATOM;
+				//	newA.flags |= ATOMFLAG_MEASURE_ND_RDF;		// what about this???
+					
+					Add_Atom(newA);
+					av1.push_back(& (* it1));
+					av2.push_back(& GetLastAtom());
+				}
+				}
+
+				// add bonds
+				{				
+				for (iter_bl it1 = solvent->GetBondsBegin();it1 != solvent->GetBondsEnd();it1++)
+				{
+					i32u ind1 = 0;
+					while (ind1 < av1.size())
+					{
+						if ((* it1).atmr[0] == av1[ind1]) break;
+						else ind1++;
+					}
+					
+					i32u ind2 = 0;
+					while (ind2 < av1.size())
+					{
+						if ((* it1).atmr[1] == av1[ind2]) break;
+						else ind2++;
+					}
+					
+					if (ind1 == av1.size() || ind2 == av1.size())
+					{
+						cout << "index search failed!" << endl;
+						exit(EXIT_FAILURE);
+					}
+					
+					bond newB(av2[ind1], av2[ind2], (* it1).bt);
+					AddBond(newB);
+				}
+				}
+			}
+
+		}
+	}
+	
+	cout << "added " << solvent_molecules_added << " solvent molecules." << endl;
+	
+	
+	delete solvent;
+	
+//	for (iter_al itX = GetAtomsBegin();itX != GetAtomsEnd();itX++)
+//	{ cout << (* itX).index << " " << ((* itX).flags & ATOMFLAG_IS_SOLVENT_ATOM) << endl; }
+}
+
 
 void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_number, model * solvent, const char * export_gromacs)
 {					
@@ -1684,7 +1952,7 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 	// ^^^^^^^^^^^^^^^
 	
 //	dimx *= 0.5; dimy *= 0.5; dimz *= 0.5;	// convert to half-dimensions!!!
-	dimx *= 0.75; dimy *= 0.75; dimz *= 0.75;	// convert to half-dimensions!!!
+//	dimx *= 0.75; dimy *= 0.75; dimz *= 0.75;	// convert to half-dimensions!!!
 	
 	i32s limx = (i32s) floor(dimx / distance) + 2;		// +1 is the minimum.
 	i32s limy = (i32s) floor(dimy / distance) + 2;		// +1 is the minimum.
@@ -2332,7 +2600,7 @@ void model::DoEnergy(void)
 	eng = GetCurrentSetup()->GetCurrentEngine();
 #else
 	//test code
-	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 #endif
 	//#####################################################################
 	if (eng == NULL) return;
@@ -2391,7 +2659,7 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	//#####################################################################
 #else
 	//test code
-	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 #endif
 	//#####################################################################
 	if (eng == NULL)
@@ -2409,14 +2677,14 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
-	if (!m_bMaxMinCoordCalculed)
+	if (param.recalc_box && !m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 	
 	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);		// optimal settings?!?!?
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
 	boundary_opt * b_opt = NULL;
 	//printf("param.box_opt = %d\n", param.box_opt);
-	if(param.box_opt != geomopt_param::box_optimization_type::no)
+	if(param.box_optimization && param.box_opt != geomopt_param::box_optimization_type::no)
 	{
 		b_opt = new boundary_opt(param.box_opt, this, eng, 100, 0.025, 10.0);
 	}
@@ -2437,7 +2705,7 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 		opt->TakeCGStep(conjugate_gradient::Newton2An);
 
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
-		if (b_opt)
+		if (param.box_optimization && b_opt)
 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif	
 // problem: the gradient information is in fact not precise in this stage. the current gradient
@@ -2594,7 +2862,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	//#####################################################################
 #else
 	//test code
-	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 #endif
 	
 	if (eng == NULL)
@@ -2612,7 +2880,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #else
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
 #endif /*USE_ENGINE_PBC2*/
-	
+	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
+
 #if KLAPAN_DIFFUSE_WORKING
 	char klap_name[1048];
 	DWORD nFilterIndex;
@@ -2646,7 +2915,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
-	if (!m_bMaxMinCoordCalculed)
+	if (param.recalc_box && !m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 
 	//this->Correct_periodic_box_HALFdim(eng);
@@ -2656,6 +2925,13 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	moldyn * dyn = NULL;
 	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
 	else dyn = new moldyn_langevin(eng, param.timestep);
+
+#if WRITE_LOCKED_FORCES
+	dyn->WriteLockedForcesHeader();
+#endif
+#if SOUND_GRAVI_OSCILLATOR
+	dyn->InitGraviOscillator(param);
+#endif
 
 #if !GRAVI_OSCILLATOR_START_ON_T_USTANOV
 #if GRAVI_OSCILLATOR_WORKING 	
@@ -2814,9 +3090,12 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		str2b << "target_crd[2]";
 
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-		str2b << ",boundary[0]";
-		str2b << ",boundary[1]";
-		str2b << ",boundary[2]";
+		if (param.box_optimization)
+		{
+			str2b << ",boundary[0]";
+			str2b << ",boundary[1]";
+			str2b << ",boundary[2]";
+		}
 #endif
 
 		str2b << endl << ends;
@@ -2879,9 +3158,13 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #endif /*PROBNIY_ATOM_WORKING*/
 
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-	boundary_opt * b_opt = new boundary_opt(
-		geomopt_param::box_optimization_type::xyz,
-		this, eng, 100, 0.025, 10.0);
+	boundary_opt * b_opt = NULL;
+	if (param.box_optimization)
+	{
+		b_opt = new boundary_opt(
+			geomopt_param::box_optimization_type::xyz,
+			this, eng, 100, 0.025, 10.0);
+	}
 #endif
 
 	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)
@@ -2896,6 +3179,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		}
 		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
 		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->update = true;
+		
+		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations();
+		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
 		
 		if (n1 < param.nsteps_h && !(n1 % 100))
 		{
@@ -2924,6 +3210,10 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		
 		bool enable_tc = false;
 		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
+#if SOUND_GRAVI_OSCILLATOR
+		else
+			dyn->TakeGraviStep();
+#endif
 		if (!param.constant_e || param.langevin) enable_tc = true;
 
 #if SNARJAD_TARGET_WORKING
@@ -2999,7 +3289,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #endif
 		dyn->TakeMDStep(enable_tc);
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-		if (!(n1 % 10)) b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+		if (b_opt && param.box_optimization && !(n1 % 10)) b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif
 
 #if PROBNIY_ATOM_WORKING
@@ -3089,10 +3379,13 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			str2b << -sn_f[0] << "," << -sn_f[1] << "," << -sn_f[2] << ",";
 			str2b << dyn->target_crd[0] << "," << dyn->target_crd[1] << "," << dyn->target_crd[2];
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-			str2b 
-				<< "," << this->periodic_box_HALFdim[0] 
-				<< "," << this->periodic_box_HALFdim[1]
-				<< "," << this->periodic_box_HALFdim[2];
+			if (param.box_optimization)
+			{
+				str2b 
+					<< "," << this->periodic_box_HALFdim[0] 
+					<< "," << this->periodic_box_HALFdim[1]
+					<< "," << this->periodic_box_HALFdim[2];
+			}
 #endif
 			str2b << endl << ends;
 
@@ -3117,8 +3410,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ostrstream str2a(mbuff1, sizeof(mbuff1));
 			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
 			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
-			str2a << "GetSolventNumberThroughZ = "  <<  eng_pbc->GetSolventNumberThroughZ() << " ";
 #if KLAPAN_DIFFUSE_WORKING
+			str2a << "GetSolventNumberThroughZ = "  <<  eng_pbc->GetSolventNumberThroughZ() << " ";
 			str2a << "GetSolventNumberThroughKlapan = "  <<  eng_pbc->GetSolventNumberThroughKlapan() << " ";
 			str2a << "Z_Klapan = "  <<  eng_pbc->GetKlapanZ() << " ";
 			str2a << "Z_Solvent = "  <<  eng_pbc->GetSolventZ() << " ";
@@ -3155,8 +3448,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //			str2b << /*"E_solute = " <<*/ eng->E_solute << ",";		// a primitive implementation for energy components ; FIXME!!!
 //			str2b << /*"E_solvent = " <<*/ eng->E_solvent << ",";	// a primitive implementation for energy components ; FIXME!!!
 //			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << ",";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << eng_pbc->GetSolventNumberThroughZ() << ",";
 #if KLAPAN_DIFFUSE_WORKING
+			str2b << eng_pbc->GetSolventNumberThroughZ() << ",";
 			str2b << eng_pbc->GetSolventNumberThroughKlapan() << ",";
 			str2b << eng_pbc->GetKlapanZ() << ",";
 			str2b << eng_pbc->GetSolventZ() << ",";
@@ -3240,7 +3533,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	
 	delete dyn;
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-	delete b_opt;
+	if (b_opt) delete b_opt;
 #endif
 // we will not delete current_eng here, so that we can draw plots using it...
 // we will not delete current_eng here, so that we can draw plots using it...
@@ -4663,7 +4956,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	//#####################################################################
 	// готовим объект вычислительной машины
-	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 	//#####################################################################
 	if (eng == NULL)
 	{

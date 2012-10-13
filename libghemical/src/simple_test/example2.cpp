@@ -95,7 +95,7 @@ int main(int argc, char ** argv)
 	// if everything went fine, then create a computation engine object, initialize it,
 	// and create a geometry optimizer object using the computation engine object.
 	
-	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 //	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_TRIPOS52);
 //	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_DEFAULT);
 

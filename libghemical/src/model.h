@@ -127,6 +127,7 @@ class model
 
 	friend class engine;
 	friend class engine_mbp;
+	friend class engine_wbp;
 	friend class engine_pbc;
 
 	friend class setup1_qm;
@@ -321,6 +322,9 @@ This is private because only model::AddHydrogens() should use this... */
 	
 	void AddHydrogens(void);
 	void RemoveHydrogens(void);
+	
+	fGL Nematic_Initialize(fGL, model **);
+	void NematicBox(fGL, fGL, fGL, model * = NULL);
 	
 	void SolvateBox(fGL, fGL, fGL, fGL = 1.0, int element_number = 2, model * = NULL, const char * = NULL);
 	void SolvateSphere(fGL, fGL, fGL = 1.0,  model * = NULL);

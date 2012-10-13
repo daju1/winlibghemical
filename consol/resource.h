@@ -25,6 +25,11 @@
 #define IDD_DIALOG_ELEMENT              138
 #define IDD_DIALOG_BOND                 139
 #define IDD_DIALOG_GEOMOPT              140
+#define IDD_DIALOG_SETUP1_QM            141
+#define IDD_DIALOG_SETUP1_MM            142
+#define IDD_DIALOG_SETUP1_SF            143
+#define IDD_DIALOG_SETUP2_QM_MM         144
+#define IDD_DIALOG_SETUP2_MM_SF         145
 #define IDC_EDIT_COMMAND                1000
 #define IDC_BUTTON_TRAJ_VIEW_BEGIN      1001
 #define IDC_BUTTON_TRAJ_VIEW_PREV       1002
@@ -55,6 +60,10 @@
 #define IDC_RADIO_BOX_OPT_XY            1026
 #define IDC_EDIT_GRAVI_GZ               1026
 #define IDC_RADIO_BOX_OPT_Z             1027
+#define IDC_CHECK_CALC_MIN_MAX_COORDINATES_2 1027
+#define IDC_CHECK_CALC_MIN_MAX_COORDINATES 1028
+#define IDC_CHECK_BOX_OPTIMIZATION      1029
+#define IDC_CHECK_BOX_OPTIMIZATION_2    1029
 #define ID_FILE_INITOG                  32771
 #define ID_FILE_INITOG2                 32772
 #define ID_VIEW_UPDATEALLVIEWS          32774
@@ -161,15 +170,17 @@
 #define ID_SELECTEDATOMS_UNSETASSOLVENT 32880
 #define ID_SELECTEDATOMS_SETUNDERGRAVI  32881
 #define ID_SELECTEDATOMS_UNSETUNDERGRAVI 32882
+#define ID_BUILD_NEMATICBOX             32883
+#define ID_SELECT_SELECTLOCKEDATOMS     32884
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32883
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_COMMAND_VALUE         32885
+#define _APS_NEXT_CONTROL_VALUE         1031
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

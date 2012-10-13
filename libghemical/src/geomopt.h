@@ -34,7 +34,6 @@ class geomopt_param
 	friend class model;
 	friend class geomopt_dialog;
 	friend class win_project; //temporary
-	
 	public:
 	
 	bool show_dialog;
@@ -48,6 +47,7 @@ class geomopt_param
 	bool enable_delta_e;
 	f64  treshold_delta_e;
 	i32s treshold_delta_e_min_nsteps;
+	bool recalc_box, box_optimization;
 
 	enum box_optimization_type
 	{

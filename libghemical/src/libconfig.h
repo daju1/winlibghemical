@@ -2,6 +2,12 @@
 #define USE_BOUNDARY_OPT_ON_GEOMOPT 1
 #define USE_BOUNDARY_OPT_ON_MOLDYN 1
 
+#define SOUND_GRAVI_OSCILLATOR 1
+#define WRITE_LOCKED_FORCES 1
+
+//#define CURRENT_ENG1_MM			ENG1_MM_DEFAULT
+#define CURRENT_ENG1_MM			ENG1_MM_PERIODIC
+
 // режимы работы консольного приложени€ example4
 // запуск снар€да по цели: нагретой или при “ = 0  
 #define SNARJAD_TARGET_WORKING 0

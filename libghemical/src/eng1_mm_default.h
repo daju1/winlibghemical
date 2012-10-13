@@ -227,6 +227,24 @@ class eng1_mm_default_nbt_mbp : virtual public eng1_mm, virtual public engine_mb
 	void ComputeNBT1(i32u);		// virtual
 };
 
+class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
+{
+	protected:
+	
+	vector<mm_default_nbt1> nbt1_vector;
+	
+	public:
+	
+	eng1_mm_default_nbt_wbp(setup *, i32u);
+	virtual ~eng1_mm_default_nbt_wbp(void);
+	
+	protected:
+	
+	void UpdateTerms(void);
+	void ComputeNBT1(i32u);		// virtual
+};
+
+
 /// molecular mechanics; nonbonded part, minimum image model.
 
 // what is the most reasonable objective or strategy here???
@@ -281,6 +299,15 @@ class eng1_mm_default_mbp : public eng1_mm_default_bt, public eng1_mm_default_nb
 	
 	eng1_mm_default_mbp(setup *, i32u);
 	~eng1_mm_default_mbp(void);
+};
+
+
+class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nbt_wbp
+{
+	public:
+	
+	eng1_mm_default_wbp(setup *, i32u);
+	~eng1_mm_default_wbp(void);
 };
 
 class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim

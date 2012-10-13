@@ -648,6 +648,9 @@ engine_mbp::~engine_mbp(void)
 
 /*################################################################################################*/
 
+
+/*################################################################################################*/
+
 engine_pbc::engine_pbc(setup * p1, i32u p2) : engine(p1, p2)
 {
 printf("engine_pbc::engine_pbc\np1 = %x p2 = %d", p1, p2);
@@ -731,6 +734,63 @@ void engine_pbc::CheckLocations(void)
 // TODO :
 // GetVDWSurf() for engine_pbc???
 // GetESP() for engine_pbc???
+/*################################################################################################*/
+
+engine_wbp::engine_wbp(setup * p1, i32u p2) : engine(p1, p2), engine_pbc(p1, p2)
+{
+	//use_upp_wall = GetSetup()->GetModel()->use_boundary_potential;
+	//bp_wall_crd = GetSetup()->GetModel()->boundary_potential_radius1;
+	//bp_wall_crd = GetSetup()->GetModel()->boundary_potential_radius2;
+	
+}
+
+engine_wbp::~engine_wbp(void)
+{
+}
+
+void engine_wbp::CheckLocations(void)
+{
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+	for (i32s n1 = 0;n1 < nmol_mm;n1++)
+	{
+		f64 sum[3] = { 0.0, 0.0, 0.0 };
+		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
+		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+		{
+			i32u index = atmtab[n2]->varind;
+			for (i32s n3 = 0;n3 < 3;n3++)
+			{
+				sum[n3] += crd[index * 3 + n3];
+			}
+		}
+
+		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
+		{
+			if (n2 != N2)
+			{
+				f64 test = sum[n2] / ac;
+				
+				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+				}
+				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+				}
+			}
+		}
+	}
+}
+
 
 /*################################################################################################*/
 

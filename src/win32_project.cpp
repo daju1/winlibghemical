@@ -1430,6 +1430,17 @@ void win_project::popup_LockSelectedAtoms(HWND widget, void * data)
 	}
 }
 
+void win_project::popup_SelectLockedAtoms(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "sel_atoms_with_flag 15";
+		new command_dialog(prj, gv, command);
+	}
+}
+
 
 void win_project::popup_CompCoordinateTrajPlot1D(HWND widget, void * data)
 {
@@ -1719,6 +1730,23 @@ void win_project::popup_HRemove(HWND widget, void* data)
 	{
 		prj->RemoveH();
 		prj->UpdateAllGraphicsViews();
+	}
+}
+
+void win_project::popup_NematicBox(HWND widget, void* data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		static char command[256];
+		sprintf(command, "nematic_box %f %f %f mmba", 
+			prj->periodic_box_HALFdim[0],
+			prj->periodic_box_HALFdim[1],
+			prj->periodic_box_HALFdim[2]);
+		sprintf(command, "nematic_box 4.0 2.0 0.5 mmba");
+		//= "solvate_box 3.0 3.0 3.0";
+		new command_dialog(prj, gv, command);
 	}
 }
 

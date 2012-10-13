@@ -207,6 +207,7 @@ friend class win_eld_view;
 
 	static void popup_UnLockSelectedAtoms(HWND widget, void * data);
 	static void popup_LockSelectedAtoms(HWND widget, void * data);
+	static void popup_SelectLockedAtoms(HWND widget, void * data);
 
 	static void popup_SetSelectedAtomsUnderGravi(HWND widget, void * data);
 	static void popup_UnSetSelectedAtomsUnderGravi(HWND widget, void * data);
@@ -238,6 +239,7 @@ static void popup_CompCycleRS(HWND, void*);
 	static void popup_SetOrbital(HWND, void*);	
 	static void popup_HAdd(HWND, void*);
 	static void popup_HRemove(HWND, void*);
+	static void popup_NematicBox(HWND, void*);
 	static void popup_SolvateBox(HWND, void*);
 	static void popup_SolvateSphere(HWND, void*);
 	static void popup_Clear(HWND, void*);

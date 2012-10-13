@@ -427,6 +427,7 @@ class project : public model
 
 	void SetTheFlagOnSelectedAtoms(i32u flag_number);
 	void UnSetTheFlagOnSelectedAtoms(i32u flag_number);
+	void SelectAtomsWithTheFlag(i32u flag_number);
 
 	void TrajView_CoordinatePlot(i32s ind, i32s dim);
 	void TrajView_DistancePlot(i32s inda, i32s indb);

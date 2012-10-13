@@ -149,6 +149,12 @@ void geomopt_dialog::OnInitDialog()
 	CheckDlgButton( hDlg, IDC_CHECK_NSTEPS,
 		param->enable_nsteps ? BST_CHECKED : BST_UNCHECKED );
 
+	CheckDlgButton( hDlg, IDC_CHECK_CALC_MIN_MAX_COORDINATES,
+		param->recalc_box ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	CheckDlgButton( hDlg, IDC_CHECK_BOX_OPTIMIZATION,
+		param->box_optimization ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	//##########################################################
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -233,6 +239,10 @@ void geomopt_dialog::handler_ButtonOK(HWND, void * data)
 	ref->param->enable_grad		= IsDlgButtonChecked( ref->hDlg, IDC_CHECK_GRAD) 
 				== BST_CHECKED;
 	ref->param->enable_nsteps	= IsDlgButtonChecked( ref->hDlg, IDC_CHECK_NSTEPS) 
+				== BST_CHECKED;
+	ref->param->recalc_box = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_CALC_MIN_MAX_COORDINATES) 
+				== BST_CHECKED;
+	ref->param->box_optimization = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_BOX_OPTIMIZATION) 
 				== BST_CHECKED;
 	
 	if (!ref->param->enable_nsteps && !ref->param->enable_grad && !ref->param->enable_delta_e)

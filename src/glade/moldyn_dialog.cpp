@@ -174,6 +174,13 @@ void moldyn_dialog::OnInitDialog()
 	CheckDlgButton( hDlg, IDC_CHECK_LANGEVIN,
 		param->langevin ? BST_CHECKED : BST_UNCHECKED );
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	
+	CheckDlgButton( hDlg, IDC_CHECK_CALC_MIN_MAX_COORDINATES_2,
+		param->recalc_box ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	CheckDlgButton( hDlg, IDC_CHECK_BOX_OPTIMIZATION_2,
+		param->box_optimization ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	// gtk_entry_set_text(GTK_ENTRY(entry_trajfile), param->filename);
 	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE, param->filename);
@@ -252,6 +259,12 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 	//ref->param->langevin = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_langevin)) == TRUE ? true : false);
 	ref->param->langevin = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_LANGEVIN) 
 				== BST_CHECKED;
+	ref->param->recalc_box = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_CALC_MIN_MAX_COORDINATES_2) 
+				== BST_CHECKED;
+	ref->param->box_optimization = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_BOX_OPTIMIZATION_2) 
+				== BST_CHECKED;
+
+	
 	ref->param->confirm = true;
 }
 

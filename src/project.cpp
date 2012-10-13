@@ -459,6 +459,22 @@ void project::SetTheFlagOnSelectedAtoms(i32u flag_number)
 	}
 }
 
+void project::SelectAtomsWithTheFlag(i32u flag_number)
+{
+	// select none
+	iter_al it1 = atom_list.begin();
+	while (it1 != atom_list.end()) (* it1++).flags &= (~ATOMFLAG_SELECTED);
+	
+	i32u flag = (1 << flag_number);
+
+	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+	{
+		if ((* it1).flags & flag)
+		{
+			(* it1).flags |= ATOMFLAG_SELECTED;
+		}
+	}
+}
 // todo : move all these trajectory-related things into a separate class? 20040610 TH
 
 void project::EvaluateBFact(void)
@@ -1403,6 +1419,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		
 		PrintToLog("> unset_flag_on_sel_atoms FLAG_NUM -- unset to all selected atoms any flag\n");
 		PrintToLog("> set_flag_on_sel_atoms FLAG_NUM -- set to all selected atoms any flag\n");
+		PrintToLog("> sel_atoms_with_flag FLAG_NUM -- selected atoms with any flag\n");
 		PrintToLog("> traj_set_total_frames nframes -- correct total frames in traj file.\n");
 		PrintToLog("> make_plot_crd IND DIM -- create a 1D coordinate vs. step plot on traj file.\n");
 		PrintToLog("> make_plot_dist A B -- create a 1D distance vs. step plot on traj file.\n");
@@ -1833,7 +1850,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 			eng = GetCurrentSetup()->GetCurrentEngine();
 		#else
 			//test code
-			engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+			engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 		#endif
 			//#####################################################################
 			if (eng == NULL) return;
@@ -2025,6 +2042,15 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		i32s ib = strtol(kw3, endptr, 10);
 		
 		TrajView_CoordinatePlot(ia, ib);
+		return;
+	}
+
+	if (!strcmp("sel_atoms_with_flag", kw1))
+	{
+		char kw2[32]; istr >> kw2;	
+		char ** endptr = NULL;		
+		i32u flag_num = strtoul(kw2, endptr, 10);		
+		SelectAtomsWithTheFlag(flag_num);
 		return;
 	}
 
@@ -2283,6 +2309,45 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}	
 	
+	if (!strcmp("nematic_box", kw1))
+	{
+		char kw2[32]; istr >> kw2;		// xdim
+		char kw3[32]; istr >> kw3;		// ydim
+		char kw4[32]; istr >> kw4;		// zdim
+		char kw6[256] = ""; istr >> kw6;	// filename (optional)
+		
+		char ** endptr = NULL;
+		fGL xdim = strtod(kw2, endptr);
+		fGL ydim = strtod(kw3, endptr);
+		fGL zdim = strtod(kw4, endptr);
+		
+		//fGL density = 1.00; if (strlen(kw5) > 0) density = strtod(kw5, endptr);
+		
+
+		dummy_project * solvent = NULL;
+		if (strlen(kw6) > 0)
+		{			
+			char fn[256];
+			ostrstream fns(fn, sizeof(fn));
+			fns << kw6 << ".gpr" << ends;
+
+			DWORD nFilterIndex;
+			if (OpenFileDlg(0, "Ghemical Project File (*.gpr)\0*.gpr\0All files \0*.*\0", 
+				fn, nFilterIndex) 
+				== S_OK)
+			{
+				solvent = new dummy_project(NULL);
+				ifstream ifile(fn, ios::in);
+				ReadGPR(* solvent, ifile, false);
+				ifile.close();
+			}			
+		}
+		
+		NematicBox(xdim, ydim, zdim, solvent);
+		UpdateAllGraphicsViews();
+		return;
+	}
+
 	if (!strcmp("solvate_box", kw1))
 	{
 		char kw2[32]; istr >> kw2;		// xdim
@@ -3172,6 +3237,39 @@ void project::Render(graphics_view * gv, rmode rm)
 		}
 	}
 	
+	if (use_periodic_boundary_conditions && 
+		rm == Normal)
+	{
+		glLineWidth(2.0);
+		glColor3f(1.0, 0.0, 1.0);
+		glBegin(GL_LINES);
+
+		char string[32]; 
+		double len = 0.25;
+		fGL x, y, z;
+
+		glVertex3f(-periodic_box_HALFdim[0]-len, -periodic_box_HALFdim[1]-len, -periodic_box_HALFdim[2]-len);
+		glVertex3f(-periodic_box_HALFdim[0], -periodic_box_HALFdim[1]-len, -periodic_box_HALFdim[2]-len);
+		
+		glVertex3f(-periodic_box_HALFdim[0]-len, -periodic_box_HALFdim[1]-len, -periodic_box_HALFdim[2]-len);
+		glVertex3f(-periodic_box_HALFdim[0]-len, -periodic_box_HALFdim[1]-len, -periodic_box_HALFdim[2]);
+		
+		glVertex3f(-periodic_box_HALFdim[0]-len, -periodic_box_HALFdim[1]-len, -periodic_box_HALFdim[2]-len);
+		glVertex3f(-periodic_box_HALFdim[0]-len, -periodic_box_HALFdim[1], -periodic_box_HALFdim[2]-len);
+		glEnd();
+		
+		sprintf(string, "X\0");
+		x = -periodic_box_HALFdim[0]; y = -periodic_box_HALFdim[1]-len; z = -periodic_box_HALFdim[2]-len;
+		gv->WriteGlutString3D(string, x, y, z, gv->cam->GetLocData(), GLUT_BITMAP_9_BY_15);
+		
+		sprintf(string, "Y\0");
+		x = -periodic_box_HALFdim[0]-len; y = -periodic_box_HALFdim[1]; z = -periodic_box_HALFdim[2]-len;
+		gv->WriteGlutString3D(string, x, y, z, gv->cam->GetLocData(), GLUT_BITMAP_9_BY_15);
+		
+		sprintf(string, "Z\0");
+		x = -periodic_box_HALFdim[0]-len; y = -periodic_box_HALFdim[1]-len; z = -periodic_box_HALFdim[2];
+		gv->WriteGlutString3D(string, x, y, z, gv->cam->GetLocData(), GLUT_BITMAP_9_BY_15);
+	}
 	if (gv->enable_fog) glDisable(GL_FOG);
 	
 	// finally call this to handle transparency...
@@ -4570,7 +4668,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 	//#####################################################################
 #else
 	//test code
-	engine * tmpeng = tmpmdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * tmpeng = tmpmdl->GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 #endif
 	
 	// the temporary model is now ok, continue...
@@ -4584,7 +4682,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 	//#####################################################################
 #else
 	//test code
-	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 #endif
 	
 	i32s molnum = 0; i32s in_crdset = 0;

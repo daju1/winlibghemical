@@ -15,12 +15,28 @@
 #include "../glade_dialog.h"
 class win_project;
 #include <windows.h>
+#include <prsht.h>
 
 /*################################################################################################*/
+#define setup_dialog_npages 5
 
 class setup_dialog : public glade_dialog
 {
+	// Массив описаний страниц блокнота
+	PROPSHEETPAGE   psheetPage[setup_dialog_npages];
+
+	// Заголовок блокнота
+	PROPSHEETHEADER psheetHeader;
+
+	// Идентификаторы страниц блокнота
+	HPROPSHEETPAGE hPage[setup_dialog_npages];
+
 	friend BOOL CALLBACK DlgProcSetup(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) ;
+	friend BOOL CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend BOOL CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend BOOL CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend BOOL CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend BOOL CALLBACK DlgProcSetup2_mm_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	protected:
 	
 	win_project * prj;	

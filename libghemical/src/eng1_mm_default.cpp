@@ -624,7 +624,7 @@ bool eng1_mm_default_bt::SetTorsionConstraint(i32s ind_bt3, f64 opt, f64 fc, boo
 
 void eng1_mm_default_bt::ComputeBT1(i32u p1)
 {
-printf("eng1_mm_default_bt::ComputeBT1 = %d\n", p1);
+//printf("eng1_mm_default_bt::ComputeBT1 = %d\n", p1);
 	energy_bt1 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -690,7 +690,7 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_
 
 void eng1_mm_default_bt::ComputeBT2(i32u p1)
 {
-printf("eng1_mm_default_bt::ComputeBT2 = %d\n", p1);
+//printf("eng1_mm_default_bt::ComputeBT2 = %d\n", p1);
 	energy_bt2 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -770,7 +770,7 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_
 
 void eng1_mm_default_bt::ComputeBT3(i32u p1)
 {
-printf("eng1_mm_default_bt::ComputeBT3 = %d\n", p1);
+//printf("eng1_mm_default_bt::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -918,7 +918,7 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t9a; else E_
 
 void eng1_mm_default_bt::ComputeBT4(i32u p1)
 {
-printf("eng1_mm_default_bt::ComputeBT4 = %d\n", p1);
+//printf("eng1_mm_default_bt::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1642,7 +1642,7 @@ eng1_mm_default_nbt_mbp::~eng1_mm_default_nbt_mbp(void)
 
 void eng1_mm_default_nbt_mbp::ComputeNBT1(i32u p1)
 {
-printf("eng1_mm_default_nbt_mbp::ComputeNBT1 = %d\n", p1);
+//printf("eng1_mm_default_nbt_mbp::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
@@ -2094,7 +2094,557 @@ void eng1_mm_default_nbt_mim::UpdateTerms(void)
 }
 
 /*################################################################################################*/
+eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_wbp(p1, p2), engine_pbc(p1, p2)
+{
+//	atom ** atmtab = GetSetup()->GetMMAtoms();
+//	bond ** bndtab = GetSetup()->GetMMBonds();
+	
+	ostream * ostr = default_tables::GetInstance()->ostr;
 
+	fGL mindim = GetSetup()->GetModel()->periodic_box_HALFdim[0];
+	if (GetSetup()->GetModel()->periodic_box_HALFdim[1] < mindim) mindim = GetSetup()->GetModel()->periodic_box_HALFdim[1];
+	if (GetSetup()->GetModel()->periodic_box_HALFdim[2] < mindim) mindim = GetSetup()->GetModel()->periodic_box_HALFdim[2];
+	
+	
+	update = true;	
+	nbt1_vector.reserve(250000);
+	
+	// also check engine::bp_center!!!
+	// also check engine::bp_center!!!
+	// also check engine::bp_center!!!
+	
+	use_upp_wall = true; 
+	use_down_wall = true; 
+
+	N2 = 2;//индекс стенки = 2 for Z!!!
+	N2 = 1;//индекс стенки = 2 for Z!!!
+	
+	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
+	bp_fc_wall = 12500.0;	// силовая константа взаимодействия со стенкой
+	bp_fc_wall = 5000.0;	// силовая константа взаимодействия со стенкой
+	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Е^2) = 5000 kJ/(mol*(nm)^2)
+	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Е^2) = 12500 kJ/(mol*(nm)^2)
+
+	if (ostr != NULL && (use_upp_wall || use_down_wall))
+	{
+		(* ostr) << "use_upp_wall || use_down_wall ; ";
+		(* ostr) << bp_wall_crd << " " << bp_wall_crd << " ; ";
+		(* ostr) << endl;
+	}
+	
+	/*if (ostr != NULL) (* ostr) << "creating nbt1-terms: ";
+	i32s nbt1_err = 0;
+	
+	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
+	{
+		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
+		{
+			i32s test = range_cr1[ind1];
+			while (test < range_cr1[ind1 + 1])
+			{
+				if (cr1[test] == atmtab[ind2]) break;
+				else test++;
+			}
+			
+			if (test == range_cr1[ind1 + 1])	// if this is true, the atom are not in 1-2 or 1-3 positions.
+			{
+				test = range_cr2[ind1];
+				while (test < range_cr2[ind1 + 1])
+				{
+					if (cr2[test] == atmtab[ind2]) break;
+					else test++;
+				}
+				
+				bool is14 = (test != range_cr2[ind1 + 1]);	// if this is true, the atoms are 1-4 related.
+				
+				mm_default_nbt1 newnbt1;
+				newnbt1.atmi[0] = ind1;		// this is a local index...
+				newnbt1.atmi[1] = ind2;		// this is a local index...
+				
+				bool success = false;
+				if (dynamic_cast<setup1_mm *>(GetSetup())->EnableExceptions())
+				{
+					success = default_tables::GetInstance()->e_Init(this, & newnbt1, is14);
+				}
+				else
+				{
+					// see also eng1_mm_default_nbt_mim::UpdateTerms() ; should be the same!!!
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					
+					bool errors = false;
+					const default_at * at;
+					
+					f64 r1 = 0.150; f64 e1 = 0.175;			// default...
+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind1]->atmtp);
+					if (at != NULL) { r1 = at->vdw_R; e1 = at->vdw_E; }
+					else errors = true;
+					
+					f64 r2 = 0.150; f64 e2 = 0.175;			// default...
+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind2]->atmtp);
+					if (at != NULL) { r2 = at->vdw_R; e2 = at->vdw_E; }
+					else errors = true;
+					
+					f64 optdist = r1 + r2;
+					f64 energy = sqrt(e1 * e2);
+					
+					f64 charge1 = atmtab[ind1]->charge;
+					f64 charge2 = atmtab[ind2]->charge;
+					newnbt1.qq = 138.9354518 * charge1 * charge2;
+					
+					if (is14)
+					{
+						energy *= 0.5;
+						newnbt1.qq *= 0.75;
+					}
+					
+					f64 tmp1 = optdist * pow(1.0 * energy, 1.0 / 12.0);
+					f64 tmp2 = optdist * pow(2.0 * energy, 1.0 / 6.0);
+					
+					newnbt1.kr = tmp1;
+					newnbt1.kd = tmp2;
+					
+					if (!errors) success = true;
+				}
+				
+				nbt1_err += !success;
+				nbt1_vector.push_back(newnbt1);
+			}
+		}
+	}
+	
+	// report possible errors...
+	
+	i32s total_err = nbt1_err;
+	if (total_err)
+	{
+		char mbuff1[256];
+		ostrstream str1(mbuff1, sizeof(mbuff1));
+		str1 << "WARNING : there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
+		GetSetup()->GetModel()->PrintToLog(mbuff1);
+	}*/
+}
+
+eng1_mm_default_nbt_wbp::~eng1_mm_default_nbt_wbp(void)
+{
+}
+
+void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
+{
+//printf("eng1_mm_default_nbt_wbp::ComputeNBT1 = %d\n", p1);
+	energy_nbt1a = 0.0;
+	energy_nbt1b = 0.0;
+	energy_nbt1c = 0.0;
+	energy_nbt1d = 0.0;
+	
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+	
+	// an additional pass for the boundary potential (optional).
+	// an additional pass for the boundary potential (optional).
+	// an additional pass for the boundary potential (optional).
+	
+	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
+
+	if (use_down_wall)
+	{
+//printf("use_down_wall\n");
+		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+		{
+			//f64 radius = bp_radius_solute;
+			f64 fc = bp_fc_wall;
+			
+			/*if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
+			{
+				radius = bp_radius_solvent;
+				fc = bp_fc_solvent;
+			}*/
+			
+			/*f64 t1a[3]; f64 t1b = 0.0;
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				f64 t9a = bp_center[n2];
+				f64 t9b = crd[l2g_mm[n1] * 3 + n2];
+				
+				t1a[n2] = t9a - t9b;
+				t1b += t1a[n2] * t1a[n2];
+			}
+			
+			f64 t1c = sqrt(t1b);*/
+			f64 t1c = crd[l2g_mm[n1] * 3 + N2];
+			
+
+			
+//printf("t1c = %f \n", t1c);
+//printf("bp_wall_crd = %f \n", bp_wall_crd);
+			if (t1c > - bp_wall_crd) continue;
+			
+			// f = a(x-b)^2
+			// df/dx = 2a(x-b)
+			
+			//глубина проникновения атома в зону действия потенциала стенки
+			f64 t2a = - bp_wall_crd - t1c;
+//printf("t2a = %f \n", t2a);
+			//энергия на которую увеличилась потенци альная энергия атома
+			f64 t2b = fc * t2a * t2a;
+			
+			energy_bt1 += t2b;
+if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
+			
+			if (p1 > 0)
+			{
+				// сила, направленная от стенки
+				f64 t2c = 2.0 * fc * t2a;
+				
+				i32s n2 = N2;
+				//{
+					// проекция силы на координатную ось
+					f64 t2d = t2c;
+					
+					d1[l2g_mm[n1] * 3 + n2] -= t2d;
+				//}
+			}
+		}
+	}
+	
+	// the nonbonded terms begin...
+	// the nonbonded terms begin...
+	// the nonbonded terms begin...
+
+	if (use_upp_wall)
+	{
+		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+		{
+			//f64 radius = bp_radius_solute;
+			f64 fc = bp_fc_wall;
+			
+			/*if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
+			{
+				radius = bp_radius_solvent;
+				fc = bp_fc_solvent;
+			}*/
+			
+			/*f64 t1a[3]; f64 t1b = 0.0;
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				f64 t9a = bp_center[n2];
+				f64 t9b = crd[l2g_mm[n1] * 3 + n2];
+				
+				t1a[n2] = t9a - t9b;
+				t1b += t1a[n2] * t1a[n2];
+			}
+			
+			f64 t1c = sqrt(t1b);*/
+			f64 t1c = crd[l2g_mm[n1] * 3 + N2];
+			
+			
+			if (t1c < bp_wall_crd) continue;
+			
+			// f = a(x-b)^2
+			// df/dx = 2a(x-b)
+			
+			//глубина проникновения атома в зону действия потенциала стенки
+			f64 t2a = t1c - bp_wall_crd;
+			//энергия на которую увеличилась потенци альная энергия атома
+			f64 t2b = fc * t2a * t2a;
+			
+			energy_bt1 += t2b;
+if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
+			
+			if (p1 > 0)
+			{
+				// сила, направленная от стенки
+				f64 t2c = 2.0 * fc * t2a;
+				
+				i32s n2 = N2;
+				//{
+					// проекция силы на координатную ось
+					f64 t2d = -t2c;
+					
+					d1[l2g_mm[n1] * 3 + n2] -= t2d;
+				//}		
+
+			}
+		}
+	}
+
+	if (update) UpdateTerms();
+	
+//printf("after UpdateTerms();nbt1_vector.size()= %d\n", nbt1_vector.size());fflush(stdout);
+	// the nonbonded terms begin...
+	// the nonbonded terms begin...
+	// the nonbonded terms begin...
+	
+	for (i32s n1 = 0;n1 < (i32s) nbt1_vector.size();n1++)
+	{
+//printf("eng1_mm_default_nbt_mim::ComputeNBT1 n1 = %d\n", n1);fflush(stdout);//8776
+		i32s * atmi = nbt1_vector[n1].atmi;
+		
+		f64 t1a[3]; f64 t1b = 0.0;
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			f64 t2a = crd[l2g_mm[atmi[0]] * 3 + n2];
+			f64 t2b = crd[l2g_mm[atmi[1]] * 3 + n2];
+			
+			t1a[n2] = t2a - t2b;
+			// периодические условия для тех измерений где нет стенки
+			if (n2 != N2)
+			{
+				if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					t1a[n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+				}
+				else if (t1a[n2] > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					t1a[n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+				}
+			}
+			
+			t1b += t1a[n2] * t1a[n2];
+		}
+		
+		f64 t1c = sqrt(t1b);
+		
+		// f1 = (r/a)^-12 - (r/b)^-6
+		// df1/dr = -12/a(r/a)^-13 + 6/b(r/b)^-7
+		
+		f64 t3a = t1c / nbt1_vector[n1].kr;
+		f64 t3b = t1c / nbt1_vector[n1].kd;
+		
+		f64 t4a = t3a * t3a * t3a; f64 t4b = t4a * t4a; f64 t4c = t4b * t4b;	// ^3 ^6 ^12
+		f64 t5a = t3b * t3b * t3b; f64 t5b = t5a * t5a;				// ^3 ^6
+		
+		f64 t6a = 1.0 / (t4c) - 1.0 / (t5b);
+		
+		// s1 = (rE^2 - r^2)^2 * (rE^2 + 2r^2 - 3rB^2) / (rE^2 - rB^2)^3
+		// ds1/dr = [this will yield 2 terms quite easily...]
+		
+		/*f64 t3x;		// value
+		f64 t3y; f64 t3z;	// derivative
+		if (t1b < sw1)
+		{
+			t3x = 1.0;
+			t3y = t3z = 0.0;
+		}
+		else if (t1b > sw2)
+		{
+			t3x = 0.0;
+			t3y = t3z = 0.0;
+		}
+		else
+		{
+			f64 t3c = sw2 - t1b; f64 t3d = t3c * t3c;
+			f64 t3e = sw2 + 2.0 * t1b - swA;
+			
+			t3x = t3d * t3e / swB;
+			t3y = 4.0 * t1c * t3d / swB;
+			t3z = 4.0 * t1c * t3c * t3e / swB;
+		}*/
+		
+		energy_nbt1a += t6a/* * t3x*/;
+		
+		// f2 = Q/r
+		// df2/dr = -Q/r^2
+		
+		f64 t6b = nbt1_vector[n1].qq / t1c;
+		
+		// s2 = (1 - (r/rE)^3)^2
+		// ds2/dr = -6r^2 * (1 - (r/rE)^3) / rE^3
+		
+		/*f64 t4x;		// value
+		f64 t4y;		// derivative
+		if (t1c > shft1)
+		{
+			t4x = 0.0;
+			t4y = 0.0;
+		}
+		else
+		{
+			f64 t4d = t1b * t1c / shft3;
+			f64 t4e = 1.0 - t4d;
+			
+			t4x = t4e * t4e;
+			t4y = 6.0 * t1b * t4e / shft3;
+		}*/
+		
+		energy_nbt1b += t6b/* * t4x*/;
+		
+		f64 tote = t6a/* * t3x*/ + t6b/* * t4x*/;
+int class1 = (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
+int class2 = (atmtab[atmi[1]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
+if (class1 == class2) { if (class1) E_solvent += tote; else E_solute += tote; }
+else E_solusolv += tote;
+		
+#if 1// from mbp
+		if (p1 > 0)
+		{
+			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
+			f64 t7b = 6.0 / (nbt1_vector[n1].kd * t5b * t3b);
+			
+			f64 t8a = nbt1_vector[n1].qq / t1b;
+			
+			f64 t9a = t7b - t7a - t8a;
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				f64 t9b = (t1a[n2] / t1c) * t9a;
+				
+				d1[l2g_mm[atmi[0]] * 3 + n2] += t9b;
+				d1[l2g_mm[atmi[1]] * 3 + n2] -= t9b;
+			}
+		}
+#else // from mim
+		if (p1 > 0)
+		{
+			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
+			f64 t7b = 6.0 / (nbt1_vector[n1].kd * t5b * t3b);
+			
+			f64 t8a = nbt1_vector[n1].qq / t1b;
+			
+			f64 t9a = (t7b - t7a) * t3x + t6a * (t3y - t3z);
+			f64 t9b = t8a * t4x + t6b * t4y;
+			
+			f64 t9c = t9a - t9b;
+			
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				f64 t9d = (t1a[n2] / t1c) * t9c;
+				
+				d1[l2g_mm[atmi[0]] * 3 + n2] += t9d;
+				d1[l2g_mm[atmi[1]] * 3 + n2] -= t9d;
+			}
+		}
+#endif
+	}
+//printf("eng1_mm_default_nbt_mim::ComputeNBT1 = end\n");fflush(stdout);
+}
+
+void eng1_mm_default_nbt_wbp::UpdateTerms(void)
+{
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+//	bond ** bndtab = GetSetup()->GetMMBonds();
+	
+	
+	ostream * ostr = default_tables::GetInstance()->ostr;
+	
+	update = false;
+	nbt1_vector.resize(0);
+	
+	if (ostr != NULL) (* ostr) << "creating nbt1-terms: ";
+	i32s nbt1_err = 0;
+	
+	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
+	{
+		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
+		{
+			i32s test = range_cr1[ind1];
+			while (test < range_cr1[ind1 + 1])
+			{
+				if (cr1[test] == atmtab[ind2]) break;
+				else test++;
+			}
+			
+			if (test == range_cr1[ind1 + 1])
+			{
+				f64 t1a; f64 t1b = 0.0;
+				for (i32s n1 = 0;n1 < 3;n1++)
+				{
+					f64 t2a = crd[l2g_mm[ind1] * 3 + n1];
+					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
+					
+					t1a = t2a - t2b;
+					
+					if (n1 != N2)
+					{
+						if (t1a < -GetSetup()->GetModel()->periodic_box_HALFdim[n1])
+						{
+							t1a += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n1];
+						}
+						else if (t1a > +GetSetup()->GetModel()->periodic_box_HALFdim[n1])
+						{
+							t1a -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n1];
+						}
+					}
+					
+					t1b += t1a * t1a;
+				}
+				
+//				if (t1b > limit) continue;
+				
+				test = range_cr2[ind1];
+				while (test < range_cr2[ind1 + 1])
+				{
+					if (cr2[test] == atmtab[ind2]) break;
+					else test++;
+				}
+				
+				bool is14 = (test != range_cr2[ind1 + 1]);
+				
+				mm_default_nbt1 newnbt1;
+				newnbt1.atmi[0] = ind1;
+				newnbt1.atmi[1] = ind2;
+				
+				bool success = false;
+				if (dynamic_cast<setup1_mm *>(GetSetup())->EnableExceptions())
+				{
+					success = default_tables::GetInstance()->e_Init(this, & newnbt1, is14);
+				}
+				else
+				{
+					// see also eng1_mm_default_nbt_mbp ctor ; should be the same!!!
+					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+					
+					bool errors = false;
+					const default_at * at;
+					
+					f64 r1 = 0.150; f64 e1 = 0.175;			// default...
+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind1]->atmtp);
+					if (at != NULL) { r1 = at->vdw_R; e1 = at->vdw_E; }
+					else errors = true;
+					
+					f64 r2 = 0.150; f64 e2 = 0.175;			// default...
+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind2]->atmtp);
+					if (at != NULL) { r2 = at->vdw_R; e2 = at->vdw_E; }
+					else errors = true;
+					
+					f64 optdist = r1 + r2;
+					f64 energy = sqrt(e1 * e2);
+					
+					f64 charge1 = atmtab[ind1]->charge;
+					f64 charge2 = atmtab[ind2]->charge;
+					newnbt1.qq = 138.9354518 * charge1 * charge2;
+					
+					if (is14)
+					{
+						energy *= 0.5;
+						newnbt1.qq *= 0.75;
+					}
+					
+					f64 tmp1 = optdist * pow(1.0 * energy, 1.0 / 12.0);
+					f64 tmp2 = optdist * pow(2.0 * energy, 1.0 / 6.0);
+					
+					newnbt1.kr = tmp1;
+					newnbt1.kd = tmp2;
+					
+					if (!errors) success = true;
+				}
+				
+				nbt1_err += !success;
+				nbt1_vector.push_back(newnbt1);
+			}
+		}
+	}
+	
+	// report possible errors...
+	
+	i32s total_err = nbt1_err;
+	if (total_err)
+	{
+		char mbuff1[256];
+		ostrstream str1(mbuff1, sizeof(mbuff1));
+		str1 << "WARNING (eng1_mm_default_nbt_mim::UpdateTerms): there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
+		GetSetup()->GetModel()->PrintToLog(mbuff1);
+	}
+}
+
+/*################################################################################################*/
 eng1_mm_default_mbp::eng1_mm_default_mbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_mbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_mbp(p1, p2)
 {
@@ -2130,6 +2680,19 @@ eng1_mm_default_mim2::eng1_mm_default_mim2(setup * p1, i32u p2) : engine(p1, p2)
 eng1_mm_default_mim2::~eng1_mm_default_mim2(void)
 {
 //	cout << "~eng1_mm_default_mim2" << endl;
+}
+
+/*################################################################################################*/
+/*################################################################################################*/
+eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
+	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
+{
+//	cout << "eng1_mm_default_mbp" << endl;
+}
+
+eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
+{
+//	cout << "~eng1_mm_default_mbp" << endl;
 }
 
 /*################################################################################################*/
