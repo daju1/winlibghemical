@@ -27,8 +27,11 @@ BOOL CALLBACK DlgProcMolDyn(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 	case WM_INITDIALOG:
 		{
 			moldyn_dlg = reinterpret_cast<moldyn_dialog *>(lParam);
-			moldyn_dlg->hDlg = hDlg;
-			moldyn_dlg->OnInitDialog();
+			if (moldyn_dlg)
+			{
+				moldyn_dlg->hDlg = hDlg;
+				moldyn_dlg->OnInitDialog();
+			}
 		}
 		break;
     case WM_COMMAND: 
@@ -36,25 +39,29 @@ BOOL CALLBACK DlgProcMolDyn(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
         { 
 		case IDC_BUTTON_BROWSE:
 			{
-				moldyn_dlg->handler_ButtonBrowse(NULL, moldyn_dlg);
+				if (moldyn_dlg) 
+					moldyn_dlg->handler_ButtonBrowse(NULL, moldyn_dlg);
 			}
 			break;
 		case IDOK: 
 			{
-				moldyn_dlg->handler_ButtonOK(NULL, moldyn_dlg);
+				if (moldyn_dlg)
+					moldyn_dlg->handler_ButtonOK(NULL, moldyn_dlg);
 	            EndDialog(hDlg, wParam); 
 			}
 			break;
         case IDCANCEL: 
 			{
-				moldyn_dlg->handler_ButtonCancel(NULL, moldyn_dlg);
+				if (moldyn_dlg)
+					moldyn_dlg->handler_ButtonCancel(NULL, moldyn_dlg);
 				EndDialog(hDlg, wParam); 
 			}
         } 
 		break;
 	case WM_DESTROY:
 		{
-			delete moldyn_dlg;
+			if (moldyn_dlg)
+				delete moldyn_dlg;
 		}
     } 
     return FALSE; 

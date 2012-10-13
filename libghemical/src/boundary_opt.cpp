@@ -51,7 +51,7 @@ boundary_opt::boundary_opt(geomopt_param::box_optimization_type box_opt,
             d1 = new f64[1];	
             i32s n2 = 2;
 			{
-				AddVar(& mdl->periodic_box_HALFdim[n2], & d1[n2]);
+				AddVar(& mdl->periodic_box_HALFdim[n2], & d1[0]);
 			}
 		}
 		break;	

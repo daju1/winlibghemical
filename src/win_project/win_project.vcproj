@@ -162,6 +162,9 @@
 				Name="glade"
 				Filter="">
 				<File
+					RelativePath="..\glade\geomopt_dialog.cpp">
+				</File>
+				<File
 					RelativePath="..\glade\moldyn_atomlist_dialog.cpp">
 				</File>
 				<File

@@ -356,11 +356,21 @@ void gtk_project::MakeLibraryWidgets(GtkMenuItem * menu, const char * directory_
      }
 }
 #endif
+
+#include "./glade/geomopt_dialog.h"
+
 void win_project::GeomOptGetParam(geomopt_param & param)
 {
-	if (IDOK == MessageBox(0,"new geomopt_dialog(& param)","GeomOptGetParam",MB_OKCANCEL))
+
+	//}
+	//else
+	//	param.confirm = false;	
+
+	new geomopt_dialog(& param);		// the object will call delete itself...
+	// the above dialog is a modal one; we will return from the function only after the dialog is closed.
+
+	if (param.confirm)
 	{
-		param.confirm = true;
 		win_app * app = this->GetApp();
 		if (app) 
 		{
@@ -383,12 +393,6 @@ void win_project::GeomOptGetParam(geomopt_param & param)
 
 		}
 	}
-	else
-		param.confirm = false;	
-
-//	new geomopt_dialog(& param);		// the object will call delete itself...
-	// the above dialog is a modal one; we will return from the function only after the dialog is closed.
-//	cout << "now returning from gtk_project::GeomOptGetParam()." << endl;
 }
 
 #include "./glade/moldyn_dialog.h"
