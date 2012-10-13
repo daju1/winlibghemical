@@ -54,6 +54,10 @@ class geomopt_param
 	{
 		confirm = false;
 		show_dialog = true;
+
+		enable_nsteps	= true;
+		enable_grad		= true;
+		enable_delta_e	= true;
 		
 		treshold_nsteps = 2500;
 		treshold_grad = 1.0e-3;
@@ -63,7 +67,7 @@ class geomopt_param
 		if (suqm != NULL) treshold_nsteps = 500;		// override...
 
 		// my correct
-		treshold_nsteps = 100;
+		treshold_nsteps = 500;
 		//treshold_nsteps = 10;
 	}
 	

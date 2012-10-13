@@ -135,6 +135,9 @@
 #define ID_FILE_SAVEAS32867             32867
 #define ID_FILE_SAVEBOX                 32868
 #define ID_FILE_LOADBOX                 32869
+#define ID_FILE_SAVESELECTED            32870
+#define ID_FILE_LOADSELECT              32871
+#define ID_TRAJECTORY_VIEWDISTANCEPLOT  32873
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -142,7 +145,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
-#define _APS_NEXT_COMMAND_VALUE         32870
+#define _APS_NEXT_COMMAND_VALUE         32874
 #define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

@@ -791,8 +791,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 
-
-
+			case ID_FILE_SAVESELECTED:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_FileSaveSelected(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+			case ID_FILE_LOADSELECT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_FileLoadSelect(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
 			case ID_FILE_IMPORT:
 				{
 					//######################################################
@@ -1475,6 +1507,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_CompAngleTrajPlot1D(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_TRAJECTORY_VIEWDISANCEPLOT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompDistanceTrajPlot1D(hWnd, NULL);
 						}
 					}
 					//######################################################

@@ -132,12 +132,14 @@ friend class win_eld_view;
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
 	static void popup_FileLoadBox(HWND, void*);
+	static void popup_FileLoadSelect(HWND, void*);
 	static void popup_FileOpen(HWND, void*);
 	static void popup_FileClose(HWND, void*);
 	static void popup_FileImport(HWND, void*);
 	static void popup_FileExport(HWND, void*);
 	static void popup_FileExportGraphic(HWND, void*);
 	static void popup_FileSaveBox(HWND, void*);
+	static void popup_FileSaveSelected(HWND, void*);
 	static void popup_FileSaveAs(HWND, void*);
 	static void popup_FileExtra1(HWND, void*);
 	static void popup_FileExtra2(HWND, void*);
@@ -203,6 +205,7 @@ friend class win_eld_view;
 	static void popup_CompSystematicSearch(HWND, void*);
 	static void popup_CompMonteCarloSearch(HWND, void*);
 
+	static void popup_CompDistanceTrajPlot1D(HWND widget, void * data);
 	static void popup_CompAngleTrajPlot1D(HWND widget, void * data);
 	static void popup_TrajSetTotalFrames(HWND widget, void * data);
 

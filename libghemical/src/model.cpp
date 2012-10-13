@@ -4452,9 +4452,15 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 	param.show_dialog = false;
 	param.treshold_nsteps = 2500;
 	param.treshold_grad = 1.0e-3;
-	param.treshold_delta_e = 1.0e-7;		
+	param.treshold_delta_e = 1.0e-7;	
+	param.treshold_delta_e = 1.0e-10;	
 
-	param.treshold_nsteps = 100;
+	param.enable_nsteps = true;
+	param.enable_grad = true;
+	//param.enable_delta_e = false;// если мы запрещаем выход по дельта Е, то наш алгоритм становится "равновесным". При этом величина потенциального барьера практически не зависит от направления
+	param.enable_delta_e = true;// если мы разрешаем выход по дельта Е, то наш алгоритм становится "неравновесным". При этом величина потенциального барьера зависит от направления
+
+	param.treshold_nsteps = 500;
 #if 0
 	// отменяем оптимизацию геометрии, потому что имеем в виду, 
 	// что мы имеем на входе уже молекулу с оптимизированной геометрией
@@ -4594,7 +4600,8 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 
 	//str2b << "target_crd[0],";
 	//str2b << "target_crd[1],";
-	str2b << "target_crd[2]";
+	//str2b << "target_crd[2]";
+	str2b << "n_steps_of_optimization,";
 
 /*
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
@@ -4617,8 +4624,8 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 
 		str2b << ",DispersionEnergy";
 		str2b << ",ElectrostaticEnergy"; 
-		str2b << ",NonBondedEnergyC"; 
-		str2b << ",NonBondedEnergyD";
+		//str2b << ",NonBondedEnergyC"; 
+		//str2b << ",NonBondedEnergyD";
 	}
 
 
@@ -4677,18 +4684,18 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 		//dyn->SetProbAtom(n_prob_atom, prob_atom_crd);
 		//устанавливаем координаты пробного атома в модели
 		atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
-		i32s n1 = n_prob_atom ;
-		if (n1 < eng->GetSetup()->GetAtomCount())
+		//i32s n_1 = n_prob_atom ;
+		if (n_prob_atom < eng->GetSetup()->GetAtomCount())
 		{
 			fGL x = prob_atom_crd[0];
 			fGL y = prob_atom_crd[1];
 			fGL z = prob_atom_crd[2];
 			
-			glob_atmtab[n1]->SetCRD(0, x, y, z);
+			glob_atmtab[n_prob_atom]->SetCRD(0, x, y, z);
 		}
 		// производим оптимизацию геометрии при фиксированной z координате пробного атома и атомов цели
 		// this->working_prob_atom_GeomOpt(go);			
-		{					
+		//{					
 			//const bool updt = true;
 
 			// копируем координаты из модели в машину - здесь координата пробного атома уже изменена
@@ -4712,6 +4719,7 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 			bool cancel = false;
 			while (!cancel)
 			{
+				Sleep(10);
 				opt->TakeCGStep(conjugate_gradient::Newton2An);
 
 		#if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
@@ -4785,6 +4793,8 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 						PrintToLog("the delta_e termination test was passed.\n");
 					}
 				}
+
+				
 				
 				last_energy = opt->optval;
 				
@@ -4815,7 +4825,7 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 			//CopyCRD(this, eng, 0);
 			SetupPlotting();
 			ThreadUnlock();
-		}
+		//}
 
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
@@ -4841,7 +4851,9 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 		else
 			str2b << -prob_atom_f[2] << ",";
 
-		str2b << target_crd[2];
+		//str2b << target_crd[2];
+		str2b << n1;
+
 /*#if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
 		str2b 
 			<< "," << this->periodic_box_HALFdim[0] 
@@ -4862,8 +4874,8 @@ void model::working_prob_atom_GeomOpt(char *infile_name, char * trgtlst_name, ch
 
 			str2b << "," << eng_mm->GetDispersionEnergy(); 
 			str2b << "," << eng_mm->GetElectrostaticEnergy(); 
-			str2b << "," << eng_mm->GetNonBondedEnergyC(); 
-			str2b << "," << eng_mm->GetNonBondedEnergyD();
+			//str2b << "," << eng_mm->GetNonBondedEnergyC(); 
+			//str2b << "," << eng_mm->GetNonBondedEnergyD();
 		}
 		str2b << endl << ends;
 
@@ -4908,7 +4920,7 @@ cin >> old;*/
 	}
 	ofile.close();
 	logfile2.close();
-
+/*
 	// открываем box файл
 	char boxfilename[1024];
 	sprintf(boxfilename, "prob_at_mv_dir_%d_geomopt.box", prob_atom_move_direction ? +1 : -1);
@@ -4923,7 +4935,7 @@ cin >> old;*/
 	str3b << this->periodic_box_HALFdim[2] << endl << ends;
 	boxfile << mbuff1;
 	boxfile.close();
-
+*/
 	delete opt;
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
 	delete b_opt;
@@ -4931,6 +4943,47 @@ cin >> old;*/
 }
 #endif /*PROBNIY_ATOM_GEOMOPT*/
 
+void model::LoadSelected(char * filename)
+{
+	vector<i32s> selected_atoms_list;
+	ReadTargetListFile(filename, selected_atoms_list);
+	i32s index = 0;
+	for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+	{
+		bool selected = false;
+		for (vector<i32s>::iterator it = selected_atoms_list.begin();
+			it != selected_atoms_list.end(); it++)
+		{
+			if (index == (*it))
+			{
+				selected = true;
+				break;
+			}
+		}
+		if (selected) 
+			(* itx).flags |= ATOMFLAG_SELECTED;
+		else
+			(* itx).flags &= (~ATOMFLAG_SELECTED);
+
+		index++;			
+	}
+}
+void model::SaveSelected(char * filename)
+{
+	FILE * stream;
+	stream = fopen(filename, "wt");
+	if(stream)
+	{        
+		int index = 0;
+		for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+		{
+			bool selected = ((* itx).flags & ATOMFLAG_SELECTED);
+			if (selected) fprintf(stream, "%d\n", index);
+			index++;			
+		}
+		fclose(stream);
+	}
+}
 
 void model::SaveBox(char * boxfilename)
 {

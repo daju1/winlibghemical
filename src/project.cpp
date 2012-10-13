@@ -1376,6 +1376,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		PrintToLog("> montecarlo_search <init_cycles> <simul_cycles> <optsteps> -- perform a MonteCarlo search.\n");
 		
 		PrintToLog("> traj_set_total_frames nframes -- correct total frames in traj file.\n");
+		PrintToLog("> make_plot_dist A B -- create a 1D distance vs. step plot on traj file.\n");
 		PrintToLog("> make_plot_ang A B C -- create a 1D angle vs. step plot on traj file.\n");
 		PrintToLog("> make_plot_a A B C <div> <start_ang> <end_ang> <optsteps> -- create a 1D energy vs. angle plot.\n");
 		PrintToLog("> make_plot1 A B C D <div> <start_ang> <end_ang> <optsteps> -- create a 1D energy vs. torsion plot.\n");
@@ -1958,6 +1959,21 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		i32s ic = strtol(kw4, endptr, 10);
 		
 		TrajView_AnglePlot(ia, ib, ic);
+		return;
+	}
+
+
+	if (!strcmp("make_plot_dist", kw1))
+	{
+		char kw2[32]; istr >> kw2;	// A
+		char kw3[32]; istr >> kw3;	// B
+
+		char ** endptr = NULL;
+		
+		i32s ia = strtol(kw2, endptr, 10);
+		i32s ib = strtol(kw3, endptr, 10);
+		
+		TrajView_DistancePlot(ia, ib);
 		return;
 	}
 
@@ -4047,6 +4063,132 @@ void project::DoFormula()
   str << "MW: " << molweight << ends;
   Message(buffer);
 }
+void project::TrajView_DistancePlot(i32s inda, i32s indb)
+{
+	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	//if (prj)// new trajfile_dialog(prj);	// will call delete itself...
+	//{
+		if (!this->GetTrajectoryFile())
+		{
+
+			char filename[512];
+			DWORD nFilterIndex;
+			if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+			{
+				cout << "trying to open \"" << filename << "\"." << endl;
+				this->OpenTrajectory(filename);
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+					
+				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+			
+				float ekin;
+				float epot;
+
+
+				i32s max_frames = this->GetTotalFrames();
+				for (i32s loop = 0;loop < max_frames;loop++)
+				{
+					this->SetCurrentFrame(loop);
+					//this->ReadFrame();
+					//void project::ReadFrame(void)
+					//{
+						i32s place = 8 + 2 * sizeof(int);						// skip the header...
+						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
+						//place += 2 * sizeof(float);							// skip epot and ekin...
+						
+						trajfile->seekg(place, ios::beg);
+
+						trajfile->read((char *) & ekin, sizeof(ekin));
+						trajfile->read((char *) & epot, sizeof(epot));
+
+						i32s ind = 0;
+						mt_a1 = mt_a2 = mt_a3 = NULL;		
+
+
+
+						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+						{
+						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+							
+							fGL cdata[3];
+							for (i32s t4 = 0;t4 < 3;t4++)
+							{
+								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								cdata[t4] = t1a;
+							}
+							
+							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+							if (ind == inda)
+							{
+								mt_a1 = &(* it1);
+							}
+
+							if (ind == indb)
+							{
+								mt_a2 = &(* it1);
+							}
+
+							/*if (ind == indc)
+							{
+								mt_a3 = &(* it1);
+							}*/
+
+
+							ind++;
+						}
+						//this->UpdateAllGraphicsViews();
+					//}
+
+						fGL dist;
+
+						if (mt_a1 && mt_a2)
+						{
+							const fGL * p1 = mt_a1->GetCRD(0);
+							const fGL * p2 = mt_a2->GetCRD(0);
+// my measure
+cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
+cout  << "el = " << mt_a2->el.GetSymbol() << " " << mt_a2->el.GetAtomicNumber() << " x = " << p2[0] << " y = " << p2[1] << " z = " << p2[2] << endl;
+							v3d<fGL> v1(p2, p1);
+							dist = v1.len();
+						}
+						else
+							dist = 0;
+
+					//ref->this->UpdateAllGraphicsViews(true);
+					//::Sleep(100);
+					void * udata = convert_cset_to_plotting_udata(this, 0);
+					f64 value = dist;
+					plot->AddData(loop, value, udata);
+
+					mt_a1 = mt_a2 = mt_a3 = NULL;
+				}
+				
+				this->CloseTrajectory();
+
+//				static trajview_dialog * tvd = NULL;
+				
+//				if (tvd != NULL) delete tvd;		// how to safely release the memory...
+				//tvd =
+				//	new trajview_dialog(this);		// ...right after the dialog is closed?
+				
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				plot->SetCenterAndScale();
+				plot->Update();
+			}
+		}
+		else this->ErrorMessage("Trajectory already open?!?!?!");
+	//}
+}
+
+
+
 void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
 {
 	//win_graphics_view * gv = win_graphics_view::GetGV(widget);

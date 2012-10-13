@@ -87,6 +87,13 @@ int main(int argc, char ** argv)
 		return -1;
 	}	
 
+	if (OpenFileDlg(0, "Box File (*.box)\0*.box\0All files \0*.*\0", 
+		box_name, nFilterIndex) 
+		!= S_OK)
+	{
+		return -1;
+	}
+
 #if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING || PROBNIY_ATOM_GEOMOPT
 	if (OpenFileDlg(0, "Target List File (*.dat)\0*.dat\0All files \0*.*\0", 
 		trgtlst_name, nFilterIndex) 
@@ -103,12 +110,7 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 
-	if (OpenFileDlg(0, "Box File (*.box)\0*.box\0All files \0*.*\0", 
-		box_name, nFilterIndex) 
-		!= S_OK)
-	{
-		return -1;
-	}
+
 
 #if _USE_WINGHEMICAL_
 	//готовим классы для 3D визуализации

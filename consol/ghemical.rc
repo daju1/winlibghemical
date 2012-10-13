@@ -297,13 +297,16 @@ BEGIN
         MENUITEM "Open",                        ID_FILE_OPEN
         MENUITEM "SaveAs",                      ID_FILE_SAVEAS
         MENUITEM "E&xit",                       IDM_EXIT
-        MENUITEM "Init OG",                     ID_FILE_INITOG
-        MENUITEM "Init og2",                    ID_FILE_INITOG2
+        MENUITEM "Init OG",                     ID_FILE_INITOG, GRAYED
+        MENUITEM "Init og2",                    ID_FILE_INITOG2, GRAYED
         MENUITEM "Import",                      ID_FILE_IMPORT
         MENUITEM "Export",                      ID_FILE_EXPORT
         MENUITEM SEPARATOR
         MENUITEM "Load Box",                    ID_FILE_LOADBOX
         MENUITEM "Save Box",                    ID_FILE_SAVEBOX
+        MENUITEM SEPARATOR
+        MENUITEM "Save Selected",               ID_FILE_SAVESELECTED
+        MENUITEM "Load Select",                 ID_FILE_LOADSELECT
     END
     POPUP "View"
     BEGIN
@@ -341,8 +344,11 @@ BEGIN
             MENUITEM "Trajectory view Potencial Energy Plot", 
                                                     ID_DO_TRAJECTORYVIEWPOTENCIALENERGYPLOT
 
+            MENUITEM "View Distance plot",          ID_TRAJECTORY_VIEWDISTANCEPLOT
+
             MENUITEM "View Angle plot",             ID_TRAJECTORY_VIEWANGLEPLOT
 
+            MENUITEM SEPARATOR
             MENUITEM "SetTotalFrames",              ID_TRAJECTORY_SETTOTALFRAMES
 
         END
@@ -417,10 +423,6 @@ BEGIN
         MENUITEM "Sec-Struct",                  ID_LABEL_SEC
         MENUITEM "Nothing",                     ID_LABEL_NOTHING
     END
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&About ...",                  IDM_ABOUT
-    END
     POPUP "Select"
     BEGIN
         MENUITEM "Atom ",                       ID_SELECT_ATOM
@@ -432,6 +434,10 @@ BEGIN
         MENUITEM "SelectNone",                  ID_SELECT_SELECTNONE
         MENUITEM "InvertSelection",             ID_SELECT_INVERTSELECTION
         MENUITEM "DeleteSelection",             ID_SELECT_DELETESELECTION
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
     END
 END
 

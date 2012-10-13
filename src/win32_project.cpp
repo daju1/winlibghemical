@@ -437,6 +437,41 @@ void win_project::popup_FileLoadBox(HWND widget, void* data)
 //	return true;
 }
 
+void win_project::popup_FileLoadSelect(HWND widget, void* data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+//	if (prj) new file_open_dialog(prj);	// will call delete itself...
+	char filename[1048];
+	DWORD nFilterIndex;
+	if (OpenFileDlg(widget, "Dat File (*.dat)\0*.dat\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+	{			
+		if (prj == NULL)
+		{
+			// set a the new project object ; this is only for a stand-alone app ; FIXME bonobo.
+			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			
+//			gtk_container_remove(GTK_CONTAINER(gtk_app::main_vbox), gtk_app::prj->GetWidget());
+			
+			delete win_app::prj;
+			win_app::prj = NULL;
+			
+			win_app::prj = new win_project(* win_class_factory::GetInstance());
+//			GtkWidget * widget = prj->GetWidget();
+			
+//			gtk_container_add(GTK_CONTAINER(gtk_app::main_vbox), widget);
+		}
+
+		prj->LoadSelected(filename);
+		
+
+		
+		prj->UpdateAllGraphicsViews();
+	}
+//	return true;
+}
+
+
 void win_project::popup_FileOpen(HWND widget, void* data)
 {
 	win_graphics_view * gv = win_graphics_view::GetGV(widget);
@@ -736,6 +771,33 @@ void win_project::popup_FileSaveBox(HWND widget, void* data)
 
 	}
 }
+
+
+void win_project::popup_FileSaveSelected(HWND widget, void* data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	//if (prj) new file_save_dialog(prj);		// will call delete itself...
+	TCHAR filter[] =     TEXT("Dat File (*.dat)\0*.dat\0")
+						 TEXT("All Files (*.*)\0*.*\0");
+	TCHAR filename[256];
+
+	sprintf(filename, "\0");
+	DWORD nFilterIndex;
+	if (SaveFileDlg(0, filename, filter, nFilterIndex) == S_OK)
+	{
+		if (prj == NULL)
+		{
+			prj->ErrorMessage("BUG: file_save_dialog::OkEvent() failed.");
+			exit(EXIT_FAILURE);
+		}		
+		prj->SaveSelected(filename);
+
+	}
+}
+
+
+
 
 #if 0
 void win_project::popup_FileExtra1(HWND widget, void * data)
@@ -1296,6 +1358,19 @@ prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next d
 		new command_dialog(prj, gv, command);
 	}
 }
+void win_project::popup_CompDistanceTrajPlot1D(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letters A-B with atom indices that define the distance.");
+		
+		static const char command[] = "make_plot_dist A B";
+		new command_dialog(prj, gv, command);
+	}
+}
+
 
 void win_project::popup_CompAngleTrajPlot1D(HWND widget, void * data)
 {

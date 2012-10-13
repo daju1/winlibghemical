@@ -424,6 +424,7 @@ class project : public model
 
 	void DoFormula(void);
 
+	void TrajView_DistancePlot(i32s inda, i32s indb);
 	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
 
 	void DoEnergyPlot1D(i32s, i32s, i32s, i32s, fGL, fGL, i32s, char *);

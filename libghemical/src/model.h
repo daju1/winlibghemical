@@ -425,6 +425,9 @@ public:
 
 	void SaveBox(char * boxfilename);
 	bool LoadBox(char * boxfilename);
+	
+	void SaveSelected(char * filename);
+	void LoadSelected(char * filename);
 
 };
 
