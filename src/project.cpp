@@ -1474,6 +1474,8 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		
 		if (!strcmp("plane", kw2))
 		{
+			// add plane esp rb2 1 1 1 1 1 0.5
+			// add plane vdws rb2 1 1 1 1 1 0.5
 			char kw3[32]; istr >> kw3;
 			char kw4[32]; istr >> kw4;
 			char kw5[32]; istr >> kw5;
@@ -1482,11 +1484,17 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 			char kw8[32]; istr >> kw8;
 			char kw9[32]; istr >> kw9;
 			char kwA[32]; istr >> kwA;
-			char ** endptr = NULL;
-			
+			char ** endptr = NULL;		
+
 			cp_param cpp;
-			cpp.prj = this; cpp.ref = GetCurrentSetup()->GetCurrentEngine();
+			cpp.prj = this; 
 			
+			cpp.ref = GetCurrentSetup()->GetCurrentEngine();			
+			if (cpp.ref == NULL){
+				GetCurrentSetup()->CreateCurrentEngine();
+				cpp.ref = GetCurrentSetup()->GetCurrentEngine();
+			}
+
 			if (!strcmp(kw3, "esp")) cpp.vf = (ValueFunction *) value_ESP;
 			else if (!strcmp(kw3, "vdws")) cpp.vf = (ValueFunction *) value_VDWSurf;
 			else if (!strcmp(kw3, "eldens")) cpp.vf = (ValueFunction *) value_ElDens;
@@ -2314,6 +2322,8 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 				ifstream ifile(fn, ios::in);
 				ReadGPR(* solvent, ifile, false);
 				ifile.close();
+
+				element_number = 0;
 			}
 			
 		}

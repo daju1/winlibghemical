@@ -358,6 +358,7 @@ void camera::RenderWindow(graphics_view * gv, rmode rm, int x, int y)
 	if (rm == Draw || rm == Erase || rm == Select || rm == Measure)
 	{
 		i32s tmp1 = glRenderMode(GL_RENDER);
+		printf("i32s tmp1(%d) = glRenderMode(GL_RENDER);\n", tmp1);
 		i32s tmp2 = NOT_DEFINED;
 		
 		iGLu tmp3 = 0xffffffff;		// original, lowest z-value...
@@ -380,10 +381,12 @@ void camera::RenderWindow(graphics_view * gv, rmode rm, int x, int y)
 				tmp2 = tmp4[1];
 				tmp3 = gv->GetProject()->select_buffer[tmp4[1] + 1];		// original, lowest z-value...
 				//tmp3 = gv->GetProject()->select_buffer[tmp4[1] + 2];	// modified, highest z-value...
+		printf("tmp2 = %d tmp3 = %d\n", tmp2, tmp3);
 			}
 			
 			tmp4[0]++;
 			tmp4[1] += gv->GetProject()->select_buffer[tmp4[1]] + 3;
+		printf("tmp4[%d %d]\n", tmp4[0], tmp4[1]);
 		}
 		
 		// now we copy all name records of the selected hit...
@@ -396,7 +399,11 @@ void camera::RenderWindow(graphics_view * gv, rmode rm, int x, int y)
 				name_vector.push_back(gv->GetProject()->select_buffer[tmp2 + i1 + 3]);
 			}
 		}
-		
+
+for(size_t iii = 0; iii < name_vector.size(); iii++)
+{
+	printf("name_vector[%d] = %d %x", iii, name_vector[iii], name_vector[iii]);
+}		
 		// "draw"- and "erase"-events are always forwarded to the prj-object:
 		// "draw"- and "erase"-events are always forwarded to the prj-object:
 		// "draw"- and "erase"-events are always forwarded to the prj-object:

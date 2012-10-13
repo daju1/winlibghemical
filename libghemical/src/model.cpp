@@ -1646,12 +1646,19 @@ void model::RemoveHydrogens(void)
 }
 
 void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_number, model * solvent, const char * export_gromacs)
-{
+{					
+	bool to_rand_rotate = false;
+
+	bool to_an_octahedral_lattice = false;
+
 //	use_periodic_boundary_conditions = true;	// DO NOT SET THIS!!! this is broken apparently...
 	periodic_box_HALFdim[0] = dimx;
 	periodic_box_HALFdim[1] = dimy;
 	periodic_box_HALFdim[2] = dimz;
 	SystemWasModified();
+
+	printf("element_number = %d\n", element_number);
+	printf("dimx = %f dimy = %f dimz = %f\n", dimx, dimy, dimz);
 	
 	if (density <= 0.0) return;	// zero density -> infinite distance.
 //	const fGL distance = S_Initialize(density, & solvent);		// H2O
@@ -1667,6 +1674,9 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 	{
 		distance = S_Initialize(density, & solvent);		// H2O
 	}
+
+	printf("distance = %f\n", distance);
+
 	
 	bool system_was_empty = (!atom_list.size() && !bond_list.size());
 	
@@ -1680,6 +1690,9 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 	i32s limy = (i32s) floor(dimy / distance) + 2;		// +1 is the minimum.
 	i32s limz = (i32s) floor(dimz / distance) + 2;		// +1 is the minimum.
 	
+	printf("limx = %d limy = %d limz = %d\n", limx, limy, limz);
+
+
 	i32s solvent_molecules_added = 0;
 	for (i32s lx = -limx + 1;lx < limx;lx++)
 	{
@@ -1691,13 +1704,21 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 				crdS[0] = distance * lx;
 				crdS[1] = distance * ly;
 				crdS[2] = distance * lz;
+
+					
+				printf("lx = %d ly = %d lz = %d\n", lx, ly, lz);
+
+				printf("crdS[0] = %f crdS[1] = %f crdS[2] = %f\n", crdS[0], crdS[1], crdS[2]);
 				
-				if (lz % 2)	// twist the cubic lattice to an octahedral one ; OPTIONAL!
+				if (to_an_octahedral_lattice && lz % 2)	// twist the cubic lattice to an octahedral one ; OPTIONAL!
 				{
 					crdS[0] += 0.5 * distance;
 					crdS[1] += 0.5 * distance;
+					
+					printf("crdS[0] = %f crdS[1] = %f\n", crdS[0], crdS[1]);
 				}
-				
+					
+
 				if (crdS[0] < -dimx || crdS[0] > +dimx) continue;	// skip if the molecule is too far...
 				if (crdS[1] < -dimy || crdS[1] > +dimy) continue;	// skip if the molecule is too far...
 				if (crdS[2] < -dimz || crdS[2] > +dimz) continue;	// skip if the molecule is too far...
@@ -1720,7 +1741,9 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 				}	if (skip) continue;
 				
 				solvent_molecules_added++;
-				
+					
+				cout << "added " << solvent_molecules_added << "-st solvent molecule." << endl;
+
 				f64 rot[3];
 				rot[0] = 2.0 * M_PI * (f64) rand() / (f64) RAND_MAX;
 				rot[1] = 2.0 * M_PI * (f64) rand() / (f64) RAND_MAX;
@@ -1728,12 +1751,14 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 				
 				vector<atom *> av1;
 				vector<atom *> av2;
-				{
-				
+
+
+				// add atoms
+				{				
 				for (iter_al it1 = solvent->GetAtomsBegin();it1 != solvent->GetAtomsEnd();it1++)
 				{
 					const fGL * orig = (* it1).GetCRD(0);
-					
+
 					fGL d2b[3];		// rotate x (y,z)...
 					d2b[0] = orig[0];
 					d2b[1] = orig[1] * cos(rot[0]) - orig[2] * sin(rot[0]);
@@ -1747,13 +1772,24 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 					fGL d2d[3];		// rotate z (x,y)...
 					d2d[0] = d2c[0] * cos(rot[2]) - d2c[1] * sin(rot[2]);
 					d2d[1] = d2c[0] * sin(rot[2]) + d2c[1] * cos(rot[2]);
-					d2d[2] = d2c[2];
-					
-					d2d[0] += crdS[0];
-					d2d[1] += crdS[1];
-					d2d[2] += crdS[2];
-					
+					d2d[2] = d2c[2];					
+
+					if (to_rand_rotate)
+					{
+						d2d[0] += crdS[0];
+						d2d[1] += crdS[1];
+						d2d[2] += crdS[2];
+					}	
+					else
+					{	
+						d2d[0] = orig[0] + crdS[0];
+						d2d[1] = orig[1] + crdS[1];
+						d2d[2] = orig[2] + crdS[2];
+					}
+
+
 					atom newA((* it1).el, d2d, GetCRDSetCount());
+
 					newA.flags |= ATOMFLAG_IS_SOLVENT_ATOM;
 				//	newA.flags |= ATOMFLAG_MEASURE_ND_RDF;		// what about this???
 					
@@ -1762,9 +1798,9 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 					av2.push_back(& GetLastAtom());
 				}
 				}
-				{
 
-				
+				// add bonds
+				{				
 				for (iter_bl it1 = solvent->GetBondsBegin();it1 != solvent->GetBondsEnd();it1++)
 				{
 					i32u ind1 = 0;

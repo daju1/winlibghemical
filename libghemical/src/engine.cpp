@@ -737,9 +737,11 @@ void engine_pbc::CheckLocations(void)
 engine_pbc2::engine_pbc2(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p2)
 {
 	n_solvent_through_z = 0;
+#if KLAPAN_DIFFUSE_WORKING
 	n_solvent_through_klapan = 0;
 
 	num_klap = 0;
+#endif
 	//Вычисляем число молекул растворителя
 	n_solvent_molecules = 0;
 	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
@@ -794,6 +796,7 @@ void engine_pbc2::CheckLocations(void)
 {
 	static DWORD nchecking = 0;
 	atom ** atmtab = GetSetup()->GetMMAtoms();
+#if KLAPAN_DIFFUSE_WORKING
 	// вычисляем z-координату клапана
 	if (num_klap > 0)
 	{
@@ -879,6 +882,7 @@ void engine_pbc2::CheckLocations(void)
 	dn_solvent_through_z   = 0;
 
 	z_solvent = 0.0;
+#endif
 
 	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
 	{
@@ -905,7 +909,9 @@ void engine_pbc2::CheckLocations(void)
 					if (n2 == 2)
 					{
 						dn_solvent_through_z--;
+#if KLAPAN_DIFFUSE_WORKING
 						z_solvent += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+#endif
 					}
 					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
 					{
@@ -920,7 +926,9 @@ void engine_pbc2::CheckLocations(void)
 					if (n2 == 2)
 					{
 						dn_solvent_through_z++;
+#if KLAPAN_DIFFUSE_WORKING
 						z_solvent -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+#endif
 					}
 					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
 					{
@@ -930,7 +938,9 @@ void engine_pbc2::CheckLocations(void)
 				}
 
 				if (n2 == 2)
-				{
+				{					
+#if KLAPAN_DIFFUSE_WORKING
+
 					if (
 						(test > z_klapan && test <= +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
 						||
@@ -939,6 +949,7 @@ void engine_pbc2::CheckLocations(void)
 						n_solvent_above_klapan++;
 
 					z_solvent += test;
+#endif
 				}
 			}
 		}
@@ -964,6 +975,7 @@ void engine_pbc2::CheckLocations(void)
 		}
 	}
 
+#if KLAPAN_DIFFUSE_WORKING
 	z_solvent /= n_solvent_molecules;
 
 	if (nchecking)
@@ -976,14 +988,18 @@ void engine_pbc2::CheckLocations(void)
 
 	pre_solvent_above_klapan = n_solvent_above_klapan;
 
-	n_solvent_through_z    += dn_solvent_through_z;
+
 	n_solvent_through_klapan += dn_solvent_through_klapan;
+#endif
+	n_solvent_through_z    += dn_solvent_through_z;
 	
 
+#if KLAPAN_DIFFUSE_WORKING
 	FILE * out;
 	out = fopen("diffuse_klap.txt", "at");
 	fprintf(out, "%d,%d,%f,%d\n", nchecking, n_solvent_through_z, z_klapan, n_solvent_through_klapan);
 	fclose (out);
+#endif
 
 	nchecking++;
 

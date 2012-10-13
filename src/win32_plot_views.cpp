@@ -148,22 +148,6 @@ LRESULT CALLBACK WndProcGhemicalPlot(HWND hWnd, UINT message, WPARAM wParam, LPA
 					(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
 				if (woglv)
 				{
-					/*if (win_ogl_view::m_CurrentOGContext != &woglv->m_hRC)
-					{
-						//====== ѕытаемс€ выбрать его в качестве текущего
-						if ( wglMakeCurrent (m_hdc, woglv->m_hRC))
-						{
-							win_ogl_view::m_CurrentOGContext = &woglv->m_hRC;
-						}
-						else
-						{
-							MessageBox(hWnd,"wglMakeCurrent::Error","On Create",0);
-							return 0;
-						}
-					}*/
-
-
-
 					woglv->ConfigureHandler(hWnd);
 				}
 				// ###########################################################
@@ -184,19 +168,7 @@ LRESULT CALLBACK WndProcGhemicalPlot(HWND hWnd, UINT message, WPARAM wParam, LPA
 					
 					glMatrixMode(GL_MODELVIEW);
 					glLoadIdentity();
-					/*if (win_ogl_view::m_CurrentOGContext != &woglv->m_hRC)
-					{
-						//====== ѕытаемс€ выбрать его в качестве текущего
-						if ( wglMakeCurrent (m_hdc, woglv->m_hRC))
-						{
-							win_ogl_view::m_CurrentOGContext = &woglv->m_hRC;
-						}
-						else
-						{
-							MessageBox(hWnd,"wglMakeCurrent::Error","On Create",0);
-							return 0;
-						}
-					}*/
+
 					woglv->ExposeEvent();
 
 					SwapBuffers(woglv->m_hdc);

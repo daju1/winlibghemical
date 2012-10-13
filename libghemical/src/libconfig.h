@@ -20,12 +20,21 @@
 
 // режим работы с наложением броуновского осцилл€тора 
 // в виде гравитационной осцилл€ции
+#if 0
 #define GRAVI_OSCILLATOR_WORKING 1
 #define GRAVI_OSCILLATOR_WORKING_LINEAR 1
 #define GRAVI_OSCILLATOR_START_ON_T_USTANOV 1
 
 #define KLAPAN_DIFFUSE_WORKING 1
 #define MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 1
+#else
+#define GRAVI_OSCILLATOR_WORKING 0
+#define GRAVI_OSCILLATOR_WORKING_LINEAR 0
+#define GRAVI_OSCILLATOR_START_ON_T_USTANOV 0
+
+#define KLAPAN_DIFFUSE_WORKING 0
+#define MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 0
+#endif
 
 #define DIFFUSE_WORKING 0
 

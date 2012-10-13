@@ -105,6 +105,9 @@
 				RelativePath="..\camera.cpp">
 			</File>
 			<File
+				RelativePath="..\director.cpp">
+			</File>
+			<File
 				RelativePath="..\filetrans.cpp">
 			</File>
 			<File
@@ -193,6 +196,9 @@
 			</File>
 			<File
 				RelativePath="..\color.h">
+			</File>
+			<File
+				RelativePath="..\director.h">
 			</File>
 			<File
 				RelativePath="..\filetrans.h">
