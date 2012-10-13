@@ -68,7 +68,7 @@ class camera : public dummy_object
 	
 	public:
 	
-	enum rmode { Normal = 0, Draw = 1, Erase = 2, Select = 3, Measure = 4 };
+	enum rmode { Normal = 0, Draw = 1, Erase = 2, Select = 3, Measure = 4, MolAxis = 5 };
 	
 	camera(const object_location &, fGL, project *);
 	camera(const camera &);

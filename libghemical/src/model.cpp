@@ -124,6 +124,39 @@ bool ReadTargetListFile(char * filename, vector<i32s>& target_list)
 	return false;
 }
 
+bool ReadMolecularAxisesFile(char * filename, vector<molecular_axis>& molaxis_list)
+{
+	int delim = ',';
+	molaxis_list.clear();
+	if (filename)
+	{
+		FILE * stream = fopen(filename, "rt");
+		if (stream)
+		{
+			const int n = 256;
+			char szBuff[n];
+			while (!feof(stream))
+			{
+				char * ch = fgets(szBuff,n,stream);
+				if( ch != NULL && strlen(szBuff) > 1)
+				{
+					i32s ind1 = atoi(szBuff);
+					char * p = strchr(szBuff, delim);
+					if (p)
+					{
+						i32s ind2 = atoi(p+1);
+						molaxis_list.push_back(molecular_axis(ind1,ind2));
+					}
+				}
+			}
+
+			fclose(stream);
+			return true;
+		}
+	}
+	return false;
+}
+
 
 model::model(void)
 {
@@ -480,6 +513,19 @@ void model::RemoveAtom(iter_al it1)
 		if ((* it1).index < removed_index) continue;
 		else (* it1).index--;
 	}
+}
+
+void model::AddMolAxis(molecular_axis & p1)
+{
+	if (p1.atmr[0] == p1.atmr[1])
+	{
+		cout << "BUG1: tried to add an invalid bond at model::AddBond()!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	
+	SystemWasModified();
+	
+	molaxis_list.push_back(p1);
 }
 
 void model::AddBond(bond & p1)
@@ -1714,7 +1760,7 @@ void model::NematicBox(fGL dimx, fGL dimy, fGL dimz, model * solvent)
 	rot[2] = 2.0 * M_PI * 0.125; // rotate z (x,y)...
 	bool to_rand_rotate = false;
 
-	bool to_an_octahedral_lattice = false;
+	bool to_an_octahedral_lattice = true;
 
 //	use_periodic_boundary_conditions = true;	// DO NOT SET THIS!!! this is broken apparently...
 	periodic_box_HALFdim[0] = dimx;
@@ -1737,8 +1783,8 @@ void model::NematicBox(fGL dimx, fGL dimy, fGL dimz, model * solvent)
 	fGL distance_y = 2 * solvent->periodic_box_HALFdim[1];
 	fGL distance_z = 2 * solvent->periodic_box_HALFdim[2];
 
-distance_y*=0.5;
-distance_x/=0.5;
+distance_y*=0.25;
+distance_x/=0.65;
 
 
 	printf("distance_x = %f\n", distance_x);
@@ -1764,9 +1810,9 @@ distance_x/=0.5;
 	i32s solvent_molecules_added = 0;
 	for (i32s lx = -limx + 1;lx < limx;lx++)
 	{
+rot[2] += M_PI;
 		for (i32s ly = -limy + 1;ly < limy;ly++)
 		{
-rot[2] += M_PI;
 			for (i32s lz = -limz + 1;lz < limz;lz++)
 			{
 				fGL crdS[3];
@@ -1779,13 +1825,13 @@ rot[2] += M_PI;
 
 				printf("crdS[0] = %f crdS[1] = %f crdS[2] = %f\n", crdS[0], crdS[1], crdS[2]);
 				
-				/*if (to_an_octahedral_lattice && lz % 2)	// twist the cubic lattice to an octahedral one ; OPTIONAL!
+				if (to_an_octahedral_lattice && ly % 2)	// twist the cubic lattice to an octahedral one ; OPTIONAL!
 				{
-					crdS[0] += 0.5 * distance;
-					crdS[1] += 0.5 * distance;
+					crdS[0] += 0.5 * sqrt(2.0) * distance_x;
+					crdS[1] += 0.5 * sqrt(2.0) * distance_y;
 					
 					printf("crdS[0] = %f crdS[1] = %f\n", crdS[0], crdS[1]);
-				}*/
+				}
 					
 
 				if (crdS[0] < -dimx || crdS[0] > +dimx) continue;	// skip if the molecule is too far...
@@ -2680,7 +2726,7 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	if (param.recalc_box && !m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 	
-	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);		// optimal settings?!?!?
+	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0, param.don_t_move_fixed_atoms);		// optimal settings?!?!?
 #if USE_BOUNDARY_OPT_ON_GEOMOPT
 	boundary_opt * b_opt = NULL;
 	//printf("param.box_opt = %d\n", param.box_opt);
@@ -2926,8 +2972,12 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
 	else dyn = new moldyn_langevin(eng, param.timestep);
 
+
 #if WRITE_LOCKED_FORCES
 	dyn->WriteLockedForcesHeader();
+#endif
+#if WRITE_WORKED_FORCES
+	dyn->WriteWorkedForcesHeader();
 #endif
 #if SOUND_GRAVI_OSCILLATOR
 	dyn->InitGraviOscillator(param);
@@ -3167,6 +3217,27 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	}
 #endif
 
+	if (!param.load_last_frame && param.maxwell_distribution_init)
+	{
+		dyn->MaxwellDistribution(param.maxwell_init_temperature);
+
+		f64 ekin = dyn->KineticEnergy();
+		printf("ekin = %f\n", ekin);
+		f64 temp = dyn->ConvEKinTemp(ekin);
+		printf("temp = %f\n", temp);
+	}
+
+	if (param.load_last_frame)
+	{
+		dyn->ReadLastFrame(param.filename2);
+
+		f64 ekin = dyn->KineticEnergy();
+		printf("ekin = %f\n", ekin);
+		f64 temp = dyn->ConvEKinTemp(ekin);
+		printf("temp = %f\n", temp);
+	}
+
+
 	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)
 	{
 		Sleep(10);
@@ -3180,7 +3251,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
 		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->update = true;
 		
-		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations();
+		//if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations();
+		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations2();
 		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
 		
 		if (n1 < param.nsteps_h && !(n1 % 100))
@@ -3287,7 +3359,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #if GRAVI_OSCILLATOR_WORKING 	
 		dyn->TakeGraviStep();
 #endif
+		//##############################################################################
 		dyn->TakeMDStep(enable_tc);
+		//##############################################################################
 #if USE_BOUNDARY_OPT_ON_MOLDYN
 		if (b_opt && param.box_optimization && !(n1 % 10)) b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif
@@ -3512,7 +3586,12 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 				}
 			}
 		}
-		
+
+		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
+		{
+			dyn->SaveLastFrame(param.filename2);
+		}	
+
 		//if (!(n1 % 100))
 		if (!(n1 % 10))
 		{
@@ -5377,6 +5456,68 @@ cin >> old;*/
 #endif
 }
 #endif /*PROBNIY_ATOM_GEOMOPT*/
+
+void model::ClearMolecularAxises()
+{
+	this->molaxis_list.clear();
+	for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+		(* itx).flags &= (~ATOMFLAG_SELECTED);
+}
+void model::LoadMolecularAxises(char * filename)
+{
+	vector<molecular_axis> mlax_list;
+	ReadMolecularAxisesFile(filename, mlax_list);
+	for (vector<molecular_axis>::iterator it = mlax_list.begin();
+		it != mlax_list.end(); it++)
+	{	
+		int found = 0;
+		molecular_axis mlax;
+		for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+		{
+			bool selected = false;
+
+			if ((*itx).index == (*it).ind[0])
+			{
+				mlax.atmr[0] = &(* itx);
+				selected = true; found++;
+			}
+
+			if ((*itx).index == (*it).ind[1])
+			{
+				mlax.atmr[1] = &(* itx);
+				selected = true; found++;
+			}
+			
+			if (selected) 
+			{
+				(* itx).flags |= ATOMFLAG_SELECTED;
+
+				if ( found == 2)
+				{
+					this->molaxis_list.push_back(mlax);
+					break;
+				}
+			}
+		}
+	}
+}
+void model::SaveMolecularAxises(char * filename)
+{
+	FILE * stream;
+	stream = fopen(filename, "wt");
+	if(stream)
+	{        
+		for (list<molecular_axis>::iterator it = this->molaxis_list.begin();
+			it != this->molaxis_list.end(); it++)
+		{
+			fprintf(stream, "%d,%d\n", 
+				(*it).atmr[0] ? (*it).atmr[0]->index: -1,
+				(*it).atmr[1] ? (*it).atmr[1]->index: -1
+				);
+		}
+		fclose(stream);
+	}
+}
 
 void model::LoadSelected(char * filename)
 {

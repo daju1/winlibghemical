@@ -743,5 +743,22 @@ void measure_tool::MotionEvent(ogl_view *, i32s, i32s)
 }
 
 /*################################################################################################*/
+/*################################################################################################*/
+
+// the operating principle here is the same as in select_tool above...
+
+void molaxis_tool::ButtonEvent(ogl_view * oglv, i32s x, i32s y)
+{
+	latest_x = x; latest_y = y;
+	
+	graphics_view * gv = dynamic_cast<graphics_view *>(oglv);
+	if (gv != NULL) gv->cam->RenderWindow(gv, camera::MolAxis, x, y);
+}
+
+void molaxis_tool::MotionEvent(ogl_view *, i32s, i32s)
+{
+}
+
+/*################################################################################################*/
 
 // eof

@@ -133,6 +133,8 @@ friend class win_eld_view;
 	
 	static void popup_FileLoadBox(HWND, void*);
 	static void popup_FileLoadSelect(HWND, void*);
+	static void popup_FileLoadMolecularAxises(HWND, void*);
+	static void popup_ClearMolecularAxises(HWND, void*);
 	static void popup_FileOpen(HWND, void*);
 	static void popup_FileClose(HWND, void*);
 	static void popup_FileImport(HWND, void*);
@@ -140,6 +142,7 @@ friend class win_eld_view;
 	static void popup_FileExportGraphic(HWND, void*);
 	static void popup_FileSaveBox(HWND, void*);
 	static void popup_FileSaveSelected(HWND, void*);
+	static void popup_FileSaveMolecularAxises(HWND, void*);
 	static void popup_FileSaveAs(HWND, void*);
 	static void popup_FileExtra1(HWND, void*);
 	static void popup_FileExtra2(HWND, void*);
@@ -207,13 +210,28 @@ friend class win_eld_view;
 
 	static void popup_UnLockSelectedAtoms(HWND widget, void * data);
 	static void popup_LockSelectedAtoms(HWND widget, void * data);
+
+	static void popup_SelectMolecularAxises(HWND widget, void * data);
+
 	static void popup_SelectLockedAtoms(HWND widget, void * data);
+	static void popup_SelectWorkingAtoms(HWND widget, void * data);
+	static void popup_SelectSpecialAtoms(HWND widget, void * data);
+	static void popup_SelectSolventAtoms(HWND widget, void * data);
+	static void popup_SelectUnderGraviAtoms(HWND widget, void * data);
 
 	static void popup_SetSelectedAtomsUnderGravi(HWND widget, void * data);
 	static void popup_UnSetSelectedAtomsUnderGravi(HWND widget, void * data);
 
 	static void popup_SetSelectedAtomsAsSolvent(HWND widget, void * data);
 	static void popup_UnSetSelectedAtomsAsSolvent(HWND widget, void * data);
+
+	static void popup_SetSelectedAtomsAsWorking(HWND widget, void * data);
+	static void popup_UnSetSelectedAtomsAsWorking(HWND widget, void * data);
+
+	static void popup_SetSelectedAtomsAsSpecial(HWND widget, void * data);
+	static void popup_UnSetSelectedAtomsAsSpecial(HWND widget, void * data);
+
+	static void popup_CompNematicOrderParamTrajPlot1D(HWND widget, void * data);
 
 	static void popup_CompCoordinateTrajPlot1D(HWND widget, void * data);
 	static void popup_CompDistanceTrajPlot1D(HWND widget, void * data);
@@ -228,6 +246,7 @@ friend class win_eld_view;
 	static void popup_CompTransitionStateSearch(HWND, void*);
 	static void popup_CompStationaryStateSearch(HWND, void*);
 	static void popup_CompFormula(HWND, void*);
+	static void popup_CompDensity(HWND, void*);
 
 static void popup_CompSetFormalCharge(HWND, void*);
 static void popup_CompCreateRS(HWND, void*);

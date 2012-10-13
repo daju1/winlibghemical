@@ -30,18 +30,22 @@ moldyn_param::moldyn_param(setup * su)
 	nsteps_h = 5000;
 	nsteps_e = 5000;
 	nsteps_s = 100000;
-	temperature = 300.0;
+	maxwell_init_temperature = temperature = 300.0;
 	timestep = 0.5;
 	constant_e = false;
 	langevin = false;
 	recalc_box = false;
 	box_optimization = false;
+	maxwell_distribution_init = false;
+
+	load_last_frame = false;
 
 	g[0] = 0.0; //Gx
 	g[1] = 0.0; //Gy
 	g[2] = 0.0; //Gz
 	
 	strcpy(filename, "untitled.traj");
+	strcpy(filename2, "untitled.frame");
 	
 	setup1_sf * susf = dynamic_cast<setup1_sf *>(su);
 	if (susf != NULL) timestep = 5.0;			// override...
@@ -109,11 +113,130 @@ moldyn_param::moldyn_param(setup * su)
 #endif
 
 #endif
-
-
-
-
 }
+double invnormaldistribution(double y0);
+#include<math.h>
+#include<float.h>
+
+double invnormaldistribution(double y0)
+{
+    double result;
+    double expm2;
+    double s2pi;
+    double big;
+    double x;
+    double y;
+    double z;
+    double y2;
+    double x0;
+    double x1;
+    int code;
+    double p0;
+    double q0;
+    double p1;
+    double q1;
+    double p2;
+    double q2;
+
+    expm2 = 0.13533528323661269189;
+    s2pi = 2.50662827463100050242;
+    big = 10000000000000;
+    if( y0<=0 )
+    {
+        result = -big;
+        return result;
+    }
+    if( y0>=1 )
+    {
+        result = big;
+        return result;
+    }
+    code = 1;
+    y = y0;
+    if( y>1.0-expm2 )
+    {
+        y = 1.0-y;
+        code = 0;
+    }
+    if( y>expm2 )
+    {
+        y = y-0.5;
+        y2 = y*y;
+        p0 = -59.9633501014107895267;
+        p0 = 98.0010754185999661536+y2*p0;
+        p0 = -56.6762857469070293439+y2*p0;
+        p0 = 13.9312609387279679503+y2*p0;
+        p0 = -1.23916583867381258016+y2*p0;
+        q0 = 1;
+        q0 = 1.95448858338141759834+y2*q0;
+        q0 = 4.67627912898881538453+y2*q0;
+        q0 = 86.3602421390890590575+y2*q0;
+        q0 = -225.462687854119370527+y2*q0;
+        q0 = 200.260212380060660359+y2*q0;
+        q0 = -82.0372256168333339912+y2*q0;
+        q0 = 15.9056225126211695515+y2*q0;
+        q0 = -1.18331621121330003142+y2*q0;
+        x = y+y*y2*p0/q0;
+        x = x*s2pi;
+        result = x;
+        return result;
+    }
+    x = sqrt(-2.0*log(y));
+    x0 = x-log(x)/x;
+    z = 1.0/x;
+    if( x<8.0 )
+    {
+        p1 = 4.05544892305962419923;
+        p1 = 31.5251094599893866154+z*p1;
+        p1 = 57.1628192246421288162+z*p1;
+        p1 = 44.0805073893200834700+z*p1;
+        p1 = 14.6849561928858024014+z*p1;
+        p1 = 2.18663306850790267539+z*p1;
+        p1 = -1.40256079171354495875*0.1+z*p1;
+        p1 = -3.50424626827848203418*0.01+z*p1;
+        p1 = -8.57456785154685413611*0.0001+z*p1;
+        q1 = 1;
+        q1 = 15.7799883256466749731+z*q1;
+        q1 = 45.3907635128879210584+z*q1;
+        q1 = 41.3172038254672030440+z*q1;
+        q1 = 15.0425385692907503408+z*q1;
+        q1 = 2.50464946208309415979+z*q1;
+        q1 = -1.42182922854787788574*0.1+z*q1;
+        q1 = -3.80806407691578277194*0.01+z*q1;
+        q1 = -9.33259480895457427372*0.0001+z*q1;
+        x1 = z*p1/q1;
+    }
+    else
+    {
+        p2 = 3.23774891776946035970;
+        p2 = 6.91522889068984211695+z*p2;
+        p2 = 3.93881025292474443415+z*p2;
+        p2 = 1.33303460815807542389+z*p2;
+        p2 = 2.01485389549179081538*0.1+z*p2;
+        p2 = 1.23716634817820021358*0.01+z*p2;
+        p2 = 3.01581553508235416007*0.0001+z*p2;
+        p2 = 2.65806974686737550832*0.000001+z*p2;
+        p2 = 6.23974539184983293730*0.000000001+z*p2;
+        q2 = 1;
+        q2 = 6.02427039364742014255+z*q2;
+        q2 = 3.67983563856160859403+z*q2;
+        q2 = 1.37702099489081330271+z*q2;
+        q2 = 2.16236993594496635890*0.1+z*q2;
+        q2 = 1.34204006088543189037*0.01+z*q2;
+        q2 = 3.28014464682127739104*0.0001+z*q2;
+        q2 = 2.89247864745380683936*0.000001+z*q2;
+        q2 = 6.79019408009981274425*0.000000001+z*q2;
+        x1 = z*p2/q2;
+    }
+    x = x0-x1;
+    if( code!=0 )
+    {
+        x = -x;
+    }
+    result = x;
+    return result;
+}
+
 moldyn::moldyn(engine * p1, f64 p2)
 {
 	eng = p1;
@@ -127,6 +250,7 @@ moldyn::moldyn(engine * p1, f64 p2)
 	mass = new f64[eng->GetAtomCount()];
 	
 	locked = new char[eng->GetAtomCount()];
+	worked = new char[eng->GetAtomCount()];
 //	target = new char[eng->GetAtomCount()];
 	gravi = new char[eng->GetAtomCount()];
 	
@@ -134,7 +258,7 @@ moldyn::moldyn(engine * p1, f64 p2)
 	
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 
-	num_gravi = 0;	
+	num_gravi = 0;	num_worked = 0; 
 	num_locked = 0; i32s counter = 0;
 	while (counter < eng->GetAtomCount())
 	{
@@ -146,10 +270,22 @@ moldyn::moldyn(engine * p1, f64 p2)
 		}
 		
 		mass[counter] = glob_atmtab[counter]->mass;
-		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
 		// умножаем на массу единицы атомного веса углеродной шкалы в кг и на число Авогадро
+		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
+		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_SPECIAL_ATOM)
+		{
+			mass[counter] *= 20;
+		}		
 		
 		locked[counter] = lflag;
+
+		bool wflag = false;
+		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_WORKING_ATOM)
+		{
+			wflag = true;
+			num_worked++;
+		}		
+		worked[counter] = wflag;
 
 		bool grflag = false;
 		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_GRAVI)
@@ -175,7 +311,6 @@ moldyn::moldyn(engine * p1, f64 p2)
 			acc[counter * 3 + n1] = 0.0;
 		}
 #endif
-		
 		counter++;
 	}
 
@@ -191,6 +326,14 @@ moldyn::moldyn(engine * p1, f64 p2)
 	temperature = 300.0;
 	
 	temperature_coupling = 0.010;
+
+	psi = 0.0;
+	relax_rate_2 = 0.00001;
+
+
+
+
+
 #if GRAVI_OSCILLATOR_WORKING 
 // режим работы с наложением броуновского осциллятора 
 // в виде гравитационной осцилляции
@@ -218,9 +361,23 @@ moldyn::~moldyn(void)
 	
 	delete[] mass;
 	
+	delete[] worked;
 	delete[] locked;
 //	delete[] target;
 	delete[] gravi;
+}
+
+void moldyn::MaxwellDistribution(f64 Temp)
+{
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			i32u rnum = rand(); 
+			f64 r1 = ((f64) rnum / (f64) RAND_MAX);
+			vel[n1 * 3 + n2] = invnormaldistribution(r1) * sqrt(1.0*8.314*Temp/mass[n1]) / 1000.;
+		}
+	}
 }
 f64 moldyn::GetGravi(i32s dim)
 {
@@ -584,13 +741,100 @@ void moldyn::WriteLockedForcesHeader()
 		{
 			if (locked[n1])
 			{
-				fprintf(stream,",x%d", n1);
-				fprintf(stream,",y%d", n1);
-				fprintf(stream,",z%d", n1);
+				//fprintf(stream,",x%d", n1);
+				//fprintf(stream,",y%d", n1);
+				//fprintf(stream,",z%d", n1);
 			}
 		}
+#if SOUND_GRAVI_OSCILLATOR
 		fprintf(stream,",m_g_gravi_dim\n");
-		fprintf(stream,"\n");
+#endif
+		fprintf(stream, ",temperature");
+		fprintf(stream, ",ConvEKinTemp(ekin)");
+
+		fprintf(stream, ",sum_mom_xy");
+
+		fprintf(stream, ",sum_vel[0]");
+		fprintf(stream, ",sum_vel[1]");
+		fprintf(stream, ",sum_vel[2]");
+
+		fprintf(stream, ",sum_vel_up[0]");
+		fprintf(stream, ",sum_vel_up[1]");
+		fprintf(stream, ",sum_vel_up[2]");
+
+		fprintf(stream, ",sum_vel_dw[0]");
+		fprintf(stream, ",sum_vel_dw[1]");
+		fprintf(stream, ",sum_vel_dw[2]");
+
+		fprintf(stream, ",sum_fup[0]");
+		fprintf(stream, ",sum_fup[1]");
+		fprintf(stream, ",sum_fup[2]");
+
+		fprintf(stream, ",sum_fdw[0]");
+		fprintf(stream, ",sum_fdw[1]");
+		fprintf(stream, ",sum_fdw[2]");
+
+		fprintf(stream, "\n");
+		fclose(stream);
+	}
+}
+#endif
+#if WRITE_WORKED_FORCES
+void moldyn::WriteWorkedForcesHeader()
+{
+	SYSTEMTIME time;
+	GetLocalTime(&time);
+
+	WORD y = time.wYear;
+	WORD mo = time.wMonth;
+	WORD d = time.wDay;
+
+	WORD h = time.wHour;
+	WORD mi = time.wMinute;
+	WORD s = time.wSecond;
+
+	sprintf(worked_forces_fn, "D://worked_forces_%d.%d.%d_%d.%d.%d.txt", y,mo,d,h,mi,s);
+	FILE * stream = fopen(worked_forces_fn, "wt");
+	if (stream)
+	{
+		fprintf(stream,"t");
+#if SOUND_GRAVI_OSCILLATOR
+		fprintf(stream,",m_g_gravi_dim\n");
+#endif
+		fprintf(stream, ",temperature");
+		fprintf(stream, ",ConvEKinTemp(ekin)");
+
+		fprintf(stream, ",sum_mom_xy");
+
+		fprintf(stream, ",sum_vel[0]");
+		fprintf(stream, ",sum_vel[1]");
+		fprintf(stream, ",sum_vel[2]");
+
+		fprintf(stream, ",sum_vel_wk_up[0]");
+		fprintf(stream, ",sum_vel_wk_up[1]");
+		fprintf(stream, ",sum_vel_wk_up[2]");
+
+		fprintf(stream, ",sum_vel_wk_dw[0]");
+		fprintf(stream, ",sum_vel_wk_dw[1]");
+		fprintf(stream, ",sum_vel_wk_dw[2]");
+
+		fprintf(stream, ",sum_vel_up[0]");
+		fprintf(stream, ",sum_vel_up[1]");
+		fprintf(stream, ",sum_vel_up[2]");
+
+		fprintf(stream, ",sum_vel_dw[0]");
+		fprintf(stream, ",sum_vel_dw[1]");
+		fprintf(stream, ",sum_vel_dw[2]");
+
+		fprintf(stream, ",sum_f_wk_up[0]");
+		fprintf(stream, ",sum_f_wk_up[1]");
+		fprintf(stream, ",sum_f_wk_up[2]");
+
+		fprintf(stream, ",sum_f_wk_dw[0]");
+		fprintf(stream, ",sum_f_wk_dw[1]");
+		fprintf(stream, ",sum_f_wk_dw[2]");
+
+		fprintf(stream, "\n");
 		fclose(stream);
 	}
 }
@@ -598,10 +842,69 @@ void moldyn::WriteLockedForcesHeader()
 void moldyn::TakeMDStep(bool enable_temperature_control)
 {
 #if WRITE_LOCKED_FORCES
+	double sum_mom_xy = 0.0;
+
 	double sum_vel[3];
 	sum_vel[0] = 0.0;
 	sum_vel[1] = 0.0;
 	sum_vel[2] = 0.0;
+
+	double sum_vel_up[3];
+	sum_vel_up[0] = 0.0;
+	sum_vel_up[1] = 0.0;
+	sum_vel_up[2] = 0.0;
+
+	double sum_vel_dw[3];
+	sum_vel_dw[0] = 0.0;
+	sum_vel_dw[1] = 0.0;
+	sum_vel_dw[2] = 0.0;
+
+	double sum_fup[3];
+	sum_fup[0] = 0.0;
+	sum_fup[1] = 0.0;
+	sum_fup[2] = 0.0;
+	double sum_fdw[3];
+	sum_fdw[0] = 0.0;
+	sum_fdw[1] = 0.0;
+	sum_fdw[2] = 0.0;
+#endif
+#if WRITE_WORKED_FORCES
+	double sum_mom_xy = 0.0;
+
+	double sum_vel[3];
+	sum_vel[0] = 0.0;
+	sum_vel[1] = 0.0;
+	sum_vel[2] = 0.0;
+
+	double sum_vel_wk_up[3];
+	sum_vel_wk_up[0] = 0.0;
+	sum_vel_wk_up[1] = 0.0;
+	sum_vel_wk_up[2] = 0.0;
+
+	double sum_vel_wk_dw[3];
+	sum_vel_wk_dw[0] = 0.0;
+	sum_vel_wk_dw[1] = 0.0;
+	sum_vel_wk_dw[2] = 0.0;
+
+
+	double sum_vel_up[3];
+	sum_vel_up[0] = 0.0;
+	sum_vel_up[1] = 0.0;
+	sum_vel_up[2] = 0.0;
+
+	double sum_vel_dw[3];
+	sum_vel_dw[0] = 0.0;
+	sum_vel_dw[1] = 0.0;
+	sum_vel_dw[2] = 0.0;
+
+	double sum_f_wk_up[3];
+	sum_f_wk_up[0] = 0.0;
+	sum_f_wk_up[1] = 0.0;
+	sum_f_wk_up[2] = 0.0;
+	double sum_f_wk_dw[3];
+	sum_f_wk_dw[0] = 0.0;
+	sum_f_wk_dw[1] = 0.0;
+	sum_f_wk_dw[2] = 0.0;
 #endif
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
@@ -642,8 +945,59 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
 #if WRITE_LOCKED_FORCES
 			sum_vel[n2] += vel[n1 * 3 + n2];
+			if (eng->crd[n1 * 3 + 1] > 0.0)
+			{
+				sum_vel_up[n2] += vel[n1 * 3 + n2];
+			}
+			else
+			{
+				sum_vel_dw[n2] += vel[n1 * 3 + n2];
+			}
+#endif
+#if WRITE_WORKED_FORCES
+			if (worked[n1])
+			{
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+					sum_vel_wk_up[n2] += vel[n1 * 3 + n2];
+				}
+				else
+				{
+					sum_vel_wk_dw[n2] += vel[n1 * 3 + n2];
+				}
+			}
+			//else
+			{
+				sum_vel[n2] += vel[n1 * 3 + n2];
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+					sum_vel_up[n2] += vel[n1 * 3 + n2];
+				}
+				else
+				{
+					sum_vel_dw[n2] += vel[n1 * 3 + n2];
+				}
+			}
 #endif
 		}
+#if WRITE_LOCKED_FORCES
+		// это неверно
+		// момент по часовой стрелке
+		// y*vx-x*vy
+		sum_mom_xy += 
+			eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0] - 
+			eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1];
+#endif
+#if WRITE_WORKED_FORCES
+		if (!worked[n1])
+		{
+			// момент против часовой стрелки
+			// x*vy-y*vx
+			sum_mom_xy += mass[n1] * 
+				(eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1] - 
+				eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0]);
+		}
+#endif
 	}
 	
 	eng->DoSHAKE();
@@ -689,6 +1043,10 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 	FILE * locked_forces_stream = fopen(locked_forces_fn, "at");
 	fprintf(locked_forces_stream, "%f", tstep1*step_counter);
 #endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+	FILE * worked_forces_stream = fopen(worked_forces_fn, "at");
+	fprintf(worked_forces_stream, "%f", tstep1*step_counter);
+#endif /*WRITE_LOCKED_FORCES*/
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 #if WRITE_LOCKED_FORCES
@@ -696,12 +1054,48 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		{
 			if (locked_forces_stream)
 			{
-				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 0]);
-				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 1]);
-				fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 2]);
+				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 0]);
+				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 1]);
+				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 2]);
+				/*if (mass[n1] > 13)
+				{
+				}
+				else
+				{
+				}*/
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+	sum_fup[0] += -eng->d1[n1 * 3 + 0];
+	sum_fup[1] += -eng->d1[n1 * 3 + 1];
+	sum_fup[2] += -eng->d1[n1 * 3 + 2];
+				}
+				else
+				{
+	sum_fdw[0] += -eng->d1[n1 * 3 + 0];
+	sum_fdw[1] += -eng->d1[n1 * 3 + 1];
+	sum_fdw[2] += -eng->d1[n1 * 3 + 2];
+				}
 			}
 		}
 #endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+		if (worked[n1])
+		{
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+	sum_f_wk_up[0] += -eng->d1[n1 * 3 + 0];
+	sum_f_wk_up[1] += -eng->d1[n1 * 3 + 1];
+	sum_f_wk_up[2] += -eng->d1[n1 * 3 + 2];
+				}
+				else
+				{
+	sum_f_wk_dw[0] += -eng->d1[n1 * 3 + 0];
+	sum_f_wk_dw[1] += -eng->d1[n1 * 3 + 1];
+	sum_f_wk_dw[2] += -eng->d1[n1 * 3 + 2];
+				}
+			
+		}
+#endif /*WRITE_WORKED_FORCES*/
 		if (locked[n1]) continue;
 		//a = -F/m
 		//dv = a*dt
@@ -737,26 +1131,144 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 #if WRITE_LOCKED_FORCES
 	if (locked_forces_stream)
 	{
+#if SOUND_GRAVI_OSCILLATOR
 		fprintf(locked_forces_stream, ",%f", m_g_gravi_dim);
+#endif
 		fprintf(locked_forces_stream, ",%f", temperature);
+		fprintf(locked_forces_stream, ",%f", ConvEKinTemp(ekin));
+
+		fprintf(locked_forces_stream, ",%f", sum_mom_xy);
+
 		fprintf(locked_forces_stream, ",%f", sum_vel[0]);
 		fprintf(locked_forces_stream, ",%f", sum_vel[1]);
 		fprintf(locked_forces_stream, ",%f", sum_vel[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_fup[0]);
+		fprintf(locked_forces_stream, ",%f", sum_fup[1]);
+		fprintf(locked_forces_stream, ",%f", sum_fup[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_fdw[0]);
+		fprintf(locked_forces_stream, ",%f", sum_fdw[1]);
+		fprintf(locked_forces_stream, ",%f", sum_fdw[2]);
+
 		fprintf(locked_forces_stream, "\n");
 		fclose(locked_forces_stream);
 	}
 #endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+	if (worked_forces_stream)
+	{
+#if SOUND_GRAVI_OSCILLATOR
+		fprintf(worked_forces_stream, ",%f", m_g_gravi_dim);
+#endif
+		fprintf(worked_forces_stream, ",%f", temperature);
+		fprintf(worked_forces_stream, ",%f", ConvEKinTemp(ekin));
+
+		fprintf(worked_forces_stream, ",%f", sum_mom_xy);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[2]);
+
+		fprintf(worked_forces_stream, "\n");
+		fclose(worked_forces_stream);
+	}
+#endif /*WRITE_WORKED_FORCES*/
 	}
 	
 	ekin = KineticEnergy();
+#if 1
 	if (enable_temperature_control)
 	{
 		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
+
 		
 		f64 tc = sqrt(1.0 + temperature_coupling * delta);
-		SetEKin(ekin * tc);
+
+		bool with_constant_impuls = true;
+		bool and_with_zero_impuls = true;
+		/*if (delta <= -0.1)
+		{
+			 tc = 1.0 + delta;
+			 with_constant_impuls = false;
+		}*/
+
+		SetEKin(ekin * tc, with_constant_impuls, and_with_zero_impuls);
 	}
-	
+#else
+	if (enable_temperature_control)
+	{
+		// фрикционный коэффициент, изменяющийся во времени
+		f64 tt = temperature < 1.0 ? 1.0 : temperature;
+		psi += relax_rate_2 * ((ConvEKinTemp(ekin) / tt) - 1.0);
+
+		printf ("psi = %f\n", psi);
+		
+		// определяем суммарный импульс системы до применения термостата
+		f64 sum_p[3];
+		SumModelImpuls(sum_p);
+		f64 tc = 1.0 - psi;
+
+		f64 dp[3];//поправка к импульсу в расчёте на каждый атом
+		for (i32s n2 = 0;n2 < 3;n2++) 
+			dp[n2] = sum_p[n2] * psi / (eng->GetAtomCount() - num_locked);
+
+		for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+		{
+			if (!locked[n1])
+			{
+				for (i32s n2 = 0;n2 < 3;n2++)
+				{
+					// умножаем импульс каждого атома на коэффициент tc
+					vel[n1 * 3 + n2] *= tc / mass[n1];
+					//для сохранения суммарного импульса системы 
+					//вводим поправку для каждого незафиксированного атома
+					vel[n1 * 3 + n2] += dp[n2] / mass[n1];
+				}	
+			}
+		}
+#if 1
+		//Отладка
+		f64 sum_p3[3];
+		SumModelImpuls(sum_p3);
+
+		for (i32s n2 = 0;n2 < 3;n2++) 
+			printf ("sum_p[%d]\t%f\t%f\t\t%f\n", n2,  sum_p[n2], sum_p3[n2], sum_p[n2]-sum_p3[n2]);
+#endif
+	}
+#endif
 	step_counter++;
 }
 
@@ -792,13 +1304,170 @@ f64 moldyn::ConvEKinTemp(f64 p1)
 	return (2.0 / 3.0) * p1 * 1000.0 / ((eng->GetAtomCount() - num_locked) * 8.314510);
 }
 
-void moldyn::SetEKin(f64 p1)
+void moldyn::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_impuls)
 {
-	f64 tmp1 = p1 / KineticEnergy();
+	// определяем суммарный импульс системы до применения термостата
+	f64 sum_p1[3];
+	if (with_constant_impuls)
+	{
+		if (and_with_zero_impuls)
+		{
+			sum_p1[0] = 0.0;
+			sum_p1[1] = 0.0;
+			sum_p1[2] = 0.0;
+		}
+		else
+			SumModelImpuls(sum_p1);
+	}
+
+	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	// оригинальный код, не учитывающий необходимость соблюдения закона сохранения импульса
+	//f64 tmp1 = p1 / KineticEnergy();
+	f64 tmp1 = p1 / ekin;//заменили для ускорения поскольку ekin было вычислено непосредственно перед вызовом данной функции
 	f64 tmp2 = (tmp1 < 0.0 ? 0.0 : sqrt(tmp1));
 	
 	i32u tmp3 = eng->GetAtomCount() * 3;
 	for (i32u n1 = 0;n1 < tmp3;n1++) vel[n1] *= tmp2;
+	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	if (with_constant_impuls)
+	{
+		// определяем суммарный импульс системы после применения термостата
+		f64 sum_p2[3];
+		SumModelImpuls(sum_p2);
+		// производим такую корректировку, чтобы суммарный импульс в результате действия термостата не изменился 
+		f64 dp[3];//поправка к импульсу в расчёте на каждый атом
+		for (i32s n2 = 0;n2 < 3;n2++) 
+			dp[n2] = (sum_p1[n2] - sum_p2[n2]) / (eng->GetAtomCount() - num_locked);
+
+		for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+		{
+			if (!locked[n1])
+			{
+				for (i32s n2 = 0;n2 < 3;n2++)
+				{
+					vel[n1 * 3 + n2] += dp[n2] / mass[n1];
+				}	
+			}
+		}
+#if 0
+		//Отладка
+		f64 sum_p3[3];
+		SumModelImpuls(sum_p3);
+
+		for (i32s n2 = 0;n2 < 3;n2++) 
+			printf ("sum_p[%d]\t%f\t%f\t%f\t\t%f\n", n2,  sum_p1[n2], sum_p2[n2], sum_p3[n2], sum_p1[n2]-sum_p3[n2]);
+#endif
+	}
+}
+
+void moldyn::SumModelImpuls(f64 * sum_p)
+{		
+	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			sum_p[n2] += mass[n1] * vel[n1 * 3 + n2];
+		}		
+	}	
+}
+void moldyn::SaveLastFrame(char * fn)
+{
+	const int number_of_atoms = eng->GetAtomCount();
+	const char file_id[10] = "framev01";
+
+	ofstream ofile;
+	ofile.open(fn, ios_base::out | ios_base::trunc | ios_base::binary);
+	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+	ofile.write((char *) & step_counter, sizeof(step_counter));	// step_counter, int.
+	ofile.write((char *) & tstep1, sizeof(tstep1));	// step_counter, int.
+	
+	
+	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+	ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+	
+	double t1a; 
+	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+	{
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
+			/*eng->crd[tt1 * 3 + tt2];
+			vel[tt1 * 3 + tt2];
+			eng->d1[tt1 * 3 + tt2];
+			acc[tt1 * 3 + tt2];*/
+
+			t1a = eng->crd[tt1 * 3 + tt2];
+			ofile.write((char *) & t1a, sizeof(t1a));
+
+			t1a = vel[tt1 * 3 + tt2];
+			ofile.write((char *) & t1a, sizeof(t1a));
+
+			t1a = acc[tt1 * 3 + tt2];
+			ofile.write((char *) & t1a, sizeof(t1a));
+
+			t1a = eng->d1[tt1 * 3 + tt2];
+			ofile.write((char *) & t1a, sizeof(t1a));
+		}
+	}
+	ofile.close();
+}
+
+void moldyn::ReadLastFrame(char * fn)
+{
+	ifstream * framefile;
+	framefile = new ifstream(fn, ios::in | ios::binary);
+	framefile->seekg(8, ios::beg);	// skip the file id...
+	int natoms;
+	framefile->read((char *) & natoms, sizeof(natoms));
+	
+	if (natoms != eng->GetAtomCount())
+	{
+		printf("natoms %d != traj_num_atoms %d\n", natoms, eng->GetAtomCount());
+		printf("The LastFrame is incompatible with the current structure/setup!!!");
+		printf("incompatible file : different number of atoms!\n");
+		if (framefile != NULL)
+		{
+			framefile->close();
+			delete framefile;
+			
+			framefile = NULL;
+		}
+		return;
+	}
+	
+	framefile->read((char *) & step_counter, sizeof(step_counter));
+	f64 dt;
+	framefile->read((char *) & dt, sizeof(dt));
+	tstep1 = dt;
+	
+	framefile->read((char *) & ekin, sizeof(ekin));
+	framefile->read((char *) & epot, sizeof(epot));
+	
+	double t1a; 
+	for (i32s tt1 = 0;tt1 < natoms;tt1++)
+	{
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
+			/*eng->crd[tt1 * 3 + tt2];
+			vel[tt1 * 3 + tt2];
+			eng->d1[tt1 * 3 + tt2];
+			acc[tt1 * 3 + tt2];*/
+
+			framefile->read((char *) & t1a, sizeof(t1a));
+			eng->crd[tt1 * 3 + tt2] = t1a;
+
+			framefile->read((char *) & t1a, sizeof(t1a));
+			vel[tt1 * 3 + tt2] = t1a;
+
+			framefile->read((char *) & t1a, sizeof(t1a));
+			acc[tt1 * 3 + tt2] = t1a;
+
+			framefile->read((char *) & t1a, sizeof(t1a));
+			eng->d1[tt1 * 3 + tt2] = t1a;
+		}
+	}	
 }
 
 /*################################################################################################*/
@@ -999,7 +1668,7 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
 		
 		f64 tc = sqrt(1.0 + temperature_coupling * delta);
-		SetEKin(ekin * tc);
+		SetEKin(ekin * tc, false);
 		
 		if (langevin_coupling > 0.0)
 		{

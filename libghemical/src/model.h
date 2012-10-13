@@ -54,6 +54,29 @@ bool ReadTargetListFile(char * filename, vector<i32s>& target_list);
 /*################################################################################################*/
 
 /// The model class contains information about all atoms and bonds in a model.
+struct molecular_axis
+{
+	atom * atmr[2];
+	i32s ind[2];
+	molecular_axis()
+	{
+		atmr[0] = atmr[1] = NULL;	
+		ind[0] = ind[1] = -1;
+	}
+	molecular_axis(atom * at1, atom * at2)
+	{
+		atmr[0] = at1;		
+		atmr[1] = at2;		
+		ind[0] = ind[1] = -1;
+	}
+	molecular_axis(i32s ind1, i32s ind2)
+	{
+		atmr[0] = atmr[1] = NULL;	
+		ind[0] = ind1;
+		ind[1] = ind2;
+	}
+};
+
 
 class model
 {
@@ -66,6 +89,7 @@ class model
 	
 	list<atom> atom_list;
 	list<bond> bond_list;
+	list<molecular_axis> molaxis_list;
 	
 	vector<crd_set *> cs_vector;	///< This determines how many crd_sets there are in the model.
 	i32u crd_table_size_glob;	///< This determines how big the crd_table arrays are; always >= than above!!!
@@ -232,6 +256,7 @@ class model
 	virtual void Add_Atom(atom &);		///< This will just push new atom to the atom list.
 	virtual void RemoveAtom(iter_al);	///< This will delete all bonds associated with this atom, and erase atom from the list...
 	
+	virtual void AddMolAxis(molecular_axis &);
 	virtual void AddBond(bond &);		///< This will add neighbor infos for both atoms and add the new bond into the bond list.
 	virtual void RemoveBond(iter_bl);	///< This will remove infos from the atoms and erase bond from the bond list.
 
@@ -432,6 +457,10 @@ public:
 	
 	void SaveSelected(char * filename);
 	void LoadSelected(char * filename);
+
+	void SaveMolecularAxises(char * filename);
+	void LoadMolecularAxises(char * filename);
+	void ClearMolecularAxises();
 
 };
 

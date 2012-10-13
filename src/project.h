@@ -105,6 +105,7 @@ struct jobinfo_RandomSearch
 	int optsteps;
 };
 
+
 /*################################################################################################*/
 
 #define SB_SIZE 512		// the OGL selection buffer size.
@@ -364,6 +365,7 @@ class project : public model
 */
 	void Transform(transformer *);
 	
+	void MolAxisEvent(graphics_view *, vector<iGLu> &);
 	void DrawEvent(graphics_view *, vector<iGLu> &);
 	void EraseEvent(graphics_view *, vector<iGLu> &);
 	
@@ -423,11 +425,16 @@ class project : public model
 // however, the classes here are "interactive" and are directly dependent on graphics.
 // so you don't want to use any of these classes in the console version...
 
-	void DoFormula(void);
+	double DoFormula(bool msg = true);
+	void DoDensity(void);
 
 	void SetTheFlagOnSelectedAtoms(i32u flag_number);
 	void UnSetTheFlagOnSelectedAtoms(i32u flag_number);
 	void SelectAtomsWithTheFlag(i32u flag_number);
+
+	void SelectMolecularAxises();
+
+	void TrajView_NematicCoordinatePlot(i32s type, i32s dim);
 
 	void TrajView_CoordinatePlot(i32s ind, i32s dim);
 	void TrajView_DistancePlot(i32s inda, i32s indb);

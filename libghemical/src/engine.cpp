@@ -766,7 +766,12 @@ void engine_wbp::CheckLocations(void)
 
 		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
 		{
+#if SEVERAL_WBP
+			map<int, int>::iterator found = mN2.find(n2);
+			if (found == mN2.end())
+#else
 			if (n2 != N2)
+#endif
 			{
 				f64 test = sum[n2] / ac;
 				
@@ -790,6 +795,148 @@ void engine_wbp::CheckLocations(void)
 		}
 	}
 }
+
+#if 1
+void engine_wbp::CheckLocations2(void)
+{
+	static DWORD nchecking = 0;
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+	for (i32s n2 = 0;n2 < GetSetup()->GetMMAtomCount();n2++)
+	{
+		i32u index = atmtab[n2]->varind;
+		for (i32s n3 = 0;n3 < 3;n3++)
+		{
+#if SEVERAL_WBP
+			map<int, int>::iterator found = mN2.find(n3);
+			if (found == mN2.end())
+#else
+			if (n3 != N2)
+#endif
+			{
+				f64 test = crd[index * 3 + n3];
+			
+				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+				{
+					crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+				}
+				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+				{
+					crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+				}
+			}
+		}
+	}
+	nchecking++;
+
+}
+
+
+
+#else
+void engine_wbp::CheckLocations2(void)
+{
+	static DWORD nchecking = 0;
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+
+	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+	{
+		f64 sum[3] = { 0.0, 0.0, 0.0 };
+		// число атомов в молекуле
+		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
+#if 0
+		if (ac <= 3) // если это молекула растворителя - определяем по числу атомов
+		{
+			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+			{
+				i32u index = atmtab[n2]->varind;
+				for (i32s n3 = 0;n3 < 3;n3++)
+				{
+					sum[n3] += crd[index * 3 + n3];
+				}
+			}
+			for ( n2 = 0;n2 < 3;n2++)
+			{
+				f64 test = sum[n2] / ac;
+				
+				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					// считаем проникновение молекул растворителя сквозь z
+					if (n2 == 2)
+					{
+						dn_solvent_through_z--;
+					}
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+					
+				}
+				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					// считаем проникновение молекул растворителя сквозь z
+					if (n2 == 2)
+					{
+						dn_solvent_through_z++;
+					}
+					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+					{
+						i32u index = atmtab[n3]->varind;
+						crd[index * 3 + n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+					}
+				}
+
+				if (n2 == 2)
+				{					
+
+				}
+			}
+		}
+		else
+#endif
+		{
+			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+			{
+				i32u index = atmtab[n2]->varind;
+				for (i32s n3 = 0;n3 < 3;n3++)
+				{
+#if SEVERAL_WBP
+					map<int, int>::iterator found = mN2.find(n3);
+					if (found == mN2.end())
+#else
+					if (n3 != N2)
+#endif
+					{
+						f64 test = crd[index * 3 + n3];
+					
+						if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+						{
+							crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+						}
+						else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n3])
+						{
+							crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
+						}
+					}
+				}
+			}	
+		}
+	}
+
+#if 0
+	n_solvent_through_z    += dn_solvent_through_z;
+#endif
+
+	nchecking++;
+
+#if DIFFUSE_WORKING
+	FILE * out;
+	out = fopen("diffuse.txt", "at");
+	fprintf(out, "%d\n",n_through_z);
+	fclose (out);
+#endif
+}
+#endif
 
 
 /*################################################################################################*/
@@ -1047,7 +1194,6 @@ void engine_pbc2::CheckLocations(void)
 		dn_solvent_through_klapan = 0;
 
 	pre_solvent_above_klapan = n_solvent_above_klapan;
-
 
 	n_solvent_through_klapan += dn_solvent_through_klapan;
 #endif

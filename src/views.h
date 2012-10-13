@@ -149,6 +149,8 @@ class ogl_view : virtual public view
 	// all available mouse tools are here...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
+	static molaxis_tool tool_molaxis;
+
 	static draw_tool tool_draw;
 	static erase_tool tool_erase;
 	
@@ -182,6 +184,7 @@ class ogl_view : virtual public view
 	friend class rotate_xy_tool;
 	friend class rotate_z_tool;
 	friend class measure_tool;
+	friend class molaxis_tool;
 	friend class win_project;
 	
 	public:
@@ -248,6 +251,7 @@ class graphics_view : virtual public ogl_view
 	friend class rotate_xy_tool;
 	friend class rotate_z_tool;
 	friend class measure_tool;
+	friend class molaxis_tool;
 	
 	friend class camera;
 	

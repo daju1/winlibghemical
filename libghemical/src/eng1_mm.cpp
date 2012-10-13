@@ -146,7 +146,8 @@ if (GetModel()->use_boundary_potential) GetModel()->Message("use_boundary_potent
 		if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
 //		return new eng1_mm_default_mim(this, 1);
 //		return new eng1_mm_default_mim2(this, 1);
-		return new eng1_mm_default_wbp(this, 1);
+//		return new eng1_mm_default_wbp(this, 1);
+		return new eng1_mm_default_wbp2(this, 1);
 		
 		case ENG1_MM_EXPERIMENTAL:
 		GetModel()->use_periodic_boundary_conditions = false;

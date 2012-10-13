@@ -31,6 +31,7 @@ geomopt_param::geomopt_param(setup * su)
 	if (suqm != NULL) treshold_nsteps = 500;		// override...
 
 	box_opt = geomopt_param::box_optimization_type::no;
+	don_t_move_fixed_atoms = true;
 }
 bool geomopt_param::Write(char * filename)
 {
@@ -73,12 +74,20 @@ bool geomopt_param::Write(char * filename)
 
 /*################################################################################################*/
 
-geomopt::geomopt(engine * p1, i32s p2, f64 p3, f64 p4) : conjugate_gradient(p2, p3, p4)
+geomopt::geomopt(engine * p1, i32s p2, f64 p3, f64 p4, bool don_t_move_fixed_atoms) : conjugate_gradient(p2, p3, p4)
 {
 	eng = p1;
-	
+		
+	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
+
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
+		if (don_t_move_fixed_atoms)
+		{
+			if (glob_atmtab[n1]->flags & ATOMFLAG_IS_LOCKED)
+				continue;
+		}
+
 		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			AddVar(& eng->crd[n1 * 3 + n2], & eng->d1[n1 * 3 + n2]);

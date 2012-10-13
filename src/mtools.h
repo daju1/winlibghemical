@@ -318,6 +318,22 @@ class measure_tool : public mouse_tool
 	enum measure_mode { Atom, Bond, Angle, Torsion };
 };
 
+
+class molaxis_tool : public mouse_tool
+{
+	protected:
+	
+	public:
+	
+	molaxis_tool(void) : mouse_tool() { }
+	~molaxis_tool(void) { }
+	
+	const char * GetToolName(void) { return "Molecular Axis"; }		// virtual
+	
+	void ButtonEvent(ogl_view *, i32s, i32s);		// virtual
+	void MotionEvent(ogl_view *, i32s, i32s);		// virtual
+};
+
 /*################################################################################################*/
 
 #endif	// MTOOLS_H

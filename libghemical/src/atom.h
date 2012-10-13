@@ -109,6 +109,8 @@ class crec
 #define ATOMFLAG_REQUEST_UNITED_ATOM	(1 << 3)	// 0x00000004
 #define ATOMFLAG_REQUEST_SF_ATOM	(1 << 4)	// 0x00000004
 
+#define ATOMFLAG_IS_SPECIAL_ATOM	(1 << 6)	// 0x00000008	16 ja yli???
+#define ATOMFLAG_IS_WORKING_ATOM	(1 << 7)	// 0x00000008	16 ja yli???
 #define ATOMFLAG_IS_SOLVENT_ATOM	(1 << 8)	// 0x00000008	16 ja yli???
 #define ATOMFLAG_MEASURE_ND_RDF		(1 << 9)	// 0x00000008	16 ja yli???
 #define ATOMFLAG_COUNT_IN_RDF		(1 << 10)	// 0x00000008	16 ja yli???

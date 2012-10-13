@@ -160,6 +160,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case ID_MOUSE_ROTATEXY:
 			case ID_MOUSE_ROTATEZ:
 			case ID_MOUSE_MEASURE:
+			case ID_MOUSE_SETMOLECULARAXIS:
 				{
 					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_DRAW,		MF_BYCOMMAND | MF_UNCHECKED);
 					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_ERASE,		MF_BYCOMMAND | MF_UNCHECKED);
@@ -173,6 +174,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_ROTATEXY,	MF_BYCOMMAND | MF_UNCHECKED);
 					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_ROTATEZ,	MF_BYCOMMAND | MF_UNCHECKED);
 					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_MEASURE,	MF_BYCOMMAND | MF_UNCHECKED);
+					CheckMenuItem(GetMenu( hWnd ), ID_MOUSE_SETMOLECULARAXIS,	MF_BYCOMMAND | MF_UNCHECKED);
+					
 					
 					CheckMenuItem(GetMenu( hWnd ), wmId, MF_BYCOMMAND | MF_CHECKED);
 					//######################################################
@@ -226,6 +229,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								case ID_MOUSE_MEASURE:
 									app->maintb_tool_Measure(NULL, NULL, NULL);
 									break;
+								case ID_MOUSE_SETMOLECULARAXIS:
+									app->maintb_tool_MolAxis(NULL, NULL, NULL);
+									break;
+									
 								}
 
 							}
@@ -843,6 +850,58 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//######################################################
 				}
 				break;
+			case ID_BUILD_CLEARMOLECULARAXISES:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_ClearMolecularAxises(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_FILE_SAVEMOLECULARAXISES:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_FileSaveMolecularAxises(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+			case ID_FILE_LOADMOLECULARAXISES:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_FileLoadMolecularAxises(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
 			case ID_FILE_IMPORT:
 				{
 					//######################################################
@@ -986,6 +1045,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_CompStationaryStateSearch(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+			case ID_DO_COMPDENSITY:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompDensity(hWnd, NULL);
 						}
 					}
 					//######################################################
@@ -1451,7 +1528,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					//######################################################
 				}
-				break;		
+				break;
+
+			case ID_SELECT_SELECTMOLECULARAXISES:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectMolecularAxises(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
 
 			case ID_SELECT_SELECTLOCKEDATOMS:
 				{
@@ -1466,6 +1562,82 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_SelectLockedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECT_SELECTWORKINGATOMS:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectWorkingAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECT_SELECTSPECIALATOMS:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectSpecialAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECT_SELECTSOLVENTATOMS:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectSolventAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECT_SELECTUNDERGRAVIATOMS:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SelectUnderGraviAtoms(hWnd, NULL);
 						}
 					}
 					//######################################################
@@ -1546,7 +1718,84 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					//######################################################
 				}
+				break;	
+				
+
+			case ID_SELECTEDATOMS_SETASWORKING:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SetSelectedAtomsAsWorking(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
 				break;		
+
+			case ID_SELECTEDATOMS_UNSETASWORKING:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_UnSetSelectedAtomsAsWorking(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECTEDATOMS_SETASSPECIAL:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SetSelectedAtomsAsSpecial(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_UNSETASSPECIAL:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_UnSetSelectedAtomsAsSpecial(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
 
 			case ID_SELECTEDATOMS_SETUNDERGRAVI:
 				{
@@ -1715,6 +1964,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_CompCoordinateTrajPlot1D(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_TRAJECTORY_NEMATICORDERPARAMETERPLOT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompNematicOrderParamTrajPlot1D(hWnd, NULL);
 						}
 					}
 					//######################################################

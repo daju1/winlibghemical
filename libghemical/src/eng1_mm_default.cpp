@@ -2116,10 +2116,27 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 	use_upp_wall = true; 
 	use_down_wall = true; 
 
+#if SEVERAL_WBP
+	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
+	mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
+	mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
+#else
 	N2 = 2;//индекс стенки = 2 for Z!!!
-	N2 = 1;//индекс стенки = 2 for Z!!!
+	N2 = 1;//индекс стенки = 1 for Y!!!
+#endif
 	
+#if SEVERAL_WBP
+	for (map<int,int>::iterator itm = mN2.begin(); 
+		itm != mN2.end(); itm++)
+	{
+		m_bp_wall_crd.insert(
+			map<int,f64>::value_type(
+			(*itm).first, 
+			GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).first]));//координата стенки
+	}
+#else
 	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
+#endif
 	bp_fc_wall = 12500.0;	// силовая константа взаимодействия со стенкой
 	bp_fc_wall = 5000.0;	// силовая константа взаимодействия со стенкой
 	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Е^2) = 5000 kJ/(mol*(nm)^2)
@@ -2128,7 +2145,7 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 	if (ostr != NULL && (use_upp_wall || use_down_wall))
 	{
 		(* ostr) << "use_upp_wall || use_down_wall ; ";
-		(* ostr) << bp_wall_crd << " " << bp_wall_crd << " ; ";
+//		(* ostr) << bp_wall_crd << " " << bp_wall_crd << " ; ";
 		(* ostr) << endl;
 	}
 	
@@ -2241,7 +2258,15 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 	// an additional pass for the boundary potential (optional).
 	// an additional pass for the boundary potential (optional).
 	// an additional pass for the boundary potential (optional).
-	
+#if SEVERAL_WBP
+	for (map<int,int>::iterator itm = mN2.begin(); 
+		itm != mN2.end(); itm++)
+	{
+		int N2 = (*itm).first;    
+		int free_solvent = (*itm).second;    
+		f64 bp_wall_crd;
+		//GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).second];//координата стенки
+#endif	
 	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
 
 	if (use_down_wall)
@@ -2249,6 +2274,9 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 //printf("use_down_wall\n");
 		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 		{
+			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
+				continue;
+
 			//f64 radius = bp_radius_solute;
 			f64 fc = bp_fc_wall;
 			
@@ -2313,6 +2341,8 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 	{
 		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 		{
+			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
+				continue;
 			//f64 radius = bp_radius_solute;
 			f64 fc = bp_fc_wall;
 			
@@ -2366,6 +2396,9 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 		}
 	}
 
+#if SEVERAL_WBP
+	}
+#endif
 	if (update) UpdateTerms();
 	
 //printf("after UpdateTerms();nbt1_vector.size()= %d\n", nbt1_vector.size());fflush(stdout);
@@ -2386,7 +2419,12 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			
 			t1a[n2] = t2a - t2b;
 			// периодические условия для тех измерений где нет стенки
+#if SEVERAL_WBP
+			map<int, int>::iterator found = mN2.find(n2);
+			if (found == mN2.end())
+#else
 			if (n2 != N2)
+#endif
 			{
 				if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
 				{
@@ -2551,7 +2589,12 @@ void eng1_mm_default_nbt_wbp::UpdateTerms(void)
 					
 					t1a = t2a - t2b;
 					
+#if SEVERAL_WBP
+					map<int, int>::iterator found = mN2.find(n1);
+					if (found == mN2.end())
+#else
 					if (n1 != N2)
+#endif
 					{
 						if (t1a < -GetSetup()->GetModel()->periodic_box_HALFdim[n1])
 						{
@@ -2691,6 +2734,17 @@ eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), 
 }
 
 eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
+{
+//	cout << "~eng1_mm_default_mbp" << endl;
+}
+
+eng1_mm_default_wbp2::eng1_mm_default_wbp2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
+	engine_wbp(p1, p2), eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
+{
+//	cout << "eng1_mm_default_mbp" << endl;
+}
+
+eng1_mm_default_wbp2::~eng1_mm_default_wbp2(void)
 {
 //	cout << "~eng1_mm_default_mbp" << endl;
 }

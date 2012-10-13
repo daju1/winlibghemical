@@ -43,6 +43,18 @@ BOOL CALLBACK DlgProcMolDyn(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 					moldyn_dlg->handler_ButtonBrowse(NULL, moldyn_dlg);
 			}
 			break;
+		case IDC_BUTTON_BROWSE2:
+			{
+				if (moldyn_dlg) 
+					moldyn_dlg->handler_ButtonBrowse2(NULL, moldyn_dlg);
+			}
+			break;
+		case IDC_CHECK_LOAD_LAST_FRAME:
+			{
+				if (moldyn_dlg) 
+					moldyn_dlg->handler_CheckLoadLastFrame(NULL, moldyn_dlg);
+			}
+			break;
 		case IDOK: 
 			{
 				if (moldyn_dlg)
@@ -145,6 +157,11 @@ void moldyn_dialog::OnInitDialog()
 	// gtk_entry_set_text(GTK_ENTRY(entry_temperature), buffer);
 	SetDlgItemText(hDlg,IDC_EDIT_TEMPERATURE, str_grad.str());
 	
+	ostrstream str_grada(buffer, sizeof(buffer));
+	str_grada << param->maxwell_init_temperature << ends;
+	// gtk_entry_set_text(GTK_ENTRY(entry_temperature), buffer);
+	SetDlgItemText(hDlg,IDC_EDIT_MAXWELL_INIT_TEMPERATURE, str_grad.str());
+	
 	ostrstream str_delta_e(buffer, sizeof(buffer));
 	str_delta_e << param->timestep << ends;
 	// gtk_entry_set_text(GTK_ENTRY(entry_timestep), buffer);
@@ -181,9 +198,17 @@ void moldyn_dialog::OnInitDialog()
 	CheckDlgButton( hDlg, IDC_CHECK_BOX_OPTIMIZATION_2,
 		param->box_optimization ? BST_CHECKED : BST_UNCHECKED );
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	CheckDlgButton( hDlg, IDC_CHECK_MAXWELL_DISTRIBUTION_INIT,
+		param->maxwell_distribution_init ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	CheckDlgButton( hDlg, IDC_CHECK_LOAD_LAST_FRAME,
+		param->load_last_frame ? BST_CHECKED : BST_UNCHECKED );
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	// gtk_entry_set_text(GTK_ENTRY(entry_trajfile), param->filename);
 	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE, param->filename);
+	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE2, param->filename2);
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	SendDlgItemMessage(this->hDlg,IDC_MOL_DYN_ATOM_LIST, LB_RESETCONTENT,0,0);
@@ -209,7 +234,7 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 	// read the user's settings from widgets...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
-	char buffer[256];
+	char buffer[1025];
 	
 	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_nsteps_h));
 	GetDlgItemText(ref->hDlg,IDC_EDIT_NSTEPS_H, buffer, 63);
@@ -231,6 +256,11 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 	istrstream istr2(buffer, strlen(buffer) + 1);
 	istr2 >> ref->param->temperature;
 	
+	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_temperature));
+	GetDlgItemText(ref->hDlg,IDC_EDIT_MAXWELL_INIT_TEMPERATURE, buffer, 63);
+	istrstream istr2a(buffer, strlen(buffer) + 1);
+	istr2a >> ref->param->maxwell_init_temperature;
+	
 	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_timestep));
 	GetDlgItemText(ref->hDlg,IDC_EDIT_TIMESTEP, buffer, 63);
 	istrstream istr3(buffer, strlen(buffer) + 1);
@@ -250,8 +280,11 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 
 	
 	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_trajfile));
-	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE, buffer, 255);
+	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE, buffer, 1023);
 	strcpy(ref->param->filename, buffer);
+
+	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, buffer, 1023);
+	strcpy(ref->param->filename2, buffer);
 
 	//ref->param->constant_e = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_e)) == TRUE ? true : false);
 	ref->param->constant_e = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_CONSTANT_E) 
@@ -263,9 +296,22 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 				== BST_CHECKED;
 	ref->param->box_optimization = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_BOX_OPTIMIZATION_2) 
 				== BST_CHECKED;
+	ref->param->maxwell_distribution_init = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_MAXWELL_DISTRIBUTION_INIT) 
+				== BST_CHECKED;
+
+	ref->param->load_last_frame = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_LOAD_LAST_FRAME) 
+				== BST_CHECKED;
 
 	
 	ref->param->confirm = true;
+}
+
+void moldyn_dialog::handler_CheckLoadLastFrame(HWND, void * data)
+{
+	moldyn_dialog * ref = (moldyn_dialog *) data;
+	//cout << "handler_ButtonOK() : ref = " << ref << endl;
+	ref->param->load_last_frame = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_LOAD_LAST_FRAME) 
+				== BST_CHECKED;	
 }
 
 void moldyn_dialog::handler_ButtonCancel(HWND, void * data)		// not really needed...
@@ -284,7 +330,7 @@ void moldyn_dialog::handler_ButtonBrowse(HWND, void * data)
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	TCHAR filter[] =     TEXT("Ghemical Trajectory File (*.traj)\0*.traj\0")
 						 TEXT("All Files (*.*)\0*.*\0");
-	TCHAR filename[512];
+	TCHAR filename[1024];
 
 	sprintf(filename, "\0");
 	DWORD nFilterIndex;
@@ -301,6 +347,43 @@ void moldyn_dialog::handler_ButtonBrowse(HWND, void * data)
 	gtk_dialog_run(GTK_DIALOG(ref->file_selector)); ref->file_selector = NULL;*/
 }
 
+void moldyn_dialog::handler_ButtonBrowse2(HWND, void * data)
+{
+	moldyn_dialog * ref = (moldyn_dialog *) data;
+	//cout << "handler_ButtonBrowse() : ref = " << ref << endl;
+	
+	// handle the file selection...
+	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	TCHAR filter[] =     TEXT("Ghemical Last Frame File (*.frame)\0*.frame\0")
+						 TEXT("All Files (*.*)\0*.*\0");
+	TCHAR filename[1024];
+
+	sprintf(filename, "\0");
+	if (ref->param->load_last_frame)
+	{
+		DWORD nFilterIndex;
+		if (OpenFileDlg(0, filter, filename, nFilterIndex) == S_OK)
+		{
+			SetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, filename);
+		}
+	}
+	else
+	{
+		DWORD nFilterIndex;
+		if (SaveFileDlg(0, filename, filter, nFilterIndex) == S_OK)
+		{
+			SetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, filename);
+		}	
+	}
+	
+/*	ref->file_selector = gtk_file_selection_new("Select a Trajectory File.");
+	g_signal_connect(GTK_FILE_SELECTION(ref->file_selector)->ok_button, "clicked", G_CALLBACK(handler_FileChooser), data);
+	
+	g_signal_connect_swapped(GTK_FILE_SELECTION(ref->file_selector)->ok_button, "clicked", G_CALLBACK(gtk_widget_destroy), ref->file_selector);
+	g_signal_connect_swapped(GTK_FILE_SELECTION(ref->file_selector)->cancel_button, "clicked", G_CALLBACK(gtk_widget_destroy), ref->file_selector);
+	
+	gtk_dialog_run(GTK_DIALOG(ref->file_selector)); ref->file_selector = NULL;*/
+}
 void moldyn_dialog::handler_FileChooser(HWND, void * data)
 {
 	moldyn_dialog * ref = (moldyn_dialog *) data;

@@ -72,32 +72,32 @@ BEGIN
     PUSHBUTTON      "End",IDC_BUTTON_TRAJ_VIEW_END,215,14,50,14
 END
 
-IDD_DIALOG_MOL_DYN DIALOGEX 0, 0, 180, 218
+IDD_DIALOG_MOL_DYN DIALOGEX 0, 0, 194, 254
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Molecular Dinamics"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,123,7,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,123,24,50,14
-    LTEXT           "nsteps_h",IDC_STATIC,7,13,30,8
-    LTEXT           "nsteps_e",IDC_STATIC,7,42,30,8
+    DEFPUSHBUTTON   "OK",IDOK,137,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,137,24,50,14
+    LTEXT           "nsteps_h",IDC_STATIC,7,14,30,8
+    LTEXT           "nsteps_e",IDC_STATIC,7,37,30,8
     LTEXT           "Heating",IDC_STATIC,7,23,26,8
-    LTEXT           "nsteps_s",IDC_STATIC,7,64,29,8
+    LTEXT           "nsteps_s",IDC_STATIC,7,59,29,8
     LTEXT           "temperature",IDC_STATIC,7,85,38,8
     LTEXT           "timestep",IDC_STATIC,7,110,27,8
     CONTROL         "constant_e",IDC_CHECK_CONSTANT_E,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,48,134,51,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,124,51,10
     CONTROL         "langevin",IDC_CHECK_LANGEVIN,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,48,151,43,10
-    PUSHBUTTON      "Trajfile browse",IDC_BUTTON_BROWSE,101,177,72,14
+                    WS_TABSTOP,48,137,43,10
+    PUSHBUTTON      "Trajfile browse",IDC_BUTTON_BROWSE,115,182,72,14
     EDITTEXT        IDC_EDIT_NSTEPS_H,48,13,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_NSTEPS_E,48,36,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_NSTEPS_S,48,59,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_TEMPERATURE,48,84,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_TIMESTEP,48,107,40,14,ES_AUTOHSCROLL,0,
                     HIDC_EDIT_TIMESTEP
-    EDITTEXT        IDC_EDIT_TRAJFILE,7,197,166,14,ES_AUTOHSCROLL
-    GROUPBOX        "Gravi",IDC_STATIC,107,55,66,72
+    EDITTEXT        IDC_EDIT_TRAJFILE,7,199,180,14,ES_AUTOHSCROLL
+    GROUPBOX        "Gravi",IDC_STATIC,103,55,84,72
     LTEXT           "Gx",IDC_STATIC,110,70,10,8
     EDITTEXT        IDC_EDIT_GRAVI_GX,125,66,40,14,ES_AUTOHSCROLL
     LTEXT           "Gy",IDC_STATIC,111,89,10,8
@@ -105,9 +105,20 @@ BEGIN
     LTEXT           "Gz",IDC_STATIC,111,106,10,8
     EDITTEXT        IDC_EDIT_GRAVI_GZ,127,103,40,14,ES_AUTOHSCROLL
     CONTROL         "Recalc box",IDC_CHECK_CALC_MIN_MAX_COORDINATES_2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,48,166,52,10
-    CONTROL         "Check2",IDC_CHECK_BOX_OPTIMIZATION_2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,117,140,41,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,158,52,10
+    CONTROL         "Box optimization",IDC_CHECK_BOX_OPTIMIZATION_2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,170,67,10
+    LTEXT           "equilibration",IDC_STATIC,7,45,38,8
+    LTEXT           "simulation",IDC_STATIC,7,67,32,8
+    CONTROL         "Maxwell distribution initial",
+                    IDC_CHECK_MAXWELL_DISTRIBUTION_INIT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,147,94,10
+    PUSHBUTTON      "LastFrameFile browse",IDC_BUTTON_BROWSE2,108,218,79,14
+    EDITTEXT        IDC_EDIT_TRAJFILE2,7,233,180,14,ES_AUTOHSCROLL
+    CONTROL         "Load Last Frame",IDC_CHECK_LOAD_LAST_FRAME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,218,69,10
+    EDITTEXT        IDC_EDIT_MAXWELL_INIT_TEMPERATURE,147,145,40,14,
+                    ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_ATOMLIST_MOLDYN DIALOG  0, 0, 317, 126
@@ -181,6 +192,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,63,88,51,10
     CONTROL         "Box Optimization",IDC_CHECK_BOX_OPTIMIZATION,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,63,75,69,10
+    CONTROL         "Don't move fixed atoms",IDC_CHECK_DONT_MOVE_FIXED_ATOMS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,81,91,10
 END
 
 IDD_DIALOG_SETUP1_QM DIALOGEX 0, 0, 186, 90
@@ -262,10 +275,10 @@ BEGIN
     IDD_DIALOG_MOL_DYN, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 173
+        RIGHTMARGIN, 187
         VERTGUIDE, 48
         TOPMARGIN, 7
-        BOTTOMMARGIN, 211
+        BOTTOMMARGIN, 247
     END
 
     IDD_DIALOG_ATOMLIST_MOLDYN, DIALOG
@@ -456,6 +469,9 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Save Selected",               ID_FILE_SAVESELECTED
         MENUITEM "Load Select",                 ID_FILE_LOADSELECT
+        MENUITEM SEPARATOR
+        MENUITEM "Save Molecular Axises",       ID_FILE_SAVEMOLECULARAXISES
+        MENUITEM "Load Molecular Axises",       ID_FILE_LOADMOLECULARAXISES
     END
     POPUP "View"
     BEGIN
@@ -481,6 +497,8 @@ BEGIN
         MENUITEM "Amino",                       ID_BUILD_AMINO
         MENUITEM "Nucleic",                     ID_BUILD_NUCLEIC
         MENUITEM SEPARATOR
+        MENUITEM "Clear Molecular Axises",      ID_BUILD_CLEARMOLECULARAXISES
+
     END
     POPUP "Do"
     BEGIN
@@ -505,6 +523,10 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "SetTotalFrames",              ID_TRAJECTORY_SETTOTALFRAMES
 
+            MENUITEM SEPARATOR
+            MENUITEM "Nematic Order Parameter Plot", 
+                                                    ID_TRAJECTORY_NEMATICORDERPARAMETERPLOT
+
         END
         MENUITEM SEPARATOR
         MENUITEM "Compute Torsion Energy Plot 1D", 
@@ -528,6 +550,7 @@ BEGIN
         MENUITEM "Bond Type",                   ID_DO_BONDTYPE
         MENUITEM SEPARATOR
         MENUITEM "Comp Formula",                ID_DO_COMPFORMULA
+        MENUITEM "Comp Density",                ID_DO_COMPDENSITY
         MENUITEM "Pop Ana Electrostatic",       ID_DO_POPANAELECTROSTATIC
         MENUITEM "Set Orbital",                 ID_DO_SETORBITAL
         MENUITEM "Set Formal Charge",           ID_DO_SETFORMALCHARGE
@@ -549,6 +572,8 @@ BEGIN
         MENUITEM "Rotate XY",                   ID_MOUSE_ROTATEXY
         MENUITEM "Rotate Z",                    ID_MOUSE_ROTATEZ
         MENUITEM "Measure",                     ID_MOUSE_MEASURE
+        MENUITEM SEPARATOR
+        MENUITEM "Set Molecular Axis",          ID_MOUSE_SETMOLECULARAXIS
     END
     POPUP "Render"
     BEGIN
@@ -603,8 +628,25 @@ BEGIN
 
             MENUITEM "Unset Under Gravi",           ID_SELECTEDATOMS_UNSETUNDERGRAVI
 
+            MENUITEM SEPARATOR
+            MENUITEM "Set As Working",              ID_SELECTEDATOMS_SETASWORKING
+
+            MENUITEM "Unset As Working",            ID_SELECTEDATOMS_UNSETASWORKING
+
+            MENUITEM SEPARATOR
+            MENUITEM "Set As Special",              ID_SELECTEDATOMS_SETASSPECIAL
+
+            MENUITEM "Unset As Special",            ID_SELECTEDATOMS_UNSETASSPECIAL
+
         END
         MENUITEM "Select Locked Atoms",         ID_SELECT_SELECTLOCKEDATOMS
+        MENUITEM "Select Working Atoms",        ID_SELECT_SELECTWORKINGATOMS
+        MENUITEM "Select Special Atoms",        ID_SELECT_SELECTSPECIALATOMS
+        MENUITEM "Select Solvent Atoms",        ID_SELECT_SELECTSOLVENTATOMS
+        MENUITEM "Select UnderGravi Atoms",     ID_SELECT_SELECTUNDERGRAVIATOMS
+
+        MENUITEM "Select Molecular Axises",     ID_SELECT_SELECTMOLECULARAXISES
+
     END
     POPUP "&Help"
     BEGIN

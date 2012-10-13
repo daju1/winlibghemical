@@ -64,6 +64,8 @@ mouse_tool::button ogl_view::button = mouse_tool::None;
 bool ogl_view::shift_down = false;
 bool ogl_view::ctrl_down = false;
 
+molaxis_tool ogl_view::tool_molaxis;
+
 draw_tool ogl_view::tool_draw;
 erase_tool ogl_view::tool_erase;
 

@@ -52,7 +52,10 @@ class moldyn_dialog : public glade_dialog
 	static void handler_ButtonCancel(HWND, void *);
 	
 	static void handler_ButtonBrowse(HWND, void *);
+	static void handler_ButtonBrowse2(HWND, void *);
 	static void handler_FileChooser(HWND, void *);
+	static void handler_CheckLoadLastFrame(HWND, void * data);
+
 };
 
 /*################################################################################################*/

@@ -49,16 +49,20 @@ class moldyn_param
 	i32s nsteps_e;		// equilibration
 	i32s nsteps_s;		// simulation
 	f64 temperature;
+	f64 maxwell_init_temperature;
 	f64 timestep;
 	bool constant_e;
 	bool langevin;
 	bool recalc_box, box_optimization;
+	bool maxwell_distribution_init;
 
 
 	double g[3];
 
 	
 	char filename[1024];
+	char filename2[1024];
+	bool load_last_frame;
 
 #if SNARJAD_TARGET_WORKING
 	// начальная скорость снаряда
@@ -114,6 +118,9 @@ class moldyn
 	char * locked;
 	int num_locked;
 	
+	char * worked;
+	int num_worked;
+	
 	char * gravi;
 	int num_gravi;
 	f64 m_g[3];
@@ -131,6 +138,11 @@ class moldyn
 	f64 temperature;
 	
 	f64 temperature_coupling;
+
+	f64 psi, relax_rate_2;
+
+	void moldyn::MaxwellDistribution(f64 Temp);
+
 	
 	public:
 	
@@ -142,12 +154,14 @@ class moldyn
 	
 	virtual void TakeMDStep(bool);
 	
+	void SumModelImpuls(f64 * sum_p);
+	
 	f64 KineticEnergy(void);
 	
 	f64 ConvTempEKin(f64);
 	f64 ConvEKinTemp(f64);
 	
-	void SetEKin(f64);
+	void SetEKin(f64, bool with_constant_impuls, bool and_with_zero_impuls = false);
 
 	void SetGraviG(f64 *p);
 	f64 GetGravi(i32s);
@@ -216,6 +230,13 @@ class moldyn
 
 	char locked_forces_fn[1024];
 #endif
+#if WRITE_WORKED_FORCES
+	void WriteWorkedForcesHeader();
+
+	char worked_forces_fn[1024];
+#endif
+	void SaveLastFrame(char * fn);
+	void ReadLastFrame(char * fn);
 };
 
 /*################################################################################################*/

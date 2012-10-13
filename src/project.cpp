@@ -459,6 +459,22 @@ void project::SetTheFlagOnSelectedAtoms(i32u flag_number)
 	}
 }
 
+void project::SelectMolecularAxises()
+{
+	// select none
+	iter_al it1 = atom_list.begin();
+	while (it1 != atom_list.end()) (* it1++).flags &= (~ATOMFLAG_SELECTED);	
+
+	for (list<molecular_axis>::iterator it2 = molaxis_list.begin();
+		it2 != molaxis_list.end(); it2++)
+	{
+		if ((* it2).atmr[0])
+			(* it2).atmr[0]->flags |= ATOMFLAG_SELECTED;
+		if ((* it2).atmr[1])
+			(* it2).atmr[1]->flags |= ATOMFLAG_SELECTED;
+	}
+}
+
 void project::SelectAtomsWithTheFlag(i32u flag_number)
 {
 	// select none
@@ -2045,6 +2061,20 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	if (!strcmp("make_nematic_plot", kw1))
+	{
+		char kw2[32]; istr >> kw2;	// A
+		char kw3[32]; istr >> kw3;	// B
+
+		char ** endptr = NULL;
+		
+		i32s ia = strtol(kw2, endptr, 10);
+		i32s ib = strtol(kw3, endptr, 10);
+		
+		TrajView_NematicCoordinatePlot(ia, ib);
+		return;
+	}
+
 	if (!strcmp("sel_atoms_with_flag", kw1))
 	{
 		char kw2[32]; istr >> kw2;	
@@ -2302,6 +2332,28 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 			use_periodic_boundary_conditions = atoi(kw2);
 			UpdateAllGraphicsViews();
 		}
+		printf("use_periodic_boundary_conditions = %d\n", use_periodic_boundary_conditions);
+		printf("periodic_box_HALFdim[0] = %f\n", periodic_box_HALFdim[0]);
+		printf("periodic_box_HALFdim[1] = %f\n", periodic_box_HALFdim[1]);
+		printf("periodic_box_HALFdim[2] = %f\n", periodic_box_HALFdim[2]);
+		return;
+	}
+
+	if (!strcmp("boxdim", kw1))
+	{
+		char kw2[32]; istr >> kw2;		// dim
+		char kw3[32]; istr >> kw3;		// val
+		if ( strlen(kw2) > 0 && strlen(kw3) > 0)
+		{		
+			char ** endptr = NULL;
+			int dim = atoi(kw2);
+			fGL val = strtod(kw3, endptr);
+			
+			periodic_box_HALFdim[dim] = val;
+
+			UpdateAllGraphicsViews();
+		}
+
 		printf("use_periodic_boundary_conditions = %d\n", use_periodic_boundary_conditions);
 		printf("periodic_box_HALFdim[0] = %f\n", periodic_box_HALFdim[0]);
 		printf("periodic_box_HALFdim[1] = %f\n", periodic_box_HALFdim[1]);
@@ -3853,6 +3905,76 @@ void project::Transform(transformer * p1)
 	UpdateAllGraphicsViews();	// re-draw the bonds across selection boundary!!!
 }
 
+void project::MolAxisEvent(graphics_view * gv, vector<iGLu> & names)
+{
+	if (ogl_view::button == mouse_tool::Right) return;	// the right button is for popup menus...
+	
+	i32s mouse[2] =
+	{
+		gv->current_tool->latest_x,
+		gv->current_tool->latest_y
+	};
+	if (ogl_view::state == mouse_tool::Down)
+	{
+		if (names.size() > 1 && names[0] == GLNAME_MD_TYPE1)
+		{
+			draw_data[0] = (atom *) names[1];
+		}
+		else
+		{
+			/*fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
+			atom newatom(element::current_element, tmp1, cs_vector.size());
+			Add_Atom(newatom); draw_data[0] = & atom_list.back();*/
+		}
+	}
+	else
+	{
+		if (names.size() > 1 && names[0] == GLNAME_MD_TYPE1)
+		{
+			draw_data[1] = (atom *) names[1];
+
+			if (draw_data[0] != draw_data[1])
+			{
+				//bond newbond(draw_data[0], draw_data[1], bondtype::current_bondtype);
+				molecular_axis new_mol_axis(draw_data[0], draw_data[1]);
+
+				draw_data[0]->flags |= ATOMFLAG_SELECTED;
+				draw_data[1]->flags |= ATOMFLAG_SELECTED;
+
+				SystemWasModified();
+
+				this->AddMolAxis(new_mol_axis);
+
+		
+				UpdateAllGraphicsViews();
+
+			}
+			else
+			{
+				/*SystemWasModified();
+				
+				draw_data[0]->el = element::current_element;
+				draw_data[0]->mass = element::current_element.GetAtomicMass();		// also need to update these...
+				draw_data[0]->vdwr = element::current_element.GetVDWRadius();		// also need to update these...
+				
+				if (pv != NULL) pv->AtomUpdateItem(draw_data[0]);*/
+			}
+		}
+		else
+		{
+			/*fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
+			atom newatom(element::current_element, tmp1, cs_vector.size());
+			Add_Atom(newatom); draw_data[1] = & atom_list.back();*/
+		}
+		
+		// if different: update bondtype or add a new bond.
+		// if not different: change atom to different element.
+		
+
+		
+	}
+}
+
 void project::DrawEvent(graphics_view * gv, vector<iGLu> & names)
 {
 	if (ogl_view::button == mouse_tool::Right) return;	// the right button is for popup menus...
@@ -4197,7 +4319,7 @@ cout  << "el = " << ref->el.GetSymbol() << " " << ref->el.GetAtomicNumber() << "
 	UpdateAllGraphicsViews();
 }
 
-void project::DoFormula()
+double project::DoFormula(bool msg)
 {
   double molweight = 0.0;
   int i;
@@ -4244,6 +4366,29 @@ void project::DoFormula()
 
   str << endl;
   str << "MW: " << molweight << ends;
+  if (msg)
+	  Message(buffer);
+
+  return molweight;
+}
+void project::DoDensity(void)
+{
+	double molweight = this->DoFormula(false);// ד/למכü
+	double V = 
+		this->periodic_box_HALFdim[0] * 
+		this->periodic_box_HALFdim[1] * 
+		this->periodic_box_HALFdim[2] * 
+		8.0;// םל^3
+
+	double Na = 6.0221367e+23;
+	double m = molweight / Na;
+	double density = 1.0e+21 * m / V;
+
+  char buffer[1024];
+  ostrstream str(buffer, sizeof(buffer));
+  str << endl;
+  str << "density: " << density << " ד/סל^3" << ends;
+
   Message(buffer);
 }
 void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
@@ -4340,6 +4485,138 @@ void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
 						else
 							coordinate = 0;
 
+					//ref->this->UpdateAllGraphicsViews(true);
+					//::Sleep(100);
+					void * udata = convert_cset_to_plotting_udata(this, 0);
+					f64 value = coordinate;
+					plot->AddData(loop, value, udata);
+
+					mt_a1 = mt_a2 = mt_a3 = NULL;
+				}
+				
+				this->CloseTrajectory();
+
+//				static trajview_dialog * tvd = NULL;
+				
+//				if (tvd != NULL) delete tvd;		// how to safely release the memory...
+				//tvd =
+				//	new trajview_dialog(this);		// ...right after the dialog is closed?
+				
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				plot->SetCenterAndScale();
+				plot->Update();
+			}
+		}
+		else this->ErrorMessage("Trajectory already open?!?!?!");
+	//}
+}
+
+
+
+void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
+{
+	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	//if (prj)// new trajfile_dialog(prj);	// will call delete itself...
+	//{
+		if (!this->GetTrajectoryFile())
+		{
+
+			char filename[512];
+			DWORD nFilterIndex;
+			if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+			{
+				cout << "trying to open \"" << filename << "\"." << endl;
+				this->OpenTrajectory(filename);
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+					
+				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+			
+				float ekin;
+				float epot;
+
+
+				i32s max_frames = this->GetTotalFrames();
+				for (i32s loop = 0;loop < max_frames;loop++)
+				{
+					this->SetCurrentFrame(loop);
+					//this->ReadFrame();
+					//void project::ReadFrame(void)
+					//{
+						i32s place = 8 + 2 * sizeof(int);						// skip the header...
+						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
+						//place += 2 * sizeof(float);							// skip epot and ekin...
+						
+						trajfile->seekg(place, ios::beg);
+
+						trajfile->read((char *) & ekin, sizeof(ekin));
+						trajfile->read((char *) & epot, sizeof(epot));
+
+						i32s ind = 0;
+						mt_a1 = mt_a2 = mt_a3 = NULL;		
+
+
+	for (vector<molecular_axis>::iterator it = this->mlax_list.begin();
+		it != this->mlax_list.end(); it++)
+	{	
+		(*it).atmr[0];
+	}
+
+						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+						{
+						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+							
+							fGL cdata[3];
+							for (i32s t4 = 0;t4 < 3;t4++)
+							{
+								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								cdata[t4] = t1a;
+							}
+							
+							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+#if 0						
+							if (ind == ind_)
+							{
+								mt_a1 = &(* it1);
+							}
+#endif
+
+							/*if (ind == indb)
+							{
+								mt_a2 = &(* it1);
+							}
+
+							if (ind == indc)
+							{
+								mt_a3 = &(* it1);
+							}*/
+
+
+							ind++;
+						}
+						//this->UpdateAllGraphicsViews();
+					//}
+
+						fGL coordinate;
+
+#if 0						
+						if (mt_a1 && dim >=0 && dim < 3)
+						{
+							const fGL * p1 = mt_a1->GetCRD(0);
+							//const fGL * p2 = mt_a2->GetCRD(0);
+// my measure
+//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
+							coordinate = p1[dim];
+						}
+						else
+							coordinate = 0;
+#endif
 					//ref->this->UpdateAllGraphicsViews(true);
 					//::Sleep(100);
 					void * udata = convert_cset_to_plotting_udata(this, 0);

@@ -116,6 +116,7 @@ static GtkWidget * mtb_mtool_measure;*/
 	static void maintb_tool_RotateXY(void * p1, UINT p2, HWND p3);
 	static void maintb_tool_RotateZ(void * p1, UINT p2, HWND p3);
 	static void maintb_tool_Measure(void * p1, UINT p2, HWND p3);
+	static void maintb_tool_MolAxis(void * p1, UINT p2, HWND p3);
 	
 /*	static void maintb_dial_Element(gpointer, guint, GtkWidget *);
 	static void maintb_dial_BondType(gpointer, guint, GtkWidget *);

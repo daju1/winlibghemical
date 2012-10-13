@@ -60,6 +60,8 @@ class geomopt_param
 	bool Write(char * filename);
 
 	box_optimization_type box_opt;
+
+	bool don_t_move_fixed_atoms;
 	
 	public:
 	
@@ -81,7 +83,7 @@ class geomopt : public conjugate_gradient
 	
 	public:
 	
-	geomopt(engine *, i32s, f64, f64);
+	geomopt(engine *, i32s, f64, f64, bool don_t_move_fixed_atoms = true);
 	~geomopt(void);
 	
 	f64 GetValue(void);		// virtual

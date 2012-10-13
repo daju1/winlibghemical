@@ -310,6 +310,14 @@ class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nb
 	~eng1_mm_default_wbp(void);
 };
 
+class eng1_mm_default_wbp2 : public eng1_mm_default_bt2, public eng1_mm_default_nbt_wbp
+{
+	public:
+	
+	eng1_mm_default_wbp2(setup *, i32u);
+	~eng1_mm_default_wbp2(void);
+};
+
 class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim
 {
 	public:

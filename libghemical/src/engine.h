@@ -329,6 +329,9 @@ class engine_pbc : virtual public engine
 
 /// A base engine class for systems that utiliza a wall boundary potential 
 // by Z dimension and periodic boundary potencial by other XY dimentions.
+#define SEVERAL_WBP 1
+#include <map>
+using namespace std;
 
 class engine_wbp : virtual public engine, virtual public engine_pbc
 {
@@ -336,10 +339,17 @@ class engine_wbp : virtual public engine, virtual public engine_pbc
 	
 	bool use_upp_wall; 
 	bool use_down_wall; 
-
+#if SEVERAL_WBP
+	map<int, int> mN2;//индекс стенки = 2 for Z!!!
+#else
 	int N2;//индекс стенки = 2 for Z!!!
+#endif
 	
+#if SEVERAL_WBP
+	map<int, f64> m_bp_wall_crd;//индекс стенки = 2 for Z!!!
+#else
 	f64 bp_wall_crd; //координата стенки
+#endif
 	f64 bp_fc_wall;	// силовая константа взаимодействия со стенкой
 
 	friend class model;
@@ -351,6 +361,7 @@ class engine_wbp : virtual public engine, virtual public engine_pbc
 	virtual ~engine_wbp(void);
 
 	void CheckLocations(void);
+	void CheckLocations2(void);
 
 };
 

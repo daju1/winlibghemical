@@ -843,6 +843,24 @@ void win_app::maintb_tool_Measure(void * p1, UINT p2, HWND p3)
 		HandleToggleButtons(old_tool);
 //	}
 }
+
+void win_app::maintb_tool_MolAxis(void * p1, UINT p2, HWND p3)
+{
+/*	if (toggle_event_ignore_counter > 0)
+	{
+		cout << "measure skipped ; counter = " << toggle_event_ignore_counter << endl;
+		toggle_event_ignore_counter--;
+	}
+	else
+	{*/
+		cout << "measure state is " << endl;
+		//	win_toggle_tool_button_get_active(win_TOGGLE_TOOL_BUTTON(mtb_mtool_measure)) << 
+		
+		mouse_tool * old_tool = ogl_view::current_tool;
+		ogl_view::current_tool = & ogl_view::tool_molaxis;
+		HandleToggleButtons(old_tool);
+//	}
+}
 /*
 
 void win_app::maintb_dial_Element(gpointer, guint, GtkWidget *)
