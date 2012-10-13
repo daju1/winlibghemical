@@ -2047,6 +2047,38 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	if (!strcmp("vel_dist_2d", kw1))
+	{
+		char kw2[32]; istr >> kw2;	// divx
+		char kw3[32]; istr >> kw3;	// divy
+		char kw4[32]; istr >> kw4;	// dt
+
+		char ** endptr = NULL;
+		
+		i32s divx = strtol(kw2, endptr, 10);
+		i32s divy = strtol(kw3, endptr, 10);
+		f64 dt = strtod(kw4, endptr);
+		
+		TrajView_VeloncityDistribution2D(divx, divy, dt);
+		return;
+	}
+
+	if (!strcmp("make_plot_crd_diff", kw1))
+	{
+		char kw2[32]; istr >> kw2;	// ind1
+		char kw3[32]; istr >> kw3;	// ind2
+		char kw4[32]; istr >> kw4;	// B
+
+		char ** endptr = NULL;
+		
+		i32s ind1 = strtol(kw2, endptr, 10);
+		i32s ind2 = strtol(kw3, endptr, 10);
+		i32s dim = strtol(kw4, endptr, 10);
+		
+		TrajView_CoordinateDifferencePlot(ind1, ind2, dim);
+		return;
+	}
+
 	if (!strcmp("make_plot_crd", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -4513,9 +4545,7 @@ void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
 	//}
 }
 
-
-
-void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
+void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
 {
 	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
 	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
@@ -4561,11 +4591,528 @@ void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
 						mt_a1 = mt_a2 = mt_a3 = NULL;		
 
 
-	for (vector<molecular_axis>::iterator it = this->mlax_list.begin();
-		it != this->mlax_list.end(); it++)
-	{	
-		(*it).atmr[0];
+
+						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+						{
+						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+							
+							fGL cdata[3];
+							for (i32s t4 = 0;t4 < 3;t4++)
+							{
+								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								cdata[t4] = t1a;
+							}
+							
+							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+							if (ind == ind1)
+							{
+								mt_a1 = &(* it1);
+							}
+
+							if (ind == ind2)
+							{
+								mt_a2 = &(* it1);
+							}
+
+							/*if (ind == indc)
+							{
+								mt_a3 = &(* it1);
+							}*/
+
+
+							ind++;
+						}
+						//this->UpdateAllGraphicsViews();
+					//}
+
+						fGL coordinate;
+
+						if (mt_a1 && mt_a2 && dim >=0 && dim < 3)
+						{
+							const fGL * p1 = mt_a1->GetCRD(0);
+							const fGL * p2 = mt_a2->GetCRD(0);
+// my measure
+//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
+							coordinate = p1[dim]-p2[dim];
+						}
+						else
+							coordinate = 0;
+
+					//ref->this->UpdateAllGraphicsViews(true);
+					//::Sleep(100);
+					void * udata = convert_cset_to_plotting_udata(this, 0);
+					f64 value = coordinate;
+					plot->AddData(loop, value, udata);
+
+					mt_a1 = mt_a2 = mt_a3 = NULL;
+				}
+				
+				this->CloseTrajectory();
+
+//				static trajview_dialog * tvd = NULL;
+				
+//				if (tvd != NULL) delete tvd;		// how to safely release the memory...
+				//tvd =
+				//	new trajview_dialog(this);		// ...right after the dialog is closed?
+				
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				// the dialog will call this->CloseTrajectory() itself when closed!!!
+				plot->SetCenterAndScale();
+				plot->Update();
+			}
+		}
+		else this->ErrorMessage("Trajectory already open?!?!?!");
+	//}
+}
+struct xyz
+{
+	f64 x,y,z;
+	xyz()
+	{
+		x = y = z = 0.0;
 	}
+	xyz(f64 _x, f64 _y, f64 _z)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+};
+void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
+{
+	dt *= 100 * 1e-15;
+	if (!this->GetTrajectoryFile())
+	{
+
+		char filename[512];
+		DWORD nFilterIndex;
+		if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+		{
+			cout << "trying to open \"" << filename << "\"." << endl;
+			this->OpenTrajectory(filename);
+			// check if there were problems with OpenTrajectory()?!?!?!
+			// check if there were problems with OpenTrajectory()?!?!?!
+			// check if there were problems with OpenTrajectory()?!?!?!
+				
+			const char * s1 = "tor1(deg)"; const char * s2 = "tor2(deg)"; const char * sv = "E(kJ/mol)";
+			plot2d_view * plot = AddPlot2DView(PLOT_USERDATA_STRUCTURE, s1, s2, sv, true);
+			
+			//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+			//plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+				plot1d_view * plot1 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				plot1d_view * plot11 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+
+		
+			float ekin;
+			float epot;
+
+			vector<xyz> coordinates_xyz;
+
+
+			for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+			{
+				if (!((* it1).flags & ATOMFLAG_SELECTED)) continue;	
+				coordinates_xyz.push_back(xyz());
+			}
+
+			vector<xyz> veloncities_xyz;
+
+			xyz mean_traj_coordinate = xyz();
+
+			xyz minvel, maxvel;
+
+			f64 sum_mom_xy = 0.0;
+
+			i32s max_frames = this->GetTotalFrames();
+			for (i32s loop = 0;loop < max_frames;loop++)
+			{
+				this->SetCurrentFrame(loop);
+				//this->ReadFrame();
+				//void project::ReadFrame(void)
+				//{
+					i32s place = 8 + 2 * sizeof(int);						// skip the header...
+					place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
+					//place += 2 * sizeof(float);							// skip epot and ekin...
+					
+					trajfile->seekg(place, ios::beg);
+
+					trajfile->read((char *) & ekin, sizeof(ekin));
+					trajfile->read((char *) & epot, sizeof(epot));
+
+					i32s ind = 0;
+					xyz mean_shift = xyz();
+					for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+					{
+						
+						fGL cdata[3];
+						for (i32s t4 = 0;t4 < 3;t4++)
+						{
+							float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+							cdata[t4] = t1a;
+						}
+
+						(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+						if (!((* it1).flags & ATOMFLAG_SELECTED)) continue;	
+
+						if (loop)
+						{
+							xyz dist;
+
+							dist.x = cdata[0] - coordinates_xyz[ind].x;
+							dist.y = cdata[1] - coordinates_xyz[ind].y;
+							dist.z = cdata[2] - coordinates_xyz[ind].z;
+
+							i32s n1 = 0;
+							{
+								if (dist.x < -this->periodic_box_HALFdim[n1])
+								{
+									dist.x += 2.0*this->periodic_box_HALFdim[n1];
+								}
+								else if (dist.x > this->periodic_box_HALFdim[n1])
+								{
+									dist.x -= 2.0*this->periodic_box_HALFdim[n1];
+								}
+							}
+
+
+							f64 vx = dist.x / dt;
+							f64 vy = dist.y / dt;
+							f64 vz = dist.z / dt;
+
+							//printf("vx = %f vy = %f vz = %f\n", vx,vy,vz);
+
+							veloncities_xyz.push_back(xyz(vx,vy,vz));
+
+							if (minvel.x > vx) minvel.x = vx;
+							if (minvel.y > vy) minvel.y = vy;
+							if (minvel.z > vz) minvel.z = vz;
+
+							if (maxvel.x < vx) maxvel.x = vx;
+							if (maxvel.y < vy) maxvel.y = vy;
+							if (maxvel.z < vz) maxvel.z = vz;
+
+							mean_shift.x += dist.x;
+							mean_shift.y += dist.y;
+							mean_shift.z += dist.z;
+						}
+
+						coordinates_xyz[ind].x = cdata[0];
+						coordinates_xyz[ind].y = cdata[1];
+						coordinates_xyz[ind].z = cdata[2];
+
+
+						ind++;
+					}
+					//this->UpdateAllGraphicsViews();
+
+					mean_shift.x /= ind;
+					mean_shift.y /= ind;
+					mean_shift.z /= ind;
+
+					mean_traj_coordinate.x += mean_shift.x;
+					mean_traj_coordinate.y += mean_shift.y;
+					mean_traj_coordinate.z += mean_shift.z;
+				//}
+
+				// момент против часовой стрелки
+				// x*vy-y*vx
+				sum_mom_xy +=  
+					(mean_traj_coordinate.x * mean_shift.y - 
+					mean_traj_coordinate.y * mean_shift.x);
+
+				plot1->AddData(mean_traj_coordinate.x, mean_traj_coordinate.y,  NULL);
+				void * udata = convert_cset_to_plotting_udata(this, 0);
+				plot11->AddData(loop, sum_mom_xy, udata);
+			}
+			
+			this->CloseTrajectory();
+
+			f64 range_x[2];
+			range_x[0] = minvel.x;
+			range_x[1] = maxvel.x;
+
+			f64 range_y[2];
+			range_y[0] = minvel.y;
+			range_y[1] = maxvel.y;
+
+			vector<vector<f64> > m;
+			m.resize(divx);
+
+			for (i32s sx = 0; sx < divx; sx++)
+			{
+				m[sx].resize(divy, 0.0);
+			}
+
+
+			for (vector<xyz>::iterator it_vel = veloncities_xyz.begin();
+				it_vel != veloncities_xyz.end(); it_vel++)
+			{
+
+				i32s sx = i32s((((*it_vel).x - minvel.x) / (maxvel.x - minvel.x)) * f64(divx));
+				if (sx == divx) sx--;
+
+				i32s sy = i32s((((*it_vel).y - minvel.y) / (maxvel.y - minvel.y)) * f64(divy));
+				if (sy == divy) sy--;
+
+						
+				
+				//printf("(*it_vel).x = %f (*it_vel).y = %f\n", (*it_vel).x,(*it_vel).y);
+				//printf("sx = %d sy = %d\n", sx,sy);
+				
+
+				m[sx][sy] += 1.0;			
+			}
+
+
+			f64 vx = range_x[0];
+
+			for (i32s sx = 0; sx < divx; sx++)
+			{
+				f64 vy = range_y[0];
+				for (i32s sy = 0; sy < divy; sy++)
+				{
+
+					// ...and add it to the plot.			
+					void * udata = NULL;// convert_cset_to_plotting_udata(this, 0);
+					plot->AddData(vx, vy, m[sx][sy], udata);
+					//printf("vx = %f, vy = %f, m[sx][sy] = %f\n", vx, vy, m[sx][sy]);
+					vy += (range_y[1] - range_y[0]) / (f64) divy;
+				}
+				
+				vx += (range_x[1] - range_x[0]) / (f64) divx;
+			}
+
+
+			
+			// the "eng" object is the setup->current_eng object, so there's no need to delete it...
+			
+			plot1->SetCenterAndScale();
+			plot1->Update();
+			
+			plot11->SetCenterAndScale();
+			plot11->Update();
+			
+			plot->SetCenterAndScale();
+			plot->Update();
+
+		}
+	}
+	else this->ErrorMessage("Trajectory already open?!?!?!");
+}
+
+
+#include "ap.h"
+#include "float.h"
+
+bool jacobyeigenvaluesandvectors(ap::real_2d_array a,
+     int n,
+     ap::real_1d_array& d,
+     ap::real_2d_array& v);
+
+bool jacobyeigenvaluesandvectors(ap::real_2d_array a,
+     int n,
+     ap::real_1d_array& d,
+     ap::real_2d_array& v)
+{
+    bool result;
+    int j;
+    int iq;
+    int ip;
+    int i;
+    double tresh;
+    double theta;
+    double tau;
+    double t;
+    double sm;
+    double s;
+    double h;
+    double g;
+    double c;
+    ap::real_1d_array b;
+    ap::real_1d_array z;
+
+    d.setbounds(1, n);
+    v.setbounds(1, n, 1, n);
+    b.setbounds(1, n);
+    z.setbounds(1, n);
+    result = true;
+    for(ip = 1; ip <= n; ip++)
+    {
+        for(iq = 1; iq <= n; iq++)
+        {
+            v(ip,iq) = 0.0;
+        }
+        v(ip,ip) = 1.0;
+    }
+    for(ip = 1; ip <= n; ip++)
+    {
+        b(ip) = a(ip,ip);
+        d(ip) = b(ip);
+        z(ip) = 0.0;
+    }
+    for(i = 1; i <= 50; i++)
+    {
+        result = i!=50;
+        sm = 0.0;
+        for(ip = 1; ip <= n-1; ip++)
+        {
+            for(iq = ip+1; iq <= n; iq++)
+            {
+                sm = sm+fabs(a(ip,iq));
+            }
+        }
+        if( sm==0.0||!result )
+        {
+            return result;
+        }
+        if( i<4 )
+        {
+            tresh = 0.2*sm/ap::sqr(n);
+        }
+        else
+        {
+            tresh = 0.0;
+        }
+        for(ip = 1; ip <= n-1; ip++)
+        {
+            for(iq = ip+1; iq <= n; iq++)
+            {
+                g = fabs(a(ip,iq));
+                if( i>4&&100*fabs(d(ip))*ap::machineepsilon>=g&&100*fabs(d(iq))*ap::machineepsilon>=g )
+                {
+                    a(ip,iq) = 0.0;
+                }
+                else
+                {
+                    if( fabs(a(ip,iq))>tresh )
+                    {
+                        h = d(iq)-d(ip);
+                        if( 100*fabs(h)*ap::machineepsilon>=g )
+                        {
+                            t = a(ip,iq)/h;
+                        }
+                        else
+                        {
+                            theta = 0.5*h/a(ip,iq);
+                            t = 1.0/(fabs(theta)+sqrt(1.0+ap::sqr(theta)));
+                            if( theta<0.0 )
+                            {
+                                t = -t;
+                            }
+                        }
+                        c = 1.0/sqrt(1+ap::sqr(t));
+                        s = t*c;
+                        tau = s/(1.0+c);
+                        h = t*a(ip,iq);
+                        z(ip) = z(ip)-h;
+                        z(iq) = z(iq)+h;
+                        d(ip) = d(ip)-h;
+                        d(iq) = d(iq)+h;
+                        a(ip,iq) = 0.0;
+                        for(j = 1; j <= ip-1; j++)
+                        {
+                            g = a(j,ip);
+                            h = a(j,iq);
+                            a(j,ip) = g-s*(h+g*tau);
+                            a(j,iq) = h+s*(g-h*tau);
+                        }
+                        for(j = ip+1; j <= iq-1; j++)
+                        {
+                            g = a(ip,j);
+                            h = a(j,iq);
+                            a(ip,j) = g-s*(h+g*tau);
+                            a(j,iq) = h+s*(g-h*tau);
+                        }
+                        for(j = iq+1; j <= n; j++)
+                        {
+                            g = a(ip,j);
+                            h = a(iq,j);
+                            a(ip,j) = g-s*(h+g*tau);
+                            a(iq,j) = h+s*(g-h*tau);
+                        }
+                        for(j = 1; j <= n; j++)
+                        {
+                            g = v(j,ip);
+                            h = v(j,iq);
+                            v(j,ip) = g-s*(h+g*tau);
+                            v(j,iq) = h+s*(g-h*tau);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for(ip = 1; ip <= n; ip++)
+    {
+        b(ip) = b(ip)+z(ip);
+        d(ip) = b(ip);
+        z(ip) = 0.0;
+    }
+    return result;
+}
+
+struct mol_axis_vector
+{
+	fGL e_mlax[3];
+	fGL len;
+};
+
+void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
+{
+	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	//if (prj)// new trajfile_dialog(prj);	// will call delete itself...
+	//{
+		if (!this->GetTrajectoryFile())
+		{
+
+			char filename[512];
+			DWORD nFilterIndex;
+			if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+			{
+				cout << "trying to open \"" << filename << "\"." << endl;
+				this->OpenTrajectory(filename);
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+				// check if there were problems with OpenTrajectory()?!?!?!
+					
+				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+			
+				float ekin;
+				float epot;
+
+
+				i32s max_frames = this->GetTotalFrames();
+				for (i32s loop = 0;loop < max_frames;loop++)
+				{
+					this->SetCurrentFrame(loop);
+					//this->ReadFrame();
+					//void project::ReadFrame(void)
+					//{
+						i32s place = 8 + 2 * sizeof(int);						// skip the header...
+						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
+						//place += 2 * sizeof(float);							// skip epot and ekin...
+						
+						trajfile->seekg(place, ios::beg);
+
+						trajfile->read((char *) & ekin, sizeof(ekin));
+						trajfile->read((char *) & epot, sizeof(epot));
+
+						i32s ind = 0;
+						mt_a1 = mt_a2 = mt_a3 = NULL;	
+
+
+						vector<mol_axis_vector> vmav;
+
+						vmav.clear();
+
+
+
 
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
@@ -4603,7 +5150,119 @@ void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
 						//this->UpdateAllGraphicsViews();
 					//}
 
+						//Allen, Tildesley. Computer simulations of liquids p 305 (11.19)
+						ap::real_2d_array Q;
+						Q.setbounds(1,3,1,3);
+						for (i32s n1 = 1; n1 <= 3; n1++)
+						{
+							for (i32s n2 = 1; n2 <= 3; n2++)
+							{
+								Q(n1,n2) = 0.0;
+							}
+						}
+						for (list<molecular_axis>::iterator it = this->molaxis_list.begin();
+							it != this->molaxis_list.end(); it++)
+						{	
+							const fGL * p1 = (*it).atmr[0]->GetCRD(0);
+							const fGL * p2 = (*it).atmr[1]->GetCRD(0);
+
+							mol_axis_vector mav;
+
+
+
+							
+
+							for (i32s n1 = 0; n1 < 3; n1++)
+							{
+								mav.e_mlax[n1] = p2[n1] - p1[n1];
+								if (n1 == 0)
+								{
+									if (mav.e_mlax[n1] < -this->periodic_box_HALFdim[n1])
+									{
+										mav.e_mlax[n1] += 2.0*this->periodic_box_HALFdim[n1];
+									}
+									else if (mav.e_mlax[n1] > this->periodic_box_HALFdim[n1])
+									{
+										mav.e_mlax[n1] -= 2.0*this->periodic_box_HALFdim[n1];
+									}
+								}
+							}
+
+							mav.len = 0.0;
+							for (i32s n1 = 0; n1 < 3; n1++)
+							{
+								mav.len += mav.e_mlax[n1] * mav.e_mlax[n1];
+							}
+							mav.len = sqrt(mav.len);
+							vmav.push_back(mav);
+
+							for (i32s n1 = 1; n1 <= 3; n1++)
+							{
+								for (i32s n2 = 1; n2 <= 3; n2++)
+								{
+									Q(n1,n2) += 3.0 * mav.e_mlax[n1-1]*mav.e_mlax[n2-1] - 1.0 * (n1 == n2);
+								}
+							}
+						}
+						int two_N = 2.0*this->molaxis_list.size();
+						for (i32s n1 = 1; n1 <= 3; n1++)
+						{
+							for (i32s n2 = 1; n2 <= 3; n2++)
+							{
+								Q(n1,n2) /= two_N;
+							}
+						}
+
+						int N = vmav.size();
+						f64 sumP2 = 0.0;
+						int nn = 0;
+						for (i32s i1 = 0; i1 < N; i1++)
+						{
+							for (i32s i2 = i1+1; i2 < N; i2++)
+							{
+								if (i1 != i2)
+								{
+									f64 scalar_product = 0.0;
+									for (i32s n1 = 0; n1 < 3; n1++)
+									{
+										scalar_product += 
+											vmav[i1].e_mlax[n1] * vmav[i2].e_mlax[n1];
+									}
+									f64 cosine = scalar_product / (vmav[i1].len * vmav[i2].len);
+							//printf("cosine(%d,%d) = %f\n",i1,i2, cosine);
+									f64 P2 = 0.5 * (3.0 * cosine * cosine - 1);
+									sumP2 += P2;
+									nn++;
+								}
+							}
+						}
+						f64 meanP2 = sumP2 / nn;
+
+
+						//собственные значения и собственные вектора
+						ap::real_1d_array d;
+						ap::real_2d_array v;
+
 						fGL coordinate;
+						if (false)
+						{
+							coordinate = -DBL_MAX;
+
+							if (jacobyeigenvaluesandvectors(Q, 3, d, v))
+							{
+
+								//printf("d(1) = %f, d(2) = %f, d(3) = %f\n", d(1), d(2), d(3));
+								for (i32s n1 = 1; n1 <= 3; n1++)	
+								{
+									if (coordinate < d(n1))
+										coordinate = d(n1);
+								}
+							}
+						}
+						else
+						{
+							coordinate = meanP2;
+						}
 
 #if 0						
 						if (mt_a1 && dim >=0 && dim < 3)

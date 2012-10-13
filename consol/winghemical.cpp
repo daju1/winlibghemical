@@ -1875,6 +1875,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 				
 				
+			case ID_TRAJECTORY_CONCATTRAJFILES:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_ConCatTrajFiles(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;				
+				
 			case ID_DO_TRAJECTORYVIEW:
 				{
 					//######################################################
@@ -1949,9 +1968,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					//######################################################
 				}
+				break;				
+
+			case ID_TRAJECTORY_VELONCITYDISTRIBUTION2D:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompVeloncityDistribution2D(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
 				break;
 
-			case ID_TRAJECTORY_VIEWCOORDINATEPLOT:
+			case ID_TRAJECTORY_VIEWCOORDINATEDIFFERENCEPLOT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompCoordinateDifferenceTrajPlot1D(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_TRAJECTORY_VIEWCOORDINATEPLOT1:
 				{
 					//######################################################
 					win_ogl_view * wgrv = 

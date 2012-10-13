@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Comdlg32.lib odbc32.lib odbccp32.lib comctl32.lib babel.lib win_project.lib libghemical.lib"
-				OutputFile="../../ghemical.exe"
+				OutputFile="../../ghemical_debug4.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../"

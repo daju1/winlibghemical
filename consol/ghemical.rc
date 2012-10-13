@@ -514,7 +514,10 @@ BEGIN
 
             MENUITEM "View Kinetic Energy Plot",    ID_DO_TRAJECTORYVIEWKINETICENERGYPLOT
 
-            MENUITEM "View Coordinate plot",        ID_TRAJECTORY_VIEWCOORDINATEPLOT
+            MENUITEM "View Coordinate plot",        ID_TRAJECTORY_VIEWCOORDINATEPLOT1
+
+            MENUITEM "View Coordinate Difference plot", 
+                                                    ID_TRAJECTORY_VIEWCOORDINATEDIFFERENCEPLOT
 
             MENUITEM "View Distance plot",          ID_TRAJECTORY_VIEWDISTANCEPLOT
 
@@ -523,9 +526,13 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "SetTotalFrames",              ID_TRAJECTORY_SETTOTALFRAMES
 
+            MENUITEM "Concat traj files",           ID_TRAJECTORY_CONCATTRAJFILES
+
             MENUITEM SEPARATOR
             MENUITEM "Nematic Order Parameter Plot", 
                                                     ID_TRAJECTORY_NEMATICORDERPARAMETERPLOT
+
+            MENUITEM "Veloncity Distribution 2D",   ID_TRAJECTORY_VELONCITYDISTRIBUTION2D
 
         END
         MENUITEM SEPARATOR

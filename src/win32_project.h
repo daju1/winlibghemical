@@ -233,6 +233,8 @@ friend class win_eld_view;
 
 	static void popup_CompNematicOrderParamTrajPlot1D(HWND widget, void * data);
 
+	static void popup_CompVeloncityDistribution2D(HWND widget, void * data);
+	static void popup_CompCoordinateDifferenceTrajPlot1D(HWND widget, void * data);
 	static void popup_CompCoordinateTrajPlot1D(HWND widget, void * data);
 	static void popup_CompDistanceTrajPlot1D(HWND widget, void * data);
 	static void popup_CompAngleTrajPlot1D(HWND widget, void * data);
@@ -253,6 +255,8 @@ static void popup_CompCreateRS(HWND, void*);
 static void popup_CompCycleRS(HWND, void*);
 
 	void popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_potencial);
+
+	static void popup_ConCatTrajFiles(HWND, void*);
 
 	static void popup_TrajView(HWND, void*);
 	static void popup_SetOrbital(HWND, void*);	

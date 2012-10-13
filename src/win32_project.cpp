@@ -1629,6 +1629,32 @@ prj->Message("PLEASE NOTE!\n"
 	}
 }
 
+void win_project::popup_CompCoordinateDifferenceTrajPlot1D(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letters IND1, IND2 and DIM with atom indexes and dimension (0,1 or 2) \nthat define the coordinate difference: coord(IND1)-coord(IND2).");
+		
+		static const char command[] = "make_plot_crd_diff IND1 IND2 DIM";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_CompVeloncityDistribution2D(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		//prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letters IND1, IND2 and DIM with atom indexes and dimension (0,1 or 2) \nthat define the coordinate difference.");
+		
+		static const char command[] = "vel_dist_2d 100 100 2";
+		new command_dialog(prj, gv, command);
+	}
+}
+
 void win_project::popup_CompCoordinateTrajPlot1D(HWND widget, void * data)
 {
 	win_graphics_view * gv = win_graphics_view::GetGV(widget);
@@ -1887,6 +1913,94 @@ void win_project::popup_TrajView(HWND widget, void * data)
 				// the dialog will call prj->CloseTrajectory() itself when closed!!!
 				// the dialog will call prj->CloseTrajectory() itself when closed!!!
 			}
+		}
+		else prj->ErrorMessage("Trajectory already open?!?!?!");
+	}
+}
+
+void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)// new trajfile_dialog(prj);	// will call delete itself...
+	{	
+		if (!prj->GetTrajectoryFile())
+		{
+			// handle the file selection...
+			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			TCHAR filter[] =     TEXT("Ghemical Trajectory File (*.traj)\0*.traj\0")
+								TEXT("All Files (*.*)\0*.*\0");
+			TCHAR outfilename[1024];
+
+			sprintf(outfilename, "\0");
+			DWORD nFilterIndex;
+			if (SaveFileDlg(0, outfilename, filter, nFilterIndex) == S_OK)
+			{
+				ofstream ofile;
+				//ofile.open(param.filename, ios::out | ios::binary);
+				ofile.open(outfilename, ios_base::out | ios_base::trunc | ios_base::binary);
+				
+				int number_of_atoms = prj->GetAtomCount();
+				const char file_id[10] = "traj_v10";
+				
+				int total_frames = 0;
+				
+				ofile.write((char *) file_id, 8);					// file id, 8 chars.
+				ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+				ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+
+
+				char filename[512];
+				DWORD nFilterIndex;
+				while (OpenFileDlg(widget, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
+				{			
+
+					cout << "trying to open \"" << filename << "\"." << endl;
+					prj->OpenTrajectory(filename);						
+				
+					float ekin;
+					float epot;
+
+					i32s max_frames = prj->GetTotalFrames();
+					total_frames += max_frames;
+					for (i32s loop = 0;loop < max_frames;loop++)
+					{
+						//prj->SetCurrentFrame(loop);//current_traj_frame = loop;
+						//prj->ReadFrame();
+						//void project::ReadFrame(void)
+						{
+							i32s place = 8 + 2 * sizeof(int);						// skip the header...
+							place += (2 + 3 * prj->traj_num_atoms) * sizeof(float) * loop;		// get the correct frame...
+							//place += 2 * sizeof(float);							// skip epot and ekin...
+							
+							prj->trajfile->seekg(place, ios::beg);
+
+							prj->trajfile->read((char *) & ekin, sizeof(ekin));
+							prj->trajfile->read((char *) & epot, sizeof(epot));
+							
+							ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+							ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+							
+							for (iter_al it1 = prj->atom_list.begin();it1 != prj->atom_list.end();it1++)
+							{								
+								//fGL cdata[3];
+								for (i32s t4 = 0;t4 < 3;t4++)
+								{
+									float t1a; 
+									prj->trajfile->read((char *) & t1a, sizeof(t1a));
+									//cdata[t4] = t1a;
+									//float t1a = cdata[t4];
+									ofile.write((char *) & t1a, sizeof(t1a));
+								}
+							}
+						}
+					}					
+					prj->CloseTrajectory();
+
+				}
+				ofile.close();
+				prj->TrajectorySetTotalFrames(outfilename, total_frames);
+			}	
 		}
 		else prj->ErrorMessage("Trajectory already open?!?!?!");
 	}
