@@ -1,0 +1,133 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: example3 - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP20C.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Debug/example3.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\winlibghemical\libghemical-1.90\src\simple_test\streamio.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP20C.tmp" 
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP20D.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"Debug/example3.pdb" /debug /machine:I386 /out:"Debug/example3.exe" /pdbtype:sept 
+".\Debug\atom.obj"
+".\Debug\bond.obj"
+".\Debug\conjgrad.obj"
+".\Debug\eng1_mm.obj"
+".\Debug\eng1_mm_default.obj"
+".\Debug\eng1_mm_prmfit.obj"
+".\Debug\eng1_mm_tripos52.obj"
+".\Debug\engine.obj"
+".\Debug\example3.obj"
+".\Debug\fileio.obj"
+".\Debug\geomopt.obj"
+".\Debug\intcrd.obj"
+".\Debug\model.obj"
+".\Debug\moldyn.obj"
+".\Debug\notice.obj"
+".\Debug\resonance.obj"
+".\Debug\search.obj"
+".\Debug\seqbuild.obj"
+".\Debug\tab_mm_default.obj"
+".\Debug\tab_mm_prmfit.obj"
+".\Debug\tab_mm_tripos52.obj"
+".\Debug\typerule.obj"
+".\Debug\utility.obj"
+".\Debug\streamio.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP20D.tmp"
+<h3>Output Window</h3>
+Compiling...
+streamio.cpp
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::Compute' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(131) : see declaration of 'Compute'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetOrbitalCount' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(133) : see declaration of 'GetOrbitalCount'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetOrbitalEnergy' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(134) : see declaration of 'GetOrbitalEnergy'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetElectronCount' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(136) : see declaration of 'GetElectronCount'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::SetupPlotting' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(138) : see declaration of 'SetupPlotting'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetVDWSurf' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(140) : see declaration of 'GetVDWSurf'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetESP' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(142) : see declaration of 'GetESP'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetElDens' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(144) : see declaration of 'GetElDens'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetOrbital' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(146) : see declaration of 'GetOrbital'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(207) : warning C4250: 'eng1_mm_default_nbt_mbp' : inherits 'eng1_mm::GetOrbDens' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(147) : see declaration of 'GetOrbDens'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::Compute' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(131) : see declaration of 'Compute'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetOrbitalCount' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(133) : see declaration of 'GetOrbitalCount'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetOrbitalEnergy' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(134) : see declaration of 'GetOrbitalEnergy'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetElectronCount' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(136) : see declaration of 'GetElectronCount'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::SetupPlotting' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(138) : see declaration of 'SetupPlotting'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetVDWSurf' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(140) : see declaration of 'GetVDWSurf'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetESP' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(142) : see declaration of 'GetESP'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetElDens' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(144) : see declaration of 'GetElDens'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetOrbital' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(146) : see declaration of 'GetOrbital'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(247) : warning C4250: 'eng1_mm_default_nbt_mim' : inherits 'eng1_mm::GetOrbDens' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm.h(147) : see declaration of 'GetOrbDens'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::FindTorsion' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(174) : see declaration of 'FindTorsion'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::SetTorsionConstraint' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(175) : see declaration of 'SetTorsionConstraint'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::ComputeBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(179) : see declaration of 'ComputeBT1'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::ComputeBT2' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(180) : see declaration of 'ComputeBT2'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::ComputeBT3' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(181) : see declaration of 'ComputeBT3'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_bt::ComputeBT4' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(182) : see declaration of 'ComputeBT4'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(257) : warning C4250: 'eng1_mm_default_mbp' : inherits 'eng1_mm_default_nbt_mbp::ComputeNBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(206) : see declaration of 'ComputeNBT1'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::FindTorsion' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(174) : see declaration of 'FindTorsion'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::SetTorsionConstraint' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(175) : see declaration of 'SetTorsionConstraint'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::ComputeBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(179) : see declaration of 'ComputeBT1'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::ComputeBT2' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(180) : see declaration of 'ComputeBT2'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::ComputeBT3' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(181) : see declaration of 'ComputeBT3'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_bt::ComputeBT4' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(182) : see declaration of 'ComputeBT4'
+d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(265) : warning C4250: 'eng1_mm_default_mim' : inherits 'eng1_mm_default_nbt_mim::ComputeNBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(246) : see declaration of 'ComputeNBT1'
+d:\winlibghemical\libghemical-1.90\src\eng2_mm_sf.h(83) : warning C4250: 'eng2_mm_sf' : inherits 'eng1_mm_default_bt::ComputeBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(179) : see declaration of 'ComputeBT1'
+d:\winlibghemical\libghemical-1.90\src\eng2_mm_sf.h(83) : warning C4250: 'eng2_mm_sf' : inherits 'eng1_mm_default_bt::ComputeBT2' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(180) : see declaration of 'ComputeBT2'
+d:\winlibghemical\libghemical-1.90\src\eng2_mm_sf.h(83) : warning C4250: 'eng2_mm_sf' : inherits 'eng1_mm_default_bt::ComputeBT3' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(181) : see declaration of 'ComputeBT3'
+d:\winlibghemical\libghemical-1.90\src\eng2_mm_sf.h(83) : warning C4250: 'eng2_mm_sf' : inherits 'eng1_mm_default_bt::ComputeBT4' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(182) : see declaration of 'ComputeBT4'
+d:\winlibghemical\libghemical-1.90\src\eng2_mm_sf.h(83) : warning C4250: 'eng2_mm_sf' : inherits 'eng1_mm_default_nbt_mbp::ComputeNBT1' via dominance
+        d:\winlibghemical\libghemical-1.90\src\eng1_mm_default.h(206) : see declaration of 'ComputeNBT1'
+Linking...
+
+
+
+<h3>Results</h3>
+example3.exe - 0 error(s), 39 warning(s)
+</pre>
+</body>
+</html>

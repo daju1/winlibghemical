@@ -1,0 +1,13 @@
+You can compile and install this package using commands
+
+	./configure
+	make
+	make install
+
+In installation only the libmopac library is installed, not the standalone
+mopac7 executable which is also generated in the compilation stage.
+
+You can use the run_mopac7 script to start the standalone mopac7 application,
+for example to run some of the test files:
+
+	./run_mopac7 tests/force

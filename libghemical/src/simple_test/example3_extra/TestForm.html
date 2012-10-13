@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>Example3 Test Form</title>
+  </head>
+  <body>
+    <h3>Example3 Test Form</h3>
+    <form method="POST" action="/cgi-bin/example3.exe">
+      <input type="submit" />
+      <hr>
+
+      job=
+      <select name="job">
+	<option value="CompEne">Calculate Energy</option>
+	<option value="DoGeomOpt">Geometry Optimization</option>
+      </select>
+      <br />
+
+      params=
+      <select name="params">
+	<option value="MM">MM</option>
+      </select>
+      <br />
+      <br />
+
+      data=<br />
+      <textarea name="data" rows="50" cols="85"></textarea>
+    </form>
+  </body>
+</html>

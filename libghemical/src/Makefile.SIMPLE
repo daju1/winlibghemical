@@ -1,0 +1,44 @@
+# this is a simple traditional Makefile that can be used indepentently from
+# the ./configure script based system ; TH 20050321
+
+CPP =		g++
+RANLIB =	ranlib
+AR =		ar
+
+CFLAGS =	-O2
+
+SRC =		atom.cpp bond.cpp \
+		model.cpp engine.cpp \
+		typerule.cpp utility.cpp \
+		seqbuild.cpp \
+		eng1_qm.cpp \
+		eng1_qm_mpqc.cpp eng1_qm_mopac.cpp \
+		eng1_mm.cpp \
+		eng1_mm_default.cpp tab_mm_default.cpp \
+		eng1_mm_prmfit.cpp tab_mm_prmfit.cpp \
+		eng2_qm_mm.cpp \
+		eng1_sf.cpp \
+		eng2_mm_sf.cpp \
+		notice.cpp \
+		conjgrad.cpp \
+		intcrd.cpp search.cpp \
+		geomopt.cpp moldyn.cpp \
+		pop_ana.cpp resonance.cpp
+
+OBJ =		$(SRC:.cpp=.o)
+
+TARGET_LIB =    libghemical.a
+
+################################################################
+
+$(TARGET_LIB):  $(OBJ)
+		$(AR) rcv $(TARGET_LIB) $(OBJ)
+		$(RANLIB) $(TARGET_LIB)
+
+%.o:            %.cpp
+		$(CPP) -c $(CFLAGS) $(@:.o=.cpp)
+
+clean:
+		rm -f *.o *~ depend $(TARGET_LIB)
+
+#################################################################

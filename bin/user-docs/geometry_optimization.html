@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <link href="documentation.css" rel="stylesheet" type="text/css">
+  <title>Ghemical User Documentation - Geometry Optimization (Molecular Mechanics)</title>
+</head>
+   <body>
+  
+<h1>2.1.4 Geometry Optimization</h1>
+ 
+<p>The Geometry Optimization tool will attempt to change the geometry of
+the current molecule into  the lowest energy conformation. To activate this
+tool, right-click on the view window, select Compute from the popup menu,
+and then click on Geometry Optimization.</p>
+ <img src="images/geometry_optimization_select.png" width="495"
+ height="428"
+ alt="Screenshot of menu sequence to select geometry optimization.">
+  
+<p>A dialog box called Geometry Opimization will appear. The three textboxes
+in the dialog box  control when to end the geometry optimization. Typically
+only advanced users should change  these fields. The "Maximum number of steps:"
+field represents the maximum number of iterations that  should be performed
+before stopping the optimization.  The "Gradient cutoff:" field represents
+  how low the length of the gradient vector can be before the optimization
+stops. The  "Delta E Cutoff:" field represents the minimum change in potential
+energy between steps. Each of these checks can be disabled by unchecking
+the checkbox to the left of each field.</p>
+  <img src="images/geometry_op_dialog.png" width="336" height="194"
+ alt="Screenshot of the geometry optimization dialog box.">
+  
+<p> Click on Ok to start the optimization. The conformation of the molecule 
+will change slightly at each step. In the log box, rows of text will
+be printed. The first column indicates the step in the optimization currently
+being executed. The second column is the potential  energy of the molecule
+at that step (this number will hopefully decrease). The third column is length 
+of the gradient vector in the last step. The forth column is the change in
+potential energy from the  previous step to the current step. The last line
+on the column indicates which termination condition caused the optimization
+to stop. "the nsteps termination test was passed." means that the optimization
+went though the maximum number of steps allowed. This typically means that
+ ghemical could find a more optimum geometry if the optimization was allowed
+to run for longer. If an optimization terminates because of this, running
+a second geometry optimization might further optimize the geometry. Ghemical
+may also print "the grad termination test was passed." or "the delta_e termination
+test was passed." if the optimization stopped because of either of those
+conditions.</p>
+  
+<h3>Example</h3>
+ 
+<p>This example shows the geometry optimization of cyclohexane. Initially
+this molecule is planar and the bond lengths are not equal.</p>
+ <img src="images/cyclohexane_unoptimized.png" width="409" height="426"
+ border="0"
+ alt="Screenshot of cyclohexane before geometry optimization.">
+ 
+<p>A geometry optimization with the standard parameters is run. The optimization
+stops at step 175 because the change in potential energy (delta_e) is below
+1x10-7.</p>
+<br>
+<h4>Geometry Optimization log box example</h4>
+<kdb> 
+Starting Geometry Optimization (molecular mechanics, engine = mm1_eng_exp1 : the default engine).
+Cycle    Energy    Gradient       Step        Delta E
+   0  34064.44003 1.3967e+05 1.7976e-01 ********** 
+   1  20986.58834 1.3858e+05 2.0000e-01 1.3078e+04 
+   2   5039.47883 6.6726e+04 3.4326e-01 1.5947e+04 
+   3   3452.48739 3.5081e+04 5.8809e-02 1.5870e+03 
+ [snip]
+ 219      3.71368 3.0765e-01 2.1412e-06 3.1535e-07 
+ 220      3.71368 2.3451e-01 6.3032e-07 6.7052e-08 
+the delta_e termination test was passed.
+</kdb>
+<br>
+<p>After optimization the cyclohexane molecule is now in the chair conformation
+with all C-C bond lengths equivalent.</p>
+ <img src="images/cyclohexane_optimized.png" width="409" height="427"
+ alt="Screenshot of cyclohexane after MM1 geometry optimization.">
+ 
+<hr> <br>
+ <a href="index.html">Return to index</a> <br>
+</body>
+</html>

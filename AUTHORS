@@ -1,0 +1,16 @@
+Tommi Hassinen <thassine@messi.uku.fi> is the principal author.
+Or at least the original one... :)
+
+Jarno Huuskonen and Ville Heikkilä have contributed some GUI-code.
+
+Tuomas Venäläinen made the toolbar icon pixmaps.
+
+Geoff Hutchison has added OELib-based file import/export properties,
+and an easy-to-use configure-script.
+
+Mike Cruz has added the stereo mode viewing features.
+
+Michael Banck and Radek Liboska have created the .deb and .rpm
+binary packages. Austin Acton created the Mandrake .rpm packages.
+
+Christopher Rowley updated and practically re-wrote the User's Manual.

@@ -1,0 +1,277 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: ghemical - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x419 /fo"Debug/ghemical.res" /d "_DEBUG" "D:\winlibghemical\ghemical-1.90.11\consol\ghemical.rc"" 
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP8.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR"Debug/" /Fp"Debug/ghemical.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\atom.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\bond.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\camera.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\conjgrad.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_qm.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_qm_mopac.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_qm_mpqc.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\engine.cpp"
+"D:\winlibghemical\ghemical-1.90.11\consol\filedlg.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\fileio.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\geomopt.cpp"
+"D:\winlibghemical\ghemical-1.90.11\consol\ghemical.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\glade_dialog.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\intcrd.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\model.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\moldyn.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\glade\moldyn_atomlist_dialog.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\glade\moldyn_dialog.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\mtools.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\objects.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\plane.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\pop_ana.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\project.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\resonance.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\ribbon.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\search.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\seqbuild.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\spline.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\streamio.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\surface.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\tab_mm_default.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\tab_mm_prmfit.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\tab_mm_tripos52.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\glade\trajview_dialog.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\typerule.cpp"
+"D:\winlibghemical\ghemical-1.90.11\libghemical\src\utility.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\views.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_app.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_dialog.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_graphics_view.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_plot_views.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_project.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_project_view.cpp"
+"D:\winlibghemical\ghemical-1.90.11\src\win32_views.cpp"
+"D:\winlibghemical\ghemical-1.90.11\consol\winghemical.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP8.tmp" 
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP9.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FR"Debug/" /Fp"Debug/ghemical.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\winlibghemical\ghemical-1.90.11\consol\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP9.tmp" 
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSPA.tmp" with contents
+[
+Comdlg32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /subsystem:console /incremental:yes /pdb:"Debug/ghemical.pdb" /debug /machine:I386 /out:"../../ghemical.exe" /pdbtype:sept 
+".\Debug\atom.obj"
+".\Debug\bond.obj"
+".\Debug\camera.obj"
+".\Debug\conjgrad.obj"
+".\Debug\eng1_mm.obj"
+".\Debug\eng1_mm_default.obj"
+".\Debug\eng1_mm_prmfit.obj"
+".\Debug\eng1_mm_tripos52.obj"
+".\Debug\eng1_qm.obj"
+".\Debug\eng1_qm_mopac.obj"
+".\Debug\eng1_qm_mpqc.obj"
+".\Debug\engine.obj"
+".\Debug\filedlg.obj"
+".\Debug\fileio.obj"
+".\Debug\geomopt.obj"
+".\Debug\ghemical.obj"
+".\Debug\glade_dialog.obj"
+".\Debug\intcrd.obj"
+".\Debug\model.obj"
+".\Debug\moldyn.obj"
+".\Debug\moldyn_atomlist_dialog.obj"
+".\Debug\moldyn_dialog.obj"
+".\Debug\mtools.obj"
+".\Debug\objects.obj"
+".\Debug\plane.obj"
+".\Debug\pop_ana.obj"
+".\Debug\project.obj"
+".\Debug\resonance.obj"
+".\Debug\ribbon.obj"
+".\Debug\search.obj"
+".\Debug\seqbuild.obj"
+".\Debug\spline.obj"
+".\Debug\StdAfx.obj"
+".\Debug\streamio.obj"
+".\Debug\surface.obj"
+".\Debug\tab_mm_default.obj"
+".\Debug\tab_mm_prmfit.obj"
+".\Debug\tab_mm_tripos52.obj"
+".\Debug\trajview_dialog.obj"
+".\Debug\typerule.obj"
+".\Debug\utility.obj"
+".\Debug\views.obj"
+".\Debug\win32_app.obj"
+".\Debug\win32_dialog.obj"
+".\Debug\win32_graphics_view.obj"
+".\Debug\win32_plot_views.obj"
+".\Debug\win32_project.obj"
+".\Debug\win32_project_view.obj"
+".\Debug\win32_views.obj"
+".\Debug\winghemical.obj"
+".\Debug\ghemical.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSPA.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+atom.cpp
+bond.cpp
+camera.cpp
+conjgrad.cpp
+eng1_mm.cpp
+eng1_mm_default.cpp
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(247) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(247) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(248) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(248) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(277) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(277) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(278) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_default.cpp(278) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+eng1_mm_prmfit.cpp
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(229) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(229) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(230) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(230) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(259) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(259) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(260) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_prmfit.cpp(260) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+eng1_mm_tripos52.cpp
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(169) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(170) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(171) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(172) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(201) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(202) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(203) : warning C4805: '==' : unsafe mix of type 'int' and type 'bool' in operation
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_mm_tripos52.cpp(204) : warning C4805: '!=' : unsafe mix of type 'int' and type 'bool' in operation
+eng1_qm.cpp
+D:\winlibghemical\ghemical-1.90.11\libghemical\src\eng1_qm.cpp(186) : warning C4065: switch statement contains 'default' but no 'case' labels
+eng1_qm_mopac.cpp
+eng1_qm_mpqc.cpp
+engine.cpp
+filedlg.cpp
+fileio.cpp
+geomopt.cpp
+ghemical.cpp
+glade_dialog.cpp
+intcrd.cpp
+model.cpp
+moldyn.cpp
+Generating Code...
+Compiling...
+moldyn_atomlist_dialog.cpp
+moldyn_dialog.cpp
+mtools.cpp
+objects.cpp
+plane.cpp
+pop_ana.cpp
+project.cpp
+resonance.cpp
+ribbon.cpp
+search.cpp
+seqbuild.cpp
+spline.cpp
+streamio.cpp
+surface.cpp
+tab_mm_default.cpp
+tab_mm_prmfit.cpp
+tab_mm_tripos52.cpp
+trajview_dialog.cpp
+typerule.cpp
+utility.cpp
+Generating Code...
+Compiling...
+views.cpp
+win32_app.cpp
+win32_dialog.cpp
+win32_graphics_view.cpp
+win32_plot_views.cpp
+win32_project.cpp
+win32_project_view.cpp
+win32_views.cpp
+winghemical.cpp
+Generating Code...
+D:\winlibghemical\ghemical-1.90.11\src\win32_dialog.cpp(77) : warning C4700: local variable 'button' used without having been initialized
+D:\winlibghemical\ghemical-1.90.11\src\win32_dialog.cpp(137) : warning C4700: local variable 'button' used without having been initialized
+Linking...
+LINK : LNK6006: program database D:\winlibghemical\ghemical-1.90.11\consol\Debug\ghemical.pdb missing; performing full link
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSPC.tmp" with contents
+[
+/nologo /o"Debug/ghemical.bsc" 
+".\Debug\StdAfx.sbr"
+".\Debug\atom.sbr"
+".\Debug\bond.sbr"
+".\Debug\camera.sbr"
+".\Debug\conjgrad.sbr"
+".\Debug\eng1_mm.sbr"
+".\Debug\eng1_mm_default.sbr"
+".\Debug\eng1_mm_prmfit.sbr"
+".\Debug\eng1_mm_tripos52.sbr"
+".\Debug\eng1_qm.sbr"
+".\Debug\eng1_qm_mopac.sbr"
+".\Debug\eng1_qm_mpqc.sbr"
+".\Debug\engine.sbr"
+".\Debug\filedlg.sbr"
+".\Debug\fileio.sbr"
+".\Debug\geomopt.sbr"
+".\Debug\ghemical.sbr"
+".\Debug\glade_dialog.sbr"
+".\Debug\intcrd.sbr"
+".\Debug\model.sbr"
+".\Debug\moldyn.sbr"
+".\Debug\moldyn_atomlist_dialog.sbr"
+".\Debug\moldyn_dialog.sbr"
+".\Debug\mtools.sbr"
+".\Debug\objects.sbr"
+".\Debug\plane.sbr"
+".\Debug\pop_ana.sbr"
+".\Debug\project.sbr"
+".\Debug\resonance.sbr"
+".\Debug\ribbon.sbr"
+".\Debug\search.sbr"
+".\Debug\seqbuild.sbr"
+".\Debug\spline.sbr"
+".\Debug\streamio.sbr"
+".\Debug\surface.sbr"
+".\Debug\tab_mm_default.sbr"
+".\Debug\tab_mm_prmfit.sbr"
+".\Debug\tab_mm_tripos52.sbr"
+".\Debug\trajview_dialog.sbr"
+".\Debug\typerule.sbr"
+".\Debug\utility.sbr"
+".\Debug\views.sbr"
+".\Debug\win32_app.sbr"
+".\Debug\win32_dialog.sbr"
+".\Debug\win32_graphics_view.sbr"
+".\Debug\win32_plot_views.sbr"
+".\Debug\win32_project.sbr"
+".\Debug\win32_project_view.sbr"
+".\Debug\win32_views.sbr"
+".\Debug\winghemical.sbr"]
+Creating command line "bscmake.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSPC.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+ghemical.exe - 0 error(s), 27 warning(s)
+</pre>
+</body>
+</html>

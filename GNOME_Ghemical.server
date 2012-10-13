@@ -1,0 +1,22 @@
+<oaf_info>
+
+<oaf_server iid="OAFIID:GNOME_Ghemical_ControlFactory" type="exe"
+	location="ghemical --bonobo-server">
+	<oaf_attribute name="repo_ids" type="stringv">
+		<item value="IDL:GNOME/ObjectFactory:1.0"/>
+	</oaf_attribute>
+	<oaf_attribute name="name" type="string" value="Ghemical control factory"/>
+	<oaf_attribute name="description" type="string" value="Factory for creating Ghemical Bonobo controls"/>
+</oaf_server>
+
+<oaf_server iid="OAFIID:GNOME_Ghemical_Control" type="factory"
+	location="OAFIID:GNOME_Ghemical_ControlFactory">
+	<oaf_attribute name="repo_ids" type="stringv">
+		<item value="IDL:Bonobo/Unknown:1.0"/>
+		<item value="IDL:Bonobo/Control:1.0"/>
+	</oaf_attribute>
+	<oaf_attribute name="name" type="string" value="Ghemical Project control"/>
+	<oaf_attribute name="description" type="string" value="A Ghemical Project Bonobo control."/>
+</oaf_server>
+
+</oaf_info>

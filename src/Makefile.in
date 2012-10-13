@@ -1,0 +1,75 @@
+srcdir=         @srcdir@
+top_srcdir=     @top_srcdir@
+top_builddir=	@top_builddir_@
+VPATH=          @srcdir@
+
+SHELL=		@SHELL@
+prefix=		@prefix@
+
+APPVERSION=	@APPVERSION@
+APPDATA_PATH=	@datadir@/ghemical/$(APPVERSION)
+
+CC=		@CC@
+CXX=		@CXX@
+RANLIB=		@RANLIB@
+AR=		@AR@
+
+DEFINES=	
+
+INCS=		-I$(top_srcdir)/src/glade -I$(top_builddir)/src
+
+CFLAGS=		@CFLAGS@
+CPPFLAGS=	@CPPFLAGS@
+CXXFLAGS=	@CXXFLAGS@ @CPPFLAGS@ -Wall -fno-exceptions
+
+LOCAL_LIBS=	$(top_builddir)/src/glade/libdialogs.a
+LIBS=		@LIBS@ -lglut -lXmu -lg2c -lm
+
+SRC =		main.cpp \
+		project.cpp views.cpp fileio.cpp filetrans.cpp \
+		mtools.cpp objects.cpp camera.cpp \
+		spline.cpp ribbon.cpp plane.cpp surface.cpp \
+		gtk_dialog.cpp glade_dialog.cpp \
+		gtk_project.cpp gtk_views.cpp \
+		gtk_project_view.cpp \
+		gtk_graphics_view.cpp \
+		gtk_plot_views.cpp
+
+OBJ =		$(SRC:.cpp=.o)
+
+TARGET =	$(top_builddir)/bin/ghemical
+
+###########################################################################
+
+all:		$(TARGET)
+
+$(TARGET):	$(OBJ) $(LOCAL_LIBS)
+		-@test ! -d $(top_builddir)/bin && \
+			mkdir $(top_builddir)/bin && \
+			cp -r $(top_srcdir)/bin/parameters $(top_builddir)/bin/
+		$(CXX) -o $(TARGET) $(OBJ) $(LOCAL_LIBS) $(LIBS)
+
+%.o:		%.cpp
+		$(CXX) $(DEFINES) -c $(CXXFLAGS) $(INCS) $(srcdir)/$(@:.o=.cpp)
+
+install:	$(TARGET)
+
+depend:
+		-@for i in $(SRC); do \
+			$(CXX) -c -MM $(CXXFLAGS) $(INCS) $(srcdir)/$$i >> depend; \
+		done
+
+distclean:	clean
+
+clean:
+		rm -f *.o *~ depend $(TARGET)
+
+timestamps:
+		@for i in $(SRC); do \
+			touch $(srcdir)/$$i; \
+		done && test -z "$$fail"
+
+Makefile:	Makefile.in $(top_builddir)/config.status
+		(cd $(top_builddir); ./config.status)
+
+###########################################################################

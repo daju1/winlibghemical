@@ -1,0 +1,108 @@
+# Makefile.in
+#
+# This file is part of ghemical.
+# Copyright (c) 2000-2003 Geoff Hutchison, Michael Banck, Tommi Hassinen.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# You should not need to modify much (if anything) in this file.
+# Instead, use the configure script.
+
+top_srcdir=     @top_srcdir@
+srcdir=         @srcdir@
+VPATH=          @srcdir@
+top_builddir=	@top_builddir_@
+
+SHELL=		@SHELL@
+INSTALL=	@INSTALL@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_SCRIPT=	@INSTALL_SCRIPT@
+INSTALL_DATA=	@INSTALL_DATA@
+
+SRCDIRS=	src/glade \
+		src
+
+APPVERSION=	@APPVERSION@
+
+prefix=		@prefix@
+exec_prefix=	@exec_prefix@
+bindir=		@bindir@
+data_dest=	@datadir@/ghemical
+version_dest=	${data_dest}/${APPVERSION}
+gnome_help=	@datadir@/gnome/help/ghemical/C
+
+create_dirs=	${bindir} ${version_dest} \
+		${version_dest}/glade ${version_dest}/pixmaps \
+		${gnome_help} ${gnome_help}/images
+
+all:
+	@for i in $(SRCDIRS); do \
+	(cd $$i; $(MAKE) $(MFLAGS) all) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+distclean:	clean
+	-@for i in $(SRCDIRS); do \
+		(cd $$i; rm -f Makefile); done
+	-rm -f Makefile
+	-rm -f config.log
+	-rm -f config.status
+	-rm -f src/config.h
+
+clean:
+	rm -f *.o *~ depend
+	@for i in $(SRCDIRS); do \
+		(cd $$i; $(MAKE) $(MFLAGS) clean) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+install:	all
+	@echo ""
+	@echo "Creating directories (if needed)..."
+	-@for i in $(create_dirs); do \
+		$(top_srcdir)/mkinstalldirs $$i; \
+	done && test -z "$$fail"
+	@echo "Installing ghemical"
+	$(INSTALL_PROGRAM) bin/ghemical $(bindir)
+	@echo ""
+	
+	## prefix? now goes into /usr/lib/bonobo/servers/
+	#################################################
+	@echo "Copying GNOME_Ghemical.server"
+	cp -p $(top_srcdir)/GNOME_Ghemical.server /usr/lib/bonobo/servers/
+	@echo ""
+	
+	## prefix? now goes into /usr/share/gnome-2.0/ui/
+	#################################################
+#	@echo "Copying ghemical-ui.xml"
+#	cp -p $(top_srcdir)/bin/ghemical-ui.xml /usr/share/gnome-2.0/ui/
+#	@echo ""
+	
+	@echo "Copying libglade data files"
+	cp -p $(top_srcdir)/src/glade/*.glade $(version_dest)/glade
+	@echo ""
+	@echo "Copying pixmap files"
+	cp -p $(top_srcdir)/src/pixmaps/*.xpm $(version_dest)/pixmaps
+	@echo ""
+	@echo "Copying example files"
+	cp -r -p $(top_srcdir)/bin/examples $(data_dest)
+	@echo ""
+	@echo "Copying help files"
+	cp -p $(top_srcdir)/bin/user-docs/*.html $(gnome_help)
+	cp -p $(top_srcdir)/bin/user-docs/images/*.png $(gnome_help)/images
+
+timestamps:
+	@for i in $(SRCDIRS); do \
+		(cd $$i; $(MAKE) $(MFLAGS) timestamps) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+## These targets are for making sure the configure scripts are updated properly
+##${srcdir}/configure: configure.in aclocal.m4
+##	             cd ${srcdir} && autoconf
+##Makefile: Makefile.in $(top_builddir)/config.status
+##	  $(top_builddir)/config.status
+##config.status: $(top_srcdir)/configure

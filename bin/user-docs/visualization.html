@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+       
+  <link href="esp-plane_files/documentation.css" rel="stylesheet"
+ type="text/css">
+  <title>Ghemical User Documentation: Objects: ESP Plane</title>
+</head>
+  <body>
+     
+<h1>2.1.8 Visualization Tools</h1>
+     
+<p>The following visualization tools are available:<br>
+  </p>
+   
+<ol>
+    <li>A ribbon model for polypeptides. Click <a href="ribbon.html">here</a>
+for a description of this feature.</li>
+    <li>An intersection plane object (a 2D plane that displays information 
+using colour of the plane).</li>
+    <li>A 3D volume rendering object (made of several stacked transparent 
+plane objects).</li>
+    <li>A 3D isosurface object. An isosurface is a surface defined by the
+set of points that have     a constant value for a function. Ie f(x, y, z)=k.
+Only the points for which f(x, y, z)=k are    on the surface. For example,
+in the case of electrostatic potential, the function f(x,y,z) is an expression
+of electrostatic potential for a set of point charges.<br>
+    </li>
+   
+</ol>
+   
+<p>The objects are capable to display any continuous mathematical functions.
+ Currently supported functions are:<br>
+  </p>
+   
+<ul>
+    <li>Electrostatic potential (in MM models calculated using the atomic 
+charges, and QM models using calculated electron density).</li>
+    <li>(in QM models only) Molecular Orbital Wavefunctions.</li>
+    <li>(in QM models only) Electron Density.</li>
+   
+</ul>
+   
+<p> </p>
+     
+<h2>Examples:</h2>
+     
+<p>As an example, let's create an electrostatic potential plane parallel
+to the XY plane of the project view. The electrostatic potential of a point
+is defined as the energy required to move a unit positive charge from infinity
+ to the point. The plane is displayed in the project window,  superimposed
+ on the molecule. The plane is colored to indicate the sign and magnitude
+of the  electrostatic potential at that point. Areas with negative electrostatic
+ potentials (a unit positive charge moving from infinity to that point is
+spontaneous) are colored blue. The move negative the  electrostatic potential
+is, the lighter the shade of blue is. Areas with positive electrostatic potentials
+  are colored red, with the more positive areas colored with a lighter shade
+ of red. </p>
+   
+<p> To create an electrostatic potential plane right click on the project
+ window. Now select Objects and then ESP Plane. </p>
+   <br>
+   <img src="images/esp-plane_select.png" width="409" height="427"
+ alt="Screenshot of selecting the ESP plane object.">
+   <br>
+     
+<p> A window will appear that looks like this:</p>
+ <br>
+ <img src="images/ci_plane.png" width="411" height="98"
+ alt="Screenshot of the ESP plane parameters command interpreter box.">
+ <br>
+ 
+<p>Typically only advanced users should modify the text in this box. Click
+ok to run the calculation You may change the orientation of the plane if
+you want to have it intersect  a different section of the molecule. To do
+this, make sure the ESP Plane object is selected (after the plane is added
+it is automatically selected, although using other features may change the
+selection to a different object). To select the object, click on the Project
+View tab and then highlight the ESP Plane entry on the list of objects. The
+ESP Plane is now selected.  </p>
+   <br>
+   <img src="images/esp-plane_select_obj.png" width="395" height="184"
+ alt="Screenshot of selecting the ESP plane object.">
+   <br>
+     
+<p> Click back onto the camera view. Holding the shift key down will cause
+ any translation,  rotation or orbit to only affect the ESP plane. </p>
+     
+<h2>Algorithm</h2>
+     
+<p> The molecular mechanical model of Ghemical uses a relatively simple algorithm
+ to generate an  electrostatic potential plane. At each point on the plane
+ the electrostatic potential is calculated.  It is calculated by adding together
+ the electrostatic potential energy between the point and each  atom. The
+charge used for each atom is the same as the charge displayed by the Measure
+tool  (an approximate charge based on the type of atom and what it is bonded
+to, ie the oxygen of an  alcohol is given a charge of -0.25). Once the energy
+ is calculated, a color for that point is calculated  based on the sign and
+ magnitude of the energy.</p>
+     
+<p></p>
+     
+<h2>Applications</h2>
+     
+<p>Electrostatic potential planes can be used predict the location of an
+electrophilic attack. An electrophile will typically attack in areas near
+an electrostatic potential minimum, which are  colored blue.</p>
+     
+<h2>Notes</h2>
+     
+<p>The quantum mechanical model can also produce an electrostatic potential
+ plane. The algorithm  used by by the quantum mechanical model is more complex
+ than the one used by the molecular  mechanics model, so the plane produced
+ may contain different features. The quantum mechanical  electrostatic potential
+ plane of cytosine shows a minimum next to the nitrogen where experimental
+  data shows an electrophile will attack. The molecular mechanics ESP plane
+ does not show this  minimum. </p>
+   <img src="images/esp-plane_mm.png" width="410" height="428"
+ alt="Screenshot of molecular mechanics ESP plane of cytosine.">
+    <img src="images/esp-plane_qm.png" width="410" height="428"
+ alt="Screenshot of quantum mechanics ESP plane of cytosine.">
+ 
+<hr> <br>
+   <a href="index.html">Return to index</a> <br>
+</body>
+</html>

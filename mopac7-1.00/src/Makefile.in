@@ -1,0 +1,446 @@
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AR = @AR@
+AS = @AS@
+CC = @CC@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EGREP = @EGREP@
+EXEEXT = @EXEEXT@
+F77 = @F77@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
+HAVE_LIB = @HAVE_LIB@
+LIB = @LIB@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+LTLIB = @LTLIB@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RC = @RC@
+SHELL = @SHELL@
+STRIP = @STRIP@
+VERSION = @VERSION@
+top_builddir_ = @top_builddir_@
+
+lib_LTLIBRARIES = libmopac7.la
+
+libmopac7_la_SOURCES =  		aababc.c addfck.c addhcr.c addnuc.c analyt.c 		anavib.c axis.c block.c bonds.c brlzon.c 		btoc.c calpar.c capcor.c cdiag.c chrge.c 		cnvg.c compfg.c consts.c cqden.c datin.c 		dcart.c delmol.c delri.c denrot.c densit.c 		depvar.c deri0.c deri1.c deri2.c deri21.c 		deri22.c deri23.c deritr.c deriv.c dernvo.c 		ders.c dfock2.c dfpsav.c dgemm.c dgemv.c 		dger.c dgetf2.c dgetrf.c dgetri.c diag.c 		diat.c diat2.c diegrd.c dielen.c diis.c 		dijkl1.c dijkl2.c dipind.c dipole.c dlaswp.c 		dofs.c dot.c drc.c drcout.c dtrmm.c 		dtrmv.c dtrsm.c dtrti2.c dtrtri.c dvfill.c 		ef.c enpart.c esp.c etime.c exchng.c 		fdate.c ffhpol.c flepo.c fmat.c fock1.c 		fock2.c force.c formxy.c forsav.c frame.c 		freqcy.c geout.c geoutg.c getgeg.c getgeo.c 		getsym.c gettxt.c gmetry.c gover.c  greenf.c 		grid.c h1elec.c haddon.c hcore.c helect.c 		hqrii.c ijkl.c ilaenv.c initsv.c interp.c 		iter.c jcarin.c linmin.c local.c locmin.c 		lsame.c makpol.c mamult.c matou1.c matout.c 		matpak.c meci.c mecid.c mecih.c mecip.c 		moldat.c molval.c mullik.c mult.c nllsq.c 		nuchar.c parsav.c partxy.c pathk.c paths.c 		perm.c polar.c powsav.c powsq.c prtdrc.c 		quadr.c react1.c reada.c readmo.c refer.c 		repp.c rotat.c rotate.c rsp.c search.c 		second.c setupg.c solrot.c swap.c sympro.c 		symtry.c symtrz.c thermo.c timer.c timout.c 		update.c upsurf.c vecprt.c writmo.c wrtkey.c 		wrttxt.c xerbla.c xyzint.c mopac7lib.c
+
+
+@HAVE_F2C_TRUE@noinst_PROGRAMS = mopac7
+@HAVE_F2C_TRUE@mopac7_SOURCES = mopac7app.c
+@HAVE_F2C_TRUE@mopac7_LDFLAGS = -lmopac7 -lf2c -lm
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_CLEAN_FILES = 
+LTLIBRARIES =  $(lib_LTLIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) 
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+libmopac7_la_LDFLAGS = 
+libmopac7_la_LIBADD = 
+libmopac7_la_OBJECTS =  aababc.lo addfck.lo addhcr.lo addnuc.lo \
+analyt.lo anavib.lo axis.lo block.lo bonds.lo brlzon.lo btoc.lo \
+calpar.lo capcor.lo cdiag.lo chrge.lo cnvg.lo compfg.lo consts.lo \
+cqden.lo datin.lo dcart.lo delmol.lo delri.lo denrot.lo densit.lo \
+depvar.lo deri0.lo deri1.lo deri2.lo deri21.lo deri22.lo deri23.lo \
+deritr.lo deriv.lo dernvo.lo ders.lo dfock2.lo dfpsav.lo dgemm.lo \
+dgemv.lo dger.lo dgetf2.lo dgetrf.lo dgetri.lo diag.lo diat.lo diat2.lo \
+diegrd.lo dielen.lo diis.lo dijkl1.lo dijkl2.lo dipind.lo dipole.lo \
+dlaswp.lo dofs.lo dot.lo drc.lo drcout.lo dtrmm.lo dtrmv.lo dtrsm.lo \
+dtrti2.lo dtrtri.lo dvfill.lo ef.lo enpart.lo esp.lo etime.lo exchng.lo \
+fdate.lo ffhpol.lo flepo.lo fmat.lo fock1.lo fock2.lo force.lo \
+formxy.lo forsav.lo frame.lo freqcy.lo geout.lo geoutg.lo getgeg.lo \
+getgeo.lo getsym.lo gettxt.lo gmetry.lo gover.lo greenf.lo grid.lo \
+h1elec.lo haddon.lo hcore.lo helect.lo hqrii.lo ijkl.lo ilaenv.lo \
+initsv.lo interp.lo iter.lo jcarin.lo linmin.lo local.lo locmin.lo \
+lsame.lo makpol.lo mamult.lo matou1.lo matout.lo matpak.lo meci.lo \
+mecid.lo mecih.lo mecip.lo moldat.lo molval.lo mullik.lo mult.lo \
+nllsq.lo nuchar.lo parsav.lo partxy.lo pathk.lo paths.lo perm.lo \
+polar.lo powsav.lo powsq.lo prtdrc.lo quadr.lo react1.lo reada.lo \
+readmo.lo refer.lo repp.lo rotat.lo rotate.lo rsp.lo search.lo \
+second.lo setupg.lo solrot.lo swap.lo sympro.lo symtry.lo symtrz.lo \
+thermo.lo timer.lo timout.lo update.lo upsurf.lo vecprt.lo writmo.lo \
+wrtkey.lo wrttxt.lo xerbla.lo xyzint.lo mopac7lib.lo
+@HAVE_F2C_TRUE@noinst_PROGRAMS =  mopac7$(EXEEXT)
+PROGRAMS =  $(noinst_PROGRAMS)
+
+@HAVE_F2C_TRUE@mopac7_OBJECTS =  mopac7app.$(OBJEXT)
+mopac7_LDADD = $(LDADD)
+mopac7_DEPENDENCIES = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP_ENV = --best
+DEP_FILES =  .deps/aababc.P .deps/addfck.P .deps/addhcr.P .deps/addnuc.P \
+.deps/analyt.P .deps/anavib.P .deps/axis.P .deps/block.P .deps/bonds.P \
+.deps/brlzon.P .deps/btoc.P .deps/calpar.P .deps/capcor.P .deps/cdiag.P \
+.deps/chrge.P .deps/cnvg.P .deps/compfg.P .deps/consts.P .deps/cqden.P \
+.deps/datin.P .deps/dcart.P .deps/delmol.P .deps/delri.P .deps/denrot.P \
+.deps/densit.P .deps/depvar.P .deps/deri0.P .deps/deri1.P .deps/deri2.P \
+.deps/deri21.P .deps/deri22.P .deps/deri23.P .deps/deritr.P \
+.deps/deriv.P .deps/dernvo.P .deps/ders.P .deps/dfock2.P .deps/dfpsav.P \
+.deps/dgemm.P .deps/dgemv.P .deps/dger.P .deps/dgetf2.P .deps/dgetrf.P \
+.deps/dgetri.P .deps/diag.P .deps/diat.P .deps/diat2.P .deps/diegrd.P \
+.deps/dielen.P .deps/diis.P .deps/dijkl1.P .deps/dijkl2.P \
+.deps/dipind.P .deps/dipole.P .deps/dlaswp.P .deps/dofs.P .deps/dot.P \
+.deps/drc.P .deps/drcout.P .deps/dtrmm.P .deps/dtrmv.P .deps/dtrsm.P \
+.deps/dtrti2.P .deps/dtrtri.P .deps/dvfill.P .deps/ef.P .deps/enpart.P \
+.deps/esp.P .deps/etime.P .deps/exchng.P .deps/fdate.P .deps/ffhpol.P \
+.deps/flepo.P .deps/fmat.P .deps/fock1.P .deps/fock2.P .deps/force.P \
+.deps/formxy.P .deps/forsav.P .deps/frame.P .deps/freqcy.P \
+.deps/geout.P .deps/geoutg.P .deps/getgeg.P .deps/getgeo.P \
+.deps/getsym.P .deps/gettxt.P .deps/gmetry.P .deps/gover.P \
+.deps/greenf.P .deps/grid.P .deps/h1elec.P .deps/haddon.P .deps/hcore.P \
+.deps/helect.P .deps/hqrii.P .deps/ijkl.P .deps/ilaenv.P .deps/initsv.P \
+.deps/interp.P .deps/iter.P .deps/jcarin.P .deps/linmin.P .deps/local.P \
+.deps/locmin.P .deps/lsame.P .deps/makpol.P .deps/mamult.P \
+.deps/matou1.P .deps/matout.P .deps/matpak.P .deps/meci.P .deps/mecid.P \
+.deps/mecih.P .deps/mecip.P .deps/moldat.P .deps/molval.P \
+.deps/mopac7app.P .deps/mopac7lib.P .deps/mullik.P .deps/mult.P \
+.deps/nllsq.P .deps/nuchar.P .deps/parsav.P .deps/partxy.P \
+.deps/pathk.P .deps/paths.P .deps/perm.P .deps/polar.P .deps/powsav.P \
+.deps/powsq.P .deps/prtdrc.P .deps/quadr.P .deps/react1.P .deps/reada.P \
+.deps/readmo.P .deps/refer.P .deps/repp.P .deps/rotat.P .deps/rotate.P \
+.deps/rsp.P .deps/search.P .deps/second.P .deps/setupg.P .deps/solrot.P \
+.deps/swap.P .deps/sympro.P .deps/symtry.P .deps/symtrz.P \
+.deps/thermo.P .deps/timer.P .deps/timout.P .deps/update.P \
+.deps/upsurf.P .deps/vecprt.P .deps/writmo.P .deps/wrtkey.P \
+.deps/wrttxt.P .deps/xerbla.P .deps/xyzint.P
+SOURCES = $(libmopac7_la_SOURCES) $(mopac7_SOURCES)
+OBJECTS = $(libmopac7_la_OBJECTS) $(mopac7_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .lo .o .obj .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.ac $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-libLTLIBRARIES:
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+
+distclean-libLTLIBRARIES:
+
+maintainer-clean-libLTLIBRARIES:
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "$(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  $(LIBTOOL)  --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+.c.obj:
+	$(COMPILE) -c `cygpath -w $<`
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+libmopac7.la: $(libmopac7_la_OBJECTS) $(libmopac7_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(libmopac7_la_LDFLAGS) $(libmopac7_la_OBJECTS) $(libmopac7_la_LIBADD) $(LIBS)
+
+mostlyclean-noinstPROGRAMS:
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+
+distclean-noinstPROGRAMS:
+
+maintainer-clean-noinstPROGRAMS:
+
+mopac7$(EXEEXT): $(mopac7_OBJECTS) $(mopac7_DEPENDENCIES)
+	@rm -f mopac7$(EXEEXT)
+	$(LINK) $(mopac7_LDFLAGS) $(mopac7_OBJECTS) $(mopac7_LDADD) $(LIBS)
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags -o $$here/TAGS $(ETAGS_ARGS) $$tags  $$unique $(LISP))
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = src
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am: install-libLTLIBRARIES
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-libLTLIBRARIES
+uninstall: uninstall-am
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(libdir)
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-noinstPROGRAMS \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool \
+		clean-noinstPROGRAMS clean-tags clean-depend \
+		clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-libLTLIBRARIES distclean-compile \
+		distclean-libtool distclean-noinstPROGRAMS \
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-libLTLIBRARIES \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-noinstPROGRAMS maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-libLTLIBRARIES distclean-libLTLIBRARIES \
+clean-libLTLIBRARIES maintainer-clean-libLTLIBRARIES \
+uninstall-libLTLIBRARIES install-libLTLIBRARIES mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool mostlyclean-noinstPROGRAMS \
+distclean-noinstPROGRAMS clean-noinstPROGRAMS \
+maintainer-clean-noinstPROGRAMS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+# the executable is not built!
+# so nothing here...
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

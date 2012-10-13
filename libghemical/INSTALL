@@ -1,0 +1,69 @@
+	REQUIREMENTS:
+	-------------
+
+The libghemical package is optionally dependent on "mopac7", "mpqc" and
+"OpenBabel" packages, in addition to the packages/files that are needed
+to compile and run UNIX console programs and/or libraries.
+
+You can get "mopac7-1.00.tgz" or newer from
+
+	http://sourceforge.net/projects/mopac7/
+
+and "mpqc-1.2.5.tgz" or newer from
+
+	http://www.mpqc.org/download.php
+
+and "openbabel-1.100.2.tar.gz" or newer from
+
+	http://openbabel.sourceforge.net/
+
+Other software/packages that are needed to compile and run this library
+are:
+
+	g++			gcc version 2.95.4 or later
+	f2c			f2c version 19991025-1 (for mopac7)
+	make			GNU Make version 3.76.1
+	pkg-config		pkg-config-0.15
+
+In short, any up-to-date Linux installation like Redhat 9.0, Mandrake 9.0
+or Debian 3.0 should work, if the necessary development packages (that
+contain the header files) are also present, in addition to the standard
+packages (that contain the libraries).
+
+
+	INSTALLATION:
+	-------------
+
+Simple set of commands
+
+	./configure
+	make
+	make install		[run as root user]
+
+will produce a library version in which all the optional dependencies
+mentioned above are disabled. You can enable the options by adding the
+following statements to the configuration scriopt command line:
+
+	./configure --enable-mopac7 --enable-mpqc --enable-openbabel
+
+For more options and information you can try
+
+	./configure --help
+
+If at configuration step you get stuck and see some error messages about
+PKG_CONFIG, please try the following tricks (and re-try ./configure):
+
+	export PKG_CONFIG=pkg-config
+	export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+Also if problems appear you might want to try updating the configuration
+files using commands at the top of the source tree (and re-try ./configure):
+
+	aclocal
+	autoconf
+	autoheader
+	automake
+	libtoolize -f
+
+The "make install"-command will copy the library and some extra files to
+their proper places so that the library can be used in other programs.

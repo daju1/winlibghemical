@@ -1,0 +1,4 @@
+this directory only contains some data files that are later needed by
+applications that use libghemical.
+
+there is no executable that is to be built in this directory.

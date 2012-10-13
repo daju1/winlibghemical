@@ -1,0 +1,60 @@
+srcdir=         @srcdir@
+top_srcdir=     @top_srcdir@
+top_builddir=	@top_builddir_@
+VPATH=          @srcdir@
+
+SHELL=		@SHELL@
+
+CC=		@CC@
+CXX=		@CXX@
+RANLIB=		@RANLIB@
+AR=		@AR@
+
+DEFINES=	
+
+INCS=		-I$(top_builddir)/src
+
+CFLAGS=		@CFLAGS@
+CPPFLAGS=	@CPPFLAGS@
+CXXFLAGS=	@CXXFLAGS@ @CPPFLAGS@ -Wall -fno-exceptions
+
+SRC =		geomopt_dialog.cpp moldyn_dialog.cpp trajview_dialog.cpp \
+		file_import_dialog.cpp file_export_dialog.cpp \
+		setup_dialog.cpp progress_dialog.cpp
+
+OBJ =		$(SRC:.cpp=.o)
+
+TARGET=		libdialogs.a
+
+###########################################################################
+
+all:		$(TARGET)
+
+$(TARGET):	$(OBJ)
+		$(AR) rcv $(TARGET) $(OBJ)
+		$(RANLIB) $(TARGET)
+
+%.o:		%.cpp
+		$(CXX) $(DEFINES) -c $(CXXFLAGS) $(INCS) $(srcdir)/$(@:.o=.cpp)
+
+install:	$(TARGET)
+
+depend:
+		-@for i in $(SRC); do \
+			$(CXX) -c -MM $(CXXFLAGS) $(INCS) $(srcdir)/$$i >> depend; \
+		done && test -z "$$fail"
+
+distclean:	clean
+
+clean:
+		rm -f *.o *~ depend $(TARGET)
+
+timestamps:
+		@for i in $(SRC); do \
+			touch $(srcdir)/$$i; \
+		done && test -z "$$fail"
+
+Makefile:	Makefile.in $(top_builddir)/config.status
+		(cd $(top_builddir); ./config.status)
+
+###########################################################################

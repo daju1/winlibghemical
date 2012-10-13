@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <link href="documentation.css" rel="stylesheet" type="text/css">
+  <title>Ghemical User Documentation: Labels</title>
+</head>
+   <body>
+ 
+<h1>2.1.5 Labeling Atoms and Bonds</h1>
+ 
+<p> Ghemical can add labels to atoms or bonds that indicate one of their
+properties. These labels can be added by right clicking on the view window,
+selecting  Render-&gt;Rendering Mode and then selecting the type of label
+from the list. <br>
+ <img src="images/labels_menu.png" vspace="5" width="433" height="416"
+ alt="Screenshot of labels menu.">
+ </p>
+ 
+<h2>Label Nothing</h2>
+ 
+<p> Label Nothing is the setting for displaying no labels. This can be used
+to remove  labels from the molecule that are no longer needed. Label Nothing
+is the default  setting. </p>
+ 
+<h2>Label Index</h2>
+ 
+<p> This setting labels each atom with its index number. The index number
+is the number that each atom was added to the molecule starting at 0 (ie
+the first atom added to the molecule is indexed 0, the second is indexed
+1...).  This number is how ghemical refers to the atom internally, and is
+used when  ghemical needs for the user to specify a particular atoms, such
+as in the  conformational search tools. </p>
+ 
+<h2>Label Charge</h2>
+ 
+<p> This setting labels each atom with an approximiate charge. When an atom 
+is initially added it will have a charge of 0. To calculate its charge either
+an energy calculation or a geometry optimization must be run first. </p>
+ 
+<h2>Label Element</h2>
+ 
+<p> This setting labels each atom with its one or two letter abbreviation. 
+</p>
+ 
+<h2>Label AtomType</h2>
+ 
+<p> This setting labels each atom with its atom type. The first digit represents
+the atomic number and the last digit represents the bonding of the atom.
+Each atom will be displayed as type 0xffffff until a geometry optimization
+or energy calcuation. </p>
+  
+<h2>Label BondType</h2>
+ 
+<p> This setting labels each bond with its bond type. Single bonds are labeled
+with an S, conjugated bonds are labeled with a C, double bonds are labeled
+with a D, and triple bonds are labeled with a T. </p>
+ 
+<hr> <br>
+ <a href="index.html">Return to index</a> <br>
+</body>
+</html>

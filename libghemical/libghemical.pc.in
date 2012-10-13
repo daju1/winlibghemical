@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libghemical
+Description: A library that contains molecular modelling functionality.
+Version: @LIBVERSION@
+Libs: -L${libdir} -lghemical @SC_LIBS@ @MOPAC7_LIBS@ @OPENBABEL_LIBS@
+Cflags: -I${includedir}/ghemical @SC_CPPFLAGS@ @MOPAC7_CFLAGS@ @OPENBABEL_CFLAGS@

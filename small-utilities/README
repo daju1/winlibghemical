@@ -1,0 +1,17 @@
+getpdb_cd:	An utility to copy large amounts of PDB files from a cd.
+
+getpdb_ftp:	An utility to make scripts for downloading large amounts of
+		PDB files from a remote server. BEWARE: it remains 100% your
+		responsibility to check that the limits of "reasonable use"
+		are not exceeded...
+
+gp2mpqc:	An utility to convert "mm1gp" files to MPQC input files "in".
+
+symmetry:       An utility to calculate the symmetry of XYZ files.
+                (eventually to be worked into the Ghemical interface)
+
+	HOW TO COMPILE:
+	---------------
+	
+make <programname>		will compile the program
+make clean			will clean the intermediate files

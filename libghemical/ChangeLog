@@ -1,0 +1,823 @@
+2005-06-30 16:01  thassine
+
+	* Makefile.in, acconfig.h, acinclude.m4, aclocal.m4, configure,
+	  configure.ac, configure.in, libghemical.pc.in, bin/Makefile.in,
+	  bin/amber/Makefile.in, bin/builder/Makefile.in,
+	  bin/param_mm/Makefile.in, bin/param_mm/default/Makefile.in,
+	  bin/param_mm/prmfit/Makefile.in,
+	  bin/param_mm/tripos52/Makefile.in, bin/param_sf/Makefile.in,
+	  bin/param_sf/default/Makefile.in, src/Makefile.in,
+	  src/eng1_qm.cpp, src/eng1_qm_mopac.cpp, src/eng1_qm_mopac.h,
+	  src/eng1_qm_mpqc.cpp, src/eng1_qm_mpqc.h, src/eng2_qm_mm.cpp,
+	  src/eng2_qm_mm.h, src/libconfig.h.in: a lot of changes in
+	  configuration.
+
+2005-06-23 16:19  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h, engine.cpp, model.cpp, model.h: the
+	  lib/app interface changed.
+
+2005-06-21 11:14  thassine
+
+	* src/: engine.h, geomopt.h, model.cpp, moldyn.cpp, moldyn.h,
+	  utility.cpp, utility.h: added some old fixes.
+
+2005-06-20 16:07  thassine
+
+	* src/: eng2_mm_sf.cpp, eng2_mm_sf.h, eng2_qm_mm.cpp: disabled some
+	  options/features that are not yet usable.
+
+2005-06-20 13:57  thassine
+
+	* src/: eng1_qm.cpp, eng1_qm.h, eng1_qm_mpqc.cpp, seqbuild.h,
+	  typerule.cpp: added some older fixes.
+
+2005-06-20 12:29  thassine
+
+	* src/: geomopt.h, model.cpp, model.h: minor changes related to app
+	  multithreading.
+
+2005-06-14 13:23  thassine
+
+	* src/: geomopt.h, model.cpp, model.h, moldyn.h: started converting
+	  GO and MD into multithreaded versions.
+
+2005-06-13 13:17  thassine
+
+	* src/: model.cpp, model.h: a complete multi-threaded Random Search
+	  added ; others will follow.
+
+2005-06-13 10:13  thassine
+
+	* config.guess, config.sub, ltmain.sh, src/.cvsignore,
+	  src/model.cpp, src/model.h, src/search.cpp, src/search.h: added
+	  an initial framework for multithreading.
+
+2005-06-08 11:40  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h, search.cpp: some formatting changes
+	  and a macro changed in eng1_sf.h
+
+2005-05-11 18:14  thassine
+
+	* src/: atom.h, eng1_mm.h, eng1_sf.h, engine.h, model.h: minor
+	  changes ; added some friend definitions for the app.
+
+2005-05-09 09:50  thassine
+
+	* src/: atom.h, moldyn.cpp, moldyn.h: an initial implementation for
+	  a LOCKED atom flag.
+
+2005-05-06 13:05  thassine
+
+	* src/: atom.cpp, atom.h, model.cpp, model.h, search.cpp,
+	  seqbuild.cpp: a speed optimization in the CenterCRDSet()
+	  function.
+
+2005-05-03 15:12  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_mm_tripos52.cpp, eng1_sf.cpp,
+	  model.cpp: some bugfixes added for solvation functions.
+
+2005-04-28 13:17  thassine
+
+	* src/: eng1_mm.cpp, eng1_mm_default.cpp, eng1_mm_tripos52.cpp,
+	  eng1_qm_mopac.cpp, eng1_qm_mpqc.cpp, engine.h, model.cpp: added
+	  an initial version for getting the energy in MM as its
+	  components.
+
+2005-04-26 10:20  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_mm_tripos52.cpp, eng1_sf.cpp,
+	  engine.cpp, engine.h, model.cpp, model.h: some changes added in
+	  boundary potential code.
+
+2005-04-22 16:41  thassine
+
+	* Makefile.in, aclocal.m4, src/model.h: some class names changed in
+	  the app ; sync here.
+
+2005-04-21 15:24  thassine
+
+	* Makefile.in, aclocal.m4, configure, configure.in,
+	  bin/Makefile.in, bin/amber/Makefile.in, bin/builder/Makefile.in,
+	  bin/param_mm/Makefile.in, bin/param_mm/default/Makefile.in,
+	  bin/param_mm/prmfit/Makefile.in,
+	  bin/param_mm/tripos52/Makefile.in, bin/param_sf/Makefile.in,
+	  bin/param_sf/default/Makefile.in, src/Makefile.in,
+	  src/libconfig.h.in, src/libdefine.h, src/notice.cpp,
+	  src/notice.h, src/simple_test/example1.cpp,
+	  src/simple_test/example2.cpp, src/simple_test/example3.cpp: made
+	  some changes in copyright notices for easier output in the
+	  application.
+
+2005-04-19 15:23  thassine
+
+	* src/: eng1_mm_tripos52.cpp, eng1_mm_tripos52.h,
+	  tab_mm_tripos52.cpp, tab_mm_tripos52.h, simple_test/example1.cpp:
+	  some files were forgotten from the previous commits ; added them.
+
+2005-04-19 15:20  thassine
+
+	* Makefile.in, aclocal.m4, src/simple_test/Makefile,
+	  src/simple_test/example1.h, src/simple_test/example2.cpp,
+	  src/simple_test/example2.h, src/simple_test/example3.cpp,
+	  src/simple_test/example3.h, src/simple_test/st_main.cpp,
+	  src/simple_test/st_main.h, src/simple_test/streamio.cpp,
+	  src/simple_test/example3_extra/TestForm.html,
+	  src/simple_test/example3_extra/dumpdata.sh,
+	  src/simple_test/example3_extra/input_example,
+	  src/simple_test/example3_extra/printenv.sh: updated the
+	  example(s) and added some new ones.
+
+2005-04-19 11:48  thassine
+
+	* Makefile.in, aclocal.m4, config.guess, config.sub, configure,
+	  configure.in, ltmain.sh, bin/README, bin/param_mm/Makefile.am,
+	  bin/param_mm/Makefile.in, bin/param_mm/prmfit/Makefile.in,
+	  bin/param_mm/tripos52/.cvsignore,
+	  bin/param_mm/tripos52/Makefile.am,
+	  bin/param_mm/tripos52/Makefile.in,
+	  bin/param_mm/tripos52/atomtypes.txt,
+	  bin/param_mm/tripos52/parameters1.txt,
+	  bin/param_mm/tripos52/parameters2.txt,
+	  bin/param_mm/tripos52/parameters3.txt,
+	  bin/param_mm/tripos52/parameters4.txt,
+	  bin/param_mm/tripos52/parameters5.txt, src/Makefile.am,
+	  src/Makefile.in, src/eng1_mm.cpp, src/eng1_mm.h,
+	  src/eng1_mm_default.cpp, src/eng1_mm_default.h, src/engine.h,
+	  src/libconfig.h.in, src/model.h: ported the tripos5.2 force field
+	  implementation from ghemical-1.01 into libghemical.
+
+2005-04-08 17:59  thassine
+
+	* src/: model.cpp, model.h: added an utility function.
+
+2005-03-21 14:52  thassine
+
+	* src/Makefile.SIMPLE: added an alternative simple makefile in
+	  src/.
+
+2005-02-08 09:12  thassine
+
+	* src/conjgrad.cpp: some updates in conjgrad.cpp Simple linesearch.
+
+2005-02-03 13:44  thassine
+
+	* src/: atom.h, bond.h, engine.cpp, search.cpp, typedef.h: minor
+	  changes to make it compile at FC3.
+
+2005-01-19 13:29  thassine
+
+	* Makefile.in, src/model.cpp, src/model.h: some minor changes for
+	  new stuff of my own ; not yet functional.
+
+2005-01-04 13:28  thassine
+
+	* aclocal.m4, src/engine.cpp, src/engine.h, src/moldyn.cpp: added a
+	  new virtual method DoSHAKE() in engine class.
+
+2004-12-10 17:14  thassine
+
+	* Makefile.in, aclocal.m4, configure, configure.in,
+	  src/eng1_qm_mopac.cpp, src/libconfig.h.in, src/model.h: small
+	  fixes added ; depends on libg2c only etc.
+
+2004-09-13 12:17  thassine
+
+	* Makefile.in, src/atom.cpp, src/atom.h, src/eng1_sf.h,
+	  src/model.cpp: the atom objects now are aware of the model object
+	  ; added some stuff to make everything compile.
+
+2004-08-30 12:28  thassine
+
+	* Makefile.in, aclocal.m4, configure, configure.in,
+	  bin/Makefile.in: the include dir is changed into
+	  <prefix>/include/ghemical.
+
+2004-08-27 15:07  thassine
+
+	* Makefile.am, Makefile.in, aclocal.m4, libghemical.pc.in,
+	  src/Makefile.am, src/Makefile.in: changed includedir to /ghemical
+	  and some other changes ; .pc file not updated?
+
+2004-08-26 15:34  thassine
+
+	* aclocal.m4, configure, configure.in, src/Makefile.am,
+	  src/Makefile.in, src/Makefile.include, src/libconfig.h.in: added
+	  patches to configure/makefiles (Michael Banck).
+
+2004-08-25 14:13  thassine
+
+	* AUTHORS, aclocal.m4, config.guess, config.sub, configure,
+	  configure.in, ltmain.sh, bin/.cvsignore, bin/amber/.cvsignore,
+	  bin/amber/Makefile.am, bin/amber/Makefile.in,
+	  bin/builder/.cvsignore, bin/builder/Makefile.am,
+	  bin/builder/Makefile.in, bin/param_mm/.cvsignore,
+	  bin/param_mm/Makefile.am, bin/param_mm/default/.cvsignore,
+	  bin/param_mm/default/Makefile.am,
+	  bin/param_mm/default/Makefile.in, bin/param_mm/prmfit/.cvsignore,
+	  bin/param_mm/prmfit/Makefile.am, bin/param_mm/prmfit/Makefile.in,
+	  bin/param_sf/.cvsignore, bin/param_sf/default/.cvsignore,
+	  bin/param_sf/default/Makefile.am,
+	  bin/param_sf/default/Makefile.in, src/Makefile.am,
+	  src/Makefile.in, src/Makefile.include, src/model.cpp: added
+	  automake-based configuration scripts (M. Banck and J. Brefort).
+
+2004-08-13 15:14  thassine
+
+	* CHANGES, ChangeLog, Makefile.am, Makefile.in, NEWS, README,
+	  acinclude.m4, aclocal.m4, configure, configure.in, ltmain.sh,
+	  missing, bin/Makefile.am, bin/Makefile.in, bin/amber/Makefile.am,
+	  bin/amber/Makefile.in, bin/builder/Makefile.am,
+	  bin/builder/Makefile.in, bin/param_mm/Makefile.am,
+	  bin/param_mm/Makefile.in, bin/param_mm/default/Makefile.am,
+	  bin/param_mm/default/Makefile.in, bin/param_sf/Makefile.am,
+	  bin/param_sf/Makefile.in, bin/param_sf/default/Makefile.am,
+	  bin/param_sf/default/Makefile.in, src/Makefile.am,
+	  src/Makefile.in, src/libconfig.h.in: added an improved
+	  configuration system (Michael Banck and Jean Brefort).
+
+2004-06-07 22:54  hutchisn
+
+	* src/atom.cpp: Updated with standardized element colors.
+
+2004-05-28 18:10  thassine
+
+	* src/typerule.cpp: some checks added to typerule class.
+
+2004-05-13 14:45  thassine
+
+	* acinclude.m4, aclocal.m4, configure, configure.in,
+	  libghemical.pc.in: some improvements in configure.in
+
+2004-04-16 12:24  thassine
+
+	* src/seqbuild.cpp: added a fix for TRP-residues in
+	  sequencebuilder::Identify().
+
+2004-04-08 13:13  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_mm_prmfit.cpp, eng1_qm_mopac.cpp,
+	  eng1_sf.cpp, eng2_mm_sf.cpp, eng2_qm_mm.cpp: fixed some compiler
+	  warnings.
+
+2004-03-26 11:05  thassine
+
+	* src/: bond.cpp, bond.h, model.cpp, model.h: added a new
+	  GetRange() method for bonds in model class.
+
+2004-03-18 14:04  thassine
+
+	* src/: model.cpp, resonance.h: minor changes in
+	  resonance_structures class (just a framework, under
+	  construction).
+
+2004-03-15 15:01  thassine
+
+	* src/typerule.cpp: implemented the fc=? test in the typerule
+	  class.
+
+2004-03-09 10:44  thassine
+
+	* src/: model.cpp, model.h: added model::GetRS().
+
+2004-03-03 15:13  thassine
+
+	* src/: eng1_mm.cpp, engine.cpp, engine.h, simple_test/Makefile,
+	  simple_test/st_main.cpp: updated simple_test and other minor
+	  changes.
+
+2004-02-18 13:47  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/libconfig.h.in, src/model.cpp: some tweaks/cleanups in
+	  configure/makefiles.
+
+2004-01-28 10:56  thassine
+
+	* libghemical.pc.in, src/pop_ana.cpp, src/pop_ana.h,
+	  src/resonance.cpp, src/resonance.h: added the .pc.in file, a
+	  simple QM population analysis code, and some framework for
+	  resonance structure determination (to be added later).
+
+2004-01-28 10:53  thassine
+
+	* Makefile.in, configure, configure.in,
+	  bin/param_mm/default/atomtypes.txt,
+	  bin/param_mm/default/parameters1.txt,
+	  bin/param_mm/default/parameters2.txt,
+	  bin/param_mm/default/parameters3.txt,
+	  bin/param_mm/default/parameters4.txt,
+	  bin/param_mm/prmfit/atomtypes.txt,
+	  bin/param_mm/prmfit/parameters1.txt,
+	  bin/param_mm/prmfit/parameters2.txt,
+	  bin/param_mm/prmfit/parameters3.txt,
+	  bin/param_mm/prmfit/parameters4.txt, src/Makefile.in,
+	  src/atom.cpp, src/atom.h, src/eng1_qm_mopac.cpp, src/model.cpp,
+	  src/model.h: remove the mopac sources ; moved into a separate
+	  library.
+
+2003-11-06 13:59  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h, eng2_mm_sf.cpp, eng2_mm_sf.h,
+	  engine.h: added convert_crd for eng1_sf.
+
+2003-09-24 09:47  thassine
+
+	* src/conjgrad.cpp: minor improvements in conjgrad search.
+
+2003-09-11 14:56  thassine
+
+	* src/: typerule.cpp, typerule.h: some changes in typerules.
+
+2003-09-01 12:25  thassine
+
+	* src/: engine.cpp, engine.h, model.cpp, search.cpp: some bugfixes
+	  added.
+
+2003-08-29 10:39  thassine
+
+	* bin/param_mm/: default/atomtypes.txt, default/parameters1.txt,
+	  default/parameters2.txt, default/parameters3.txt,
+	  default/parameters4.txt, prmfit/atomtypes.txt,
+	  prmfit/parameters1.txt, prmfit/parameters2.txt,
+	  prmfit/parameters3.txt, prmfit/parameters4.txt: added a new set
+	  of mol.mech. parameters for testing ; less default force
+	  constants than in the prev. one.
+
+2003-08-21 12:09  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_sf.cpp, engine.cpp, engine.h:
+	  some changes in bp (boundary potential) details.
+
+2003-08-21 08:35  thassine
+
+	* src/tab_mm_default.cpp: a bug related to out-of-plane terms is
+	  fixed.
+
+2003-08-19 16:12  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_mm_prmfit.cpp,
+	  tab_mm_default.cpp: removed some type checks ; (temporarily).
+
+2003-08-19 14:20  thassine
+
+	* src/: model.cpp, moldyn.cpp, moldyn.h: the langevin switch works
+	  now better in GUI.
+
+2003-08-18 15:58  thassine
+
+	* src/: eng1_mm.h, eng1_mm_default.cpp, eng1_mm_prmfit.cpp: changed
+	  the function switch value for angle bending term.
+
+2003-08-14 12:51  thassine
+
+	* bin/param_mm/default/atomtypes.txt,
+	  bin/param_mm/default/parameters1.txt, src/eng1_mm.cpp,
+	  src/eng1_mm_default.h, src/model.cpp: added a tool for exporting
+	  solvent boxes as gromacs input files.
+
+2003-08-08 09:33  thassine
+
+	* src/: eng1_mm.cpp, eng1_mm.h, eng1_mm_default.cpp,
+	  eng1_mm_default.h, model.cpp, model.h: some changes in
+	  Solvate???() functions and eng1_mm_default_mim.
+
+2003-08-04 09:45  thassine
+
+	* bin/param_mm/default/atomtypes.txt,
+	  bin/param_mm/default/parameters1.txt,
+	  bin/param_mm/default/parameters2.txt,
+	  bin/param_mm/default/parameters3.txt,
+	  bin/param_mm/default/parameters4.txt,
+	  bin/param_mm/default/parameters5.txt,
+	  bin/param_mm/default/parameters6.txt,
+	  bin/param_mm/prmfit/atomtypes.txt,
+	  bin/param_mm/prmfit/parameters1.txt,
+	  bin/param_mm/prmfit/parameters2.txt,
+	  bin/param_mm/prmfit/parameters3.txt,
+	  bin/param_mm/prmfit/parameters4.txt, src/eng1_mm.cpp,
+	  src/eng1_mm.h, src/eng1_mm_default.cpp, src/eng1_mm_default.h,
+	  src/eng1_mm_prmfit.cpp, src/tab_mm_default.cpp,
+	  src/tab_mm_default.h: the new force field parameters added for
+	  testing; the old ones are tagged WITH_TRIPOS_FF
+
+2003-07-29 16:41  thassine
+
+	* src/model.h: some small changes due to changes in app.
+
+2003-07-24 11:37  thassine
+
+	* src/model.h: some changes added due to changes in the app.
+
+2003-07-15 15:13  thassine
+
+	* src/: model.cpp, model.h: some changes added to model class
+	  (required by the app).
+
+2003-07-11 14:56  thassine
+
+	* AUTHORS, CHANGES, configure, src/atom.cpp, src/atom.h,
+	  src/bond.cpp, src/bond.h, src/eng1_mm.cpp, src/eng1_mm.h,
+	  src/eng1_mm_default.cpp, src/eng1_mm_default.h,
+	  src/eng1_mm_prmfit.cpp, src/eng1_mm_prmfit.h, src/eng1_qm.cpp,
+	  src/eng1_qm.h, src/eng1_qm_mopac.cpp, src/eng1_qm_mopac.h,
+	  src/eng1_qm_mpqc.cpp, src/eng1_qm_mpqc.h, src/eng1_sf.cpp,
+	  src/eng1_sf.h, src/engine.cpp, src/engine.h, src/geomopt.cpp,
+	  src/geomopt.h, src/intcrd.cpp, src/intcrd.h, src/model.cpp,
+	  src/model.h, src/moldyn.cpp, src/moldyn.h, src/notice.cpp,
+	  src/notice.h, src/search.cpp, src/search.h, src/seqbuild.cpp,
+	  src/seqbuild.h, src/tab_mm_default.cpp, src/tab_mm_default.h,
+	  src/tab_mm_prmfit.cpp, src/tab_mm_prmfit.h, src/typerule.cpp,
+	  src/typerule.h, src/utility.cpp, src/utility.h,
+	  src/simple_test/fileio.cpp: changed the copyright notices a bit;
+	  now its just the year when the file was created plus names of the
+	  authors.
+
+2003-06-17 15:53  thassine
+
+	* src/typerule.cpp: bugfixes added to the typerule class ; the next
+	  rule was not checked in many cases earlier.
+
+2003-06-13 13:15  thassine
+
+	* AUTHORS, acconfig.h, src/Doxyfile, src/eng1_sf.h, src/geomopt.h,
+	  src/model.cpp, src/model.h, src/moldyn.h, src/seqbuild.cpp: added
+	  more checks where/how the atom_list is sorted. that is important
+	  because sorting atom_list may change atom numbering (problem for
+	  example TSS).
+
+2003-06-12 15:53  thassine
+
+	* src/: bond.cpp, bond.h, model.cpp, search.cpp, search.h: added
+	  improvements to transition_state_search ; should now work pretty
+	  well.
+
+2003-06-11 13:40  thassine
+
+	* src/: conjgrad.cpp, conjgrad.h, eng1_qm.cpp, eng1_qm.h,
+	  eng1_qm_mopac.cpp, engine.h, geomopt.cpp, geomopt.h, model.cpp,
+	  search.cpp, search.h, utility.cpp: added transition_state_search
+	  and stationary_state_search + many related changes here and
+	  there. still need to do some testing, and after that add docs in
+	  user-docs and some example molecules.
+
+2003-06-05 06:08  thassine
+
+	* bin/param_mm/prmfit/atomtypes.txt,
+	  bin/param_mm/prmfit/parameters1.txt,
+	  bin/param_mm/prmfit/parameters2.txt,
+	  bin/param_mm/prmfit/parameters3.txt,
+	  bin/param_mm/prmfit/parameters4.txt, src/eng1_mm.cpp,
+	  src/model.cpp: added an initial version of the experimental FF
+	  parameters; for hydrocarbons only and still incomplete.
+
+2003-06-02 18:20  thassine
+
+	* src/: eng1_mm.cpp, eng1_mm_prmfit.h, tab_mm_default.cpp,
+	  tab_mm_default.h, tab_mm_prmfit.cpp, tab_mm_prmfit.h: some
+	  changes in output at force fields and tabs.
+
+2003-06-02 17:29  thassine
+
+	* bin/builder/amino.txt, bin/builder/nucleic.txt,
+	  src/eng1_mm_prmfit.cpp, src/eng1_mm_prmfit.h,
+	  src/tab_mm_prmfit.cpp, src/tab_mm_prmfit.h, src/typerule.cpp,
+	  src/typerule.h: some changes in MM force fields.
+
+2003-05-21 17:32  thassine
+
+	* src/: eng1_mm_prmfit.cpp, tab_mm_prmfit.cpp, tab_mm_prmfit.h:
+	  added misc changes in mol mech stuff.
+
+2003-05-19 10:05  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_mm_default.h, eng1_mm_prmfit.cpp,
+	  eng1_mm_prmfit.h, model.cpp, tab_mm_default.cpp,
+	  tab_mm_default.h, tab_mm_prmfit.cpp, tab_mm_prmfit.h: many
+	  changes in MM force fields/tables; the AMBER implementation
+	  should be OK now.
+
+2003-05-16 13:20  thassine
+
+	* bin/param_mm/default/parameters6.txt: changes to MM force field ;
+	  added one input file.
+
+2003-05-16 13:19  thassine
+
+	* bin/param_mm/default/parameters4.txt,
+	  bin/param_mm/default/parameters5.txt, src/eng1_mm_default.cpp,
+	  src/eng1_mm_default.h, src/eng1_mm_prmfit.cpp,
+	  src/eng1_mm_prmfit.h, src/model.cpp, src/tab_mm_default.cpp,
+	  src/tab_mm_default.h, src/tab_mm_prmfit.cpp, src/tab_mm_prmfit.h:
+	  changes to MM force field ; need to make it AMBER-compatible.
+
+2003-05-12 12:11  thassine
+
+	* src/eng1_sf.h: minor changes to ribbon, etc.
+
+2003-04-29 13:14  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h, model.cpp, model.h, seqbuild.cpp,
+	  seqbuild.h, tab_mm_default.cpp, utility.cpp: many changes; now
+	  AddHydrogens() is more compatible with seq-builder and
+	  forcefield.
+
+2003-04-25 13:20  thassine
+
+	* bin/param_mm/default/parameters5.txt, src/atom.cpp, src/atom.h,
+	  src/eng1_mm.cpp, src/tab_mm_default.cpp, src/tab_mm_default.h:
+	  added an option to molecular mechanics, so that one can use AMBER
+	  forcefield charges/parameters for amino/nucleic acids. charges
+	  are OK now but other params not yet added. the option is very
+	  nifty about correctness of topology, but that will be fixed
+	  later.
+
+2003-04-17 10:34  thassine
+
+	* src/: model.cpp, seqbuild.cpp: setup objects were not deleted,
+	  causing MOPAC to leave some files around and also memory leaking;
+	  fixed now.
+
+2003-04-16 16:43  thassine
+
+	* src/: eng1_mm.cpp, eng1_mm.h, eng1_sf.cpp, eng1_sf.h, model.cpp,
+	  moldyn.cpp, moldyn.h, tab_mm_default.cpp: many small changes
+	  (including trajectory writing).
+
+2003-04-10 16:49  thassine
+
+	* src/libconfig.h.in: only whitespace changed.
+
+2003-04-10 15:50  thassine
+
+	* src/: bond.h, eng1_mm_default.cpp, eng1_mm_prmfit.cpp,
+	  eng2_qm_mm.cpp, eng2_qm_mm.h, model.h, seqbuild.cpp,
+	  tab_mm_default.cpp, tab_mm_default.h, tab_mm_prmfit.cpp,
+	  tab_mm_prmfit.h, typerule.cpp: many changes in molmech tables and
+	  parameters (not ready yet).
+
+2003-04-10 15:48  thassine
+
+	* Makefile.in, configure, configure.in, src/libconfig.h.in:
+	  configuration files updated.
+
+2003-04-10 15:46  thassine
+
+	* bin/: amber/README, amber/all_amino02.in, amber/all_aminoct02.in,
+	  amber/all_aminont02.in, amber/all_nuc02.in, amber/parm99.dat,
+	  builder/amino.txt, builder/nucleic.txt: changes/additions in data
+	  files.
+
+2003-04-02 09:12  thassine
+
+	* src/: atom.cpp, atom.h, eng1_sf.cpp, seqbuild.cpp, utility.cpp:
+	  some changes/additions in the atom class.
+
+2003-03-18 12:08  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h: just minor rearrangements.
+
+2003-03-17 12:13  thassine
+
+	* src/eng1_sf.cpp: added a notice about solvation model (not yet
+	  automatically set).
+
+2003-03-17 12:11  thassine
+
+	* src/: model.cpp, moldyn.cpp, moldyn.h: a bugfix for ribbons
+	  added, and some changes in moldyn.
+
+2003-03-12 09:19  thassine
+
+	* src/eng1_sf.cpp: just some cleanups in comments etc.
+
+2003-03-11 16:22  thassine
+
+	* src/model.cpp: added the frame_save_frq variable to
+	  model::DoMoldyn()
+
+2003-03-11 09:58  thassine
+
+	* src/model.h: ooops; a function was missing.
+
+2003-03-07 12:39  thassine
+
+	* src/simple_test/: Makefile, example_file.gpr, fileio.cpp,
+	  st_main.cpp, st_main.h: added a simple test suite (with a
+	  Makefile of it's own).
+
+2003-02-14 12:56  thassine
+
+	* src/eng1_sf.cpp: slight changes in output.
+
+2003-02-14 09:59  thassine
+
+	* src/: model.cpp, moldyn.cpp, moldyn.h: many
+	  molecular-dynamics-related changes.
+
+2003-02-11 16:44  thassine
+
+	* src/: eng1_mm_default.cpp, eng1_sf.cpp, eng1_sf.h,
+	  eng2_mm_sf.cpp, engine.h, model.cpp, model.h, moldyn.cpp,
+	  moldyn.h: sf will (later) support both implicit and explicit
+	  solvation model; work started now.
+
+2003-02-08 09:35  thassine
+
+	* src/: atom.h, bond.cpp, bond.h, eng1_mm.cpp, eng1_mm.h,
+	  eng1_mm_default.cpp, eng1_mm_default.h, eng1_mm_prmfit.h,
+	  eng1_sf.cpp, eng1_sf.h, eng2_mm_sf.cpp, eng2_qm_mm.cpp,
+	  engine.cpp, engine.h, model.cpp, model.h, tab_mm_default.cpp:
+	  make separate subclasses for boundary-potential and
+	  periodic-boundary eng-classes; also some comments added etc.
+
+2003-02-06 16:50  thassine
+
+	* bin/param_mm/default/parameters1.txt,
+	  bin/param_mm/default/parameters2.txt,
+	  bin/param_mm/default/parameters5.txt, src/atom.h,
+	  src/eng1_mm.cpp, src/eng1_mm_default.cpp, src/eng1_mm_default.h,
+	  src/eng2_mm_sf.cpp, src/eng2_mm_sf.h, src/eng2_qm_mm.cpp,
+	  src/eng2_qm_mm.h, src/engine.cpp, src/engine.h, src/model.cpp,
+	  src/model.h, src/moldyn.h, src/tab_mm_default.cpp: many changes
+	  (computations-related).
+
+2003-02-03 11:50  thassine
+
+	* bin/param_mm/default/parameters5.txt, src/eng1_mm.cpp,
+	  src/eng1_mm.h, src/eng1_mm_default.cpp, src/eng1_mm_prmfit.cpp,
+	  src/model.cpp, src/model.h, src/moldyn.cpp,
+	  src/tab_mm_default.cpp: some changes to MM force field parameters
+	  (for H2O) and some important bugfixes in MM connectivity records
+	  code; this will affect nonbonded interactions.
+
+2003-01-31 14:24  thassine
+
+	* src/: engine.cpp, geomopt.cpp, model.h, moldyn.cpp, utility.cpp,
+	  utility.h: many bugfixes added; it is important to note that
+	  model::GetAtomCount() may now be different from
+	  engine::GetAtomCount().
+
+2003-01-31 11:25  thassine
+
+	* src/: eng1_sf.cpp, engine.cpp, engine.h, model.cpp: an important
+	  bugfix was added to engine::engine(); also some minor fixes.
+
+2003-01-30 18:31  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h: several fixes to SF; should now
+	  work more or less again.
+
+2003-01-30 16:14  thassine
+
+	* src/: eng1_sf.cpp, eng1_sf.h, model.cpp: many changes in SF.
+
+2003-01-30 10:29  thassine
+
+	* src/: Makefile.in, atom.cpp, atom.h, eng1_mm.cpp, eng1_mm.h,
+	  eng1_mm_default.cpp, eng1_mm_prmfit.cpp, eng1_qm.cpp, eng1_qm.h,
+	  eng1_sf.cpp, eng1_sf.h, eng2_mm_sf.cpp, eng2_mm_sf.h,
+	  eng2_qm_mm.cpp, eng2_qm_mm.h, engine.cpp, engine.h, model.cpp,
+	  model.h: many changes in the way how data is stored in different
+	  models; compiles but SF-stuff does not work yet; QM and MM should
+	  work.
+
+2003-01-27 15:43  thassine
+
+	* src/: atom.h, eng1_mm.cpp, eng1_mm.h, eng1_qm.cpp, eng1_qm.h,
+	  eng1_sf.cpp, eng1_sf.h, eng2_mm_sf.cpp, eng2_mm_sf.h,
+	  eng2_qm_mm.cpp, eng2_qm_mm.h, engine.cpp, engine.h, model.cpp,
+	  model.h, seqbuild.cpp, seqbuild.h, utility.cpp: many changes in
+	  the way how the setup classes work (not even ready yet but
+	  compiles and qm/mm works).
+
+2003-01-24 10:01  thassine
+
+	* src/seqbuild.cpp: a fix to sequence-builder: identify now also
+	  includes H atoms to residues that it detects, so that selecting
+	  by chain/residue now works as expected.
+
+2003-01-23 14:55  thassine
+
+	* src/: atom.h, model.cpp, model.h, seqbuild.cpp, seqbuild.h: some
+	  improvements to seqbuilder.
+
+2003-01-22 13:09  thassine
+
+	* src/.cvsignore: minor cleanups.
+
+2003-01-22 11:25  thassine
+
+	* src/eng1_mm_prmfit.h: minor cleanups.
+
+2003-01-22 11:11  thassine
+
+	* src/: tab_mm_prmfit.cpp, tab_mm_prmfit.h: some cleanups, again.
+
+2003-01-22 10:28  thassine
+
+	* src/typedef.h: added a missing file
+
+2003-01-22 10:27  thassine
+
+	* src/: model.cpp, model.h: minor cleanups.
+
+2003-01-22 09:18  thassine
+
+	* Makefile.in, src/Makefile.in, src/eng1_sf.cpp, src/libdefine.h,
+	  src/model.cpp, src/model.h, src/notice.cpp, src/notice.h,
+	  src/seqbuild.cpp, src/tab_mm_default.cpp: now also make install
+	  works.
+
+2003-01-21 13:42  thassine
+
+	* src/: eng2_qm_mm.h, errutil.cpp, errutil.h, libdefine.h: various
+	  improvements...
+
+2003-01-21 13:19  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/atom.h, src/bond.h, src/config.h.in, src/conjgrad.h,
+	  src/define.h, src/eng1_mm.h, src/eng1_mm_default.h,
+	  src/eng1_mm_prmfit.h, src/eng1_qm.h, src/eng1_qm_mopac.h,
+	  src/eng1_qm_mpqc.h, src/eng1_sf.h, src/eng2_mm_sf.h,
+	  src/engine.h, src/geomopt.h, src/intcrd.cpp, src/intcrd.h,
+	  src/libconfig.h.in, src/libdefine.h, src/model.cpp, src/model.h,
+	  src/moldyn.h, src/notice.cpp, src/notice.h, src/search.h,
+	  src/seqbuild.cpp, src/seqbuild.h, src/tab_mm_default.h,
+	  src/tab_mm_prmfit.h, src/typedef.h, src/typerule.cpp,
+	  src/typerule.h, src/utility.cpp, src/utility.h, src/v3d.h: many
+	  improvements added but make install does not work yet.
+
+2003-01-20 16:05  thassine
+
+	* configure, src/engine.h: minor fixes; not ready yet...
+
+2003-01-20 10:38  thassine
+
+	* AUTHORS, CHANGES, COPYING, INSTALL, Makefile.in, TODO,
+	  acconfig.h, aclocal.m4, config.guess, .cvsignore, config.sub,
+	  configure, configure.in, install-sh, libghemical.spec,
+	  mkinstalldirs, bin/.cvsignore, bin/builder/amino.txt,
+	  bin/builder/nucleic.txt, bin/param_mm/default/atomtypes.txt,
+	  bin/param_mm/default/parameters1.txt,
+	  bin/param_mm/default/parameters2.txt,
+	  bin/param_mm/default/parameters3.txt,
+	  bin/param_mm/default/parameters4.txt,
+	  bin/param_mm/default/parameters5.txt,
+	  bin/param_sf/default/loopdip.txt,
+	  bin/param_sf/default/looptor.txt,
+	  bin/param_sf/default/nonbonded.txt, src/.cvsignore, src/Doxyfile,
+	  src/Makefile.in, src/atom.cpp, src/atom.h, src/bond.cpp,
+	  src/bond.h, src/config.h.in, src/conjgrad.cpp, src/conjgrad.h,
+	  src/define.h, src/eng1_mm.cpp, src/eng1_mm.h,
+	  src/eng1_mm_default.cpp, src/eng1_mm_default.h,
+	  src/eng1_mm_prmfit.cpp, src/eng1_mm_prmfit.h, src/eng1_qm.cpp,
+	  src/eng1_qm.h, src/eng1_qm_mopac.cpp, src/eng1_qm_mopac.h,
+	  src/eng1_qm_mpqc.cpp, src/eng1_qm_mpqc.h, src/eng1_sf.cpp,
+	  src/eng1_sf.h, src/eng2_mm_sf.cpp, src/eng2_mm_sf.h,
+	  src/eng2_qm_mm.cpp, src/eng2_qm_mm.h, src/engine.cpp,
+	  src/engine.h, src/errutil.cpp, src/errutil.h, src/geomopt.cpp,
+	  src/geomopt.h, src/intcrd.cpp, src/intcrd.h, src/model.cpp,
+	  src/model.h, src/moldyn.cpp, src/moldyn.h, src/notice.cpp,
+	  src/notice.h, src/search.cpp, src/search.h, src/seqbuild.cpp,
+	  src/seqbuild.h, src/tab_mm_default.cpp, src/tab_mm_default.h,
+	  src/tab_mm_prmfit.cpp, src/tab_mm_prmfit.h, src/typedef.h,
+	  src/typerule.cpp, src/typerule.h, src/utility.cpp, src/utility.h,
+	  src/v3d.h: Initial revision
+
+2003-01-20 10:38  thassine
+
+	* AUTHORS, CHANGES, COPYING, INSTALL, Makefile.in, TODO,
+	  acconfig.h, aclocal.m4, config.guess, .cvsignore, config.sub,
+	  configure, configure.in, install-sh, libghemical.spec,
+	  mkinstalldirs, bin/.cvsignore, bin/builder/amino.txt,
+	  bin/builder/nucleic.txt, bin/param_mm/default/atomtypes.txt,
+	  bin/param_mm/default/parameters1.txt,
+	  bin/param_mm/default/parameters2.txt,
+	  bin/param_mm/default/parameters3.txt,
+	  bin/param_mm/default/parameters4.txt,
+	  bin/param_mm/default/parameters5.txt,
+	  bin/param_sf/default/loopdip.txt,
+	  bin/param_sf/default/looptor.txt,
+	  bin/param_sf/default/nonbonded.txt, src/.cvsignore, src/Doxyfile,
+	  src/Makefile.in, src/atom.cpp, src/atom.h, src/bond.cpp,
+	  src/bond.h, src/config.h.in, src/conjgrad.cpp, src/conjgrad.h,
+	  src/define.h, src/eng1_mm.cpp, src/eng1_mm.h,
+	  src/eng1_mm_default.cpp, src/eng1_mm_default.h,
+	  src/eng1_mm_prmfit.cpp, src/eng1_mm_prmfit.h, src/eng1_qm.cpp,
+	  src/eng1_qm.h, src/eng1_qm_mopac.cpp, src/eng1_qm_mopac.h,
+	  src/eng1_qm_mpqc.cpp, src/eng1_qm_mpqc.h, src/eng1_sf.cpp,
+	  src/eng1_sf.h, src/eng2_mm_sf.cpp, src/eng2_mm_sf.h,
+	  src/eng2_qm_mm.cpp, src/eng2_qm_mm.h, src/engine.cpp,
+	  src/engine.h, src/errutil.cpp, src/errutil.h, src/geomopt.cpp,
+	  src/geomopt.h, src/intcrd.cpp, src/intcrd.h, src/model.cpp,
+	  src/model.h, src/moldyn.cpp, src/moldyn.h, src/notice.cpp,
+	  src/notice.h, src/search.cpp, src/search.h, src/seqbuild.cpp,
+	  src/seqbuild.h, src/tab_mm_default.cpp, src/tab_mm_default.h,
+	  src/tab_mm_prmfit.cpp, src/tab_mm_prmfit.h, src/typedef.h,
+	  src/typerule.cpp, src/typerule.h, src/utility.cpp, src/utility.h,
+	  src/v3d.h: libghemical imported to CVS.
+

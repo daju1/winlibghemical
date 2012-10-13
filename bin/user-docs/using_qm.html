@@ -1,0 +1,113 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                                    
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                                    
+  <meta name="GENERATOR"
+ content="Mozilla/4.76 [en] (X11; U; Linux 2.4.17 i686) [Netscape]">
+  <title></title>
+</head>
+  <body>
+               
+<h4></h4>
+               
+<hr width="100%">         
+<h2>2.2 Quantum-Mechanical Modelling</h2>
+SORRY, THESE DOCS ARE OBSOLETE!<br>
+The alternative "Quantum Mechanics" project is for quantum-mechanical  models.
+        
+<p>Currently we have no QM code of our own, but we use code "borrowed" from
+    external programs MOPAC7 and MPQC instead. The code from MOPAC7 is included
+    in the package, but the MPQC code is external (at the moment, at least).
+   In order to use the features from MPQC program, you have to compile and
+ install   the MQPC program (both version 1.2.5 and newer versions 2.0 are
+ supported) to your system, and recompile the Ghemical program with the MPQC
+   front-end feature enabled. This brings the working MPQC engine available, 
+   in addition to the default MOPAC7 engine. </p>
+               
+<p>Select "Compute/Setup..." from the popup menu to check the settings for
+    your calculation; hamiltonian / basis set to be used and total charge
+of   the system. Only singlet states with even number of electrons are supported
+    at the moment. </p>
+               
+<p>The MOPAC7 engine runs MOPAC7 code in cartesian coordinate (XYZ) mode. 
+    User can select one of the following hamiltonians: MNDO, MINDO/3, AM1, 
+ PM3.  When using MOPAC7 engine please note the following:&nbsp;</p>
+     
+<p></p>
+     
+<ol>
+     <li>MOPAC7 code relies heavily on use of global variables,    so it
+is  not possible to run multiple instances of MOPAC7 at the same time   
+in a  same program; you have to start multiple programs at different working 
+   directories instead.</li>
+     <li>The MOPAC7 engine creates intermediate files like   FOR005 and SHUTDOWN 
+ to the working directory when run. In normal operation   these files are 
+removed when not needed anymore, <b><u>but if something goes  wrong you have 
+to manually remove these files!</u></b>&nbsp;</li>
+     <li>Due to a bug in MOPAC7, the first three atoms should   not be linearly 
+ arranged; this might affect for example carbon dioxide molecule   O=C=O. 
+When studying cases like this, draw the molecule in a sequence 1-3-2   instead 
+ of sequence 1-2-3 to avoid the problem.&nbsp;</li>
+     <li>The hamiltonians in MOPAC7 support (at least?) the   following elements: 
+ H, C, N, O, F, P, S, Cl, Br, I. If you try to use elements   not supported 
+ by MOPAC7, the program will stop. </li>
+     
+</ol>
+               
+<p>The MPQC engine runs the MPQC closed-shell hartree-fock code with no symmetry.
+    User can select any of the standard ab initio basis sets from STO-3G
+to   6-31G**.  </p>
+               
+<p>Both QM engines can run geometry optimization, and draw ESP, MO, and MO
+    density plots. Also a specific energy-level diagram view is available
+that    shows molecular orbital indices, energies (in eV) and occupation
+(you can    use mouse tools Zoom and Translate XY to manipulate the diagram):
+</p>
+               
+<center>         
+<p><img src="images/enlevdiag.png" height="379" width="463"
+ alt="an energy-level diagram">
+        </p>
+        </center>
+                  
+<p>It is possible to convert MM models to QM models and vice versa. Therefore 
+    you are adviced to draw your molecule as a MM model, optimize it to get 
+  a good starting structure, and then to convert it into a QM model for further 
+    refinement and inspection. To save your QM model, you are adviced to convert
+    it into MM model and then save it (currently there is no file format
+specified     for QM models). </p>
+               
+<p>The popup menu in a "Quantum Mechanics" project currently has the following 
+features:<br>
+   </p>
+     
+<p>    </p>
+               
+<p></p>
+     
+<ul>
+     <li>File : Open and save project files, Close the project.</li>
+     <li>Settings : Change the current element.&nbsp;</li>
+     <li>Render : Add/remove views/lights. Change the rendering mode and
+projection.     Add an energy-level diagram view.&nbsp;</li>
+     <li>Objects : Add visualization objects (planes, surfaces etc) and remove 
+   them.&nbsp;</li>
+     <li>Compute : Select the engine and other settings, compute energy,
+geometry     optimization.&nbsp;</li>
+     <li>Set Current Orbital : Here you can set the orbital index for visualization.&nbsp;</li>
+     <li>Convert to MM project : Copies the contents of this project into 
+a new   MM project, and optionally closes this project. </li>
+     
+</ul>
+               
+<p> </p>
+               
+<hr width="100%">         
+<h3> </h3>
+       <br>
+ <br>
+</body>
+</html>

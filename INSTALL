@@ -1,0 +1,71 @@
+	REQUIREMENTS:
+	-------------
+
+The ghemical package is dependent on "libghemical" package, in addition
+to the packages/files that are needed to compile and run programs at
+the GTK2 platform.
+
+You can get "libghemical-1.90.tgz" or newer from
+
+	http://bioinformatics.org/ghemical/download.html
+
+Other software/packages that are needed to compile and run this program
+are:
+
+	g++			gcc version 2.95.4 or later
+	make			GNU Make version 3.76.1
+	pkg-config		pkg-config-0.15
+	
+	glut			glut 3.6
+	GTK2			gtk+-2.0 version 2.4.0 or newer
+	GtkGLExt		gtkglext-1.0 version 1.0.5 or newer
+	LibGlade		libglade-2.0 version 2.4.0 or newer
+	GThread			gthread-2.0 version 2.4.0 or newer (opt)
+
+In short, any up-to-date Linux installation like Redhat 9.0, Mandrake 9.0
+or Debian 3.0 should work, if the necessary development packages (that
+contain the header files) are also present, in addition to the standard
+packages (that contain the libraries).
+
+
+	INSTALLATION:
+	-------------
+	
+Simple set of commands
+
+	./configure
+	make
+	make install		[run as root user]
+
+will produce an executable program and install it into your system. For more
+options and information you can try
+
+	./configure --help
+
+Options include creating a multithreaded user interface, and a bonobo-2 server
+application (THIS IS A BIT BROKEN NOW BUT I TRY TO FIX IT SOON).
+
+If at configuration step you get stuck and see some error messages about
+PKG_CONFIG, please try the following tricks (and re-try ./configure):
+
+	export PKG_CONFIG=pkg-config
+	export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+Also if problems appear you might want to try updating the configuration
+files using commands at the top of the source tree (and re-try ./configure):
+
+	aclocal
+	autoconf
+	autoheader
+	automake
+	libtoolize -f
+
+The "make install"-command will copy the executable and some extra files to
+their proper places so that the program can be run anywhere. After you have
+installed the program you can click the item "Help/Help" from the main menu
+to read the User's Manual (highly recommended).
+
+In the "bin/examples"-directory there are some useful example molecules, and
+in the "small-utilities"-directory there are... well, some small utilities.
+
+Enjoy!!!

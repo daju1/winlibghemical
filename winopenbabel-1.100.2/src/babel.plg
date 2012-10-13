@@ -1,0 +1,108 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: babel - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP14A.tmp" with contents
+[
+/nologo /MT /W3 /GX /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"babel___Win32_Release/babel.pch" /YX /Fo"babel___Win32_Release/" /Fd"babel___Win32_Release/" /FD /c 
+"D:\winlibghemical\winopenbabel-1.100.2\src\fileformat.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP14A.tmp" 
+Creating temporary file "C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP14B.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"babel___Win32_Release/babel.pdb" /machine:I386 /out:"../../babel.exe" 
+".\babel___Win32_Release\alchemy.obj"
+".\babel___Win32_Release\amber.obj"
+".\babel___Win32_Release\atom.obj"
+".\babel___Win32_Release\balst.obj"
+".\babel___Win32_Release\base.obj"
+".\babel___Win32_Release\bgf.obj"
+".\babel___Win32_Release\binary.obj"
+".\babel___Win32_Release\bitvec.obj"
+".\babel___Win32_Release\bond.obj"
+".\babel___Win32_Release\box.obj"
+".\babel___Win32_Release\c3d.obj"
+".\babel___Win32_Release\cacao.obj"
+".\babel___Win32_Release\cache.obj"
+".\babel___Win32_Release\car.obj"
+".\babel___Win32_Release\ccc.obj"
+".\babel___Win32_Release\chains.obj"
+".\babel___Win32_Release\chdrw.obj"
+".\babel___Win32_Release\chemtool.obj"
+".\babel___Win32_Release\chiral.obj"
+".\babel___Win32_Release\cml.obj"
+".\babel___Win32_Release\crk.obj"
+".\babel___Win32_Release\csr.obj"
+".\babel___Win32_Release\cssr.obj"
+".\babel___Win32_Release\data.obj"
+".\babel___Win32_Release\dmol.obj"
+".\babel___Win32_Release\feat.obj"
+".\babel___Win32_Release\fh.obj"
+".\babel___Win32_Release\fileformat.obj"
+".\babel___Win32_Release\gamess.obj"
+".\babel___Win32_Release\gaussian.obj"
+".\babel___Win32_Release\generic.obj"
+".\babel___Win32_Release\ghemical.obj"
+".\babel___Win32_Release\grid.obj"
+".\babel___Win32_Release\gromos96.obj"
+".\babel___Win32_Release\hin.obj"
+".\babel___Win32_Release\jaguar.obj"
+".\babel___Win32_Release\main.obj"
+".\babel___Win32_Release\matrix.obj"
+".\babel___Win32_Release\matrix3x3.obj"
+".\babel___Win32_Release\mdl.obj"
+".\babel___Win32_Release\mm3.obj"
+".\babel___Win32_Release\mmod.obj"
+".\babel___Win32_Release\mol.obj"
+".\babel___Win32_Release\mol2.obj"
+".\babel___Win32_Release\molchrg.obj"
+".\babel___Win32_Release\molvector.obj"
+".\babel___Win32_Release\mopac.obj"
+".\babel___Win32_Release\mpqc.obj"
+".\babel___Win32_Release\nwchem.obj"
+".\babel___Win32_Release\oberror.obj"
+".\babel___Win32_Release\obutil.obj"
+".\babel___Win32_Release\parsmart.obj"
+".\babel___Win32_Release\parsmi.obj"
+".\babel___Win32_Release\patty.obj"
+".\babel___Win32_Release\pdb.obj"
+".\babel___Win32_Release\phmodel.obj"
+".\babel___Win32_Release\povray.obj"
+".\babel___Win32_Release\pqs.obj"
+".\babel___Win32_Release\qchem.obj"
+".\babel___Win32_Release\rand.obj"
+".\babel___Win32_Release\report.obj"
+".\babel___Win32_Release\residue.obj"
+".\babel___Win32_Release\ring.obj"
+".\babel___Win32_Release\rotor.obj"
+".\babel___Win32_Release\shelx.obj"
+".\babel___Win32_Release\smi.obj"
+".\babel___Win32_Release\snprintf.obj"
+".\babel___Win32_Release\strncasecmp.obj"
+".\babel___Win32_Release\tinker.obj"
+".\babel___Win32_Release\tokenst.obj"
+".\babel___Win32_Release\typer.obj"
+".\babel___Win32_Release\unichem.obj"
+".\babel___Win32_Release\vector3.obj"
+".\babel___Win32_Release\viewmol.obj"
+".\babel___Win32_Release\xed.obj"
+".\babel___Win32_Release\xyz.obj"
+".\babel___Win32_Release\zindo.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\8DBD~1\LOCALS~1\Temp\RSP14B.tmp"
+<h3>Output Window</h3>
+Compiling...
+fileformat.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+babel.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

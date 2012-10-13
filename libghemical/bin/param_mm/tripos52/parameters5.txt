@@ -1,0 +1,37 @@
+// atomic charge parameters 09.05.2000 (based on Tripos 5.2 and MMFF94)
+// [id #1] [id #2] [delta]
+
+// THE NUMERICAL VALUES HERE ARE NOT PROPERLY CHECKED!!!
+
+// sign of [delta] is inverted if order of atoms is switched...
+// sign of [delta] is inverted if order of atoms is switched...
+// sign of [delta] is inverted if order of atoms is switched...
+
+0x0601 0x0100 S +0.100
+0x0602 0x0100 S +0.200
+0x0603 0x0100 S +0.100
+0x0604 0x0100 S +0.050
+
+0x0700 0x0100 S +0.100
+0x0701 0x0100 S +0.200
+0x0702 0x0100 S +0.250
+0x0703 0x0100 S +0.250
+0x0704 0x0100 S +0.200
+0x0705 0x0100 S +0.150
+
+0x0800 0x0100 S +0.250
+0x0801 0x0601 D +0.100
+
+0x0900 0x0100 S +0.500
+0x0900 0x0600 S +0.125
+
+0x1002 0x0801 D +0.200
+0x1003 0x0801 D +0.200
+
+0x1100 0x0600 S +0.150
+
+0x2300 0x0600 S +0.175
+
+0x3500 0x0600 S +0.200
+
+#end	// EOF !!!

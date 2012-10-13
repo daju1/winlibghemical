@@ -1,0 +1,92 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ghemical", "ghemical.vcproj", "{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10310473-5BC5-4721-A726-23743BFA3866} = {10310473-5BC5-4721-A726-23743BFA3866}
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E} = {0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}
+		{91C21BE1-37BF-456C-9255-CED5E3203481} = {91C21BE1-37BF-456C-9255-CED5E3203481}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "babel", "..\winopenbabel-1.100.2\lib\babel\babel.vcproj", "{91C21BE1-37BF-456C-9255-CED5E3203481}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win_project", "..\src\win_project\win_project.vcproj", "{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libghemical", "..\libghemical\libghemical.vcproj", "{10310473-5BC5-4721-A726-23743BFA3866}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example1", "..\libghemical\src\simple_test\example1\example1.vcproj", "{B598767C-871F-41D8-8FC7-BBA2C47E74B4}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example2", "..\libghemical\src\simple_test\example2\example2.vcproj", "{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example4", "..\libghemical\src\simple_test\example4\example4.vcproj", "{029E047F-9807-4130-A2B6-6FD8C1063833}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10310473-5BC5-4721-A726-23743BFA3866} = {10310473-5BC5-4721-A726-23743BFA3866}
+		{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688} = {14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E} = {0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}
+		{91C21BE1-37BF-456C-9255-CED5E3203481} = {91C21BE1-37BF-456C-9255-CED5E3203481}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmopac", "..\mopac7-1.00\libmopac\libmopac.vcproj", "{5117E257-8B40-4B76-A6B6-90CD19441E59}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "f2c", "..\f2c\f2c.vcproj", "{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}.Debug.ActiveCfg = Debug|Win32
+		{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}.Debug.Build.0 = Debug|Win32
+		{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}.Release.ActiveCfg = Release|Win32
+		{14BD52B4-FD34-4FF1-9DB0-9D0F00ED4688}.Release.Build.0 = Release|Win32
+		{91C21BE1-37BF-456C-9255-CED5E3203481}.Debug.ActiveCfg = Debug|Win32
+		{91C21BE1-37BF-456C-9255-CED5E3203481}.Debug.Build.0 = Debug|Win32
+		{91C21BE1-37BF-456C-9255-CED5E3203481}.Release.ActiveCfg = Release|Win32
+		{91C21BE1-37BF-456C-9255-CED5E3203481}.Release.Build.0 = Release|Win32
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}.Debug.ActiveCfg = Debug|Win32
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}.Debug.Build.0 = Debug|Win32
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}.Release.ActiveCfg = Release|Win32
+		{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}.Release.Build.0 = Release|Win32
+		{10310473-5BC5-4721-A726-23743BFA3866}.Debug.ActiveCfg = Debug|Win32
+		{10310473-5BC5-4721-A726-23743BFA3866}.Debug.Build.0 = Debug|Win32
+		{10310473-5BC5-4721-A726-23743BFA3866}.Release.ActiveCfg = Release|Win32
+		{10310473-5BC5-4721-A726-23743BFA3866}.Release.Build.0 = Release|Win32
+		{B598767C-871F-41D8-8FC7-BBA2C47E74B4}.Debug.ActiveCfg = Debug|Win32
+		{B598767C-871F-41D8-8FC7-BBA2C47E74B4}.Debug.Build.0 = Debug|Win32
+		{B598767C-871F-41D8-8FC7-BBA2C47E74B4}.Release.ActiveCfg = Release|Win32
+		{B598767C-871F-41D8-8FC7-BBA2C47E74B4}.Release.Build.0 = Release|Win32
+		{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D}.Debug.ActiveCfg = Debug|Win32
+		{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D}.Debug.Build.0 = Debug|Win32
+		{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D}.Release.ActiveCfg = Release|Win32
+		{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D}.Release.Build.0 = Release|Win32
+		{029E047F-9807-4130-A2B6-6FD8C1063833}.Debug.ActiveCfg = Debug|Win32
+		{029E047F-9807-4130-A2B6-6FD8C1063833}.Debug.Build.0 = Debug|Win32
+		{029E047F-9807-4130-A2B6-6FD8C1063833}.Release.ActiveCfg = Release|Win32
+		{029E047F-9807-4130-A2B6-6FD8C1063833}.Release.Build.0 = Release|Win32
+		{5117E257-8B40-4B76-A6B6-90CD19441E59}.Debug.ActiveCfg = Debug|Win32
+		{5117E257-8B40-4B76-A6B6-90CD19441E59}.Debug.Build.0 = Debug|Win32
+		{5117E257-8B40-4B76-A6B6-90CD19441E59}.Release.ActiveCfg = Release|Win32
+		{5117E257-8B40-4B76-A6B6-90CD19441E59}.Release.Build.0 = Release|Win32
+		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Debug.ActiveCfg = Debug|Win32
+		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Debug.Build.0 = Debug|Win32
+		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Release.ActiveCfg = Release|Win32
+		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

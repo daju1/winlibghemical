@@ -1,0 +1,1718 @@
+2005-07-01 13:23  thassine
+
+	* BRANCHNAME, CHANGES, INSTALL, acinclude.m4, aclocal.m4,
+	  configure, configure.ac, configure.in: final changes for a
+	  release 1.02.
+
+2005-06-30 16:04  thassine
+
+	* Makefile.in, acconfig.h, acinclude.m4, aclocal.m4, configure,
+	  configure.ac, configure.in, src/Makefile.in, src/appconfig.h.in,
+	  src/filetrans.cpp, src/filetrans.h, src/gtk_graphics_view.cpp,
+	  src/project.cpp, src/project.h, src/glade/Makefile.in,
+	  src/glade/file_export_dialog.cpp,
+	  src/glade/file_import_dialog.cpp: a lot of changes in
+	  configuration scripts.
+
+2005-06-23 16:27  thassine
+
+	* src/: project.cpp, ribbon.cpp, glade/setup_dialog.cpp,
+	  glade/setup_dialog.glade: the lib/app interface has changed
+	  somewhat.
+
+2005-06-23 16:21  thassine
+
+	* src/: gnome_project.cpp, project.cpp: the lib/app interface is
+	  changed somewhat.
+
+2005-06-20 12:34  thassine
+
+	* src/: gtk_project.cpp, gtk_project.h, project.cpp,
+	  glade/geomopt_dialog.glade, glade/progress_dialog.cpp,
+	  glade/progress_dialog.h: added progress dialogs for GO, MD,
+	  random search.
+
+2005-06-17 11:39  thassine
+
+	* src/: gtk_project.cpp, project.cpp, project.h: bugfix added to
+	  GO/MD initialization code.
+
+2005-06-14 13:28  thassine
+
+	* src/: gtk_dialog.cpp, gtk_project.cpp, gtk_project.h,
+	  project.cpp, project.h, glade/file_export_dialog.cpp,
+	  glade/file_import_dialog.cpp, glade/geomopt_dialog.cpp,
+	  glade/moldyn_dialog.cpp, glade/progress_dialog.cpp,
+	  glade/progress_dialog.glade, glade/progress_dialog.h,
+	  glade/setup_dialog.cpp, glade/trajview_dialog.cpp: started
+	  converting GO and MD into multithreaded versions ; added the
+	  files that left out yesterday.
+
+2005-06-13 13:19  thassine
+
+	* src/: gtk_project.cpp, gtk_project.h, project.cpp, project.h,
+	  glade/Makefile.in: the Random Search is now completely
+	  multi-threaded.
+
+2005-06-13 10:16  thassine
+
+	* src/: Makefile.in, gtk_graphics_view.cpp, gtk_views.cpp,
+	  main.cpp, project.cpp, project.h: added an initial framework for
+	  multithreading ; switch off from the beginning of project.h if
+	  needed (the ENABLE_THREADS macro).
+
+2005-06-09 18:33  thassine
+
+	* src/: gtk_project.cpp, gtk_project.h: now the text buffer
+	  scrolling works and is smooth but does not update for example
+	  when lengthy calculations ; add threading?
+
+2005-06-09 15:47  thassine
+
+	* src/: gtk_dialog.cpp, gtk_dialog.h, gtk_project.cpp,
+	  gtk_project.h: some missing files added ; the text widget
+	  scrolling problems have now a partial solution that works in most
+	  cases but flickers and is slow.
+
+2005-06-09 14:16  thassine
+
+	* src/: fileio.cpp, project.cpp, project.h,
+	  glade/file_export_dialog.cpp, glade/file_export_dialog.glade,
+	  glade/file_export_dialog.h, glade/file_import_dialog.cpp,
+	  glade/file_import_dialog.glade, glade/file_import_dialog.h,
+	  glade/geomopt_dialog.cpp, glade/geomopt_dialog.glade,
+	  glade/moldyn_dialog.cpp, glade/moldyn_dialog.glade,
+	  glade/moldyn_dialog.h, glade/setup_dialog.cpp,
+	  glade/setup_dialog.glade, glade/trajview_dialog.cpp: fixed the
+	  glade dialogs ; the file i/o should now work with
+	  openbabel-1.100.2
+
+2005-06-08 11:49  thassine
+
+	* src/: main.cpp, project.cpp, ribbon.cpp, views.cpp: minor fixes
+	  added, now in sync with the lib.
+
+2005-06-08 11:46  thassine
+
+	* src/ribbon.cpp: adapted to changes in lib.
+
+2005-05-24 15:00  thassine
+
+	* src/: gtk_plot_views.cpp, gtk_plot_views.h, gtk_project_view.cpp,
+	  gtk_project_view.h, gtk_views.h, project.cpp, project.h,
+	  views.cpp, views.h: plotting view popup menus should work now ;
+	  TSS broken?
+
+2005-05-19 13:46  thassine
+
+	* src/: gtk_graphics_view.cpp, gtk_project_view.cpp,
+	  gtk_project_view.h: the project view popup menus should work now.
+
+2005-05-17 12:11  thassine
+
+	* src/: gtk_project_view.cpp, gtk_project_view.h: did the project
+	  view a bit further.
+
+2005-05-16 14:12  thassine
+
+	* src/: gtk_graphics_view.cpp, gtk_graphics_view.h,
+	  gtk_plot_views.cpp, gtk_plot_views.h, gtk_project_view.cpp,
+	  gtk_project_view.h, gtk_views.cpp, gtk_views.h, main.cpp, main.h,
+	  project.h, views.h, glade/file_export_dialog.cpp,
+	  glade/file_export_dialog.h, glade/file_import_dialog.cpp,
+	  glade/file_import_dialog.h, glade/setup_dialog.cpp,
+	  glade/setup_dialog.h, glade/trajview_dialog.cpp,
+	  glade/trajview_dialog.h: class name changes done ; gnome -> gtk
+
+2005-05-16 12:30  thassine
+
+	* src/: Makefile.in, gnome_dialog.cpp, gnome_dialog.h,
+	  gnome_project.cpp, gnome_project.h, gtk_project_view.h,
+	  gtk_views.cpp, gtk_views.h, main.h, glade/file_export_dialog.h,
+	  glade/file_import_dialog.h, glade/setup_dialog.h,
+	  glade/trajview_dialog.h: some changes in filenames ; converted
+	  gnome -> gtk
+
+2005-05-13 15:49  thassine
+
+	* src/: gnome_project.cpp, gnome_project.h, gtk_graphics_view.cpp,
+	  project.cpp: continued porting the popup menus in GTK2 ; the
+	  graphics view menu now complete.
+
+2005-05-12 18:22  thassine
+
+	* src/glade/: setup_dialog.cpp, setup_dialog.glade: the new setup
+	  dialog should more or less work now.
+
+2005-05-11 18:16  thassine
+
+	* src/glade/: setup_dialog.cpp, setup_dialog.glade, setup_dialog.h:
+	  added some improvements to the setup dialog ; now works
+	  initially.
+
+2005-05-06 14:55  thassine
+
+	* src/: gnome_project.cpp, project.cpp,
+	  glade/file_import_dialog.cpp: now in synch with the library.
+
+2005-05-06 14:39  thassine
+
+	* src/: gnome_project.cpp, project.cpp,
+	  glade/file_import_dialog.cpp: synchronized with the lib.
+
+2005-05-03 15:57  thassine
+
+	* src/: gnome_project.cpp, main.cpp, glade/Makefile.in,
+	  glade/setup_dialog.cpp, glade/setup_dialog.glade,
+	  glade/setup_dialog.h, glade/setup_druid.cpp,
+	  glade/setup_druid.glade, glade/setup_druid.h: removed the setup
+	  druid (gnome-1 based) and started adding a setup dialog.
+
+2005-04-28 13:28  thassine
+
+	* src/project.cpp: just adapt in slight changes in the lib side.
+
+2005-04-28 13:23  thassine
+
+	* src/project.cpp: adapt in slight changes in the lib side.
+
+2005-04-26 11:26  thassine
+
+	* src/: gnome_project.cpp, project.cpp: some changes in libghemical
+	  ; sync.
+
+2005-04-22 16:57  thassine
+
+	* src/: gnome_project.cpp, project.cpp, project.h: some class names
+	  changed to keep in sync with HEAD / libghemical.
+
+2005-04-22 16:45  thassine
+
+	* src/: appdefine.h, gnome_project.cpp, gnome_project.h,
+	  gtk_graphics_view.cpp, gtk_graphics_view.h, main.cpp, main.h,
+	  project.cpp, project.h: added new popup menu items ; tweaked the
+	  stereo adjustment box ; bugfixes.
+
+2005-04-21 15:46  thassine
+
+	* aclocal.m4, configure, configure.in, src/Makefile.in,
+	  src/appconfig.h.in, src/appdefine.h, src/gnome_project.cpp,
+	  src/gtk_views.cpp, src/main.cpp, src/notice.cpp, src/notice.h:
+	  some new stuff added ; the main menu now works except Help/Help
+	  item.
+
+2005-04-21 11:57  thassine
+
+	* aclocal.m4, configure, configure.in, src/Makefile.in,
+	  src/gnome_project.cpp, src/gnome_project.h,
+	  src/gtk_graphics_view.cpp, src/gtk_graphics_view.h,
+	  src/gtk_plot_views.cpp, src/gtk_plot_views.h,
+	  src/gtk_project_view.cpp, src/gtk_project_view.h,
+	  src/gtk_views.cpp, src/gtk_views.h, src/main.cpp, src/main.h,
+	  src/project.cpp, src/project.h, src/surface.h, src/views.cpp,
+	  src/views.h, src/glade/Makefile.in,
+	  src/glade/file_export_dialog.cpp,
+	  src/glade/file_export_dialog.glade,
+	  src/glade/file_import_dialog.cpp,
+	  src/glade/file_import_dialog.glade, src/glade/geomopt_dialog.cpp,
+	  src/glade/moldyn_dialog.cpp, src/glade/moldyn_dialog.glade,
+	  src/glade/setup_druid.cpp, src/glade/setup_druid.h: added the
+	  next round of changes ; compiles and works but the menus are
+	  still incomplete.
+
+2005-04-15 16:51  thassine
+
+	* src/: Makefile.in, appconfig.h.in, fileio.cpp, gnome_dialog.h,
+	  gnome_project.cpp, gnome_views.cpp, gnome_views.h, main.cpp,
+	  main.h, notice.cpp: started adding the popup menu for
+	  gtk_graphics_view.
+
+2005-04-15 14:36  thassine
+
+	* src/: gnome_dialog.cpp, gnome_project.cpp, gnome_project.h,
+	  gnome_views.cpp, gnome_views.h, main.cpp, main.h,
+	  pixmaps/bondtype.xpm, pixmaps/measure.xpm, pixmaps/orb_xy.xpm,
+	  pixmaps/orb_z.xpm, pixmaps/orbit_xy.xpm, pixmaps/orbit_z.xpm,
+	  pixmaps/rot_xy.xpm, pixmaps/rot_z.xpm, pixmaps/rotate_xy.xpm,
+	  pixmaps/rotate_z.xpm, pixmaps/setup.xpm, pixmaps/trans_xy.xpm,
+	  pixmaps/trans_z.xpm, pixmaps/transl_xy.xpm, pixmaps/transl_z.xpm:
+	  major changes in GUI code ; uses GtkUIManager now (GTK+-2.4) ;
+	  menus still not ready yet.
+
+2005-03-23 16:06  thassine
+
+	* src/: gnome_dialog.cpp, gnome_dialog.h, gnome_project.cpp,
+	  gnome_views.cpp, main.cpp, main.h: bad problems because the popup
+	  menus still are generated using gnome-1 code in a gtk2 app ;
+	  crashes but started to add fixes ; still not OK.
+
+2005-03-21 11:37  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/appconfig.h.in, src/glade_dialog.cpp, src/gnome_dialog.cpp,
+	  src/gnome_dialog.h, src/gnome_project.cpp, src/main.cpp,
+	  src/main.h, src/views.h: added many improvements ; the GTK2
+	  version is now built by default (--enable-bonobo changes this)
+	  and it's quite usable now...
+
+2005-02-03 14:16  thassine
+
+	* src/spline.cpp: minor changes to make it compile in FC3.
+
+2005-02-03 14:13  thassine
+
+	* src/spline.cpp: minor changes to make it compile at FC3.
+
+2005-01-19 19:11  thassine
+
+	* src/: gnome_project.cpp, project.cpp, project.h: minor additions
+	  to keep in sync with libghemical.
+
+2004-12-23 16:12  thassine
+
+	* configure, configure.in, bin/ghemical-ui.xml, src/appconfig.h.in,
+	  src/ghemical-server.cpp, src/ghemical-server.h, src/ghemical.cpp,
+	  src/ghemical.h, src/gnome_project.cpp, src/gnome_project.h,
+	  src/main.cpp, src/main.h, src/simple_test/container-ui.xml,
+	  src/simple_test/container.cpp: continued to implement separate
+	  gtk+/bonobo modes.
+
+2004-12-23 13:33  thassine
+
+	* GNOME_Ghemical.server, Makefile.in, src/Makefile.in,
+	  src/gnome_project.cpp, src/gnome_project.h,
+	  src/simple_test/Makefile, src/simple_test/README,
+	  src/simple_test/container-ui.xml, src/simple_test/container.c,
+	  src/simple_test/container.cpp, src/simple_test/container.h:
+	  started creating a single ghemical/ghemical-server executable
+	  that uses either gtk+ or bonobo.
+
+2004-12-21 16:46  thassine
+
+	* src/: camera.cpp, gnome_project.cpp, gnome_views.cpp,
+	  gnome_views.h, project.cpp, project.h: fixes added for stereo
+	  display modes (especially red/blue mode).
+
+2004-12-10 17:22  thassine
+
+	* aclocal.m4, configure, configure.in: many small fixes added.
+
+2004-12-10 17:17  thassine
+
+	* configure, configure.in, src/gnome_project.cpp,
+	  src/gnome_project.h, src/gnome_views.cpp, src/mtools.cpp,
+	  src/project.cpp, src/project.h: many small fixes added.
+
+2004-09-06 13:51  thassine
+
+	* configure, configure.in: configure.in updated (still needs
+	  similar fixes ; see also Makefiles.
+
+2004-08-30 12:33  thassine
+
+	* src/: color.h, fileio.cpp, filetrans.cpp, gnome_dialog.cpp,
+	  gnome_project.cpp, gnome_project.h, gnome_views.cpp, main.cpp,
+	  notice.cpp, objects.cpp, objects.h, project.cpp, project.h,
+	  ribbon.cpp, spline.h, views.cpp, glade/geomopt_dialog.h,
+	  glade/moldyn_dialog.h, glade/setup_druid.cpp: changed the include
+	  directory of libghemical.
+
+2004-08-25 14:28  thassine
+
+	* src/: appdefine.h, project.cpp, project.h: minor changes in
+	  labels etc (not yet same as in BBB).
+
+2004-08-25 14:24  thassine
+
+	* src/: appdefine.h, gnome_project.cpp, gnome_project.h,
+	  project.cpp, project.h: some minor changes in labels etc.
+
+2004-05-13 14:51  thassine
+
+	* acinclude.m4, aclocal.m4, configure, configure.in,
+	  src/glade/setup_druid.cpp: libmopac7, OpenBabel and libghemical
+	  now properly detected in configure.in
+
+2004-05-13 14:51  thassine
+
+	* acinclude.m4, aclocal.m4, configure, configure.in,
+	  src/glade/setup_druid.cpp: proper detection of libmopac7,
+	  OpenBabel and libghemical in configure.in
+
+2004-03-17 16:28  thassine
+
+	* Makefile.in, src/gnome_project.cpp: changed VERSION into
+	  APPVERSION at Makefile.in
+
+2004-03-17 16:26  thassine
+
+	* Makefile.in: changed VERSION into APPVERSION in Makefile.in
+
+2004-02-18 13:51  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/appconfig.h.in, src/main.cpp, src/glade/Makefile.in: now
+	  properly reads settings from libghemical.pc using pkg-config.
+
+2004-02-17 16:49  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/project.cpp, src/glade/Makefile.in: now uses an external
+	  OpenBabel library ; make install should now properly install both
+	  executables and files.
+
+2004-02-17 16:44  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/project.cpp, src/glade/Makefile.in: now uses an external
+	  OpenBabel-1.100.2 library.
+
+2004-02-17 16:40  thassine
+
+	* Makefile.in, configure, configure.in: some cleanups in
+	  configuration/makefiles.
+
+2004-02-17 12:11  thassine
+
+	* configure, configure.in: now works with OpenBabel-1.100.2 as an
+	  external lib.
+
+2004-02-15 14:44  thassine
+
+	* Makefile.in, configure, configure.in: removed the mopac7 and
+	  openbabel source directories ; these are replaced by external
+	  libraries.
+
+2004-02-11 11:40  thassine
+
+	* src/: fileio.cpp, project.h: added setlocale() calls into
+	  fileio.cpp ; also added formal charges into the file format
+	  (version string now 111)
+
+2004-02-11 11:06  thassine
+
+	* src/: Makefile.in, gnome_project.cpp, gnome_project.h,
+	  project.cpp: added -lmopac7 into src/Makefile.in (temporarily)
+	  and other minor changes.
+
+2004-01-28 11:08  thassine
+
+	* src/Makefile.in: added -lmopac7 manually into src/Makefile LIBS
+	  section since it is not yet detected by the configure script.
+
+2004-01-28 11:00  thassine
+
+	* src/: appdefine.h, gnome_project.cpp, gnome_project.h,
+	  project.cpp: added some temporary/initial GUI elements.
+
+2003-12-23 14:24  thassine
+
+	* configure, configure.in: changed the version number to 1.02 after
+	  a bugfix-release.
+
+2003-12-19 12:30  thassine
+
+	* CHANGES, configure: made minor changes for release as v1.01
+
+2003-11-06 14:22  thassine
+
+	* src/fileio.cpp: a minor fix in file-IO; still need to save
+	  secondary structures for SF?
+
+2003-11-06 14:09  thassine
+
+	* src/fileio.cpp: a minor fix in file-IO; still need to save
+	  secondary structures for SF?
+
+2003-10-10 11:56  thassine
+
+	* src/: gnome_project.cpp, gnome_views.cpp, gnome_views.h: a new
+	  menu itm (experimental) was added.
+
+2003-10-10 11:53  thassine
+
+	* src/: gnome_project.cpp, gnome_views.cpp, gnome_views.h: added a
+	  new (experimental) menu item.
+
+2003-10-03 16:32  thassine
+
+	* src/project.cpp: fixed a bug in drawing mouse tool.
+
+2003-10-03 16:29  thassine
+
+	* src/project.cpp: fixed a drawing tool bug.
+
+2003-09-12 13:34  thassine
+
+	* src/: gnome_project.cpp, plane.cpp, plane.h, project.cpp,
+	  surface.cpp, surface.h: improved planes/surfaces ; now adapt
+	  better for charged molecules.
+
+2003-09-12 13:32  thassine
+
+	* src/: gnome_project.cpp, plane.cpp, plane.h, project.cpp,
+	  surface.cpp, surface.h: improvements in plane/surface plots; now
+	  adapt better for charged molecules.
+
+2003-09-10 15:04  thassine
+
+	* src/: appdefine.h, gnome_project.cpp, gnome_project.h,
+	  project.cpp: a rendering bug was fixed, and LABEL_RESIDUE was
+	  implemented.
+
+2003-09-10 15:02  thassine
+
+	* src/: appdefine.h, gnome_project.cpp, gnome_project.h,
+	  project.cpp: a rendering bug fixed and LABEL_RESIDUE added.
+
+2003-09-01 12:43  thassine
+
+	* src/project.cpp: added some bugfixes/comments
+
+2003-09-01 12:41  thassine
+
+	* src/project.cpp: some bugfixes/comments added
+
+2003-08-08 09:55  thassine
+
+	* src/: fileio.cpp, gnome_project.cpp, project.cpp, project.h: the
+	  Solvate??() functions have changed.
+
+2003-08-08 09:43  thassine
+
+	* src/: gnome_project.cpp, project.cpp, project.h: the Solvate???()
+	  functions changed.
+
+2003-08-01 14:05  thassine
+
+	* src/glade/: file_export_dialog.cpp, file_import_dialog.cpp,
+	  geomopt_dialog.cpp, moldyn_dialog.cpp: fixed the dialogs by
+	  changing gnome_dialog -> gtk_dialog.
+
+2003-07-30 13:11  thassine
+
+	* src/: camera.cpp, gnome_dialog.cpp, gnome_project.cpp,
+	  gnome_project.h, project.cpp, project.h: a few more changes added
+	  ; now the bonobo-component seems to work pretty well and is
+	  usable, but the toolbar buttons (mouse tool, element, bondtype)
+	  are still missing.
+
+2003-07-29 16:48  thassine
+
+	* src/: camera.cpp, camera.h, gnome_views.cpp, gnome_views.h,
+	  objects.cpp, objects.h, plane.cpp, plane.h, project.cpp,
+	  project.h, ribbon.cpp, ribbon.h, surface.cpp, surface.h,
+	  views.cpp, views.h: the project_view now works reasonably well ;
+	  also popup-menus added to project_view pages.
+
+2003-07-24 13:12  thassine
+
+	* src/: gnome_project.cpp, gnome_project.h, gnome_views.cpp,
+	  gnome_views.h, project.cpp, project.h, views.h: the popup-menu,
+	  text buffer, and the project view seems to work quite reasonably
+	  now ; in project view only atoms and bonds pages are ok, others
+	  still have many problems.
+
+2003-07-15 15:18  thassine
+
+	* src/: gnome_project.cpp, gnome_project.h, gnome_views.cpp,
+	  gnome_views.h, project.cpp, project.h, views.cpp, views.h: the
+	  message log now works (more or less) and project_view work
+	  started.
+
+2003-07-14 12:20  thassine
+
+	* src/: gnome_dialog.cpp, gnome_project.cpp, gnome_project.h,
+	  gnome_views.cpp, gnome_views.h, glade/file_export_dialog.glade,
+	  glade/file_import_dialog.glade, glade/geomopt_dialog.glade,
+	  glade/moldyn_dialog.glade, glade/setup_druid.glade,
+	  glade/trajview_dialog.glade: the .glade files are updated for
+	  libglade-2 (using libglade-convert) glade-dialogs are displayed
+	  correctly but handlers still not updated ; the gnome-dialogs
+	  should work also now ; added (temporary) CURRENT submenu into
+	  ppoup-menu for accesssing mouse tool and other settings.
+
+2003-07-12 12:28  thassine
+
+	* GNOME_Ghemical.server: added the .server file
+	  (bonobo-activation).
+
+2003-07-11 16:01  thassine
+
+	* configure, configure.in, bin/ghemical-ui.xml, src/Makefile.in,
+	  src/fileio.cpp, src/filetrans.cpp, src/filetrans.h,
+	  src/ghemical-server.cpp, src/ghemical-server.h, src/ghemical.cpp,
+	  src/ghemical.h, src/glade_dialog.cpp, src/gnome_dialog.cpp,
+	  src/gnome_project.cpp, src/gnome_project.h, src/gnome_views.cpp,
+	  src/gnome_views.h, src/main.cpp, src/main.h, src/notice.cpp,
+	  src/notice.h, src/plane.h, src/project.cpp, src/project.h,
+	  src/ribbon.cpp, src/ribbon.h, src/surface.h, src/views.cpp,
+	  src/views.h, src/glade/Makefile.in, src/glade/geomopt_dialog.cpp,
+	  src/glade/moldyn_dialog.cpp, src/glade/setup_druid.cpp,
+	  src/simple_test/Makefile, src/simple_test/container-ui.xml,
+	  src/simple_test/container.c: started porting to gnome2 and
+	  converting into bonobo.
+
+2003-06-13 13:18  thassine
+
+	* AUTHORS, acconfig.h, src/Doxyfile, src/camera.cpp,
+	  src/gnome_project.cpp, src/project.cpp: more checks added for
+	  atom_list sorting. also misc cleanups.
+
+2003-06-12 16:12  thassine
+
+	* bin/examples/transition_state_search/E2-reaction/products.gpr,
+	  bin/examples/transition_state_search/E2-reaction/reactants.gpr,
+	  bin/examples/transition_state_search/E2-reaction/ts.gpr,
+	  bin/examples/transition_state_search/SN2-reaction/products.gpr,
+	  bin/examples/transition_state_search/SN2-reaction/reactants.gpr,
+	  bin/examples/transition_state_search/SN2-reaction/ts.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_hydride_shift/products.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_hydride_shift/reactants.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_hydride_shift/ts.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_methide_shift/products.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_methide_shift/reactants.gpr,
+	  bin/examples/transition_state_search/carbocation_rearrangement_methide_shift/ts.gpr,
+	  bin/examples/transition_state_search/cycloaddition_Diels-Alder/products.gpr,
+	  bin/examples/transition_state_search/cycloaddition_Diels-Alder/reactants.gpr,
+	  bin/examples/transition_state_search/cycloaddition_Diels-Alder/ts.gpr,
+	  bin/examples/transition_state_search/sigmatropic_rearrangement_Cope/products.gpr,
+	  bin/examples/transition_state_search/sigmatropic_rearrangement_Cope/reactants.gpr,
+	  bin/examples/transition_state_search/sigmatropic_rearrangement_Cope/ts.gpr,
+	  bin/examples/transition_state_search/tautomeric_shift_keto_enol/products.gpr,
+	  bin/examples/transition_state_search/tautomeric_shift_keto_enol/reactants.gpr,
+	  bin/examples/transition_state_search/tautomeric_shift_keto_enol/ts.gpr,
+	  src/gnome_views.cpp, src/gnome_views.h, src/project.cpp,
+	  src/views.cpp, src/views.h: added imrovements to
+	  transition_state_search + other search tools, and added examples
+	  for TSS.
+
+2003-06-11 14:06  thassine
+
+	* src/: gnome_project.cpp, gnome_project.h, gnome_views.cpp,
+	  gnome_views.h, project.cpp, project.h, views.cpp, views.h,
+	  glade/setup_druid.cpp: added transition_state_search and
+	  stationary_state_search ; user-docs and examples will follow in a
+	  few days.
+
+2003-05-19 10:09  thassine
+
+	* src/project.cpp: some debugging-label options added.
+
+2003-05-13 16:44  thassine
+
+	* src/gnome_project.cpp: removed some redundant
+	  DefineSecondaryStructure() runs.
+
+2003-05-12 12:13  thassine
+
+	* src/: project.cpp, ribbon.cpp, ribbon.h: minor changes in ribbon
+	  object.
+
+2003-04-29 13:22  thassine
+
+	* src/: gnome_project.cpp, project.cpp, project.h, ribbon.cpp: many
+	  changes in lib, adaptaptations to those added.
+
+2003-04-17 10:37  thassine
+
+	* src/gnome_project.cpp: added better defaults for glade dialogs.
+
+2003-04-16 16:46  thassine
+
+	* src/: gnome_project.cpp, gnome_views.cpp, gnome_views.h,
+	  project.cpp, glade/moldyn_dialog.cpp, glade/moldyn_dialog.glade,
+	  glade/moldyn_dialog.h, glade/setup_druid.cpp,
+	  glade/setup_druid.glade: many small changes (including trajectory
+	  reading).
+
+2003-04-10 17:02  thassine
+
+	* Makefile.in, configure, configure.in, src/appconfig.h.in,
+	  src/appdefine.h, src/gnome_project.cpp, src/gnome_project.h,
+	  src/project.cpp: changes in configure script (now tested to work
+	  with --enable-mpqc).
+
+2003-04-02 09:14  thassine
+
+	* src/ribbon.cpp: changes in ribbon due to changes in atom class.
+
+2003-03-07 13:37  thassine
+
+	* src/fileio.cpp: a minor addition to fileio.cpp
+
+2003-03-07 11:11  thassine
+
+	* src/fileio.cpp: the functions in fileio.cpp now handle data using
+	  member functions, not direclty (so that they now are more
+	  portable).
+
+2003-03-05 14:20  thassine
+
+	* src/: gnome_project.cpp, main.cpp: added some changes related to
+	  gcc-3.2
+
+2003-02-14 16:51  thassine
+
+	* src/fileio.cpp: just cleanups, no real changes.
+
+2003-02-14 10:02  thassine
+
+	* src/project.cpp: sf virtual bonds now rendered also using
+	  wireframes.
+
+2003-02-06 16:53  thassine
+
+	* src/: gnome_project.cpp, main.cpp, notice.cpp, project.cpp: many
+	  changes; for example added tool for adding solvent (not ready
+	  yet).
+
+2003-02-03 11:54  thassine
+
+	* src/: gnome_project.cpp, gnome_project.h: added tools for
+	  solvation (using H2O).
+
+2003-01-31 14:06  thassine
+
+	* src/: filetrans.cpp, project.cpp, project.h: some bugfixes were
+	  added; mostly because of changes in model::GetAtomCount() and
+	  engine::GetAtomCount().
+
+2003-01-30 10:31  thassine
+
+	* src/: Makefile.in, fileio.cpp, gnome_project.cpp, project.cpp,
+	  project.h, glade/Makefile.in: changes in SF-stuff rendering and
+	  file operations.
+
+2003-01-27 15:45  thassine
+
+	* src/: fileio.cpp, project.cpp, project.h, ribbon.cpp,
+	  glade/setup_druid.cpp: some additions to graphics code (how the
+	  new flags work).
+
+2003-01-23 15:02  thassine
+
+	* src/: camera.cpp, camera.h, gnome_project.cpp, gnome_views.cpp,
+	  gnome_views.h, main.cpp, main.h, mtools.cpp, mtools.h,
+	  project.cpp, project.h, views.cpp, views.h, pixmaps/clipping.xpm:
+	  added a new clipping mtool, the selections by atm/res/chn/mol is
+	  added, and a new tool delete selected atoms is added.
+
+2003-01-22 13:25  thassine
+
+	* Makefile.in: make install also works now.
+
+2003-01-22 13:11  thassine
+
+	* src/.cvsignore: minor cleanups added.
+
+2003-01-22 13:06  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.in,
+	  src/appconfig.h.in, src/appdefine.h, src/camera.cpp,
+	  src/camera.h, src/color.h, src/config.h.in, src/fileio.cpp,
+	  src/filetrans.cpp, src/filetrans.h, src/glade_dialog.cpp,
+	  src/glade_dialog.h, src/gnome_dialog.cpp, src/gnome_dialog.h,
+	  src/gnome_project.cpp, src/gnome_project.h, src/gnome_views.cpp,
+	  src/gnome_views.h, src/main.cpp, src/main.h, src/mtools.cpp,
+	  src/mtools.h, src/notice.cpp, src/notice.h, src/objects.cpp,
+	  src/objects.h, src/plane.cpp, src/plane.h, src/project.cpp,
+	  src/project.h, src/ribbon.cpp, src/ribbon.h, src/spline.cpp,
+	  src/spline.h, src/surface.cpp, src/surface.h, src/views.cpp,
+	  src/views.h, src/glade/.cvsignore, src/glade/Makefile.in,
+	  src/glade/README, src/glade/file_export_dialog.cpp,
+	  src/glade/file_export_dialog.glade,
+	  src/glade/file_export_dialog.h, src/glade/file_import_dialog.cpp,
+	  src/glade/file_import_dialog.glade,
+	  src/glade/file_import_dialog.h, src/glade/geomopt_dialog.cpp,
+	  src/glade/geomopt_dialog.glade, src/glade/geomopt_dialog.h,
+	  src/glade/moldyn_dialog.cpp, src/glade/moldyn_dialog.glade,
+	  src/glade/moldyn_dialog.h, src/glade/setup_druid.cpp,
+	  src/glade/setup_druid.glade, src/glade/setup_druid.h,
+	  src/glade/trajview_dialog.cpp, src/glade/trajview_dialog.glade,
+	  src/glade/trajview_dialog.h, src/pixmaps/.cvsignore,
+	  src/pixmaps/angle.xpm, src/pixmaps/bond.xpm,
+	  src/pixmaps/chain.xpm, src/pixmaps/dihedral.xpm,
+	  src/pixmaps/distance.xpm, src/pixmaps/draw.xpm,
+	  src/pixmaps/element.xpm, src/pixmaps/erase.xpm,
+	  src/pixmaps/invert.xpm, src/pixmaps/molecule.xpm,
+	  src/pixmaps/orb_xy.xpm, src/pixmaps/orb_z.xpm,
+	  src/pixmaps/residue.xpm, src/pixmaps/rot_xy.xpm,
+	  src/pixmaps/rot_z.xpm, src/pixmaps/select.xpm,
+	  src/pixmaps/trans_xy.xpm, src/pixmaps/trans_z.xpm,
+	  src/pixmaps/zoom.xpm: added the missing files; some changes have
+	  happened in the filenames.
+
+2003-01-20 16:08  thassine
+
+	* configure, configure.in: many changes all over the tree; does not
+	  compile yet...
+
+2003-01-20 11:13  thassine
+
+	* Makefile.in: moved the /src/target3/glade to /src/glade.
+
+2003-01-20 10:49  thassine
+
+	* BUGLIST, Makefile.in, PROJECT, configure.in, src/Makefile.OLD:
+	  some directories removed; this stuff is either moved into the new
+	  libghemical library, or (target1/target2) is discarded.
+
+2002-12-05 13:44  thassine
+
+	* configure, configure.in: changed the version number to 1.51
+
+2002-12-05 13:43  thassine
+
+	* configure, configure.in: changed the version number to 1.01
+
+2002-12-04 09:47  thassine
+
+	* CHANGES: updated the changelog
+
+2002-12-04 09:45  thassine
+
+	* INSTALL, ghemical.spec, bin/user-docs/ribbon.html,
+	  bin/user-docs/images/aa_builder_ci.png,
+	  bin/user-docs/images/aa_builder_menu.png,
+	  bin/user-docs/images/aa_builder_note.png,
+	  bin/user-docs/images/aa_builder_w_h.png,
+	  bin/user-docs/images/aa_builder_wo_h.png,
+	  bin/user-docs/images/ci_plane.png,
+	  bin/user-docs/images/ribbon.png: final fixes before release as
+	  v1.50
+
+2002-12-03 10:49  thassine
+
+	* CHANGES, INSTALL, ghemical.spec: the final fixes added...
+
+2002-12-03 09:50  thassine
+
+	* Makefile.in: minor fixes to make install.
+
+2002-12-03 09:44  thassine
+
+	* Makefile.in: minor fixes to make install.
+
+2002-12-03 09:42  thassine
+
+	* bin/user-docs/: geometry_optimization.html, index.html,
+	  introduction.html, measure.html, references.html,
+	  sequence_builder.html, using_mm.html, using_qm.html,
+	  using_sf.html, visualization.html,
+	  images/geometry_opimization_console.png,
+	  images/sequence_builder_console.png: added the improved docs from
+	  Christopher also here.
+
+2002-12-03 09:41  thassine
+
+	* bin/user-docs/references.html: minor fixes to docs...
+
+2002-12-03 09:30  thassine
+
+	* bin/user-docs/: geometry_optimization.html, index.html,
+	  measure.html, references.html, ribbon.html,
+	  sequence_builder.html, using_mm.html, using_qm.html,
+	  visualization.html, images/aa_builder_ci.png,
+	  images/aa_builder_menu.png, images/aa_builder_note.png,
+	  images/aa_builder_w_h.png, images/aa_builder_wo_h.png,
+	  images/ci_plane.png, images/geometry_opimization_console.png,
+	  images/ribbon.png, images/sequence_builder_console.png: added the
+	  latest improvements to user's manual by Christopher.
+
+2002-11-22 11:02  thassine
+
+	* .cvsignore: synchronized openbabel with the v1.0 tree, and added
+	  a notice about incompleteness of the file format.
+
+2002-11-21 00:26  hutchisn
+
+	* .cvsignore: Minor updates.
+
+2002-11-20 17:54  thassine
+
+	* bin/examples/: 2-chlorobutane.gpr, 3-phenylpropanal.gpr,
+	  PeriodicTable.gpr, acetylsalicylic_acid.gpr, alpha-pinene.gpr,
+	  bromobenzene.gpr, camphor.gpr, cinnamaldehyde.gpr,
+	  cis-2-pentene.gpr, cyclohexane.gpr, naphtalene.gpr: added also
+	  the new example files.
+
+2002-11-20 17:53  thassine
+
+	* bin/examples/: 1gar.mm2gp, 1hcl.mm2gp, 2-chlorobutane.mm1gp,
+	  3-phenylpropanal.mm1gp, 4rhn.mm2gp, PeriodicTable.mm1gp,
+	  acetylsalicylic_acid.mm1gp, alpha-pinene.mm1gp,
+	  bromobenzene.mm1gp, camphor.mm1gp, cinnamaldehyde.mm1gp,
+	  cis-2-pentene.mm1gp, cyclohexane.mm1gp, naphtalene.mm1gp: the
+	  file format detection is now fixed; now can read the current
+	  (.gpr) and old (.mm1gp) v1.0 files.
+
+2002-11-20 17:49  thassine
+
+	* bin/examples/: 2-chlorobutane.gpr, 3-phenylpropanal.gpr,
+	  PeriodicTable.gpr, acetylsalicylic_acid.gpr, alpha-pinene.gpr,
+	  bromobenzene.gpr, camphor.gpr, cinnamaldehyde.gpr,
+	  cis-2-pentene.gpr, cyclohexane.gpr, naphtalene.gpr: now both MM
+	  and QM projects use the same file format (.gpr) that is the same
+	  as the old .mm1gp file format; this is consistent with
+	  arrangements in v1.50.
+
+2002-11-20 12:38  thassine
+
+	* Makefile.in: make install now installs the docs correctly.
+
+2002-11-14 15:00  thassine
+
+	* bin/user-docs/: MD.html, MD_viewer.html, aa_table.html,
+	  add_hydrogens.html, basic_mm.html, conf_search_tools.html,
+	  energy_vs_torsion.html, enlevdiag.jpg, filetypes.html,
+	  formula.html, geometry_optimization.html, index.html,
+	  labels.html, mdi_mode.html, measure.html, perspective.html,
+	  references.html, sequence_builder.html, using_cs_tools.html,
+	  using_cs_tools01.jpg, using_cs_tools02.jpg, using_cs_tools03.jpg,
+	  using_cs_tools04.jpg, using_cs_tools05.jpg, using_mm.html,
+	  using_qm.html, using_sf.html, visualization.html,
+	  images/energy_vs_torsion1.png, images/energy_vs_torsion2.png,
+	  images/energy_vs_torsion3.png, images/energy_vs_torsion4.png,
+	  images/enlevdiag.png, images/esp-plane_mm.png,
+	  images/esp-plane_qm.png, images/esp-plane_select.png,
+	  images/esp-plane_select_obj.png: updated the documentation.
+
+2002-11-14 14:50  thassine
+
+	* bin/user-docs/: MD.html, MD_viewer.html, aa_table.html,
+	  add_hydrogens.html, basic_mm.html, conf_search_tools.html,
+	  energy_vs_torsion.html, enlevdiag.jpg, filetypes.html,
+	  formula.html, geometry_optimization.html, index.html,
+	  labels.html, mdi_mode.html, measure.html, perspective.html,
+	  projects.html, references.html, sequence_builder.html,
+	  using_cs_tools.html, using_cs_tools01.jpg, using_cs_tools02.jpg,
+	  using_cs_tools03.jpg, using_cs_tools04.jpg, using_cs_tools05.jpg,
+	  using_mm.html, using_qm.html, using_sf.html, visualization.html,
+	  images/energy_vs_torsion1.png, images/energy_vs_torsion2.png,
+	  images/energy_vs_torsion3.png, images/energy_vs_torsion4.png,
+	  images/enlevdiag.png, images/esp-plane_mm.png,
+	  images/esp-plane_qm.png, images/esp-plane_select.png,
+	  images/esp-plane_select_obj.png: updated the documentation.
+
+2002-11-14 11:16  thassine
+
+	* bin/user-docs/: basic_mm.html, index.html, introduction.html,
+	  maintools.jpg, images/mainmenu.png, images/maintools.png: the
+	  chapter 1. introduction seems to be ok now.
+
+2002-11-14 11:03  thassine
+
+	* bin/user-docs/: basic_mm.html, index.html, introduction.html,
+	  maintools.jpg, references.html, images/mainmenu.png,
+	  images/maintools.png: the chapter 1. introduction seems to be ok
+	  now.
+
+2002-11-14 09:59  thassine
+
+	* bin/user-docs/: index.html: oops! fixed the absolute links from
+	  index.html
+
+2002-11-13 10:39  thassine
+
+	* configure, configure.in: added some halogen MM parameters, and
+	  changed the version number.
+
+2002-11-13 10:32  thassine
+
+	* configure, configure.in: added some halogen MM parameters, and
+	  changed the version number.
+
+2002-11-11 11:22  thassine
+
+	* src/Doxyfile: changed doxygen settings, and added some fixes for
+	  gcc-3.2
+
+2002-11-11 11:16  thassine
+
+	* src/: Doxyfile, Makefile.OLD: the docs generator is now doxygen
+	  also here.
+
+2002-11-06 12:29  thassine
+
+	* bin/user-docs/: MD.html, MD_viewer.html, aa_table.html,
+	  add_hydrogens.html, basic_mm.html, documentation.css,
+	  filetypes.html, formula.html, geometry_optimization.html,
+	  import_types.html, index.html, introduction.html, labels.html,
+	  mdi_mode.html, measure.html, perspective.html, references.html,
+	  sequence_builder.html, images/2atoms_bond.png,
+	  images/2atoms_unbonded.png, images/add_hydrogens.png,
+	  images/add_hydrogens_select.png, images/change_bond_dialog.png,
+	  images/change_bond_select.png, images/cyclohexane1.png,
+	  images/cyclohexane2.png, images/cyclohexane_optimized.png,
+	  images/cyclohexane_unoptimized.png, images/draw_button.png,
+	  images/draw_hydrogens.png, images/first_atom.png,
+	  images/formula.png, images/formula_select.png,
+	  images/geometry_op_dialog.png,
+	  images/geometry_opimization_console.png,
+	  images/geometry_optimization_select.png, images/labels_menu.png,
+	  images/md_dialog.png, images/modal.png, images/new_mm.png,
+	  images/notebook.png, images/optimized_ethane.png,
+	  images/periodic_button.png, images/periodic_table.png,
+	  images/remove_hydrogens.png, images/sequence_builder.png,
+	  images/sequence_builder_console.png, images/toplevel.png,
+	  images/traj_dialog.png, images/window.png, projects.html: added
+	  the Christopher's new docs.
+
+2002-11-05 10:48  thassine
+
+	* AUTHORS: added some new libs (reported that a modified RedHat7.3
+	  needed these; should be added to configure system as well) : -lXt
+	  -lSM -lICE
+
+2002-10-31 12:27  thassine
+
+	* bin/user-docs/: index.html: just terminology changes: reduced now
+	  changed to simplified in strings.
+
+2002-09-08 13:05  thassine
+
+	* src/: Doxyfile, Makefile.OLD: changed the docs system into a
+	  doxygen-based one. now using /// as a brief comment /** and this
+	  as a detailed comment. */ int example;  ///< this is for comments
+	  at end of statements.
+
+2002-06-20 16:52  thassine
+
+	* configure, configure.in: changed the version number to 0.91
+
+2002-06-20 14:27  thassine
+
+	* INSTALL: added some final fixes and comments.
+
+2002-06-20 10:54  thassine
+
+	* ghemical.spec: updated also the .spec file.
+
+2002-06-20 10:36  thassine
+
+	* CHANGES: updated the changelog; this is soon released as v0.90 if
+	  no problems are found.
+
+2002-06-20 10:25  thassine
+
+	* INSTALL: updated the documentation.
+
+2002-06-17 13:40  thassine
+
+	* Makefile.in: the glade files are now installed correctly by make
+	  install.
+
+2002-06-17 12:52  thassine
+
+	* Makefile.in: removed the old glade code + files.
+
+2002-06-14 14:47  thassine
+
+	* src/Makefile.OLD: fixed src/Makefile.OLD clean: also in HEAD.
+
+2002-06-14 14:42  thassine
+
+	* src/Makefile.OLD: the src/Makefile.OLD returned errors in clean:
+
+2002-06-05 15:10  thassine
+
+	* Makefile.in, configure, configure.in, src/Makefile.OLD:
+	  back-ported the libglade-based geomopt dialog.
+
+2002-06-05 14:39  thassine
+
+	* src/Makefile.OLD: added some Makefile tweaks.
+
+2002-05-31 19:34  hutchisn
+
+	* configure, configure.in: Updated makefiles for libglade, etc.
+
+2002-05-30 15:43  thassine
+
+	* configure, configure.in: promoted the version number to 0.85 in
+	  the HEAD branch.
+
+2002-05-30 15:37  thassine
+
+	* configure, configure.in: promoted the version number to 0.90 in
+	  the MANY_PROJECTS_BRANCH, to avoid confusion between the
+	  branches.
+
+2002-05-30 14:07  thassine
+
+	* Makefile.in, configure, configure.in: minor fixes like changed
+	  directories etc added.
+
+2002-05-30 11:17  thassine
+
+	* src/Makefile.OLD: the makefiles are updated.
+
+2002-05-30 10:40  thassine
+
+	* CHANGES: the changelog is updated.
+
+2002-05-30 10:39  thassine
+
+	* CHANGES: updated the changelog
+
+2002-05-30 10:35  thassine
+
+	* src/Makefile.OLD: test; this goes to HEAD branch...
+
+2002-05-30 10:35  thassine
+
+	* src/Makefile.OLD: test; should show in branch only...
+
+2002-05-30 09:45  thassine
+
+	* CHANGES: Ok, changed my mind. The current version is now moved
+	  into MANY_PROJECTS_BRANCH at CVS; this might be easier in the
+	  long run.
+
+2002-05-29 11:11  thassine
+
+	* CHANGES: again testing that the OSP_BRANCH is separate; seems to
+	  be but cvs2cl picks all commits to the log; I'll start using OSP:
+	  identifier when working with the branch in the future.
+
+2002-05-29 11:08  thassine
+
+	* CHANGES: more branches practicing...
+
+2002-05-29 10:48  thassine
+
+	* CHANGES: first test commit in the branch.
+
+2002-05-28 12:03  thassine
+
+	* CHANGES: updated the changelog (using cvs2cl again).
+
+2002-05-27 16:36  thassine
+
+	* small-utilities/: getpdb_cd.cpp, getpdb_ftp.cpp: added some of my
+	  own works; not all of this stuff is ready, but I need to start
+	  converting them to fit into single-project environment.
+
+2002-05-22 10:23  thassine
+
+	* Makefile.in, configure, configure.in: configure script now
+	  updated, scripts now compatible with autoconf 2.53
+
+2002-05-21 14:06  thassine
+
+	* aclocal.m4, configure.in, src/config.h.in: added the
+	  configuration system for MPQC v1/v2 (thanks to Michael); BTW you
+	  still have to run autoconf to update the configure script.
+
+2002-04-04 15:18  thassine
+
+	* BUGLIST, TODO: the BUGLIST and TODO files are now CSV text files
+	  - use a spreadsheet program like Gnumeric or StarOffice/Calc to
+	  read and/or modify them.
+
+2002-02-28 13:43  thassine
+
+	* ghemical.spec: the .spec file updated; the RPM now does the
+	  installation with prefix /usr instead of /usr/local.
+
+2002-02-26 10:28  thassine
+
+	* ghemical.spec: some updates added to .spec file.
+
+2002-02-25 13:29  thassine
+
+	* AUTHORS, ghemical.spec, bin/ghemical.xpm: added the files for
+	  building RedHat binary packages, contributed by Radek Liboska.
+
+2002-02-22 16:09  thassine
+
+	* configure, configure.in: switch back to development settings.
+
+2002-02-22 12:36  thassine
+
+	* CHANGES, INSTALL: changelog updated and all settings are now
+	  ready for release as v0.82
+
+2002-02-21 16:26  thassine
+
+	* bin/user-docs/: index.html, using_cs_tools.html,
+	  using_cs_tools01.jpg, using_cs_tools02.jpg, using_cs_tools03.jpg,
+	  using_cs_tools04.jpg, using_cs_tools05.jpg: user's manual is
+	  enhanced; it now contains a section about 1D and 2D energy plots.
+
+2002-02-20 12:34  thassine
+
+	* INSTALL: old makefiles updated, and the code added for geomopt
+	  dialogs + calculations that separates the different termination
+	  criteria and makes them optional. it also prints out which
+	  criteria was used to terminate the optimization.
+
+2002-01-25 18:09  hutchisn
+
+	* small-utilities/: Makefile, README, symmetry.c: Add Symmetry
+	  program (from Sergei Pachkovsky, who gave OK to use in Ghemical)
+
+2002-01-21 09:44  thassine
+
+	* INSTALL: removed .cvsignore from the oelib directory.
+
+2002-01-14 05:57  hutchisn
+
+	* configure, configure.in: Add almost-forgotten configure tests
+	  contributed by Michael Banck--check for f2c if g2c is not found
+	  (and give an error if neither is found).
+
+2002-01-11 01:04  hutchisn
+
+	* configure, configure.in: Added support for Michael Banck's SC
+	  autoconf macros to simplify building MPQC.
+
+2002-01-11 00:45  hutchisn
+
+	* Makefile.in, PROJECT, config.guess, config.sub, configure,
+	  configure.in: Updated with OpenBabel replacing OELib.
+
+2002-01-06 01:00  hutchisn
+
+	* aclocal.m4: Added Michael Banck's contributed SC tests. These
+	  have not yet been implemented into configure.in yet.
+
+2002-01-02 16:40  thassine
+
+	* INSTALL: converted the old makefiles to use the Scientific
+	  Computation toolkit (SC toolkit) of MPQC, instead of the MPQC
+	  object files and headers directly.
+
+2001-12-18 09:53  thassine
+
+	* INSTALL: updated the installation docs.
+
+2001-12-12 14:35  thassine
+
+	* bin/user-docs/index.html: added attach/detach feature for
+	  gnome_graphics_views. earlier it was somewhat difficult to use
+	  multiple views, because only one at a time could be looked at the
+	  GtkNotebook. now the views can be detached from the notebook to
+	  separate windows, and attached back to notebook as well. also
+	  some GLUT and plotting improvements are added.
+
+2001-11-27 07:35  hutchisn
+
+	* Makefile.in: Added distclean target and changed help destination
+	  to smooth with Debian package.
+
+2001-11-13 14:27  thassine
+
+	* INSTALL: made the SelectNone feature as a combination of
+	  SelectAll and InvertSelection (less code this way), and added
+	  some enhancements to FileOpen (graphics update forced, and
+	  possibly selected new atoms now replace the old selection).
+
+2001-11-08 12:19  thassine
+
+	* configure, configure.in: back to devel settings, version number
+	  changed to 0.82.
+
+2001-11-08 09:51  thassine
+
+	* CHANGES: some final changes for the new release; this is released
+	  as 0.81.
+
+2001-11-07 11:43  thassine
+
+	* CHANGES, INSTALL, bin/user-docs/index.html: some documentation
+	  updates added.
+
+2001-10-03 13:56  thassine
+
+	* CHANGES, PROJECT: changed the old manually maintained
+	  changes-file to a newer log that is maintained using a cvs2cl.pl
+	  utility; it makes a logfile using cvs log information; see
+	  http://www.red-bean.com/cvs2cl/
+
+2001-09-27 15:14  thassine
+
+	* CHANGES: mopac iter.f changed so that the program is not closed
+	  even if SCF convergence problems; the mopac geometry optimization
+	  is now much more resistant to crashes.
+
+2001-09-26 17:35  thassine
+
+	* CHANGES, INSTALL: some MOPAC fortran code cleanups; unnecessary
+	  file operations removed, and output is now directed to console.
+	  now works also with redhat 7.1???
+
+2001-09-24 16:10  thassine
+
+	* BUGLIST: a new known bug was added; qm1 geomopt dialog was added
+	  for gnome version.
+
+2001-09-15 00:17  hutchisn
+
+	* Makefile.in, bin/ghemical.png: Add distclean targets to Makefiles
+
+2001-09-07 16:22  thassine
+
+	* CHANGES, configure, configure.in: development starts again,
+	  promoted version number to 0.81
+
+2001-09-06 10:21  thassine
+
+	* CHANGES, INSTALL, bin/user-docs/index.html: did a last-minute
+	  addition of random conformational search; this is released as
+	  version 0.80
+
+2001-09-05 16:37  thassine
+
+	* CHANGES, INSTALL, bin/user-docs/index.html: final fixes to
+	  documentation etc...
+
+2001-08-29 16:21  thassine
+
+	* AUTHORS: added an alternative way for camera setup in stereo
+	  viewing modes; copyright notices etc updated.
+
+2001-08-29 10:08  thassine
+
+	* configure, configure.in: a safer mopac locking mechanism added,
+	  version number promoted to 0.80.
+
+2001-08-28 10:04  thassine
+
+	* INSTALL: mopac engine now survives from change of molecule (the
+	  fortran variables NUMCAL and ISOK were handled wrong), and some
+	  docs updated.
+
+2001-08-27 15:35  thassine
+
+	* bin/user-docs/: enlevdiag.jpg, index.html, maintools.jpg: user's
+	  manual quickly updated.
+
+2001-08-22 14:18  thassine
+
+	* CHANGES: an initial version of energy-level diagrams for QM
+	  models added (now works for mopac only).
+
+2001-08-20 14:03  thassine
+
+	* CHANGES: the rest of qm1_eng_mopac plots added, and a scaling bug
+	  in MO plots fixed.
+
+2001-08-18 12:45  thassine
+
+	* CHANGES: some cleanups done in qm1_eng_mopac (the fortran and C
+	  code are now better separated, easier to maintain).
+
+2001-08-16 13:40  thassine
+
+	* CHANGES: added some documentation about the mopac ESP plots.
+
+2001-08-09 11:30  thassine
+
+	* CHANGES: the plotting stuff for mm2_mdl is now also added.
+
+2001-08-08 16:29  thassine
+
+	* CHANGES: algorithms for mm2_mdl are added.
+
+2001-08-01 16:46  thassine
+
+	* CHANGES: small improvements for mm2_mdl and qm1_eng_mpqc but
+	  nothing ready yet.
+
+2001-06-25 14:21  thassine
+
+	* bin/user-docs/index.html: minor updates in user's manual and
+	  copyright notices (MOPAC included).
+
+2001-06-21 11:49  thassine
+
+	* CHANGES: gnome MDI system revised; one view/child (GtkNotebook
+	  container), project views now grouped together.
+
+2001-05-18 16:07  thassine
+
+	* CHANGES: many factory classes combined to class_factory.
+
+2001-05-08 14:22  thassine
+
+	* src/Makefile.OLD: some improvements to readpdb; it now reads
+	  multiple crd-sets present in NMR entries
+
+2001-05-03 19:52  hutchisn
+
+	* Makefile.in, configure, configure.in: Update for miniMOPAC, test
+	  for g2c/f2c library (hopefully).
+
+2001-04-24 14:10  thassine
+
+	* INSTALL: documentation, old makefile, t3 bondtype dialog fixed a
+	  bit.
+
+2001-04-18 14:04  thassine
+
+	* CHANGES: started merging the mm2_mdl code (accepted for
+	  publication :)
+
+2001-04-18 11:22  thassine
+
+	* CHANGES: added miniMOPAC and QM geometry optimization.
+
+2001-03-30 13:21  thassine
+
+	* configure, configure.in: switched back to devel settings; the
+	  version number is now 0.43
+
+2001-03-30 11:30  thassine
+
+	* CHANGES: minor cleanups; this is released as 0.42
+
+2001-03-14 18:40  hutchisn
+
+	* bin/examples/PeriodicTable.mm1gp: Fixed atom colors and add
+	  example Periodic Table.
+
+2001-03-14 15:00  thassine
+
+	* CHANGES, configure, configure.in: some mm1_mdl <=> oelib
+	  compatibility features started.
+
+2001-03-12 14:00  thassine
+
+	* BUGLIST, CHANGES, INSTALL, PROJECT,
+	  bin/examples/2-chlorobutane.mm1gp,
+	  bin/examples/3-phenylpropanal.mm1gp,
+	  bin/examples/acetylsalicylic_acid.mm1gp,
+	  bin/examples/alpha-pinene.mm1gp, bin/examples/bromobenzene.mm1gp,
+	  bin/examples/camphor.mm1gp, bin/examples/cinnamaldehyde.mm1gp,
+	  bin/examples/cis-2-pentene.mm1gp, bin/examples/cyclohexane.mm1gp,
+	  bin/examples/naphtalene.mm1gp: this is released as version 0.41
+
+2001-03-09 00:49  hutchisn
+
+	* Makefile.in: Add target for help files.
+
+2001-03-08 16:59  thassine
+
+	* CHANGES: added the Help/Help item to the main menu, copyright
+	  notices updated to include OELib
+
+2001-03-08 15:51  thassine
+
+	* bin/user-docs/: index.html, maintools.jpg: updated the user's
+	  manual
+
+2001-02-16 17:14  thassine
+
+	* src/Makefile.OLD: this will make quick test builds easier.
+
+2001-02-16 16:29  thassine
+
+	* bin/user-docs/index.html: added some framework for the user
+	  manual
+
+2001-02-13 16:32  thassine
+
+	* INSTALL: added some quick improvements to qm1-model to boost its
+	  ease of use.
+
+2001-02-12 19:07  hutchisn
+
+	* configure, configure.in: Solved configure problems with MPQC and
+	  oelib.
+
+2001-02-12 18:25  hutchisn
+
+	* configure, configure.in: Fix problem with configure in srcdir.
+
+2001-02-11 16:36  thassine
+
+	* CHANGES, bin/examples/1gar.mm2gp, bin/examples/1hcl.mm2gp,
+	  bin/examples/4rhn.mm2gp: tadaall added a preview version of the
+	  reduced protein modelling thing.
+
+2001-02-10 17:09  thassine
+
+	* INSTALL, configure, configure.in: changed back to devel settings
+	  (version number, releasedate); small fixes appled here and there.
+
+2001-02-07 11:24  thassine
+
+	* small-utilities/: README, gp2mpqc.cpp: added some final fixes to
+	  documentation; this is released as 0.40
+
+2001-02-06 11:21  thassine
+
+	* AUTHORS, CHANGES, INSTALL, PROJECT: revised/updated some
+	  documentation.
+
+2001-02-06 10:44  thassine
+
+	* configure, configure.in: some cleanups at glade optionmenus; the
+	  version number promoted to 0.40
+
+2001-02-04 20:11  thassine
+
+	* CHANGES, INSTALL, bin/examples/2-chlorobutane.gpMM,
+	  bin/examples/2-chlorobutane.mm1gp,
+	  bin/examples/3-phenylpropanal.gpMM,
+	  bin/examples/3-phenylpropanal.mm1gp,
+	  bin/examples/acetylsalicylic_acid.gpMM,
+	  bin/examples/acetylsalicylic_acid.mm1gp,
+	  bin/examples/alpha-pinene.gpMM, bin/examples/alpha-pinene.mm1gp,
+	  bin/examples/bromobenzene.gpMM, bin/examples/bromobenzene.mm1gp,
+	  bin/examples/camphor.gpMM, bin/examples/camphor.mm1gp,
+	  bin/examples/cinnamaldehyde.gpMM,
+	  bin/examples/cinnamaldehyde.mm1gp,
+	  bin/examples/cis-2-pentene.gpMM,
+	  bin/examples/cis-2-pentene.mm1gp, bin/examples/cyclohexane.gpMM,
+	  bin/examples/cyclohexane.mm1gp, bin/examples/naphtalene.gpMM,
+	  bin/examples/naphtalene.mm1gp: swapped the classnames qm1* and
+	  qm2 (as well as filenames) in an effort to make the class naming
+	  scheme more reasonnable (now we have a clear division in mm/qm,
+	  and the all-atoms classes (most used) have numbers 1); also
+	  changed nicer filename extensions.
+
+2001-01-31 19:32  thassine
+
+	* CHANGES: changed MM trajectory file format; some Do???-functions
+	  moved to model (and are now accessible in TARGET1 also).
+
+2001-01-22 09:52  thassine
+
+	* src/Makefile.OLD: started to convert comments into a form
+	  suitable to DOC++
+
+2001-01-20 08:19  hutchisn
+
+	* PROJECT: [no log message]
+
+2001-01-06 00:38  hutchisn
+
+	* acconfig.h, configure, configure.in, src/config.h.in: Fix build
+	  environment
+
+2001-01-03 12:03  thassine
+
+	* CHANGES: dialogs; read from glade/src/Makefile how to retain your
+	  changes in GLADE code.
+
+2001-01-02 14:42  thassine
+
+	* INSTALL, PROJECT: started making some dialogs using GLADE...
+
+2001-01-01 15:53  thassine
+
+	* AUTHORS, INSTALL, PROJECT: just some cleanups and some
+	  improvements to documentation
+
+2001-01-01 13:30  thassine
+
+	* small-utilities/: Makefile, getpdb_cd.cpp, getpdb_ftp.cpp,
+	  gp2mpqc.cpp: HAPPY NEW YEAR; some small-utilities added...
+
+2000-12-22 16:47  thassine
+
+	* CHANGES: added target-dependent middle classes for docviews and
+	  views; simplifies the base-classes a bit
+
+2000-12-22 13:34  thassine
+
+	* BUGLIST: treelist works now pretty well (see BUGLIST for some
+	  details)
+
+2000-12-19 18:57  thassine
+
+	* CHANGES: added framework for tree/list views, and smaller changes
+
+2000-12-01 23:49  hutchisn
+
+	* Makefile.in, configure, configure.in: Update OELib to use
+	  GHEMICAL_DIR environment variable or specified directories
+	  installed by "make install" target.
+
+2000-11-28 19:40  hutchisn
+
+	* acconfig.h, configure, configure.in, src/config.h.in: Fix build
+	  environment to define appropriate flags, etc.
+
+2000-11-28 17:41  thassine
+
+	* CHANGES: some cleanups : public data changed protected in many
+	  classes
+
+2000-11-28 14:18  thassine
+
+	* CHANGES: any things broken/mixed up, but we have a standard GNOME
+	  MDI app now
+
+2000-11-27 18:47  hutchisn
+
+	* Makefile.in, acconfig.h, configure, configure.in,
+	  src/config.h.in: Add changes to support linking in OELib and
+	  slightly cleaned up build system.
+
+2000-11-27 10:51  thassine
+
+	* configure, configure.in: Makefile.in -files updated (configure
+	  still broken)
+
+2000-11-26 15:05  thassine
+
+	* CHANGES: 3rd stage of doc/view changes
+
+2000-11-24 15:36  thassine
+
+	* CHANGES: 2nd stage of doc/view reorganization
+
+2000-11-23 17:07  thassine
+
+	* CHANGES: 1st round of doc/view changes (will break the
+	  configure-script)
+
+2000-11-16 17:06  hutchisn
+
+	* Makefile.in: Removed configure target--something is strange with
+	  the timestamps.
+
+2000-11-14 23:23  hutchisn
+
+	* Makefile.in, configure.in: Add makefile targets to ensure
+	  configure script and Makefiles are updated properly.	Also add
+	  AC_PREREQ to configure.in to ensure configure script isn't
+	  updated by an old version of autoconf.
+
+2000-11-10 18:48  hutchisn
+
+	* bin/examples/: 2-chlorobutane.gpMM, 3-phenylpropanal.gpMM,
+	  acetylsalicylic_acid.gpMM, alpha-pinene.gpMM, bromobenzene.gpMM,
+	  camphor.gpMM, cinnamaldehyde.gpMM, cis-2-pentene.gpMM,
+	  cyclohexane.gpMM, naphtalene.gpMM: Update examples to new file
+	  format (read in and re-saved).
+
+2000-11-10 14:46  thassine
+
+	* CHANGES: 1st round of mm1_mdl file format revision
+
+2000-11-09 14:42  thassine
+
+	* BUGLIST, CHANGES, src/Makefile.OLD: graphics improvements, volume
+	  rendering added
+
+2000-11-01 14:43  thassine
+
+	* CHANGES: added primary/secondary paths for parameter files
+
+2000-10-31 19:55  hutchisn
+
+	* configure, configure.in: Another attempt to pick up Xmu and glut
+	  appropirately.
+
+2000-10-31 10:17  thassine
+
+	* src/Makefile.OLD: revieved the /src/Makefile.OLD
+
+2000-10-30 18:41  hutchisn
+
+	* configure, configure.in, src/Makefile.OLD: Bugfixes for the
+	  autoconf changes--should now work on systems needing -Xmu.
+
+2000-10-30 17:10  thassine
+
+	* src/Makefile.OLD: added yet another Makefile.OLD
+
+2000-10-30 15:50  hutchisn
+
+	* INSTALL, Makefile.in, acconfig.h, aclocal.m4, configure,
+	  configure.in, install-sh, mkinstalldirs, src/Makefile,
+	  src/config.h.in: Changes to move to an autoconf-derived configure
+	  script.
+
+2000-10-25 11:45  thassine
+
+	* CHANGES: better GnomeUIInfo initialization (the RH7-patch from
+	  GH)
+
+2000-10-25 10:47  thassine
+
+	* CHANGES: the multiple view management bug fixed (at last)
+
+2000-10-25 03:02  hutchisn
+
+	* bin/.cvsignore, src/.cvsignore: CVS ignore files to remove common
+	  build objects, etc.
+
+2000-10-23 17:20  thassine
+
+	* src/: new.cpp, new.h: moved some conflicting files to
+	  some-extra-files
+
+2000-10-23 11:59  thassine
+
+	* CHANGES: improved mm1_chn_info
+
+2000-10-21 12:42  thassine
+
+	* CHANGES, src/Makefile: new source tree with old makefiles
+
+2000-10-21 11:16  thassine
+
+	* CHANGES: file save dialogs added, selection bug fixed
+
+2000-10-18 17:13  thassine
+
+	* CHANGES, bin/examples/2-chlorobutane.gpMM,
+	  bin/examples/2-chlorobutane.mm1gp,
+	  bin/examples/3-phenylpropanal.gpMM,
+	  bin/examples/3-phenylpropanal.mm1gp,
+	  bin/examples/acetylsalicylic_acid.gpMM,
+	  bin/examples/acetylsalicylic_acid.mm1gp,
+	  bin/examples/alpha-pinene.gpMM, bin/examples/alpha-pinene.mm1gp,
+	  bin/examples/bromobenzene.gpMM, bin/examples/bromobenzene.mm1gp,
+	  bin/examples/camphor.gpMM, bin/examples/camphor.mm1gp,
+	  bin/examples/cinnamaldehyde.gpMM,
+	  bin/examples/cinnamaldehyde.mm1gp,
+	  bin/examples/cis-2-pentene.gpMM,
+	  bin/examples/cis-2-pentene.mm1gp, bin/examples/cyclohexane.gpMM,
+	  bin/examples/cyclohexane.mm1gp, bin/examples/naphtalene.gpMM,
+	  bin/examples/naphtalene.mm1gp: added file dialogs for GNOME
+	  version, changed examples
+
+2000-09-09 17:49  thassine
+
+	* CHANGES: just a few minor changes
+
+2000-09-09 15:17  thassine
+
+	* BUGLIST, CHANGES, INSTALL, PROJECT, src/new.h: improvements in
+	  gt3. this is released as 0.2.2
+
+2000-09-06 12:02  thassine
+
+	* src/Makefile: made some changes in makefiles
+
+2000-09-06 11:38  thassine
+
+	* AUTHORS, BUGLIST, CHANGES, COPYING, INSTALL, PROJECT,
+	  bin/examples/2-chlorobutane.mm1gp,
+	  bin/examples/3-phenylpropanal.mm1gp,
+	  bin/examples/acetylsalicylic_acid.mm1gp,
+	  bin/examples/alpha-pinene.mm1gp, bin/examples/bromobenzene.mm1gp,
+	  bin/examples/camphor.mm1gp, bin/examples/cinnamaldehyde.mm1gp,
+	  bin/examples/cis-2-pentene.mm1gp, bin/examples/cyclohexane.mm1gp,
+	  bin/examples/naphtalene.mm1gp, src/Makefile, src/new.cpp,
+	  src/new.h: Initial revision
+
+2000-09-06 11:38  thassine
+
+	* AUTHORS, BUGLIST, CHANGES, COPYING, INSTALL, PROJECT,
+	  bin/examples/2-chlorobutane.mm1gp,
+	  bin/examples/3-phenylpropanal.mm1gp,
+	  bin/examples/acetylsalicylic_acid.mm1gp,
+	  bin/examples/alpha-pinene.mm1gp, bin/examples/bromobenzene.mm1gp,
+	  bin/examples/camphor.mm1gp, bin/examples/cinnamaldehyde.mm1gp,
+	  bin/examples/cis-2-pentene.mm1gp, bin/examples/cyclohexane.mm1gp,
+	  bin/examples/naphtalene.mm1gp, src/Makefile, src/new.cpp,
+	  src/new.h: start : the initial version
+

@@ -1,0 +1,167 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                                
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                                
+  <meta name="GENERATOR"
+ content="Mozilla/4.76 [en] (X11; U; Linux 2.4.17 i686) [Netscape]">
+  <title></title>
+</head>
+  <body>
+             
+<h1>2.1.12 1D and 2D Energy vs. Torsion Plots</h1>
+         
+<p>For studying molecular structures and their energies in detail, it is possible
+to calculate plots that show how energy is dependent on torsion angles of
+a molecule. We will get 1D or 2D plots depending on whether we use 1 or 2
+torsion angles as variables.</p>
+         
+<p>       </p>
+                    
+<p> </p>
+         
+<p>     </p>
+         
+<p>We use 3-chloro-1-pentene as our example molecule: </p>
+         
+<p>    </p>
+       
+<div align="left">        
+<p><img src="images/energy_vs_torsion1.png" height="428" width="412"
+ alt="example case">
+       </p>
+       </div>
+               
+<p></p>
+         
+<p>We have selected from the popup-menu <b><i>"Render-&gt;Rendering Mode-&gt;Label
+    Index"</i></b> to make the atom index numbering visible, and also <b><i>"Render-&gt;Views-&gt;Attach/Detach
+    This View"</i></b> in order to make the graphics view and the plot view
+  visible simultaneously. </p>
+         
+<p>   </p>
+         
+<p>Now we need to define the bonds (or more precisely, the torsions) which
+    we wish to rotate. For the first torsion we select atoms 2-1-0-3, and
+for    the second torsion we select atoms 1-0-3-9. The direction in which
+we select    the torsion is not relevant, but the sequence itself must be
+correct. </p>
+         
+<p>   </p>
+         
+<p>Now let's create a 1D plot that displays the energy vs. the first torsion,
+    using AM1 to compute final energies. From the pop-up menu we select <b><i>"Compute-&gt;Plot
+    Energy vs. 1 Torsion Angle..."</i></b>. The following default command 
+string is then displayed:<br>
+ </p>
+ 
+<p align="center"><b>make_plot1 A B C D 36 0.0 360.0 250</b><br>
+ </p>
+ 
+<p>The letters A-D represent the atom indices, that we have to replace using 
+our values 2-1-0-3 determined above. If we wish to calculate the final energies 
+with AM1, we also append the values "2 0" to the end (2 tells that the method 
+is AM1, and 0 tells the total charge to be used in the calculation):<br>
+ </p>
+ 
+<p align="center"><b>make_plot1&nbsp; 2 1 0 3&nbsp; 36 0.0 360.0 250 &nbsp;2 
+0</b><br>
+ </p>
+        
+<p>   </p>
+                
+<p>   </p>
+         
+<p>  The resulting 1D energy plot is the following: </p>
+         
+<p>    </p>
+       
+<div align="left">        
+<p><img src="images/energy_vs_torsion2.png" height="632" width="499"
+ alt="the 1D plot">
+       </p>
+       </div>
+               
+<p></p>
+         
+<p>If the plot is clicked using the Orbit-XY mouse tool, it will display
+the structure in graphics view window and print out the energy at the console
+    window. </p>
+         
+<p>   </p>
+         
+<p>Now let's try the 2D plot, using both first and second torsion angles
+as variables. Again we select from the pop-up menu <b><i>"Compute-&gt;Plot
+Energy vs. 2 Torsion Angle..."</i></b>, and type in the following changes
+to the default command string:<br>
+ </p>
+ 
+<p align="center"><b>make_plot2 A B C D 36 0.0 360.0 I J K L 36 0.0 360.0 
+250</b><br>
+ </p>
+ 
+<p>Since our torsions are 2-1-0-3 and 1-0-3-9 and we wish to use AM1 we will 
+make the following modifications:<br>
+ </p>
+ 
+<p align="center"><b>make_plot2 &nbsp;2 1 0 3&nbsp; 36 0.0 360.0 &nbsp;1 0
+3 9&nbsp; 36 0.0 360.0 250 &nbsp;2 0</b><br>
+ </p>
+        
+<p>   </p>
+         
+<p> The resulting 2D energy plot is the following: </p>
+         
+<p>    </p>
+       
+<div align="left">        
+<p><img src="images/energy_vs_torsion3.png" height="632" width="499"
+ alt="the 2D plot">
+       </p>
+       </div>
+               
+<p></p>
+         
+<p>In the above plot, X-axis is the first torsion angle, and the Y-axis is 
+   the second torsion angle. The colours of the plot indicate the energy; 
+green   colour means low energy and red/white colour means high energy. </p>
+         
+<p>   </p>
+         
+<p>Just like in the 1D plot, the structure is displayed if the the plot is 
+   clicked using the Orbit-XY mouse tool. In addition, the Zoom mouse tool 
+ changes  the colour scaling of the plot, making it easier to find the desired 
+ details  from the plot. The following is the same plot as above, but using 
+ colour scaling that better shows the lowest-energy conformations:<br>
+   </p>
+     
+<p>Following is one of the most probable conformations of 3-chloro-1-pentene
+    according to the above plot: </p>
+     
+<div align="center">  </div>
+     
+<p align="center">    </p>
+        
+<p align="center">    </p>
+     
+<div align="left">         
+<p><img src="images/energy_vs_torsion4.png" height="428" width="412"
+ alt="the minimum-energy structure">
+       </p>
+                </div>
+     
+<div align="center">   </div>
+     
+<hr width="100%" size="2" align="left">   
+<div align="center">  </div>
+     
+<p align="center">  </p>
+     
+<div align="center">   </div>
+     
+<p align="left">  <a href="index.html">Return to index</a><br>
+</p>
+</body>
+</html>

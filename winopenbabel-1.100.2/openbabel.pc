@@ -1,0 +1,11 @@
+prefix=/d/winlibghemical
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+pkgincludedir=${includedir}/openbabel
+
+Name: OpenBabel library
+Description: libopenbabel
+Version: 1.100.2
+Libs: -L${libdir} -lopenbabel
+Cflags: -I${pkgincludedir}

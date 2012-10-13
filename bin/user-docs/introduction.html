@@ -1,0 +1,151 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.76 [en] (X11; U; Linux 2.4.17 i686) [Netscape]">
+  <title></title>
+</head>
+  <body>
+         
+<hr width="100%">      
+<h3> <a name="intro"></a>1. Introduction</h3>
+      Ghemical is a computational chemistry software package released under 
+ the  GNU GPL. It means that full source code of the package is available, 
+ and users are free to study and modify the package. If you wonder about spelling
+ in the package name, yes it's intentionally a bit "wrong" (originally inspired
+ by the funny name of the excellent spreadsheet program Gnumeric), but feel
+  free to pronounce it just in a way that is comfortable!       
+<p>This document describes the user interface of the Ghemical for GNOME desktop 
+  environment, as well as the main features of different components of the 
+ program. Ghemical for GNOME is a standard GNOME MDI application, so the generic
+ features of GNOME MDI applications and user interfaces apply to this program
+ as well.</p>
+    The main elements of the user interface are the main menu and the main 
+toolbar.<br>
+    <br>
+       
+<div align="center"><img src="images/mainmenu.png" alt="the main menu"
+ width="392" height="33">
+    <br>
+    </div>
+       
+<p>The items in the main menu cover the features: </p>
+         
+<p></p>
+   
+<ul>
+    <li>File : Create new projects, Open projects from files, Exit the program.</li>
+    <li>Windows : Change the GNOME MDI mode settings from the system defaults,
+ and view a list of currently open project files.</li>
+    <li>Help : Display the About Box and this User's Manual. </li>
+   
+</ul>
+           
+<center>      
+<p><img src="images/maintools.png" height="50" width="883"
+ alt="the main toolbar">
+     </p>
+     </center>
+            
+<p>The buttons of the the main toolbar are mouse tool buttons. One of these
+ buttons   is always pressed down, and this determines what operations are
+ done when   the user handles the models with mouse. The left mousebutton
+always triggers   the mouse tool operations, and the tools and operations
+are the following:<br>
+  </p>
+   
+<ul>
+    <li>Draw : Add atoms or bonds to the model, or change the types of existing
+   atoms or bonds in the model.&nbsp;</li>
+    <li>Erase : Remove atoms or bonds from the model.&nbsp;</li>
+    <li>Select : Mark atoms selected in the model. Selecting an already selected
+   atom will de-select it.&nbsp;</li>
+    <li>Zoom : Change the zooming of this 3D-view.&nbsp;</li>
+    <li>Translate tools: Translate the "camera" which produces this 3D-view.&nbsp;</li>
+    <li>Orbit tools: Orbit the "camera" which produces this 3D-view around
+ it's  focus point. Practically this means that you can rotate the molecules
+ in your 3D-view using these tools.&nbsp;</li>
+    <li>Rotate tools : Turn the "camera" which produces this 3D-view. Practically
+   this is means that you "turn your head" in the 3D-landscape that consists
+   of the system you study. Use these tools with caution; you might easily
+ "lost" your system if it's a single molecule.&nbsp;</li>
+    <li>Measure : Measure distances, angles or torsions. Click a sequence 
+of  atoms  (like with the Select tool) to define distance, angle or torsion. 
+  </li>
+   
+</ul>
+              
+<p>In addition to these standard features some of the tools have some special
+   features:<br>
+ </p>
+ 
+<ul>
+   <li>Select : The selection tool can, in addition to atoms, select objects
+   (for example: spotlights, color planes and color surfaces) that are rendered
+   as opaque (non-transparent) objects. In order to select transparent or
+invisible  objects, you have to use the "project view".&nbsp;</li>
+   <li>Translate tools and Orbit tools: These tools work differently if you 
+ hold  down the modifier key SHIFT before you use the tool. In this case the
+ tool  affects not to the "camera" but to the currently selected object or
+ to the  currently selected set of atoms in the model. Using the SHIFT key
+ and these  tools you can translate and/or rotate the objects or atoms/molecules 
+ in the  model. In addition to the SHIFT modifier key, the Translate tools 
+ have an  another modifier key CTRL. This makes the tool use the object's 
+internal coordinate axis in the translation instead of the camera's coordinate 
+axis. Therefore, by using the key combination SHIFT+CTRL with the Translate 
+Z tool, you can easily "scan" your model using a color plane object.<br>
+   </li>
+ 
+</ul>
+ 
+<p> </p>
+         
+<p>In addition to the above topics, the following small tips and tricks are 
+  worth mentioning:</p>
+ 
+<ul>
+   <li>In all 3D-views, the right mouse button will display a popup-menu. 
+These   popup-menus can be different in different types of models, making 
+different   features available in different models (for example, molecular 
+mechanics  models have different features available than quantum-mechanical 
+models).&nbsp;</li>
+   <li>There is a status bar visible in the program, but it's not very actively
+   used yet. Many parts of the program do still their output to the console
+  window where the program was started. We are working on this, but it's
+going   to take some time before all these things are fixed. So, in the meantime
+ you are adviced to start the program from a console window, and to keep
+that   console window visible. Sometimes you even might be asked for input
+in the   console window!&nbsp;</li>
+   <li>You are adviced to use the "Notebook" MDI mode of GNOME to make the
+ handling  of multiple documents as easy as possible.&nbsp;</li>
+   <li>The main menu and the toolbar support a "drag and drop" feature: just
+  click the "handle" of the menu or toolbar using left mouse button, "drag"
+  it outside the main window, and "drop" it to suitable place.&nbsp;</li>
+   <li>All different "views" of a project are grouped into a single "notebook"
+   of the project; there is a separate "page" for each view. The 3D-graphics
+   views can also be detached from this notebook; take a look at the "Views"
+   section of the popup-menu. Using the "detach" option you can use multiple
+   views simultaneously, which is otherwise difficult.&nbsp;</li>
+   <li>The "volume rendering" object is different from all other objects
+because   it is connected to a "camera", and actively orients itself to this
+camera   each time the camera is translated or rotated.</li>
+ 
+</ul>
+<h3> <a name="changes_100"></a>1.1 Changes from version 1.00</h3>
+      The most important change from version 1.00 is that the separate MM/QM/simplified
+project types are united into a single project type. The type of the calculations
+are now selected from the "Compute/Setup..." druid from the popup menu.<br>
+ 
+<p>     </p>
+            
+<p> </p>
+         
+<hr width="100%">      
+<h3> </h3>
+     <br>
+</body>
+</html>

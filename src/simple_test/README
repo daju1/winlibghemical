@@ -1,0 +1,7 @@
+quick instructions how to start this test container app:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1) open two separate terminal windows.
+2) in the first one, start ghemical --bonobo-server ; it will start waiting
+	for object requests.
+3) in the second one, start ./container ; it should then display the object
+	created by the bonobo-server.

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <link href="documentation.css" rel="stylesheet" type="text/css">
+  <title>Measuring</title>
+</head>
+   <body>
+ 
+<h1>2.1.7 Measuring Tools</h1>
+ 
+<p>Ghemical can measure the distance between atoms, the angle formed by three
+atoms and the dihedral angle formed by four atoms. In molecular mechanics
+models ghemical will can also measure an approximate charge on an atom.</p>
+ <a name="measure_charge"></a> 
+<h2>Measuring Charges</h2>
+ 
+<p>To find the approximate charge of an atom, click on the Measure button
+on the left toolbar. Now left click on the atom you want to measure the charge
+of. The approximate charge will be displayed in the log box automatically.
+The output in the log box at the bottom of the window will look something like this: <br>
+ <br>
+ <kbd>charge: -0.25</kbd> <br>
+ <br>
+ Note this only applies to molecular mechanics models; in the current version
+it is not possible to  measure charges in quantum mechanical models.</p>
+ 
+<p></p>
+ <a name="measure_distance"></a> 
+<h2>Measuring Distances</h2>
+ 
+<p>To measure the distance between two atoms (such as a bond length), click
+on the  Measure button on the left toolbar. Now left click on the atoms you
+want to measure the distance between. The color of the atoms selected for
+measurement will be changed to pink. The distance between the two atoms will
+automatically be displayed in the log box once the second atom is
+selected. The output in the log box will look something like this: 
+<br>
+ <br>
+ <kbd>distance: 0.150697 nm</kbd> <br>
+ <br>
+ The atoms do not have to be bonded; the distance between any two atoms in
+a molecule can be measured. </p>
+ <a name="measure_angle"></a> 
+<h2>Measuring Angles</h2>
+ 
+<p> To measure the angle formed by three atoms, click on the measure button
+on the left toolbar. Now left click on the three atoms that form the angle
+you want to measure. The order that they are selected is important; the first
+edge of angle that is measured are the the line between the first and second
+atoms and the second edge is between the second and third atoms, making the
+second atom the central atom. When the third atom is selected, the angle is
+automatically displayed in the log box. The output in the log box will look 
+something like this: <br>
+ <br>
+ <kbd>angle: 109.471 deg</kbd> <br>
+ <br>
+  As with distances, the atoms forming the angle to not have to bonded to
+each other. </p>
+ <a name="measure_torsion"></a> 
+<h2>Measuring Torsions</h2>
+ 
+<p> To measure the torsion angle formed by four atoms click on the measure
+button on the left toolbar. Now select the four atoms for the torsion angle.
+The first three atoms selected will define a  plane. The angle displayed
+is the angle between this plane and a line from the fourth atom to the second.
+The torsion angle is displayed in the log box as soon as the fourth
+angle is  selected. The output in the log box will look something
+like this: <br>
+ <br>
+ <kdb>torsion: 120 deg <br>
+ <br>
+ </kdb></p>
+ <a name="measure_notes"></a> 
+<h2>Notes</h2>
+ 
+<p> Atoms that have been selected can be unselected by clicking on them again.
+All atoms are automatically unselected when a fourth atom is selected. There
+are toggle buttons on the top  toolbar labeled "The distance measuring mode,"
+"The angle measuring mode," and "The torsion  measuring mode" In the current
+release these toggle buttons have no effect on the measuring tool. </p>
+ 
+<hr> <br>
+ <a href="index.html">Return to index</a>  <br>
+</body>
+</html>

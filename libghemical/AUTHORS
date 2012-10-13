@@ -1,0 +1,11 @@
+Tommi Hassinen <thassine@messi.uku.fi> is the principal author.
+Or at least the original one... :)
+
+Geoff Hutchison has added OELib-based file import/export properties,
+and an easy-to-use configure-script.
+
+Michael Banck and Radek Liboska have created the .deb and .rpm
+binary packages. Austin Acton created the Mandrake .rpm packages.
+
+Michael Banck and Jean Brefort have contributed the automake/autoconf-
+related configuration files.

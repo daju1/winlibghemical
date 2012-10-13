@@ -1,0 +1,43 @@
+// atomtypes and typerules 09.05.2000 (based on Tripos 5.2 and MMFF94)
+// [atomtype id number] [typerule] [description]
+
+// must be sorted according to the ELEMENT and COMPLEXITY OF THE TYPERULE!!!
+// must be sorted according to the ELEMENT and COMPLEXITY OF THE TYPERULE!!!
+// must be sorted according to the ELEMENT and COMPLEXITY OF THE TYPERULE!!!
+
+0x0100 (-*) "general hydrogen"
+
+0x0600 (-*) "general sp3 carbon"
+0x0601 (=*) "general sp2 carbon"
+0x0602 (#*) "general sp carbon"
+0x0602 (=*,=*) "allenic sp carbon"
+0x0603 (~*,~*) "aromatic sp2 carbon"
+//0x0604 ([-*?*-]) "sp3 carbon in a 3-membered ring"
+//0x0605 ([-*?*?*-]) "sp3 carbon in a 4-membered ring"
+
+0x0700 (-*) "general sp3 nitrogen"
+0x0701 (=*) "general sp2 nitrogen"
+0x0702 (#*) "general sp nitrogen"
+0x0703 (~*,~*) "aromatic sp2 nitrogen"
+0x0704 (-*,-*,-*,-*) "ammonium nitrogen"
+0x0705 (-C(=O)) "amide nitrogen"
+
+0x0800 (-*) "general sp3 oxygen"
+0x0801 (=*) "general sp2 oxygen"
+
+0x0900 (-*) "general fluorine"
+
+0x0F00 (-*) "general sp3 phosphorus"
+
+0x1000 (-*) "general sp3 sulphur"
+0x1001 (=*) "general sp2 sulphur"
+0x1002 (=O) "sulfoxide sulphur"
+0x1003 (=O,=O) "sulfone sulphur"
+
+0x1100 (-*) "general chlorine"
+
+0x2300 (-*) "general bromine"
+
+0x3500 (-*) "general iodine"
+
+#end	// EOF !!!
