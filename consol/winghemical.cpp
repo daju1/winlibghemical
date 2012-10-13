@@ -1416,7 +1416,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 
-			case ID_DO_TRAJECTORYVIEWPOTENCIALENERGYPLOT:
+			case ID_TRAJECTORY_VIEW_POTENCIAL_ENERGY_PLOT:
 				{
 					//######################################################
 					win_ogl_view * wgrv = 
@@ -1429,6 +1429,139 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_TrajView_EnergyPlot(hWnd, NULL, true);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_LOCK:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_LockSelectedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_UNLOCK:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_UnLockSelectedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_SETASSOLVENT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SetSelectedAtomsAsSolvent(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_UNSETASSOLVENT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_UnSetSelectedAtomsAsSolvent(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;		
+
+			case ID_SELECTEDATOMS_SETUNDERGRAVI:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SetSelectedAtomsUnderGravi(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_SELECTEDATOMS_UNSETUNDERGRAVI:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_UnSetSelectedAtomsUnderGravi(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;	
+
+			case ID_DO_TRAJECTORYVIEWKINETICENERGYPLOT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_TrajView_EnergyPlot(hWnd, NULL, false);
 						}
 					}
 					//######################################################
@@ -1526,6 +1659,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						if (w_prj)
 						{
 							w_prj->popup_CompDistanceTrajPlot1D(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_TRAJECTORY_VIEWCOORDINATEPLOT:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompCoordinateTrajPlot1D(hWnd, NULL);
 						}
 					}
 					//######################################################

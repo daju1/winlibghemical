@@ -205,6 +205,16 @@ friend class win_eld_view;
 	static void popup_CompSystematicSearch(HWND, void*);
 	static void popup_CompMonteCarloSearch(HWND, void*);
 
+	static void popup_UnLockSelectedAtoms(HWND widget, void * data);
+	static void popup_LockSelectedAtoms(HWND widget, void * data);
+
+	static void popup_SetSelectedAtomsUnderGravi(HWND widget, void * data);
+	static void popup_UnSetSelectedAtomsUnderGravi(HWND widget, void * data);
+
+	static void popup_SetSelectedAtomsAsSolvent(HWND widget, void * data);
+	static void popup_UnSetSelectedAtomsAsSolvent(HWND widget, void * data);
+
+	static void popup_CompCoordinateTrajPlot1D(HWND widget, void * data);
 	static void popup_CompDistanceTrajPlot1D(HWND widget, void * data);
 	static void popup_CompAngleTrajPlot1D(HWND widget, void * data);
 	static void popup_TrajSetTotalFrames(HWND widget, void * data);

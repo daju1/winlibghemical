@@ -33,6 +33,10 @@ moldyn_param::moldyn_param(setup * su)
 	timestep = 0.5;
 	constant_e = false;
 	langevin = false;
+
+	g[0] = 0.0; //Gx
+	g[1] = 0.0; //Gy
+	g[2] = 0.0; //Gz
 	
 	strcpy(filename, "untitled.traj");
 	
@@ -85,11 +89,13 @@ moldyn::moldyn(engine * p1, f64 p2)
 	
 	locked = new char[eng->GetAtomCount()];
 //	target = new char[eng->GetAtomCount()];
+	gravi = new char[eng->GetAtomCount()];
 	
 	step_counter = 0;
 	
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
-	
+
+	num_gravi = 0;	
 	num_locked = 0; i32s counter = 0;
 	while (counter < eng->GetAtomCount())
 	{
@@ -104,7 +110,16 @@ moldyn::moldyn(engine * p1, f64 p2)
 		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
 		
 		locked[counter] = lflag;
-		
+
+		bool grflag = false;
+		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_GRAVI)
+		{
+			grflag = true;
+			num_gravi++;
+		}	
+
+		gravi[counter] = grflag;
+
 #if SNARJAD_TARGET_WORKING && !SNARJAD_TARGET_WORKING_T_0
 		for (i32s n1 = 0;n1 < 3;n1++)
 		{
@@ -122,6 +137,11 @@ moldyn::moldyn(engine * p1, f64 p2)
 #endif
 		
 		counter++;
+	}
+
+	for (i32s dim = 0; dim < 3; dim++)
+	{
+		this->m_g[dim] = 0.0;
 	}
 
 	// the rest are just default values; can be modified...
@@ -149,7 +169,20 @@ moldyn::~moldyn(void)
 	
 	delete[] locked;
 //	delete[] target;
+	delete[] gravi;
 }
+
+void moldyn::SetGraviG(double *p)
+{
+	if (p)
+	{
+		for (i32s dim = 0; dim < 3; dim++)
+		{
+			this->m_g[dim] = p[dim];
+		}
+	}
+}
+
 #if SNARJAD_TARGET_WORKING
 void moldyn::ShootSnarjad(i32s nAtom, f64* v, f64* c)
 {
@@ -383,6 +416,13 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
 		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
 		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+
+		if (gravi[n1])
+		{
+			acc[n1 * 3 + 0] += this->m_g[0];
+			acc[n1 * 3 + 1] += this->m_g[1];
+			acc[n1 * 3 + 2] += this->m_g[2];
+		}
 		
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;

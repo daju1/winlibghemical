@@ -1364,6 +1364,86 @@ prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next d
 		new command_dialog(prj, gv, command);
 	}
 }
+void win_project::popup_UnSetSelectedAtomsUnderGravi(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "unset_flag_on_sel_atoms 16";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_SetSelectedAtomsUnderGravi(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "set_flag_on_sel_atoms 16";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_UnSetSelectedAtomsAsSolvent(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "unset_flag_on_sel_atoms 8";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_SetSelectedAtomsAsSolvent(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "set_flag_on_sel_atoms 8";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_UnLockSelectedAtoms(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "unset_flag_on_sel_atoms 15";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_LockSelectedAtoms(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{		
+		static const char command[] = "set_flag_on_sel_atoms 15";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+
+void win_project::popup_CompCoordinateTrajPlot1D(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letters IND and DIM with atom index and dimension (0,1 or 2) that define the coordinate.");
+		
+		static const char command[] = "make_plot_crd IND DIM";
+		new command_dialog(prj, gv, command);
+	}
+}
+
 void win_project::popup_CompDistanceTrajPlot1D(HWND widget, void * data)
 {
 	win_graphics_view * gv = win_graphics_view::GetGV(widget);

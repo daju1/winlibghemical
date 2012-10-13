@@ -150,6 +150,21 @@ void moldyn_dialog::OnInitDialog()
 	// gtk_entry_set_text(GTK_ENTRY(entry_timestep), buffer);
 	SetDlgItemText(hDlg,IDC_EDIT_TIMESTEP, str_delta_e.str());
 
+	ostrstream str_gravi_gx(buffer, sizeof(buffer));
+	str_gravi_gx << param->g[0] << ends;
+	// gtk_entry_set_text(GTK_ENTRY(entry_timestep), buffer);
+	SetDlgItemText(hDlg,IDC_EDIT_GRAVI_GX, str_gravi_gx.str());
+
+	ostrstream str_gravi_gy(buffer, sizeof(buffer));
+	str_gravi_gy << param->g[1] << ends;
+	// gtk_entry_set_text(GTK_ENTRY(entry_timestep), buffer);
+	SetDlgItemText(hDlg,IDC_EDIT_GRAVI_GY, str_gravi_gy.str());
+
+	ostrstream str_gravi_gz(buffer, sizeof(buffer));
+	str_gravi_gz << param->g[2] << ends;
+	// gtk_entry_set_text(GTK_ENTRY(entry_timestep), buffer);
+	SetDlgItemText(hDlg,IDC_EDIT_GRAVI_GZ, str_gravi_gz.str());
+
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_constant_e), (param->constant_e ? TRUE : FALSE));
 	CheckDlgButton( hDlg, IDC_CHECK_CONSTANT_E,
@@ -213,6 +228,19 @@ void moldyn_dialog::handler_ButtonOK(HWND, void * data)
 	GetDlgItemText(ref->hDlg,IDC_EDIT_TIMESTEP, buffer, 63);
 	istrstream istr3(buffer, strlen(buffer) + 1);
 	istr3 >> ref->param->timestep;
+
+	GetDlgItemText(ref->hDlg,IDC_EDIT_GRAVI_GX, buffer, 63);
+	istrstream istr4x(buffer, strlen(buffer) + 1);
+	istr4x >> ref->param->g[0];
+
+	GetDlgItemText(ref->hDlg,IDC_EDIT_GRAVI_GY, buffer, 63);
+	istrstream istr4y(buffer, strlen(buffer) + 1);
+	istr4y >> ref->param->g[1];
+
+	GetDlgItemText(ref->hDlg,IDC_EDIT_GRAVI_GZ, buffer, 63);
+	istrstream istr4z(buffer, strlen(buffer) + 1);
+	istr4z >> ref->param->g[2];
+
 	
 	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_trajfile));
 	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE, buffer, 255);

@@ -48,6 +48,10 @@ class moldyn_param
 	f64 timestep;
 	bool constant_e;
 	bool langevin;
+
+
+	double g[3];
+
 	
 	char filename[1024];
 
@@ -93,6 +97,10 @@ class moldyn
 	char * locked;
 	int num_locked;
 	
+	char * gravi;
+	int num_gravi;
+	double m_g[3];
+	
 	f64 tstep1;	// timestep
 	f64 tstep2;	// timestep ^ 2
 	
@@ -123,6 +131,8 @@ class moldyn
 	f64 ConvEKinTemp(f64);
 	
 	void SetEKin(f64);
+
+	void SetGraviG(double *p);
 
 #if SNARJAD_TARGET_WORKING
 	// my functions:

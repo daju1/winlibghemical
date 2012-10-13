@@ -74,7 +74,7 @@ END
 
 IDD_DIALOG_MOL_DYN DIALOGEX 0, 0, 180, 218
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Molecular Dinamics"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,123,7,50,14
@@ -97,6 +97,13 @@ BEGIN
     EDITTEXT        IDC_EDIT_TIMESTEP,48,107,40,14,ES_AUTOHSCROLL,0,
                     HIDC_EDIT_TIMESTEP
     EDITTEXT        IDC_EDIT_TRAJFILE,7,197,166,14,ES_AUTOHSCROLL
+    GROUPBOX        "Gravi",IDC_STATIC,107,55,66,72
+    LTEXT           "Gx",IDC_STATIC,110,70,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GX,125,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Gy",IDC_STATIC,111,89,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GY,127,85,40,14,ES_AUTOHSCROLL
+    LTEXT           "Gz",IDC_STATIC,111,106,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GZ,127,103,40,14,ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_ATOMLIST_MOLDYN DIALOG  0, 0, 317, 126
@@ -384,9 +391,12 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "Trajectory"
         BEGIN
-            MENUITEM "Trajectory view",             ID_DO_TRAJECTORYVIEW
-            MENUITEM "Trajectory view Potencial Energy Plot", 
-                                                    ID_DO_TRAJECTORYVIEWPOTENCIALENERGYPLOT
+            MENUITEM "View",                        ID_DO_TRAJECTORYVIEW
+            MENUITEM "View Potencial Energy Plot",  ID_TRAJECTORY_VIEW_POTENCIAL_ENERGY_PLOT
+
+            MENUITEM "View Kinetic Energy Plot",    ID_DO_TRAJECTORYVIEWKINETICENERGYPLOT
+
+            MENUITEM "View Coordinate plot",        ID_TRAJECTORY_VIEWCOORDINATEPLOT
 
             MENUITEM "View Distance plot",          ID_TRAJECTORY_VIEWDISTANCEPLOT
 
@@ -478,6 +488,22 @@ BEGIN
         MENUITEM "SelectNone",                  ID_SELECT_SELECTNONE
         MENUITEM "InvertSelection",             ID_SELECT_INVERTSELECTION
         MENUITEM "DeleteSelection",             ID_SELECT_DELETESELECTION
+        MENUITEM SEPARATOR
+        POPUP "Selected Atoms"
+        BEGIN
+            MENUITEM "Lock",                        ID_SELECTEDATOMS_LOCK
+            MENUITEM "Unlock",                      ID_SELECTEDATOMS_UNLOCK
+            MENUITEM SEPARATOR
+            MENUITEM "Set As Solvent",              ID_SELECTEDATOMS_SETASSOLVENT
+
+            MENUITEM "Unset As Solvent",            ID_SELECTEDATOMS_UNSETASSOLVENT
+
+            MENUITEM SEPARATOR
+            MENUITEM "Set Under Gravi",             ID_SELECTEDATOMS_SETUNDERGRAVI
+
+            MENUITEM "Unset Under Gravi",           ID_SELECTEDATOMS_UNSETUNDERGRAVI
+
+        END
     END
     POPUP "&Help"
     BEGIN

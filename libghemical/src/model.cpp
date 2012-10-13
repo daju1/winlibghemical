@@ -2609,6 +2609,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	moldyn_langevin * dyn_l = dynamic_cast<moldyn_langevin *>(dyn);
 	
 	dyn->temperature_coupling = 0.075;				// set the initial MD settings...
+	dyn->SetGraviG(param.g);
+
 	if (dyn_l != NULL) dyn_l->langevin_coupling = 0.000;		// set the initial MD settings...
 	/////////////////////////////////////////////////////
 	i32s last_dot;
@@ -2674,14 +2676,14 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	ThreadUnlock();
 	
 	ostrstream str2b(mbuff1, sizeof(mbuff1));
-	str2b << "step\t" << "T\t";
-	str2b << "Epot\t" << "Efull\t";
-	str2b << "E_solute\t";		// a primitive implementation for energy components ; FIXME!!!
-	str2b << "E_solvent\t";	// a primitive implementation for energy components ; FIXME!!!
-	str2b << "E_solusolv\t";	// a primitive implementation for energy components ; FIXME!!!
-	str2b << "NThroughZ\t";
-	str2b << "NThroughZmin\t";
-	str2b << "NThroughZmax\t";
+	str2b << "step," << "T,";
+	str2b << "Epot," << "Efull,";
+//	str2b << "E_solute,";		// a primitive implementation for energy components ; FIXME!!!
+//	str2b << "E_solvent,";	// a primitive implementation for energy components ; FIXME!!!
+//	str2b << "E_solusolv,";	// a primitive implementation for energy components ; FIXME!!!
+	str2b << "NThroughZ";
+	//str2b << "NThroughZmin,";
+	//str2b << "NThroughZmax";
 	str2b << endl << ends;
 	logfile << mbuff1;
 
@@ -3022,9 +3024,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ostrstream str2a(mbuff1, sizeof(mbuff1));
 			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
 			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
-			str2b << "NThroughZ = "  <<  eng_pbc->GetNThroughZ() << "";
-			str2b << "NThroughZmin = "  <<  eng_pbc->GetNThroughZmin() << "";
-			str2b << "NThroughZmax = "  <<  eng_pbc->GetNThroughZmax() << "";
+			str2a << "NThroughZ = "  <<  eng_pbc->GetNThroughZ() << "";
+//			str2a << "NThroughZmin = "  <<  eng_pbc->GetNThroughZmin() << "";
+//			str2a << "NThroughZmax = "  <<  eng_pbc->GetNThroughZmax() << "";
 			str2a << endl << ends;
 			PrintToLog(mbuff1);
 #if 0
@@ -3039,16 +3041,16 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #else			
 			
 			ostrstream str2b(mbuff1, sizeof(mbuff1));
-			str2b << /*`"step " <<*/ n1 << "\t";
-			str2b << dyn->ConvEKinTemp(dyn->GetEKin()) << "\t";
-			str2b << /*"Epot = " <<*/ dyn->GetEPot() << "\t";
-			str2b << (dyn->GetEKin() + dyn->GetEPot()) << "\t";
-			str2b << /*"E_solute = " <<*/ eng->E_solute << "\t";		// a primitive implementation for energy components ; FIXME!!!
-			str2b << /*"E_solvent = " <<*/ eng->E_solvent << "\t";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << "\t";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << eng_pbc->GetNThroughZ() << "\t";
-			str2b << eng_pbc->GetNThroughZmin() << "\t";
-			str2b << eng_pbc->GetNThroughZmax() << "\t";
+			str2b << /*`"step " <<*/ n1 << ",";
+			str2b << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
+			str2b << /*"Epot = " <<*/ dyn->GetEPot() << ",";
+			str2b << (dyn->GetEKin() + dyn->GetEPot()) << ",";
+//			str2b << /*"E_solute = " <<*/ eng->E_solute << ",";		// a primitive implementation for energy components ; FIXME!!!
+//			str2b << /*"E_solvent = " <<*/ eng->E_solvent << ",";	// a primitive implementation for energy components ; FIXME!!!
+//			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << ",";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << eng_pbc->GetNThroughZ();// << ",";
+//			str2b << eng_pbc->GetNThroughZmin() << ",";
+//			str2b << eng_pbc->GetNThroughZmax() << ",";
 			str2b << endl << ends;
 			logfile << mbuff1;
 #endif

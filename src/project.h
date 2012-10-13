@@ -425,6 +425,10 @@ class project : public model
 
 	void DoFormula(void);
 
+	void SetTheFlagOnSelectedAtoms(i32u flag_number);
+	void UnSetTheFlagOnSelectedAtoms(i32u flag_number);
+
+	void TrajView_CoordinatePlot(i32s ind, i32s dim);
 	void TrajView_DistancePlot(i32s inda, i32s indb);
 	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
 

@@ -326,17 +326,17 @@ class engine_pbc : virtual public engine
 class engine_pbc2 : /*virtual*/ public engine_pbc
 {
 	int n_through_z;
-	int n_through_z_min;
-	int n_through_z_max;
+///	int n_through_z_min;
+//	int n_through_z_max;
 
-	int n_above_z_min;
-	int n_above_z_max;
-	int n_below_z_min;
-	int n_below_z_max;
+//	int n_above_z_min;
+//	int n_above_z_max;
+//	int n_below_z_min;
+//	int n_below_z_max;
 
-	double 
-		z_min, 
-		z_max;
+//	double 
+///		z_min, 
+///		z_max;
 
 	protected:
 	//bool update;
@@ -345,8 +345,8 @@ class engine_pbc2 : /*virtual*/ public engine_pbc
 
 	public:
 		int GetNThroughZ(){return n_through_z;}
-		int GetNThroughZmin(){return n_through_z_min;}
-		int GetNThroughZmax(){return n_through_z_max;}
+		//int GetNThroughZmin(){return n_through_z_min;}
+		//int GetNThroughZmax(){return n_through_z_max;}
 	
 	engine_pbc2(setup *, i32u);
 	virtual ~engine_pbc2(void);

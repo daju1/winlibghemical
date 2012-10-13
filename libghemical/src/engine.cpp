@@ -736,15 +736,15 @@ void engine_pbc::CheckLocations(void)
 
 engine_pbc2::engine_pbc2(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p2)
 {
-printf("engine_pbc2::engine_pbc\np1 = %x p2 = %d", p1, p2);
+//printf("engine_pbc2::engine_pbc\np1 = %x p2 = %d", p1, p2);
 	n_through_z = 0;
-	n_through_z_min = 0;
-	n_through_z_max = 0;
+//	n_through_z_min = 0;
+//	n_through_z_max = 0;
 
-	n_above_z_min = 0;
-	n_above_z_max = 0;
-	n_below_z_min = 0;
-	n_below_z_max = 0;
+//	n_above_z_min = 0;
+//	n_above_z_max = 0;
+//	n_below_z_min = 0;
+//	n_below_z_max = 0;
 }
 
 engine_pbc2::~engine_pbc2(void)
@@ -753,9 +753,9 @@ engine_pbc2::~engine_pbc2(void)
 
 void engine_pbc2::CheckLocations(void)
 {
-	static DWORD nchecking = 0;
+//	static DWORD nchecking = 0;
 	atom ** atmtab = GetSetup()->GetMMAtoms();
-	int nz = 0;
+//	int nz = 0;
 	// определяем координаты основной молекулы - мембранонанотрубки:
 	// максимум и минимум z
 	for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
@@ -763,7 +763,7 @@ void engine_pbc2::CheckLocations(void)
 		f64 sum[3] = { 0.0, 0.0, 0.0 };
 		// число атомов в молекуле
 		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
-		if (ac > 3) // если это не молекула растворителя - определяем по числу атомов
+		/*if (ac > 3) // если это не молекула растворителя - определяем по числу атомов
 		{
 			bool start = true;
 			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
@@ -791,7 +791,7 @@ void engine_pbc2::CheckLocations(void)
 //				// средняя координата молекулы
 //				f64 test = sum[n2] / ac;
 //			}
-		}
+		}*/
 //	}
 
 		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
@@ -807,13 +807,13 @@ void engine_pbc2::CheckLocations(void)
 				if (test < -GetSetup()->GetModel()->periodic_box_HALFdim[n3])
 				{
 					// считаем проникновение атомов растворителя сквозь z
-					if (n3 == 2 && ac <= 3) {n_through_z--; nz--;}
+					if (n3 == 2 && ac <= 3) {n_through_z--; /*nz--;*/}
 					crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
 				}
 				else if (test > +GetSetup()->GetModel()->periodic_box_HALFdim[n3])
 				{
 					// считаем проникновение атомов растворителя сквозь z
-					if (n3 == 2 && ac <= 3) {n_through_z++; nz++;}
+					if (n3 == 2 && ac <= 3) {n_through_z++; /*nz++;*/}
 					crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n3];
 				}
 			}
@@ -822,17 +822,17 @@ void engine_pbc2::CheckLocations(void)
 
 	// вычисляем число атомов растворителя выше и ниже мембраны
 	// в качестве координаты мембраны выбираем z_max или z_min в зависимости от ориентации молекулы
-	int pre_n_above_z_min = n_above_z_min;
-	int pre_n_above_z_max = n_above_z_max;
+//	int pre_n_above_z_min = n_above_z_min;
+//	int pre_n_above_z_max = n_above_z_max;
 //	int pre_n_below_z_min = n_below_z_min;
 //	int pre_n_below_z_max = n_below_z_max;
 
-	n_above_z_min = 0;
-	n_above_z_max = 0;
+//	n_above_z_min = 0;
+//	n_above_z_max = 0;
 //	n_below_z_min = 0;
 //	n_below_z_max = 0;
 
-	for ( n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
+/*	for ( n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
 	{
 		f64 sum[3] = { 0.0, 0.0, 0.0 };
 		// число атомов в молекуле
@@ -851,20 +851,20 @@ void engine_pbc2::CheckLocations(void)
 //				if (z < z_max) n_below_z_max++;
 
 			}
-		}
-	}
-	if (nchecking > 0)
+		}*/
+	//}
+/*	if (nchecking > 0)
 	{
 		n_through_z_min =+ n_above_z_min - pre_n_above_z_min + nz;
 		n_through_z_max =+ n_above_z_max - pre_n_above_z_max + nz;
-	}
+	}*/
 #if DIFFUSE_WORKING
 	FILE * out;
 	out = fopen("diffuse.txt", "at");
 	fprintf(out, "%d\n",n_through_z);
 	fclose (out);
 #endif
-	nchecking++;
+	//nchecking++;
 }
 
 // TODO :
