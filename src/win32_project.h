@@ -127,6 +127,7 @@ friend class win_eld_view;
 	*/
 	void GeomOptGetParam(geomopt_param &);	// virtual
 	void MolDynGetParam(moldyn_param &);	// virtual
+	void MolDynGetParam(moldyn_tst_param &);	// virtual
 	
 	// the popup-menu callbacks are here...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -200,6 +201,7 @@ friend class win_eld_view;
 	static void popup_CompEnergy(HWND, void*);
 	static void popup_CompGeomOpt(HWND, void*);
 	static void popup_CompMolDyn(HWND, void*);
+	static void popup_CompMolDyn_tst(HWND, void*);
 
 #if PROBNIY_ATOM_GEOMOPT
 	void popup_Comp_work_prob_atom_GeomOpt(geomopt_param & param, char * infile_name,	char * trgtlst_name, char * box_name, char * fixed_name, int total_frames);

@@ -2867,8 +2867,543 @@ void model::GeomOptGetParam(geomopt_param & param)
 
 
 #include "../../src/glade/moldyn_atomlist_dialog.h"
+void model::DoMolDyn_0(moldyn_param & param, bool updt)
+{
+// make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// this means: 1) make sure that PrintToLog() is safe, 2) only call UpdateAllGraphicsViews(false) because
+// OGL-context is owned by the GUI-thread ; calling with "false" will pass the update to the GUI-thread.
+	
+	if (param.show_dialog)
+	{
+		ThreadLock();
+		MolDynGetParam(param);
+		ThreadUnlock();
+		
+		if (!param.confirm) return;
+	}
+	
+	ThreadLock();
+	
+	engine * eng = GetCurrentSetup()->GetCurrentEngine();
+	if (eng == NULL) GetCurrentSetup()->CreateCurrentEngine();
+	eng = GetCurrentSetup()->GetCurrentEngine();
+	if (eng == NULL)
+	{
+		ThreadUnlock();
+		return;
+	}
+	
+	// eng_mbp != NULL if we will use a system with boundary potential...
+	engine_mbp * eng_mbp = dynamic_cast<engine_mbp *>(eng);
+	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
+	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
+	
+// THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
+//if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
+// THIS IS OPTIONAL!!! FOR RADIAL DENSITY FUNCTION STUFF ONLY!!!
+//if (eng_mbp != NULL) eng_mbp->rdf_eval = new radial_density_function_evaluator(eng_mbp, 80, 0.15, 0.95);		// 0.95 - 0.15 = 0.80
+//if (eng_mbp != NULL) eng_mbp->rdf_eval = new radial_density_function_evaluator(eng_mbp, 50, 0.15, 0.65, 0.00, 0.75);	// 0.65 - 0.15 = 0.50
+
+	char mbuff1[1024];
+	ostrstream str1(mbuff1, sizeof(mbuff1));
+	str1 << "Starting Molecular Dynamics ";
+	str1 << "(setup = " << GetCurrentSetup()->GetClassName();
+	str1 << ", engine = " << GetCurrentSetup()->GetEngineName(GetCurrentSetup()->GetCurrEngIndex()) << str1 << ")." << endl;
+	str1 << "MD steps " << param.nsteps_h << " " << param.nsteps_e << " " << param.nsteps_s << " ";
+	str1 << "CE= " << param.constant_e << " LA= " << param.constant_e << " ";
+	str1 << "T= " << param.temperature << " ts= " << param.timestep << " ";
+	str1 << ends;
+	PrintToLog(mbuff1);
+	
+	CopyCRD(this, eng, 0);
+	
+	eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
+	
+	moldyn * dyn = NULL;
+	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
+	else dyn = new moldyn_langevin(eng, param.timestep);
+	
+	moldyn_langevin * dyn_l = dynamic_cast<moldyn_langevin *>(dyn);
+	
+	dyn->temperature_coupling = 0.075;				// set the initial MD settings...
+	if (dyn_l != NULL) dyn_l->langevin_coupling = 0.000;		// set the initial MD settings...
+	
+	ofstream ofile;
+	ofile.open(param.filename, ios::out | ios::binary);
+	
+	char logfilename[256];
+	strcpy(logfilename, param.filename);
+	i32s last_dot = NOT_DEFINED;
+	for (i32u fn = 0;fn < strlen(logfilename);fn++)
+	{
+		if (logfilename[fn] == '.') last_dot = (i32s) fn;
+	}	if (last_dot < 0) last_dot = strlen(logfilename);
+	logfilename[last_dot + 0] = '.'; logfilename[last_dot + 1] = 'l';
+	logfilename[last_dot + 2] = 'o'; logfilename[last_dot + 3] = 'g';
+	logfilename[last_dot + 4] = 0;
+	
+	ofstream logfile;
+	logfile.open(logfilename, ios::out);
+	
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+
+	const int number_of_atoms = GetAtomCount();
+	const char file_id[10] = "traj_v10";
+	
+	const int frame_save_frq = 100;
+	const int total_frames = param.nsteps_s / frame_save_frq;
+	
+	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+	
+	ThreadUnlock();
+	
+	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)
+	{
+		if (!(n1 % 1000) && eng_pbc != NULL) eng_pbc->CheckLocations();
+		if (!(n1 % 100) && eng_pbc != NULL) eng_pbc->update = true;
+		
+		if (n1 < param.nsteps_h && !(n1 % 100))
+		{
+			dyn->temperature = param.temperature * ((f64) n1 / (f64) param.nsteps_h);
+			//cout << "setting T = " << dyn->temperature << endl;
+			
+			if (dyn_l != NULL)
+			{
+				dyn_l->langevin_random_fc = ((f64) n1 / (f64) param.nsteps_h) * LANGEVIN_RANDOM_FC;
+			}
+		}
+		else if (n1 == param.nsteps_h)
+		{
+			f64 final_tc = 0.010;
+			if (engsf != NULL) final_tc = 0.050;		// ???
+			
+			dyn->temperature = param.temperature;		// set the final MD settings...
+			dyn->temperature_coupling = final_tc;		// set the final MD settings...
+			
+			if (dyn_l != NULL)
+			{
+				dyn_l->langevin_random_fc = LANGEVIN_RANDOM_FC;
+				dyn_l->langevin_coupling = LANGEVIN_COUPLING;
+			}
+		}
+		
+		bool enable_tc = false;
+		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
+		if (!param.constant_e || param.langevin) enable_tc = true;
+		dyn->TakeMDStep(enable_tc);
+		
+		if (!(n1 % 100))
+		{
+			ThreadLock();
+			
+			double progress = (double) (n1 + 1) / (double) (param.nsteps_h + param.nsteps_e + param.nsteps_s);
+			bool cancel = SetProgress(progress, NULL);
+			
+			if (cancel)
+			{
+				ThreadUnlock();
+				break;
+			}
+			
+			ostrstream str2a(mbuff1, sizeof(mbuff1));
+			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
+			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
+			str2a << endl << ends;
+			PrintToLog(mbuff1);
+			
+			ostrstream str2b(mbuff1, sizeof(mbuff1));
+			str2b << "step " << n1 << " T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " ";
+			str2b << "Epot = " << dyn->GetEPot() << " Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " ;; ";
+			str2b << "E_solute = " << eng->E_solute << " ";		// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solvent = " << eng->E_solvent << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solusolv = " << eng->E_solusolv << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << endl << ends;
+			logfile << mbuff1;
+			
+			ThreadUnlock();
+		}
+		
+		if (!(n1 % 1000))
+		{
+			if (eng_mbp != NULL && eng_mbp->nd_eval != NULL)
+			{
+				ThreadLock();
+				
+				ostrstream str3(mbuff1, sizeof(mbuff1));
+				eng_mbp->nd_eval->PrintResults(str3); str3 << ends;
+				PrintToLog(mbuff1); logfile << mbuff1;
+				
+				ThreadUnlock();
+			}
+			
+			if (eng_mbp != NULL && eng_mbp->rdf_eval != NULL)
+			{
+				ThreadLock();
+				
+				ostrstream str3(mbuff1, sizeof(mbuff1));
+				eng_mbp->rdf_eval->PrintResults(str3); str3 << ends;
+				PrintToLog(mbuff1); logfile << mbuff1;
+				
+				ThreadUnlock();
+			}
+		}
+		
+		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
+		{
+			CopyCRD(eng, this, 0);
+			
+			const float ekin = dyn->GetEKin();
+			const float epot = dyn->GetEPot();
+			
+			ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+			ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+			
+			for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+			{
+				const fGL * cdata = (* itx).GetCRD(0);
+				for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
+				{
+					float t1a = cdata[t4];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+		}
+		
+		if (!(n1 % 100))
+		{
+			ThreadLock();
+			
+			CopyCRD(eng, this, 0);
+			UpdateAllGraphicsViews(updt);
+			
+			ThreadUnlock();
+		}
+	}
+	
+	ofile.close();
+	logfile.close();
+	
+	delete dyn;
+	
+// we will not delete current_eng here, so that we can draw plots using it...
+// we will not delete current_eng here, so that we can draw plots using it...
+// we will not delete current_eng here, so that we can draw plots using it...
+	
+	// above, CopyCRD was done eng->mdl and then CenterCRDSet() was done for mdl.
+	// this might cause that old coordinates remain in eng object, possibly affecting plots.
+	// here we sync the coordinates and other plotting data in the eng object.
+	
+	ThreadLock();
+	CopyCRD(this, eng, 0);
+	SetupPlotting();
+	ThreadUnlock();
+}
+
 
 void model::DoMolDyn(moldyn_param & param, bool updt)
+{
+
+// make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// this means: 1) make sure that PrintToLog() is safe, 2) only call UpdateAllGraphicsViews(false) because
+// OGL-context is owned by the GUI-thread ; calling with "false" will pass the update to the GUI-thread.
+printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");	
+	if (param.show_dialog)
+	{
+		ThreadLock();
+		MolDynGetParam(param);
+		ThreadUnlock();
+		
+		if (!param.confirm)
+		{
+			return;
+		}
+	}
+	
+	ThreadLock();
+#if USE_ORIGINAL_ENGINE_SELECTION
+	//#####################################################################
+	// original code 
+	//#####################################################################
+	engine * eng = GetCurrentSetup()->GetCurrentEngine();
+	if (eng == NULL) GetCurrentSetup()->CreateCurrentEngine();
+	eng = GetCurrentSetup()->GetCurrentEngine();
+	//#####################################################################
+#else
+	//test code
+	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_PERIODIC);
+#endif
+	
+	if (eng == NULL)
+	{
+		ThreadUnlock();
+		return;
+	}
+	
+	// eng_mbp != NULL if we will use a system with boundary potential...
+	engine_mbp * eng_mbp = dynamic_cast<engine_mbp *>(eng);
+	eng_mbp = NULL;
+	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
+#if USE_ENGINE_PBC2
+	engine_pbc2 * eng_pbc = dynamic_cast<engine_pbc2 *>(eng);
+#else
+	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
+#endif /*USE_ENGINE_PBC2*/
+	
+// THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
+//if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
+// THIS IS OPTIONAL!!! FOR RADIAL DENSITY FUNCTION STUFF ONLY!!!
+//if (eng_mbp != NULL) eng_mbp->rdf_eval = new radial_density_function_evaluator(eng_mbp, 80, 0.15, 0.95);		// 0.95 - 0.15 = 0.80
+//if (eng_mbp != NULL) eng_mbp->rdf_eval = new radial_density_function_evaluator(eng_mbp, 50, 0.15, 0.65, 0.00, 0.75);	// 0.65 - 0.15 = 0.50
+
+	char mbuff1[1024];
+	ostrstream str1(mbuff1, sizeof(mbuff1));
+	str1 << "Starting Molecular Dynamics ";
+	str1 << "(setup = " << GetCurrentSetup()->GetClassName();
+	str1 << ", engine = " << GetCurrentSetup()->GetEngineName(GetCurrentSetup()->GetCurrEngIndex()) << str1 << ")." << endl;
+	str1 << "MD steps " << param.nsteps_h << " " << param.nsteps_e << " " << param.nsteps_s << " ";
+	str1 << "CE= " << param.constant_e << " LA= " << param.constant_e << " ";
+	str1 << "T= " << param.temperature << " ts= " << param.timestep << " ";
+	str1 << ends;
+	PrintToLog(mbuff1);
+	
+	CopyCRD(this, eng, 0);
+	if (!m_bMaxMinCoordCalculed)
+		CalcMaxMinCoordinates(this, eng, 0);
+
+	//this->Correct_periodic_box_HALFdim(eng);
+
+	eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
+	
+	moldyn * dyn = NULL;
+	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
+	else dyn = new moldyn_langevin(eng, param.timestep);
+
+	//#######################################################################
+	//#######################################################################
+	if (false)
+		new moldyn_atomlist_dialog( dyn);		// the object will call delete itself...
+	//#######################################################################
+	//#######################################################################
+
+	moldyn_langevin * dyn_l = dynamic_cast<moldyn_langevin *>(dyn);
+	
+	dyn->temperature_coupling = 0.075;				// set the initial MD settings...
+	if (dyn_l != NULL) dyn_l->langevin_coupling = 0.000;		// set the initial MD settings...
+	/////////////////////////////////////////////////////
+	i32s last_dot;
+	char outfilename[1024];
+	strcpy(outfilename, param.filename);
+
+
+	printf("outfilename = %s\n", outfilename);
+	/////////////////////////////////////////////////////
+	ofstream ofile;
+	//ofile.open(param.filename, ios::out | ios::binary);
+	ofile.open(outfilename, ios_base::out | ios_base::trunc | ios_base::binary);
+	
+	char logfilename[1024];
+	strcpy(logfilename, param.filename);
+	last_dot = NOT_DEFINED;
+	for (i32u fn = 0;fn < strlen(logfilename);fn++)
+	{
+		if (logfilename[fn] == '.') last_dot = (i32s) fn;
+	}	if (last_dot < 0) last_dot = strlen(logfilename);
+	logfilename[last_dot + 0] = '.'; logfilename[last_dot + 1] = 'l';
+	logfilename[last_dot + 2] = 'o'; logfilename[last_dot + 3] = 'g';
+	logfilename[last_dot + 4] = 0;
+	
+	ofstream logfile;
+	logfile.open(logfilename, ios::out);
+	
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+// MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
+
+	const int number_of_atoms = GetAtomCount();
+	const char file_id[10] = "traj_v10";
+	
+	const int frame_save_frq = 100;
+	const int total_frames = param.nsteps_s / frame_save_frq;
+	
+	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+	
+	ThreadUnlock();
+	
+	ostrstream str2b(mbuff1, sizeof(mbuff1));
+	str2b << "step\t" << "T\t";
+	str2b << "Epot\t" << "Efull\t";
+	str2b << "E_solute\t";		// a primitive implementation for energy components ; FIXME!!!
+	str2b << "E_solvent\t";	// a primitive implementation for energy components ; FIXME!!!
+	str2b << "E_solusolv\t";	// a primitive implementation for energy components ; FIXME!!!
+	str2b << endl << ends;
+	logfile << mbuff1;
+
+
+
+	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)
+	{
+		Sleep(10);
+		if (!(n1 % 10))
+		{
+			//#############################################
+			eng1_mm * engmm = dynamic_cast<eng1_mm *>(eng);
+			if (engmm)	engmm->UpdateTerms();
+			//#############################################
+		}
+		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
+		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->update = true;
+		
+		if (n1 < param.nsteps_h && !(n1 % 100))
+		{
+			dyn->temperature = param.temperature * ((f64) n1 / (f64) param.nsteps_h);
+			//cout << "setting T = " << dyn->temperature << endl;
+			
+			if (dyn_l != NULL)
+			{
+				dyn_l->langevin_random_fc = ((f64) n1 / (f64) param.nsteps_h) * LANGEVIN_RANDOM_FC;
+			}
+		}
+		else if (n1 == param.nsteps_h)
+		{
+			f64 final_tc = 0.010;
+			if (engsf != NULL) final_tc = 0.050;		// ???
+			
+			dyn->temperature = param.temperature;		// set the final MD settings...
+			dyn->temperature_coupling = final_tc;		// set the final MD settings...
+			
+			if (dyn_l != NULL)
+			{
+				dyn_l->langevin_random_fc = LANGEVIN_RANDOM_FC;
+				dyn_l->langevin_coupling = LANGEVIN_COUPLING;
+			}
+		}
+		
+		bool enable_tc = false;
+		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
+		if (!param.constant_e || param.langevin) enable_tc = true;
+		dyn->TakeMDStep(enable_tc);
+
+
+
+		if (!(n1 % 10))
+		{
+			ThreadLock();
+			
+			double progress = (double) (n1 + 1) / (double) (param.nsteps_h + param.nsteps_e + param.nsteps_s);
+			bool cancel = SetProgress(progress, NULL);
+			
+			if (cancel)
+			{
+				ThreadUnlock();
+				break;
+			}
+			
+			ostrstream str2a(mbuff1, sizeof(mbuff1));
+			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
+			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
+			str2a << endl << ends;
+			PrintToLog(mbuff1);
+
+			ostrstream str2b(mbuff1, sizeof(mbuff1));
+			str2b << "step " << n1 << " T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " ";
+			str2b << "Epot = " << dyn->GetEPot() << " Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " ;; ";
+			str2b << "E_solute = " << eng->E_solute << " ";		// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solvent = " << eng->E_solvent << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solusolv = " << eng->E_solusolv << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << endl << ends;
+			logfile << mbuff1;
+
+			ThreadUnlock();
+		}
+		
+		if (!(n1 % 1000))
+		{
+			if (eng_mbp != NULL && eng_mbp->nd_eval != NULL)
+			{
+				ThreadLock();
+				
+				ostrstream str3(mbuff1, sizeof(mbuff1));
+				eng_mbp->nd_eval->PrintResults(str3); str3 << ends;
+				PrintToLog(mbuff1); logfile << mbuff1;
+				
+				ThreadUnlock();
+			}
+			
+			if (eng_mbp != NULL && eng_mbp->rdf_eval != NULL)
+			{
+				ThreadLock();
+				
+				ostrstream str3(mbuff1, sizeof(mbuff1));
+				eng_mbp->rdf_eval->PrintResults(str3); str3 << ends;
+				PrintToLog(mbuff1); logfile << mbuff1;
+				
+				ThreadUnlock();
+			}
+		}
+		
+		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
+		{
+			CopyCRD(eng, this, 0);
+			
+			const float ekin = dyn->GetEKin();
+			const float epot = dyn->GetEPot();
+			
+			ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+			ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+			
+			for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+			{
+				const fGL * cdata = (* itx).GetCRD(0);
+				for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
+				{
+					float t1a = cdata[t4];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+		}
+		
+		//if (!(n1 % 100))
+		if (!(n1 % 10))
+		{
+			ThreadLock();
+			
+			CopyCRD(eng, this, 0);
+			UpdateAllGraphicsViews(updt);
+			
+			ThreadUnlock();
+		}
+	}
+	
+	ofile.close();
+	logfile.close();
+
+	
+	delete dyn;
+
+// we will not delete current_eng here, so that we can draw plots using it...
+// we will not delete current_eng here, so that we can draw plots using it...
+// we will not delete current_eng here, so that we can draw plots using it...
+	
+	// above, CopyCRD was done eng->mdl and then CenterCRDSet() was done for mdl.
+	// this might cause that old coordinates remain in eng object, possibly affecting plots.
+	// here we sync the coordinates and other plotting data in the eng object.
+	
+	ThreadLock();
+	CopyCRD(this, eng, 0);
+	SetupPlotting();
+	ThreadUnlock();
+}
+
+
+void model::DoMolDyn_tst(moldyn_tst_param & param, bool updt)
 {
 #if DIFFUSE_WORKING
 	FILE * out;
@@ -2968,9 +3503,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 	eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
 	
-	moldyn * dyn = NULL;
-	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
-	else dyn = new moldyn_langevin(eng, param.timestep);
+	moldyn_tst * dyn = NULL;
+	if (!param.langevin) dyn = new moldyn_tst(eng, param.timestep);
+//	else dyn = new moldyn_langevin(eng, param.timestep);
 
 
 #if WRITE_LOCKED_FORCES
@@ -3629,6 +4164,12 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 }
 
 void model::MolDynGetParam(moldyn_param & param)
+{
+	param.show_dialog = false;
+	param.confirm = true;
+}
+
+void model::MolDynGetParam(moldyn_tst_param & param)
 {
 	param.show_dialog = false;
 	param.confirm = true;

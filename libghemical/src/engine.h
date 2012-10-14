@@ -193,6 +193,7 @@ class engine
 	friend class geomopt;				// NOT NECESSARY
 	friend class geomopt_ex;				// NOT NECESSARY
 	friend class moldyn;				// NOT NECESSARY
+	friend class moldyn_tst;				// NOT NECESSARY
 	friend class moldyn_langevin;		// NOT NECESSARY
 	friend class moldyn_atomlist_dialog;
 	

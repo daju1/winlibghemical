@@ -35,6 +35,7 @@ class engine;			// engine.h
 
 class geomopt_param;		// geomopt.h
 class moldyn_param;		// moldyn.h
+class moldyn_tst_param;		// moldyn.h
 
 #include "seqbuild.h"
 
@@ -371,10 +372,13 @@ This is private because only model::AddHydrogens() should use this... */
 	virtual void GeomOptGetParam(geomopt_param &);
 	
 /** This will perform molecular dynamics. */
+	void DoMolDyn_0(moldyn_param &, bool);
 	void DoMolDyn(moldyn_param &, bool);
+	void DoMolDyn_tst(moldyn_tst_param &, bool);
 	
 /** This is used to ask user the MD options; this default function will just silently accept the defaults. */
 	virtual void MolDynGetParam(moldyn_param &);
+	virtual void MolDynGetParam(moldyn_tst_param &);
 	
 /** This will perform a random search using torsions as variables. */
 	void DoRandomSearch(i32s, i32s, bool);

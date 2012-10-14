@@ -2696,6 +2696,31 @@ HANDLE project::start_job_MolDyn(jobinfo_MolDyn * ji)
 #endif	// ENABLE_THREADS
 }
 
+HANDLE project::start_job_MolDyn_tst(jobinfo_MolDyn_tst * ji)
+{
+#ifdef ENABLE_THREADS
+	
+	CreateProgressDialog("Molecular Dynamics", true, NOT_DEFINED, NOT_DEFINED);
+	GThread * t = g_thread_create(pcs_job_MolDyn, (gpointer) ji, FALSE, NULL);
+	if (t == NULL) { DestroyProgressDialog(); ErrorMessage("Thread failed!"); }
+	
+#else	// ENABLE_THREADS
+	
+//	pcs_job_MolDyn((gpointer) ji);
+//	pcs_job_MolDyn((void*) ji);
+	DWORD dwChildID;
+	HANDLE hThread;
+	hThread = ::CreateThread(NULL, 0, 
+		pcs_job_MolDyn_tst, 
+		reinterpret_cast<LPVOID>(ji), 
+		0,
+		&dwChildID );
+
+	return hThread;
+	
+#endif	// ENABLE_THREADS
+}
+
 //gpointer project::pcs_job_MolDyn(gpointer p)
 DWORD WINAPI project::pcs_job_MolDyn(void* p)
 {
@@ -2708,6 +2733,27 @@ DWORD WINAPI project::pcs_job_MolDyn(void* p)
 #endif	// ENABLE_THREADS
 	
 	ji->prj->DoMolDyn(ji->md, updt);
+	
+#ifdef ENABLE_THREADS
+	ji->prj->ThreadLock();
+	ji->prj->DestroyProgressDialog();
+	ji->prj->ThreadUnlock();
+#endif	// ENABLE_THREADS
+	
+	return NULL;
+}
+
+DWORD WINAPI project::pcs_job_MolDyn_tst(void* p)
+{
+	jobinfo_MolDyn_tst * ji = (jobinfo_MolDyn_tst *) p;
+	
+#ifdef ENABLE_THREADS
+	const bool updt = false;
+#else	// ENABLE_THREADS
+	const bool updt = true;
+#endif	// ENABLE_THREADS
+	
+	ji->prj->DoMolDyn_tst(ji->md, updt);
 	
 #ifdef ENABLE_THREADS
 	ji->prj->ThreadLock();

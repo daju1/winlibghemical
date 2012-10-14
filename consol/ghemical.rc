@@ -97,28 +97,8 @@ BEGIN
     EDITTEXT        IDC_EDIT_TIMESTEP,48,107,40,14,ES_AUTOHSCROLL,0,
                     HIDC_EDIT_TIMESTEP
     EDITTEXT        IDC_EDIT_TRAJFILE,7,199,180,14,ES_AUTOHSCROLL
-    GROUPBOX        "Gravi",IDC_STATIC,103,55,84,72
-    LTEXT           "Gx",IDC_STATIC,110,70,10,8
-    EDITTEXT        IDC_EDIT_GRAVI_GX,125,66,40,14,ES_AUTOHSCROLL
-    LTEXT           "Gy",IDC_STATIC,111,89,10,8
-    EDITTEXT        IDC_EDIT_GRAVI_GY,127,85,40,14,ES_AUTOHSCROLL
-    LTEXT           "Gz",IDC_STATIC,111,106,10,8
-    EDITTEXT        IDC_EDIT_GRAVI_GZ,127,103,40,14,ES_AUTOHSCROLL
-    CONTROL         "Recalc box",IDC_CHECK_CALC_MIN_MAX_COORDINATES_2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,48,158,52,10
-    CONTROL         "Box optimization",IDC_CHECK_BOX_OPTIMIZATION_2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,48,170,67,10
     LTEXT           "equilibration",IDC_STATIC,7,45,38,8
     LTEXT           "simulation",IDC_STATIC,7,67,32,8
-    CONTROL         "Maxwell distribution initial",
-                    IDC_CHECK_MAXWELL_DISTRIBUTION_INIT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,48,147,94,10
-    PUSHBUTTON      "LastFrameFile browse",IDC_BUTTON_BROWSE2,108,218,79,14
-    EDITTEXT        IDC_EDIT_TRAJFILE2,7,233,180,14,ES_AUTOHSCROLL
-    CONTROL         "Load Last Frame",IDC_CHECK_LOAD_LAST_FRAME,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,218,69,10
-    EDITTEXT        IDC_EDIT_MAXWELL_INIT_TEMPERATURE,147,145,40,14,
-                    ES_AUTOHSCROLL
 END
 
 IDD_DIALOG_ATOMLIST_MOLDYN DIALOG  0, 0, 317, 126
@@ -246,6 +226,55 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
 END
 
+IDD_DIALOG_MOL_DYN_TST DIALOGEX 0, 0, 194, 254
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Molecular Dinamics"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,137,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,137,24,50,14
+    LTEXT           "nsteps_h",IDC_STATIC,7,14,30,8
+    LTEXT           "nsteps_e",IDC_STATIC,7,37,30,8
+    LTEXT           "Heating",IDC_STATIC,7,23,26,8
+    LTEXT           "nsteps_s",IDC_STATIC,7,59,29,8
+    LTEXT           "temperature",IDC_STATIC,7,85,38,8
+    LTEXT           "timestep",IDC_STATIC,7,110,27,8
+    CONTROL         "constant_e",IDC_CHECK_CONSTANT_E,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,124,51,10
+    CONTROL         "langevin",IDC_CHECK_LANGEVIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,48,137,43,10
+    PUSHBUTTON      "Trajfile browse",IDC_BUTTON_BROWSE,115,182,72,14
+    EDITTEXT        IDC_EDIT_NSTEPS_H,48,13,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NSTEPS_E,48,36,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NSTEPS_S,48,59,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TEMPERATURE,48,84,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TIMESTEP,48,107,40,14,ES_AUTOHSCROLL,0,
+                    HIDC_EDIT_TIMESTEP
+    EDITTEXT        IDC_EDIT_TRAJFILE,7,199,180,14,ES_AUTOHSCROLL
+    GROUPBOX        "Gravi",IDC_STATIC,103,55,84,72
+    LTEXT           "Gx",IDC_STATIC,110,70,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GX,125,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Gy",IDC_STATIC,111,89,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GY,127,85,40,14,ES_AUTOHSCROLL
+    LTEXT           "Gz",IDC_STATIC,111,106,10,8
+    EDITTEXT        IDC_EDIT_GRAVI_GZ,127,103,40,14,ES_AUTOHSCROLL
+    CONTROL         "Recalc box",IDC_CHECK_CALC_MIN_MAX_COORDINATES_2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,158,52,10
+    CONTROL         "Box optimization",IDC_CHECK_BOX_OPTIMIZATION_2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,170,67,10
+    LTEXT           "equilibration",IDC_STATIC,7,45,38,8
+    LTEXT           "simulation",IDC_STATIC,7,67,32,8
+    CONTROL         "Maxwell distribution initial",
+                    IDC_CHECK_MAXWELL_DISTRIBUTION_INIT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,48,147,94,10
+    PUSHBUTTON      "LastFrameFile browse",IDC_BUTTON_BROWSE2,108,218,79,14
+    EDITTEXT        IDC_EDIT_TRAJFILE2,7,233,180,14,ES_AUTOHSCROLL
+    CONTROL         "Load Last Frame",IDC_CHECK_LOAD_LAST_FRAME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,218,69,10
+    EDITTEXT        IDC_EDIT_MAXWELL_INIT_TEMPERATURE,147,145,40,14,
+                    ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -365,6 +394,15 @@ BEGIN
         RIGHTMARGIN, 179
         TOPMARGIN, 7
         BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_MOL_DYN_TST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 187
+        VERTGUIDE, 48
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 247
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -506,6 +544,7 @@ BEGIN
         MENUITEM "Compute Energy",              ID_DO_COMPUTEENERGY
         MENUITEM "Geometry optimization",       ID_DO_GEOMETRYOPTIMIZATION
         MENUITEM "Molecular dynamics",          ID_DO_MOLECULARDYNAMICS
+        MENUITEM "Molecular dynamics tst",      ID_DO_MOLECULARDYNAMICS_TST
         MENUITEM SEPARATOR
         POPUP "Trajectory"
         BEGIN

@@ -49,6 +49,100 @@ class moldyn_param
 	i32s nsteps_e;		// equilibration
 	i32s nsteps_s;		// simulation
 	f64 temperature;
+	f64 timestep;
+	bool constant_e;
+	bool langevin;
+	
+	char filename[1024];
+
+
+	public:
+	
+	moldyn_param(setup * su);	
+	~moldyn_param(void) { }
+};
+
+/*################################################################################################*/
+
+/**	A molecular dynamics class.
+	
+	This is a "velocity-Verlet"-type integrator...
+	Allen MP, Tildesley DJ : "##Computer Simulation of Liquids", Clarendon Press, 1987
+	
+	So far very long simulations have not been tested, so possile translation/rotation 
+	problems are not solved... current solution is to start simulations from 0 K -> 
+	no translation/rotation in the initial state -> conservation of linear and angular 
+	momentum -> no need to worry at all... but for how long it will work???
+*/
+
+class moldyn
+{
+	friend class moldyn_atomlist_dialog;
+	protected:
+	
+	engine * eng;
+	
+	f64 * vel;
+	f64 * acc;
+	
+	f64 * mass;
+	
+	char * locked;
+	int num_locked;
+	
+	f64 tstep1;	// timestep
+	f64 tstep2;	// timestep ^ 2
+	
+	f64 ekin;
+	f64 epot;
+	
+	i32s step_counter;
+	
+	public:
+	
+	f64 temperature;
+	
+	f64 temperature_coupling;
+	
+	public:
+	
+	moldyn(engine *, f64);
+	virtual ~moldyn(void);
+	
+	f64 GetEKin(void) { return ekin; }
+	f64 GetEPot(void) { return epot; }
+	
+	virtual void TakeMDStep(bool);
+	
+	f64 KineticEnergy(void);
+	
+	f64 ConvTempEKin(f64);
+	f64 ConvEKinTemp(f64);
+	
+	void SetEKin(f64);
+
+};
+
+/*################################################################################################*/
+
+class moldyn_tst_param
+{
+	protected:
+	
+	bool confirm;
+	
+	friend class model;
+	friend class moldyn_tst_dialog;
+	friend class win_project; //temporary
+	
+	public:
+	
+	bool show_dialog;
+	
+	i32s nsteps_h;		// heat
+	i32s nsteps_e;		// equilibration
+	i32s nsteps_s;		// simulation
+	f64 temperature;
 	f64 maxwell_init_temperature;
 	f64 timestep;
 	bool constant_e;
@@ -86,8 +180,8 @@ class moldyn_param
 
 	public:
 	
-	moldyn_param(setup * su);	
-	~moldyn_param(void) { }
+	moldyn_tst_param(setup * su);	
+	~moldyn_tst_param(void) { }
 };
 
 /*################################################################################################*/
@@ -103,7 +197,7 @@ class moldyn_param
 	momentum -> no need to worry at all... but for how long it will work???
 */
 
-class moldyn
+class moldyn_tst  : public moldyn
 {
 	friend class moldyn_atomlist_dialog;
 	protected:
@@ -141,13 +235,13 @@ class moldyn
 
 	f64 psi, relax_rate_2;
 
-	void moldyn::MaxwellDistribution(f64 Temp);
+	void MaxwellDistribution(f64 Temp);
 
 	
 	public:
 	
-	moldyn(engine *, f64);
-	virtual ~moldyn(void);
+	moldyn_tst(engine *, f64);
+	virtual ~moldyn_tst(void);
 	
 	f64 GetEKin(void) { return ekin; }
 	f64 GetEPot(void) { return epot; }

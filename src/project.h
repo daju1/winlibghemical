@@ -97,6 +97,16 @@ class jobinfo_MolDyn
 	jobinfo_MolDyn(void) : md(NULL) { prj = NULL; }
 };
 
+class jobinfo_MolDyn_tst
+{
+	public:
+	
+	project * prj;
+	moldyn_tst_param md;	// this is a class...
+	
+	jobinfo_MolDyn_tst(void) : md(NULL) { prj = NULL; }
+};
+
 struct jobinfo_RandomSearch
 {
 	project * prj;
@@ -403,8 +413,10 @@ class project : public model
 	static DWORD WINAPI pcs_job_GeomOpt(void*);
 	
 	HANDLE  start_job_MolDyn(jobinfo_MolDyn *);	// for this we have both a dialog and a command line interface...
+	HANDLE  start_job_MolDyn_tst(jobinfo_MolDyn_tst *);	// for this we have both a dialog and a command line interface...
 //	static gpointer pcs_job_MolDyn(gpointer);
 	static DWORD WINAPI pcs_job_MolDyn(void*);
+	static DWORD WINAPI pcs_job_MolDyn_tst(void*);
 	
 //	static gpointer pcs_job_RandomSearch(gpointer);
 	static void* pcs_job_RandomSearch(void*);

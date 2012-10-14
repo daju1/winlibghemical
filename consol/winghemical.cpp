@@ -974,7 +974,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					//######################################################
 				}
 				break;
-
+			case ID_DO_MOLECULARDYNAMICS_TST:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_CompMolDyn_tst(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
 			case ID_DO_RANDOMSEARCH:
 				{
 					//######################################################

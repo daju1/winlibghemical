@@ -52,6 +52,44 @@ class moldyn_dialog : public glade_dialog
 	static void handler_ButtonCancel(HWND, void *);
 	
 	static void handler_ButtonBrowse(HWND, void *);
+};
+
+/*################################################################################################*/
+
+class moldyn_tst_dialog : public glade_dialog
+{
+	friend BOOL CALLBACK DlgProcMolDyn_tst(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) ;
+	HWND hDlg;
+	protected:
+	
+	moldyn_tst_param * param;
+/*	
+	GtkWidget * dialog;
+	
+	GtkWidget * entry_nsteps_h;
+	GtkWidget * entry_nsteps_e;
+	GtkWidget * entry_nsteps_s;
+	GtkWidget * entry_temperature;
+	GtkWidget * entry_timestep;
+	GtkWidget * checkbutton_constant_e;
+	GtkWidget * checkbutton_langevin;
+	
+	GtkWidget * entry_trajfile;
+	GtkWidget * button_browse;
+	GtkWidget * file_selector;
+*/	
+	public:
+		void OnInitDialog();
+	
+	moldyn_tst_dialog(moldyn_tst_param *);
+	~moldyn_tst_dialog(void);
+
+	static void handler_Destroy(HWND, void *);
+	
+	static void handler_ButtonOK(HWND, void *);
+	static void handler_ButtonCancel(HWND, void *);
+	
+	static void handler_ButtonBrowse(HWND, void *);
 	static void handler_ButtonBrowse2(HWND, void *);
 	static void handler_FileChooser(HWND, void *);
 	static void handler_CheckLoadLastFrame(HWND, void * data);

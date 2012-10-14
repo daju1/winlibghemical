@@ -21,8 +21,201 @@ using namespace std;
 #define T_BUFF_SIZE	500
 #define PI		3.14159265358979323846
 
+
+
 /*################################################################################################*/
 moldyn_param::moldyn_param(setup * su)
+{
+	confirm = false;
+	show_dialog = true;
+	
+	nsteps_h = 5000;
+	nsteps_e = 5000;
+	nsteps_s = 100000;
+	temperature = 300.0;
+	timestep = 0.5;
+	constant_e = false;
+	langevin = false;
+	
+	strcpy(filename, "untitled.traj");
+	
+	setup1_sf * susf = dynamic_cast<setup1_sf *>(su);
+	if (susf != NULL) timestep = 5.0;			// override...
+
+	nsteps_s = 100000;
+	temperature = 200.0;
+
+}
+moldyn::moldyn(engine * p1, f64 p2)
+{
+	eng = p1;
+	
+	tstep1 = p2;						// [1.0E-15 s]
+	tstep2 = tstep1 * tstep1;				// [1.0E-30 s]
+	
+	vel = new f64[eng->GetAtomCount() * 3];			// [1.0E+3 m/s]
+	acc = new f64[eng->GetAtomCount() * 3];			// [1.0E+12 m/s^2]
+	
+	mass = new f64[eng->GetAtomCount()];
+	
+	locked = new char[eng->GetAtomCount()];
+	
+	step_counter = 0;
+	
+	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
+	
+	num_locked = 0; i32s counter = 0;
+	while (counter < eng->GetAtomCount())
+	{
+		bool lflag = false;
+		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_LOCKED)
+		{
+			lflag = true;
+			num_locked++;
+		}
+		
+		mass[counter] = glob_atmtab[counter]->mass;
+		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
+		
+		locked[counter] = lflag;		
+
+		for (i32s n1 = 0;n1 < 3;n1++)
+		{
+			vel[counter * 3 + n1] = 0.0;
+			acc[counter * 3 + n1] = 0.0;
+		}
+		
+		counter++;
+	}
+
+	// the rest are just default values; can be modified...
+	// the rest are just default values; can be modified...
+	// the rest are just default values; can be modified...
+	
+	temperature = 300.0;
+	
+	temperature_coupling = 0.010;
+}
+
+moldyn::~moldyn(void)
+{
+	delete[] vel;
+	delete[] acc;
+	
+	delete[] mass;
+	
+	delete[] locked;
+}
+
+
+void moldyn::TakeMDStep(bool enable_temperature_control)
+{
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			f64 tmpA = acc[n1 * 3 + n2];
+			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
+			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
+			
+			if (locked[n1])
+			{
+				tmpA = 0.0;	// make sure that locked atoms remain locked!
+				tmp1 = 0.0;	// make sure that locked atoms remain locked!
+				tmp2 = 0.0;	// make sure that locked atoms remain locked!
+				
+				// the engine class really cannot compute and return zero forces
+				// for the locked atoms.
+				
+				// then how to ensure translational invariance and stuff like that?
+			}
+			
+			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
+			
+			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
+		}
+	}
+	
+	eng->DoSHAKE();
+	
+	eng->Compute(1);
+	epot = eng->energy;
+
+	{	
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		if (locked[n1]) continue;
+		//a = -F/m
+		//dv = a*dt
+		
+		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
+		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
+		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+		
+		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
+		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
+		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
+	}
+	}
+	
+	ekin = KineticEnergy();
+	if (enable_temperature_control)
+	{
+		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
+		
+		f64 tc = sqrt(1.0 + temperature_coupling * delta);
+		SetEKin(ekin * tc);
+	}
+	
+	step_counter++;
+}
+
+f64 moldyn::KineticEnergy(void)
+{
+	f64 energy = 0.0;
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		f64 sum = 0.0;
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			f64 tmp = vel[n1 * 3 + n2];
+			sum += tmp * tmp;
+		}
+		
+		energy += 500.0 * mass[n1] * sum;
+	}
+	
+	return energy;
+}
+
+// <Ekin> = 3/2 * k * T				// <Ekin> = <0.5 * m * v^2) = average kinetic energy of a molecule.
+// EKin / N = 3/2 * k * T			// Ekin = total kinetic energy, N = number of molecules.
+// EKin / N = 3/2 * R * T			// if Ekin is expressed "per mole", change k to R.
+
+f64 moldyn::ConvTempEKin(f64 p1)
+{
+	return (3.0 / 2.0) * p1 * ((eng->GetAtomCount() - num_locked) * 8.314510) / 1000.0;
+}
+
+f64 moldyn::ConvEKinTemp(f64 p1)
+{
+	return (2.0 / 3.0) * p1 * 1000.0 / ((eng->GetAtomCount() - num_locked) * 8.314510);
+}
+
+void moldyn::SetEKin(f64 p1)
+{
+	f64 tmp1 = p1 / KineticEnergy();
+	f64 tmp2 = (tmp1 < 0.0 ? 0.0 : sqrt(tmp1));
+	
+	i32u tmp3 = eng->GetAtomCount() * 3;
+	for (i32u n1 = 0;n1 < tmp3;n1++) vel[n1] *= tmp2;
+}
+
+/*################################################################################################*/
+
+
+/*################################################################################################*/
+moldyn_tst_param::moldyn_tst_param(setup * su)
 {
 	confirm = false;
 	show_dialog = true;
@@ -237,7 +430,7 @@ double invnormaldistribution(double y0)
     return result;
 }
 
-moldyn::moldyn(engine * p1, f64 p2)
+moldyn_tst::moldyn_tst(engine * p1, f64 p2) : moldyn (p1, p2)
 {
 	eng = p1;
 	
@@ -354,7 +547,7 @@ moldyn::moldyn(engine * p1, f64 p2)
 #endif
 }
 
-moldyn::~moldyn(void)
+moldyn_tst::~moldyn_tst(void)
 {
 	delete[] vel;
 	delete[] acc;
@@ -367,7 +560,7 @@ moldyn::~moldyn(void)
 	delete[] gravi;
 }
 
-void moldyn::MaxwellDistribution(f64 Temp)
+void moldyn_tst::MaxwellDistribution(f64 Temp)
 {
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
@@ -379,14 +572,14 @@ void moldyn::MaxwellDistribution(f64 Temp)
 		}
 	}
 }
-f64 moldyn::GetGravi(i32s dim)
+f64 moldyn_tst::GetGravi(i32s dim)
 {
 	if (dim >= 0 && dim < 3)
 		return this->m_g[dim];
 	else
 		return 0.0;
 }
-void moldyn::SetGraviG(f64 *p)
+void moldyn_tst::SetGraviG(f64 *p)
 {
 	if (p)
 	{
@@ -400,7 +593,7 @@ void moldyn::SetGraviG(f64 *p)
 // режим работы с наложением броуновского осциллятора 
 // в виде гравитационной осцилляции
 //функция инициализации гравитационного осциллятора, вызывается перед началом работы
-void moldyn::InitGraviOscillator(moldyn_param& param, engine_pbc2 * eng_pbc)
+void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param, engine_pbc2 * eng_pbc)
 {
 	this->len_n_len_g = param.len_n_len_g;
 	this->len_n = 2.0 * eng->GetSetup()->GetModel()->periodic_box_HALFdim[2];
@@ -433,7 +626,7 @@ void moldyn::InitGraviOscillator(moldyn_param& param, engine_pbc2 * eng_pbc)
 
 }
 // на каждом шаге вычисляется значение амплитуды g в центре осцилляторе
-void moldyn::TakeGraviStep()
+void moldyn_tst::TakeGraviStep()
 {
 	if(to_start_gravi)
 	{
@@ -449,11 +642,11 @@ void moldyn::TakeGraviStep()
 		v_pract += tstep1 * m_g[2] * 1.0e-6;
 	}
 }
-double moldyn::GetTheorV()
+double moldyn_tst::GetTheorV()
 {
 	return v_theor;
 }
-double moldyn::GetPractV()
+double moldyn_tst::GetPractV()
 {
 	return v_pract;
 }
@@ -462,7 +655,7 @@ double moldyn::GetPractV()
 
 #if SOUND_GRAVI_OSCILLATOR
 // на каждом шаге вычисляется значение амплитуды g
-void moldyn::TakeGraviStep()
+void moldyn_tst::TakeGraviStep()
 {
 	if(to_start_gravi)
 	{
@@ -470,7 +663,7 @@ void moldyn::TakeGraviStep()
 		m_g_gravi_dim = g0 * sin(omega * t)/* * 1.0e-12*/; //амплитуда в центре осциллятора
 	}
 }
-void moldyn::InitGraviOscillator(moldyn_param& param)
+void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param)
 {
 	cout << "SOUND_GRAVI_OSCILLATOR\n";
 
@@ -500,14 +693,14 @@ void moldyn::InitGraviOscillator(moldyn_param& param)
 }
 #endif
 
-void moldyn::LockAtoms(char * fn)
+void moldyn_tst::LockAtoms(char * fn)
 {
 	vector<i32s> fixed_list;
 	ReadTargetListFile(fn, fixed_list);
 	this->LockAtoms(fixed_list);
 }
 
-void moldyn::LockAtoms(vector<i32s>& nAtoms)
+void moldyn_tst::LockAtoms(vector<i32s>& nAtoms)
 {
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 
@@ -530,7 +723,7 @@ void moldyn::LockAtoms(vector<i32s>& nAtoms)
 
 
 #if SNARJAD_TARGET_WORKING
-void moldyn::ShootSnarjad(i32s nAtom, f64* v, f64* c)
+void moldyn_tst::ShootSnarjad(i32s nAtom, f64* v, f64* c)
 {
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 	if (nAtom < eng->GetAtomCount())
@@ -557,7 +750,7 @@ void moldyn::ShootSnarjad(i32s nAtom, f64* v, f64* c)
 	}
 }
 
-bool moldyn::GetSnarjadVelCrd(f64* v, f64* c, f64* f)
+bool moldyn_tst::GetSnarjadVelCrd(f64* v, f64* c, f64* f)
 {
 	if (this->n_snarjad >= 0 && this->n_snarjad < eng->GetAtomCount())
 	{
@@ -583,7 +776,7 @@ bool moldyn::GetSnarjadVelCrd(f64* v, f64* c, f64* f)
 
 #endif
 #if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
-void moldyn::LockAtom(i32s nAtom)
+void moldyn_tst::LockAtom(i32s nAtom)
 {
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 	
@@ -600,7 +793,7 @@ void moldyn::LockAtom(i32s nAtom)
 	}
 }
 
-void moldyn::SetTarget()
+void moldyn_tst::SetTarget()
 {
 	num_target = 0;// i32s counter = 0;
 //	while (counter < eng->GetAtomCount())
@@ -611,7 +804,7 @@ void moldyn::SetTarget()
 	this->m_target_list.resize(0);
 }
 
-void moldyn::SetTarget(vector<i32s>& target_list)
+void moldyn_tst::SetTarget(vector<i32s>& target_list)
 {
 	SetTarget();
 	for(vector<i32s>::iterator it = target_list.begin(); it != target_list.end(); it++)
@@ -648,7 +841,7 @@ void moldyn::SetTarget(vector<i32s>& target_list)
 	}
 }
 
-void moldyn::ComputeTargetCrd()
+void moldyn_tst::ComputeTargetCrd()
 {
 	for (i32s n2 = 0;n2 < 3;n2++)
 	{
@@ -685,7 +878,7 @@ void moldyn::ComputeTargetCrd()
 #endif /*SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING*/
 #if PROBNIY_ATOM_WORKING
 
-bool moldyn::GetProbAtomForce(f64* f)
+bool moldyn_tst::GetProbAtomForce(f64* f)
 {
 	if (this->n_prob_atom >= 0 && this->n_prob_atom < eng->GetAtomCount())
 	{
@@ -701,7 +894,7 @@ bool moldyn::GetProbAtomForce(f64* f)
 	return false;
 }
 
-void moldyn::SetProbAtom(i32s nAtom, f64* c)
+void moldyn_tst::SetProbAtom(i32s nAtom, f64* c)
 {
 	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 	if (nAtom < eng->GetAtomCount())
@@ -719,7 +912,7 @@ void moldyn::SetProbAtom(i32s nAtom, f64* c)
 
 #endif
 #if WRITE_LOCKED_FORCES
-void moldyn::WriteLockedForcesHeader()
+void moldyn_tst::WriteLockedForcesHeader()
 {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
@@ -780,7 +973,7 @@ void moldyn::WriteLockedForcesHeader()
 }
 #endif
 #if WRITE_WORKED_FORCES
-void moldyn::WriteWorkedForcesHeader()
+void moldyn_tst::WriteWorkedForcesHeader()
 {
 	SYSTEMTIME time;
 	GetLocalTime(&time);
@@ -839,7 +1032,7 @@ void moldyn::WriteWorkedForcesHeader()
 	}
 }
 #endif
-void moldyn::TakeMDStep(bool enable_temperature_control)
+void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 {
 #if WRITE_LOCKED_FORCES
 	double sum_mom_xy = 0.0;
@@ -1041,11 +1234,13 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 #else
 #if WRITE_LOCKED_FORCES
 	FILE * locked_forces_stream = fopen(locked_forces_fn, "at");
-	fprintf(locked_forces_stream, "%f", tstep1*step_counter);
+	if (locked_forces_stream)
+		fprintf(locked_forces_stream, "%f", tstep1*step_counter);
 #endif /*WRITE_LOCKED_FORCES*/
 #if WRITE_WORKED_FORCES
 	FILE * worked_forces_stream = fopen(worked_forces_fn, "at");
-	fprintf(worked_forces_stream, "%f", tstep1*step_counter);
+	if (worked_forces_stream)
+		fprintf(worked_forces_stream, "%f", tstep1*step_counter);
 #endif /*WRITE_LOCKED_FORCES*/
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
@@ -1272,7 +1467,7 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 	step_counter++;
 }
 
-f64 moldyn::KineticEnergy(void)
+f64 moldyn_tst::KineticEnergy(void)
 {
 	f64 energy = 0.0;
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
@@ -1294,17 +1489,17 @@ f64 moldyn::KineticEnergy(void)
 // EKin / N = 3/2 * k * T			// Ekin = total kinetic energy, N = number of molecules.
 // EKin / N = 3/2 * R * T			// if Ekin is expressed "per mole", change k to R.
 
-f64 moldyn::ConvTempEKin(f64 p1)
+f64 moldyn_tst::ConvTempEKin(f64 p1)
 {
 	return (3.0 / 2.0) * p1 * ((eng->GetAtomCount() - num_locked) * 8.314510) / 1000.0;
 }
 
-f64 moldyn::ConvEKinTemp(f64 p1)
+f64 moldyn_tst::ConvEKinTemp(f64 p1)
 {
 	return (2.0 / 3.0) * p1 * 1000.0 / ((eng->GetAtomCount() - num_locked) * 8.314510);
 }
 
-void moldyn::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_impuls)
+void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_impuls)
 {
 	// определяем суммарный импульс системы до применения термостата
 	f64 sum_p1[3];
@@ -1360,7 +1555,7 @@ void moldyn::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_impul
 	}
 }
 
-void moldyn::SumModelImpuls(f64 * sum_p)
+void moldyn_tst::SumModelImpuls(f64 * sum_p)
 {		
 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
 
@@ -1372,7 +1567,7 @@ void moldyn::SumModelImpuls(f64 * sum_p)
 		}		
 	}	
 }
-void moldyn::SaveLastFrame(char * fn)
+void moldyn_tst::SaveLastFrame(char * fn)
 {
 	const int number_of_atoms = eng->GetAtomCount();
 	const char file_id[10] = "framev01";
@@ -1414,7 +1609,7 @@ void moldyn::SaveLastFrame(char * fn)
 	ofile.close();
 }
 
-void moldyn::ReadLastFrame(char * fn)
+void moldyn_tst::ReadLastFrame(char * fn)
 {
 	ifstream * framefile;
 	framefile = new ifstream(fn, ios::in | ios::binary);
@@ -1668,7 +1863,7 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
 		
 		f64 tc = sqrt(1.0 + temperature_coupling * delta);
-		SetEKin(ekin * tc, false);
+		SetEKin(ekin * tc);
 		
 		if (langevin_coupling > 0.0)
 		{

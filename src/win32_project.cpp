@@ -404,6 +404,14 @@ void win_project::MolDynGetParam(moldyn_param & param)
 	// the above dialog is a modal one; we will return from the function only after the dialog is closed.
 
 }
+
+void win_project::MolDynGetParam(moldyn_tst_param & param)
+{
+	new moldyn_tst_dialog(& param);		// the object will call delete itself...
+	
+	// the above dialog is a modal one; we will return from the function only after the dialog is closed.
+
+}
 // the popup-menu callbacks are here...
 // the popup-menu callbacks are here...
 // the popup-menu callbacks are here...
@@ -1369,6 +1377,22 @@ void win_project::popup_CompMolDyn(HWND widget, void* data)
 		ji.md = moldyn_param(su);
 		
 		prj->start_job_MolDyn(& ji);
+	}
+}
+
+void win_project::popup_CompMolDyn_tst(HWND widget, void* data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		setup * su = prj->GetCurrentSetup();
+		static jobinfo_MolDyn_tst ji;
+		
+		ji.prj = prj;
+		ji.md = moldyn_tst_param(su);
+		
+		prj->start_job_MolDyn_tst(& ji);
 	}
 }
 

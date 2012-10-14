@@ -1,4 +1,4 @@
-// Microsoft Developer Studio generated Help ID include file.
+// Microsoft Visual C++ generated Help ID include file.
 // Used by ghemical.rc
 //
 #define HIDC_EDIT_TIMESTEP              0x808303f5    // IDD_DIALOG_MOL_DYN
