@@ -27,7 +27,55 @@
 HINSTANCE hInst;
 
 
-void Statistika (vector<double> & dF, const char * name, int N = 25)
+double calcMathOzh(const vector<double> & dF, const int& j, const int& wind, int& number)
+{
+	double m = 0.0;
+	int j_wind = j*wind;
+	for (int i = (j-1)*wind; i < j_wind; i++)
+	{
+		m += dF[i];
+		++number;
+	}
+	m /= wind;
+
+	return m;
+}
+
+double calcLinearTrendParameterA(const vector<double> & dF, const int& j, const int& wind, int& number)
+{
+	double sumY = 0.0;
+	double sumx = 0.0;
+	double sumYx = 0.0;
+	double sumxx = 0.0;
+
+	int j_wind = j*wind;
+	for (int i = (j-1)*wind; i < j_wind; i++)
+	{
+		double x = i;
+		double Y = dF[i];
+
+		sumY += Y;
+		sumx += x;
+
+		sumxx += x*x;
+		sumYx += Y*x;
+
+		++number;
+	}
+
+	double n = wind;
+
+
+	double a = (n*sumYx - sumx*sumY) / (n*sumxx - sumx*sumx);
+
+	return a;
+}
+
+typedef double (*calcfun)(const vector<double> & dF, const int& j, const int& wind, int& number);
+
+
+
+void Statistika (const vector<double> & dF, const char * name, int N, calcfun fun)
 {
 	int rows = dF.size();
 	vector<double> dF_means;	
@@ -39,6 +87,9 @@ void Statistika (vector<double> & dF, const char * name, int N = 25)
 	
 	for (int j = 1; j <= N; j++)
 	{
+#if 1
+		double m = (*fun)(dF, j, wind, number);
+#else
 		double m = 0.0;
 		int j_wind = j*wind;
 		for (int i = (j-1)*wind; i < j_wind; i++)
@@ -47,6 +98,8 @@ void Statistika (vector<double> & dF, const char * name, int N = 25)
 			++number;
 		}
 		m /= wind;
+#endif
+		//
 		dF_means.push_back(m);
 		mat_ozh += m;
 	}
@@ -505,7 +558,10 @@ void Look_traj()
 
 
 	for (int N = 10; N < 100; N += 5)
-		Statistika (diffX, "diffX", N);
+		Statistika (diffX, "diffX", N, calcMathOzh);
+
+	for (int N = 10; N < 100; N += 5)
+		Statistika (X, "linearTrendParameterA", N, calcLinearTrendParameterA);
 
 }
 
