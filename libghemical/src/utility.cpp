@@ -302,7 +302,7 @@ void DefineSecondaryStructure(model * mdl)
 			}
 		}	*/
 		
-		for (/*i32s*/ n2 = 0;n2 < ci_vector[n1].length - 4;n2++)		// 4-turns...
+		for (i32s n2 = 0;n2 < ci_vector[n1].length - 4;n2++)		// 4-turns...
 		{
 			i32s tmp1[2] = { n1, n2 };
 			i32s tmp2[2] = { n1, n2 + 4 };
@@ -339,7 +339,7 @@ void DefineSecondaryStructure(model * mdl)
 		
 		cout << "looking for intrachain strands for chain " << (n1 + 1) << endl;
 		
-		for (/*i32s*/ n2 = 1;n2 < ci_vector[n1].length - 4;n2++)
+		for (i32s n2 = 1;n2 < ci_vector[n1].length - 4;n2++)
 		{
 			cout << "." << flush;
 			
@@ -441,7 +441,7 @@ void DefineSecondaryStructure(model * mdl)
 	}
 	cout << endl;
 	
-	for (/*i32u*/ n1 = 0;n1 < ci_vector.size();n1++)
+	for (i32u n1 = 0;n1 < ci_vector.size();n1++)
 	{
 		cout << "// chain " << n1 << ":" << endl;
 		

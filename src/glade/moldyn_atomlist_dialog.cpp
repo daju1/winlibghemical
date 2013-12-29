@@ -397,13 +397,13 @@ void moldyn_atomlist_dialog::OnInitDialog(void * data)
 {
 	moldyn_atomlist_dialog * ref = (moldyn_atomlist_dialog *) data;
 
-printf("\nmoldyn_atomlist_dialog::OnInitDialog() = %x ref = %x\n", ref->hDlg, ref);
+//printf("\nmoldyn_atomlist_dialog::OnInitDialog() = %x ref = %x\n", ref->hDlg, ref);
 
 	ref->rows = ref->mld->eng->GetAtomCount();
 
 	ref->cols = 7;
 
-printf("rows = %d cols = %d\n", ref->rows, ref->cols);
+//printf("rows = %d cols = %d\n", ref->rows, ref->cols);
 #if HEADER_IN_FIRST_ROW
 	ref->rows++;
 #endif
@@ -578,7 +578,7 @@ printf("rows = %d cols = %d\n", ref->rows, ref->cols);
 		if(ListView_InsertItem(ref->hList, &lvI) == -1)
 		{
 			char str[255];
-			sprintf(str, "error %d %d", index, c);
+			sprintf(str, "error %d", index);
 			MessageBox(0,str,"",0);
 			return;
 		}

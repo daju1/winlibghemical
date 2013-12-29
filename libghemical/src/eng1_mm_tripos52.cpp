@@ -190,7 +190,7 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 			}
 			
 			vector<i32s> ind2b; vector<bool> dir2b;
-			for (/*i32u*/ n1 = 0;n1 < ind1b.size();n1++)
+			for (i32u n1 = 0;n1 < ind1b.size();n1++)
 			{
 				i32s tmp1 = 0; i32s tmp2 = NOT_DEFINED;
 				while (true)
@@ -212,7 +212,7 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 			
 			// now finally create the terms!!!!!
 			
-			for (/*i32u*/ n1 = 0;n1 < ind2a.size();n1++)
+			for (i32u n1 = 0;n1 < ind2a.size();n1++)
 			{
 				for (i32u n2 = 0;n2 < ind2b.size();n2++)
 				{
@@ -352,7 +352,7 @@ i32s eng1_mm_tripos52_bt::FindTorsion(atom * a1, atom * a2, atom * a3, atom * a4
 		iloc[n1] = index;
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
+	for (i32s n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
 	{
 		bool test;	// since torsion is the same in both directions, we can ignore direction...
 		
@@ -484,7 +484,7 @@ void eng1_mm_tripos52_bt::ComputeBT1(i32u p1)
 		
 		f64 t1c = sqrt(t1b);
 		bt1data[n1].len = t1c;
-		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
+		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			f64 t9a = t1a[n2] / t1c;
 			

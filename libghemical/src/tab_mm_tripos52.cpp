@@ -557,7 +557,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_nbt1 * ref, bool is14)
 	}
 	
 	i32u index[2];
-	for (/*i32s*/ n1 = 0;n1 < 2;n1++)
+	for (i32s n1 = 0;n1 < 2;n1++)
 	{
 		index[n1] = 0;
 		

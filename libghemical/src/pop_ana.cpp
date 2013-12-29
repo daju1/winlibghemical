@@ -161,7 +161,7 @@ eng->Compute(0);//miksei vaikuta mitään???
 	}
 	
 //Check(1);return;
-	for (/*i32s*/ n1 = 0;n1 < 250;n1++)
+	for (i32s n1 = 0;n1 < 250;n1++)
 	{
 		TakeCGStep(conjugate_gradient::Newton2An);
 		

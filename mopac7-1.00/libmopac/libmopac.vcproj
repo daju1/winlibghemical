@@ -1,93 +1,274 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9,00"
 	Name="libmopac"
 	ProjectGUID="{5117E257-8B40-4B76-A6B6-90CD19441E59}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/libmopac.lib"/>
+				OutputFile="$(OutDir)/libmopac.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/libmopac.lib"/>
+				OutputFile="$(OutDir)/libmopac.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/libmopac.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/libmopac.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -96,497 +277,660 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="..\src\aababc.c">
+				RelativePath="..\src\aababc.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\addfck.c">
+				RelativePath="..\src\addfck.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\addhcr.c">
+				RelativePath="..\src\addhcr.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\addnuc.c">
+				RelativePath="..\src\addnuc.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\analyt.c">
+				RelativePath="..\src\analyt.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\anavib.c">
+				RelativePath="..\src\anavib.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\axis.c">
+				RelativePath="..\src\axis.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\block.c">
+				RelativePath="..\src\block.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\bonds.c">
+				RelativePath="..\src\bonds.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\brlzon.c">
+				RelativePath="..\src\brlzon.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\btoc.c">
+				RelativePath="..\src\btoc.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\calpar.c">
+				RelativePath="..\src\calpar.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\capcor.c">
+				RelativePath="..\src\capcor.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\cdiag.c">
+				RelativePath="..\src\cdiag.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\chrge.c">
+				RelativePath="..\src\chrge.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\cnvg.c">
+				RelativePath="..\src\cnvg.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\compfg.c">
+				RelativePath="..\src\compfg.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\consts.c">
+				RelativePath="..\src\consts.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\cqden.c">
+				RelativePath="..\src\cqden.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\datin.c">
+				RelativePath="..\src\datin.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dcart.c">
+				RelativePath="..\src\dcart.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\delmol.c">
+				RelativePath="..\src\delmol.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\delri.c">
+				RelativePath="..\src\delri.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\denrot.c">
+				RelativePath="..\src\denrot.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\densit.c">
+				RelativePath="..\src\densit.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\depvar.c">
+				RelativePath="..\src\depvar.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri0.c">
+				RelativePath="..\src\deri0.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri1.c">
+				RelativePath="..\src\deri1.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri2.c">
+				RelativePath="..\src\deri2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri21.c">
+				RelativePath="..\src\deri21.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri22.c">
+				RelativePath="..\src\deri22.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deri23.c">
+				RelativePath="..\src\deri23.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deritr.c">
+				RelativePath="..\src\deritr.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\deriv.c">
+				RelativePath="..\src\deriv.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dernvo.c">
+				RelativePath="..\src\dernvo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\ders.c">
+				RelativePath="..\src\ders.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dfock2.c">
+				RelativePath="..\src\dfock2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dfpsav.c">
+				RelativePath="..\src\dfpsav.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dgemm.c">
+				RelativePath="..\src\dgemm.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dgemv.c">
+				RelativePath="..\src\dgemv.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dger.c">
+				RelativePath="..\src\dger.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dgetf2.c">
+				RelativePath="..\src\dgetf2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dgetrf.c">
+				RelativePath="..\src\dgetrf.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dgetri.c">
+				RelativePath="..\src\dgetri.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\diag.c">
+				RelativePath="..\src\diag.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\diat.c">
+				RelativePath="..\src\diat.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\diat2.c">
+				RelativePath="..\src\diat2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\diegrd.c">
+				RelativePath="..\src\diegrd.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dielen.c">
+				RelativePath="..\src\dielen.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\diis.c">
+				RelativePath="..\src\diis.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dijkl1.c">
+				RelativePath="..\src\dijkl1.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dijkl2.c">
+				RelativePath="..\src\dijkl2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dipind.c">
+				RelativePath="..\src\dipind.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dipole.c">
+				RelativePath="..\src\dipole.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dlaswp.c">
+				RelativePath="..\src\dlaswp.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dofs.c">
+				RelativePath="..\src\dofs.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dot.c">
+				RelativePath="..\src\dot.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\drc.c">
+				RelativePath="..\src\drc.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\drcout.c">
+				RelativePath="..\src\drcout.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dtrmm.c">
+				RelativePath="..\src\dtrmm.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dtrmv.c">
+				RelativePath="..\src\dtrmv.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dtrsm.c">
+				RelativePath="..\src\dtrsm.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dtrti2.c">
+				RelativePath="..\src\dtrti2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dtrtri.c">
+				RelativePath="..\src\dtrtri.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\dvfill.c">
+				RelativePath="..\src\dvfill.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\ef.c">
+				RelativePath="..\src\ef.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\enpart.c">
+				RelativePath="..\src\enpart.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\esp.c">
+				RelativePath="..\src\esp.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\exchng.c">
+				RelativePath="..\src\exchng.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\fdate.c">
+				RelativePath="..\src\fdate.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\ffhpol.c">
+				RelativePath="..\src\ffhpol.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\flepo.c">
+				RelativePath="..\src\flepo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\fmat.c">
+				RelativePath="..\src\fmat.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\fock1.c">
+				RelativePath="..\src\fock1.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\fock2.c">
+				RelativePath="..\src\fock2.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\force.c">
+				RelativePath="..\src\force.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\formxy.c">
+				RelativePath="..\src\formxy.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\forsav.c">
+				RelativePath="..\src\forsav.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\frame.c">
+				RelativePath="..\src\frame.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\freqcy.c">
+				RelativePath="..\src\freqcy.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\geout.c">
+				RelativePath="..\src\geout.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\geoutg.c">
+				RelativePath="..\src\geoutg.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\getgeg.c">
+				RelativePath="..\src\getgeg.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\getgeo.c">
+				RelativePath="..\src\getgeo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\getsym.c">
+				RelativePath="..\src\getsym.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\gettxt.c">
+				RelativePath="..\src\gettxt.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\gmetry.c">
+				RelativePath="..\src\gmetry.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\gover.c">
+				RelativePath="..\src\gover.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\greenf.c">
+				RelativePath="..\src\greenf.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\grid.c">
+				RelativePath="..\src\grid.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\h1elec.c">
+				RelativePath="..\src\h1elec.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\haddon.c">
+				RelativePath="..\src\haddon.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hcore.c">
+				RelativePath="..\src\hcore.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\helect.c">
+				RelativePath="..\src\helect.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\hqrii.c">
+				RelativePath="..\src\hqrii.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\ijkl.c">
+				RelativePath="..\src\ijkl.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\ilaenv.c">
+				RelativePath="..\src\ilaenv.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\initsv.c">
+				RelativePath="..\src\initsv.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\interp.c">
+				RelativePath="..\src\interp.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\iter.c">
+				RelativePath="..\src\iter.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\jcarin.c">
+				RelativePath="..\src\jcarin.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\linmin.c">
+				RelativePath="..\src\linmin.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\local.c">
+				RelativePath="..\src\local.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\locmin.c">
+				RelativePath="..\src\locmin.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\lsame.c">
+				RelativePath="..\src\lsame.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\makpol.c">
+				RelativePath="..\src\makpol.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mamult.c">
+				RelativePath="..\src\mamult.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\matou1.c">
+				RelativePath="..\src\matou1.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\matout.c">
+				RelativePath="..\src\matout.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\matpak.c">
+				RelativePath="..\src\matpak.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\meci.c">
+				RelativePath="..\src\meci.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mecid.c">
+				RelativePath="..\src\mecid.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mecih.c">
+				RelativePath="..\src\mecih.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mecip.c">
+				RelativePath="..\src\mecip.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\moldat.c">
+				RelativePath="..\src\moldat.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\molval.c">
+				RelativePath="..\src\molval.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mopac7app.c">
+				RelativePath="..\src\mopac7app.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mopac7lib.c">
+				RelativePath="..\src\mopac7lib.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mullik.c">
+				RelativePath="..\src\mullik.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\mult.c">
+				RelativePath="..\src\mult.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\nllsq.c">
+				RelativePath="..\src\nllsq.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\nuchar.c">
+				RelativePath="..\src\nuchar.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\parsav.c">
+				RelativePath="..\src\parsav.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\partxy.c">
+				RelativePath="..\src\partxy.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\pathk.c">
+				RelativePath="..\src\pathk.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\paths.c">
+				RelativePath="..\src\paths.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\perm.c">
+				RelativePath="..\src\perm.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\polar.c">
+				RelativePath="..\src\polar.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\powsav.c">
+				RelativePath="..\src\powsav.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\powsq.c">
+				RelativePath="..\src\powsq.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\prtdrc.c">
+				RelativePath="..\src\prtdrc.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\quadr.c">
+				RelativePath="..\src\quadr.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\react1.c">
+				RelativePath="..\src\react1.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\reada.c">
+				RelativePath="..\src\reada.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\readmo.c">
+				RelativePath="..\src\readmo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\refer.c">
+				RelativePath="..\src\refer.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\repp.c">
+				RelativePath="..\src\repp.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\rotat.c">
+				RelativePath="..\src\rotat.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\rotate.c">
+				RelativePath="..\src\rotate.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\rsp.c">
+				RelativePath="..\src\rsp.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\search.c">
+				RelativePath="..\src\search.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\second.c">
+				RelativePath="..\src\second.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\setupg.c">
+				RelativePath="..\src\setupg.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\solrot.c">
+				RelativePath="..\src\solrot.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\swap.c">
+				RelativePath="..\src\swap.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\sympro.c">
+				RelativePath="..\src\sympro.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\symtry.c">
+				RelativePath="..\src\symtry.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\symtrz.c">
+				RelativePath="..\src\symtrz.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\thermo.c">
+				RelativePath="..\src\thermo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\timer.c">
+				RelativePath="..\src\timer.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\timout.c">
+				RelativePath="..\src\timout.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\update.c">
+				RelativePath="..\src\update.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\upsurf.c">
+				RelativePath="..\src\upsurf.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\vecprt.c">
+				RelativePath="..\src\vecprt.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\writmo.c">
+				RelativePath="..\src\writmo.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\wrtkey.c">
+				RelativePath="..\src\wrtkey.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\wrttxt.c">
+				RelativePath="..\src\wrttxt.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\xerbla.c">
+				RelativePath="..\src\xerbla.c"
+				>
 			</File>
 			<File
-				RelativePath="..\src\xyzint.c">
+				RelativePath="..\src\xyzint.c"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>

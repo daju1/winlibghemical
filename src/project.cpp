@@ -222,7 +222,7 @@ void project::ParseProjectFileNameAndPath(const char * string)
 	// and now set project_filename, without extension...
 	
 	i32s lastext = NOT_DEFINED;
-	for (/*i32s*/ n1 = 0;n1 < (i32s) strlen(localstring2);n1++)
+	for (i32s n1 = 0;n1 < (i32s) strlen(localstring2);n1++)
 	{
 		if (localstring2[n1] == EXT_SEPARATOR) lastext = n1;
 	}
@@ -540,14 +540,14 @@ void project::EvaluateBFact(void)
 		}
 	}
 	
-	for (/*i32u*/ ac = 0;ac < av.size();ac++)
+	for (i32u ac = 0;ac < av.size();ac++)
 	{
 		avrg_str[ac * 3 + 0] /= (fGL) GetTotalFrames();
 		avrg_str[ac * 3 + 1] /= (fGL) GetTotalFrames();
 		avrg_str[ac * 3 + 2] /= (fGL) GetTotalFrames();
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < GetTotalFrames();n1++)
+	for (i32s n1 = 0;n1 < GetTotalFrames();n1++)
 	{
 		SetCurrentFrame(n1);
 		ReadFrame();
@@ -566,12 +566,12 @@ void project::EvaluateBFact(void)
 		}
 	}
 	
-	for (/*i32u*/ ac = 0;ac < av.size();ac++)
+	for (i32u ac = 0;ac < av.size();ac++)
 	{
 		b_tab[ac] /= (fGL) GetTotalFrames();
 	}
 	
-	for (/*i32u*/ ac = 0;ac < av.size();ac++)
+	for (i32u ac = 0;ac < av.size();ac++)
 	{
 		char txtbuff[1024];
 		ostrstream txts(txtbuff, sizeof(txtbuff));
@@ -649,12 +649,12 @@ void project::EvaluateDiffConst(double dt)
 		}
 	}
 	
-	for (/*i32u*/ ac = 0;ac < av.size();ac++)
+	for (i32u ac = 0;ac < av.size();ac++)
 	{
 		dc_tab[ac] /= (double) (GetTotalFrames() - 1);
 	}
 	
-	for (/*i32u*/ ac = 0;ac < av.size();ac++)
+	for (i32u ac = 0;ac < av.size();ac++)
 	{
 		char txtbuff[1024];
 		ostrstream txts(txtbuff, sizeof(txtbuff));
@@ -796,7 +796,7 @@ bool project::AddGlobalLight(light * p1)
 	light_vector.push_back(p1);
 	SetGlobalLightNumbers();
 	
-	for (/*i32u*/ n1 = 0;n1 < camera_vector.size();n1++)
+	for (i32u n1 = 0;n1 < camera_vector.size();n1++)
 	{
 		SetLocalLightNumbers(camera_vector[n1]);
 		SetupLights(camera_vector[n1]);
@@ -1349,7 +1349,7 @@ void project::RenderAllTPs(graphics_view * gv, rmode)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(false); glEnable(GL_BLEND);
 	
-	for (/*i32u*/ n1 = 0;n1 < tp_vector.size();n1++)
+	for (i32u n1 = 0;n1 < tp_vector.size();n1++)
 	{
 		tp_vector[n1].GetData()->Render();
 	}
@@ -3719,7 +3719,7 @@ if (accum) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// FIXME!!!
 					glDisable(GL_LINE_STIPPLE);
 				}
 				
-				for (/*i32u*/ n2 = 0;n2 < susf->sp_vector.size();n2++)
+				for (i32u n2 = 0;n2 < susf->sp_vector.size();n2++)
 				{
 					glEnable(GL_LINE_STIPPLE);
 					glLineStipple(1, 0x1111);
@@ -3742,7 +3742,7 @@ if (accum) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// FIXME!!!
 				
 				// protein chains...
 				
-				for (/*i32u*/ n2 = 0;n2 < susf->chn_vector.size();n2++)
+				for (i32u n2 = 0;n2 < susf->chn_vector.size();n2++)
 				{
 					for (i32s n3 = 0;n3 < ((i32s) susf->chn_vector[n2].res_vector.size()) - 1;n3++)
 					{
@@ -3947,7 +3947,7 @@ void project::Center(transformer * p1)
 	p1->GetLocDataRW()->crd[1] /= (fGL) sum;
 	p1->GetLocDataRW()->crd[2] /= (fGL) sum;
 	
-	for (/*iter_al*/ it1 = atom_list.begin();it1 != atom_list.end();it1++)
+	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 	{
 		if (!((* it1).flags & ATOMFLAG_SELECTED)) continue;
 		for (i32u n1 = 0;n1 < cs_vector.size();n1++)
@@ -5825,7 +5825,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 		delete opt;
 		
 #endif
-		for (/*i32u*/ n1 = 0;n1 < av_tmp.size();n1++)
+		for (i32u n1 = 0;n1 < av_tmp.size();n1++)
 		{
 			const fGL * tmpcrd = av_tmp[n1]->GetCRD(0);
 			av[n1]->SetCRD(0, tmpcrd[0], tmpcrd[1], tmpcrd[2]);
@@ -6012,7 +6012,7 @@ printf("project::DoEnergyPlot1D 9\n");
 		tmpmdl->CenterCRDSet(0, true);
 		delete opt;
 		
-		for (/*i32u*/ n1 = 0;n1 < av_tmp.size();n1++)
+		for (i32u n1 = 0;n1 < av_tmp.size();n1++)
 		{
 			const fGL * tmpcrd = av_tmp[n1]->GetCRD(0);
 			av[n1]->SetCRD(0, tmpcrd[0], tmpcrd[1], tmpcrd[2]);
@@ -6228,8 +6228,8 @@ Message("BUG notice : TSS and libmopac7 seem to have\nsome compatibility problem
 	rcp_view * plot = AddReactionCoordinatePlotView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
 	
 	for (i32u n1 = 0;n1 < tss->patoms.size();n1++) plot->AddPAtom(tss->patoms[n1]);
-	for (/*i32u*/ n1 = 0;n1 < tss->rbonds.size();n1++) plot->AddRBond(tss->rbonds[n1]);
-	for (/*i32u*/ n1 = 0;n1 < tss->pbonds.size();n1++) plot->AddPBond(tss->pbonds[n1]);
+	for (i32u n1 = 0;n1 < tss->rbonds.size();n1++) plot->AddRBond(tss->rbonds[n1]);
+	for (i32u n1 = 0;n1 < tss->pbonds.size();n1++) plot->AddPBond(tss->pbonds[n1]);
 	
 	void * udata;
 	

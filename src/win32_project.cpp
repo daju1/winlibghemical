@@ -555,6 +555,11 @@ void win_project::popup_FileOpen(HWND widget, void* data)
 		
 		ifstream ifile;
 		ifile.open(filename, ios::in);
+		if (ifile.bad())
+		{
+			printf("file \"%s\" did not opened\n", filename);
+			return;
+		}
 		ReadGPR(* prj, ifile, !open);
 		ifile.close();
 		

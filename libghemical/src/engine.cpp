@@ -678,7 +678,7 @@ printf("engine_pbc::engine_pbc\np1 = %x p2 = %d", p1, p2);
 	mrange = new i32s[nmol_mm + 1];
 	
 	mrange[0] = 0; 
-	/*i32s*/ index = 1;
+	i32s index = 1;
 	for (i32s n1 = 0;n1 < nmol_mm;n1++)
 	{
 		while (index < GetSetup()->GetMMAtomCount() && atmtab[index]->id[0] == n1) index++;
@@ -707,7 +707,7 @@ void engine_pbc::CheckLocations(void)
 			}
 		}
 
-		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
+		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			f64 test = sum[n2] / ac;
 			
@@ -764,7 +764,7 @@ void engine_wbp::CheckLocations(void)
 			}
 		}
 
-		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
+		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 #if SEVERAL_WBP
 			map<int, int>::iterator found = mN2.find(n2);
@@ -1106,7 +1106,7 @@ void engine_pbc2::CheckLocations(void)
 					sum[n3] += crd[index * 3 + n3];
 				}
 			}
-			for ( n2 = 0;n2 < 3;n2++)
+			for (i32s n2 = 0;n2 < 3;n2++)
 			{
 				f64 test = sum[n2] / ac;
 				

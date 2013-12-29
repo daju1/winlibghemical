@@ -89,7 +89,7 @@ ribbon::ribbon(project * p1, color_mode * p9, i32s p2, i32s order) : smart_objec
 			if (tmp_sss[n1] == 'S') state[n1] = 'S';
 		}
 		
-		for (/*i32s*/ n1 = 0;n1 < ((i32s) ci_vector[chn].GetLength()) - 3;n1++)
+		for (i32s n1 = 0;n1 < ((i32s) ci_vector[chn].GetLength()) - 3;n1++)
 		{
 			if (tmp_sss[n1] == '4')
 			{
@@ -216,25 +216,25 @@ ribbon::ribbon(project * p1, color_mode * p9, i32s p2, i32s order) : smart_objec
 	UpdateExtraPoints(head_refs1, head_points1, tail_refs1, tail_points1);
 	UpdateExtraPoints(head_refs2, head_points2, tail_refs2, tail_points2);
 	
-	for (/*i32s*/ n1 = 0;n1 < extra_points;n1++)
+	for (i32s n1 = 0;n1 < extra_points;n1++)
 	{
 		ref1->SetPoint(n1, & head_points1[(extra_points - (n1 + 1)) * 3]);
 		ref2->SetPoint(n1, & head_points2[(extra_points - (n1 + 1)) * 3]);
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < extra_points;n1++)
+	for (i32s n1 = 0;n1 < extra_points;n1++)
 	{
 		ref1->SetPoint(extra_points + length + n1, & tail_points1[n1 * 3]);
 		ref2->SetPoint(extra_points + length + n1, & tail_points2[n1 * 3]);
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < length;n1++)
+	for (i32s n1 = 0;n1 < length;n1++)
 	{
 		ref1->SetPoint(extra_points + n1, & cp1[n1 * 3]);
 		ref2->SetPoint(extra_points + n1, & cp2[n1 * 3]);
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < length + extra_points * 2 + order;n1++)
+	for (i32s n1 = 0;n1 < length + extra_points * 2 + order;n1++)
 	{
 		ref1->SetKnot(n1, (fGL) (n1 - extra_points) - (fGL) order / 2.0);
 		ref2->SetKnot(n1, (fGL) (n1 - extra_points) - (fGL) order / 2.0);
@@ -249,7 +249,7 @@ ribbon::ribbon(project * p1, color_mode * p9, i32s p2, i32s order) : smart_objec
 	data2a = new fGL[np2 * 3];
 	data2b = new fGL[np2 * 3];
 	
-	for (/*i32s*/ n1 = 0;n1 < np2;n1++)
+	for (i32s n1 = 0;n1 < np2;n1++)
 	{
 		data1[n1] = ((fGL) (length - 1) * n1) / (fGL) np1;
 		i32s index = (i32s) floor(data1[n1] + 0.5);
@@ -320,7 +320,7 @@ void ribbon::UpdateExtraPoints(fGL ** hr, fGL * hp, fGL ** tr, fGL * tp)
 	
 	tmpv1 = v3d<fGL>(tr[1]);
 	tmpv2 = v3d<fGL>(tr[0], tr[1]);
-	for (/*i32s*/ n1 = 0;n1 < extra_points;n1++)
+	for (i32s n1 = 0;n1 < extra_points;n1++)
 	{
 		v3d<fGL> tmpv3 = tmpv1 + (tmpv2 * ((fGL) n1 + 1));
 		for (i32s n2 = 0;n2 < 3;n2++) tp[n1 * 3 + n2] = tmpv3[n2];

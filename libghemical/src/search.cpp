@@ -331,7 +331,7 @@ i32s monte_carlo_search::TakeStep(void)
 				curr_ic2[n1] = 2.0 * M_PI * random;
 			}
 			
-			for (/*i32s*/ n1 = 0;n1 < nvar;n1++)
+			for (i32s n1 = 0;n1 < nvar;n1++)
 			{
 				ic->SetVariable(n1, curr_ic2[n1]);
 			}
@@ -484,7 +484,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	i32s new_csets1 = 2 - mdl->GetCRDSetCount();
 	if (new_csets1 > 0) mdl->PushCRDSets(new_csets1);
 	
-	for (/*i32u*/ n1 = 0;n1 < half;n1++)
+	for (i32u n1 = 0;n1 < half;n1++)
 	{
 		const fGL * crd = atab2[n1]->GetCRD(0);
 		atab1[n1]->SetCRD(1, crd[0], crd[1], crd[2]);
@@ -504,7 +504,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 		}
 	
 		bool bonded_to_p = false;
-		for (/*i32u*/ n1 = 0;n1 < half;n1++)
+		for (i32u n1 = 0;n1 < half;n1++)
 		{
 			if ((* it1).atmr[0] == atab2[n1]) bonded_to_p = true;
 			if ((* it1).atmr[1] == atab2[n1]) bonded_to_p = true;
@@ -569,7 +569,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	}
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < bvect_r.size();n1++)
+	for (i32u n1 = 0;n1 < bvect_r.size();n1++)
 	{
 		for (i32u n2 = 0;n2 < 2;n2++)
 		{
@@ -588,7 +588,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 			if (atmi == NOT_DEFINED) { cout << "search r1 failed!" << endl; exit(EXIT_FAILURE); }
 			
 			bool unique = true;
-			for (/*i32u*/ n3 = 0;n3 < patoms.size();n3++)
+			for (i32u n3 = 0;n3 < patoms.size();n3++)
 			{
 				if (patoms[n3] == (i32u) atmi) unique = false;
 			}
@@ -604,7 +604,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 		rbonds.push_back(& (* itb));	// we are on the reactant side -> the bond is ok!
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < bvect_p.size();n1++)
+	for (i32u n1 = 0;n1 < bvect_p.size();n1++)
 	{
 		i32s stored_atmi[2] = { NOT_DEFINED, NOT_DEFINED };
 		
@@ -626,7 +626,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 			if (atmi == NOT_DEFINED) { cout << "search p1 failed!" << endl; exit(EXIT_FAILURE); }
 			
 			bool unique = true;
-			for (/*i32u*/ n3 = 0;n3 < patoms.size();n3++)
+			for (i32u n3 = 0;n3 < patoms.size();n3++)
 			{
 				if (patoms[n3] == (i32u) atmi) unique = false;
 			}
@@ -650,7 +650,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	
 	// remove the duplicate atoms...
 	
-	for (/*i32u*/ n1 = 0;n1 < half;n1++)
+	for (i32u n1 = 0;n1 < half;n1++)
 	{
 		iter_al it1 = mdl->GetAtomsBegin();
 		while (it1 != mdl->GetAtomsEnd())
@@ -670,7 +670,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	// ...and then superimpose the initial reactant/product structures.
 	
 	superimpose si(mdl, 0, 1);
-	for (/*i32s*/ n1 = 0;n1 < 100;n1++)
+	for (i32s n1 = 0;n1 < 100;n1++)
 	{
 		si.TakeCGStep(conjugate_gradient::Newton2An);
 		cout << "step = " << n1 << " value = " << si.optval << endl;
@@ -722,7 +722,7 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	
 	suqm->DiscardCurrentEngine();	// make sure to release mopac_lock!!!
 	
-	for (/*i32s*/ n1 = 0;n1 < 2;n1++)
+	for (i32s n1 = 0;n1 < 2;n1++)
 	{
 		engine * eng1 = suqm->CreateEngineByIndex(suqm->GetCurrEngIndex());
 		eng1_qm * eng2 = dynamic_cast<eng1_qm *>(eng1);
@@ -885,7 +885,7 @@ void transition_state_search::UpdateTargets(bool * update)
 		check_fc[!n1] = true;
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < 2;n1++)
+	for (i32s n1 = 0;n1 < 2;n1++)
 	{
 		if (last_de[n1] < 1.0e-15) continue;	// flipped??? test using zero???
 		if (!check_fc[n1]) continue;

@@ -116,7 +116,7 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 	if (ostr != NULL) (* ostr) << "creating bt2-terms: ";
 	i32s bt2_err = 0;
 	
-	for (/*i32s*/ n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+	for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 	{
 		if (atmtab[n1]->cr_list.size() < 2) continue;
 		
@@ -182,7 +182,7 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 	if (ostr != NULL) (* ostr) << "creating bt3-terms: ";
 	i32s bt3_err = 0;
 	
-	for (/*i32s*/ n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+	for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 	{
 		if (atmtab[n1]->cr_list.size() < 2) continue;
 		
@@ -248,7 +248,7 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 			}
 			
 			vector<i32s> ind2b; vector<bool> dir2b;
-			for (/*i32u*/ n2 = 0;n2 < ind1b.size();n2++)
+			for (i32u n2 = 0;n2 < ind1b.size();n2++)
 			{
 				i32s tmp1 = 0; i32s tmp2 = NOT_DEFINED;
 				while (true)
@@ -268,7 +268,7 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 			
 			// now finally create the terms!!!!!
 			
-			for (/*i32u*/ n2 = 0;n2 < ind2a.size();n2++)
+			for (i32u n2 = 0;n2 < ind2a.size();n2++)
 			{
 				for (i32u n3 = 0;n3 < ind2b.size();n3++)
 				{
@@ -344,7 +344,7 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 	if (ostr != NULL) (* ostr) << "creating bt4-terms: ";
 	i32s bt4_err = 0;
 	
-	for (/*i32s*/ n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+	for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 	{
 		const prmfit_at * tp = tab.GetAtomType(atmtab[n1]->atmtp);
 		if (!tp || (tp != NULL && !(tp->flags & 16))) continue;
@@ -584,7 +584,7 @@ i32s eng1_mm_prmfit::FindTorsion(atom * a1, atom * a2, atom * a3, atom * a4)
 		iloc[n1] = index;
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
+	for (i32s n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
 	{
 		bool test;	// since torsion is the same in both directions, we can ignore direction...
 		
@@ -700,7 +700,7 @@ void eng1_mm_prmfit::ComputeBT1(i32u p1)
 		
 		f64 t1c = sqrt(t1b);
 		bt1data[n1].len = t1c;
-		for (/*i32s*/ n2 = 0;n2 < 3;n2++)
+		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			f64 t9a = t1a[n2] / t1c;
 			

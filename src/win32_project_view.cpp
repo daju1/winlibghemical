@@ -322,7 +322,7 @@ g_signal_connect_swapped(GTK_OBJECT(bonds_widget), "button_press_event", G_CALLB
 		LightAdded(prj->light_vector[n1]);
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < prj->object_vector.size();n1++)
+	for (i32u n1 = 0;n1 < prj->object_vector.size();n1++)
 	{
 		ObjectAdded(prj->object_vector[n1]);
 	}

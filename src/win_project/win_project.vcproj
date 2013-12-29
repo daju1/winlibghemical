@@ -1,97 +1,282 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9,00"
 	Name="win_project"
 	ProjectGUID="{0724DADE-93E4-4C6E-B138-EF9FBD1FBF8E}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
-				RuntimeTypeInfo="TRUE"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/../../../win_project.lib"/>
+				OutputFile="$(OutDir)/../../../win_project.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="4"
-				RuntimeTypeInfo="TRUE"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/../../../win_project.lib"/>
+				OutputFile="$(OutDir)/../../../win_project.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/../../../win_project.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				RuntimeLibrary="0"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/../../../win_project.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -100,199 +285,260 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath="..\camera.cpp">
+				RelativePath="..\camera.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\director.cpp">
+				RelativePath="..\director.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\filetrans.cpp">
+				RelativePath="..\filetrans.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\glade_dialog.cpp">
+				RelativePath="..\glade_dialog.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\mtools.cpp">
+				RelativePath="..\mtools.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\objects.cpp">
+				RelativePath="..\objects.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\plane.cpp">
+				RelativePath="..\plane.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\project.cpp">
+				RelativePath="..\project.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\ribbon.cpp">
+				RelativePath="..\ribbon.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\spline.cpp">
+				RelativePath="..\spline.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\StdAfx.cpp">
+				RelativePath="..\StdAfx.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\surface.cpp">
+				RelativePath="..\surface.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\views.cpp">
+				RelativePath="..\views.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_app.cpp">
+				RelativePath="..\win32_app.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_dialog.cpp">
+				RelativePath="..\win32_dialog.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_graphics_view.cpp">
+				RelativePath="..\win32_graphics_view.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_plot_views.cpp">
+				RelativePath="..\win32_plot_views.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_project.cpp">
+				RelativePath="..\win32_project.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_project_view.cpp">
+				RelativePath="..\win32_project_view.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_views.cpp">
+				RelativePath="..\win32_views.cpp"
+				>
 			</File>
 			<Filter
 				Name="glade"
-				Filter="">
+				>
 				<File
-					RelativePath="..\glade\geomopt_dialog.cpp">
+					RelativePath="..\glade\geomopt_dialog.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\moldyn_atomlist_dialog.cpp">
+					RelativePath="..\glade\moldyn_atomlist_dialog.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\moldyn_dialog.cpp">
+					RelativePath="..\glade\moldyn_dialog.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\setup_dialog.cpp">
+					RelativePath="..\glade\setup_dialog.cpp"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\trajview_dialog.cpp">
+					RelativePath="..\glade\trajview_dialog.cpp"
+					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath="..\ap.h">
+				RelativePath="..\ap.h"
+				>
 			</File>
 			<File
-				RelativePath="..\appconfig.h">
+				RelativePath="..\appconfig.h"
+				>
 			</File>
 			<File
-				RelativePath="..\appdefine.h">
+				RelativePath="..\appdefine.h"
+				>
 			</File>
 			<File
-				RelativePath="..\camera.h">
+				RelativePath="..\camera.h"
+				>
 			</File>
 			<File
-				RelativePath="..\color.h">
+				RelativePath="..\color.h"
+				>
 			</File>
 			<File
-				RelativePath="..\director.h">
+				RelativePath="..\director.h"
+				>
 			</File>
 			<File
-				RelativePath="..\filetrans.h">
+				RelativePath="..\filetrans.h"
+				>
 			</File>
 			<File
-				RelativePath="..\glade_dialog.h">
+				RelativePath="..\glade_dialog.h"
+				>
 			</File>
 			<File
-				RelativePath="..\mtools.h">
+				RelativePath="..\mtools.h"
+				>
 			</File>
 			<File
-				RelativePath="..\objects.h">
+				RelativePath="..\objects.h"
+				>
 			</File>
 			<File
-				RelativePath="..\plane.h">
+				RelativePath="..\plane.h"
+				>
 			</File>
 			<File
-				RelativePath="..\project.h">
+				RelativePath="..\project.h"
+				>
 			</File>
 			<File
-				RelativePath="..\ribbon.h">
+				RelativePath="..\ribbon.h"
+				>
 			</File>
 			<File
-				RelativePath="..\spline.h">
+				RelativePath="..\spline.h"
+				>
 			</File>
 			<File
-				RelativePath="..\StdAfx.h">
+				RelativePath="..\StdAfx.h"
+				>
 			</File>
 			<File
-				RelativePath="..\surface.h">
+				RelativePath="..\surface.h"
+				>
 			</File>
 			<File
-				RelativePath="..\views.h">
+				RelativePath="..\views.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_app.h">
+				RelativePath="..\win32_app.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_dialog.h">
+				RelativePath="..\win32_dialog.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_graphics_view.h">
+				RelativePath="..\win32_graphics_view.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_plot_views.h">
+				RelativePath="..\win32_plot_views.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_project.h">
+				RelativePath="..\win32_project.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_project_view.h">
+				RelativePath="..\win32_project_view.h"
+				>
 			</File>
 			<File
-				RelativePath="..\win32_views.h">
+				RelativePath="..\win32_views.h"
+				>
 			</File>
 			<Filter
 				Name="glade"
-				Filter="">
+				>
 				<File
-					RelativePath="..\glade\file_export_dialog.h">
+					RelativePath="..\glade\file_export_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\file_import_dialog.h">
+					RelativePath="..\glade\file_import_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\geomopt_dialog.h">
+					RelativePath="..\glade\geomopt_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\moldyn_atomlist_dialog.h">
+					RelativePath="..\glade\moldyn_atomlist_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\moldyn_dialog.h">
+					RelativePath="..\glade\moldyn_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\progress_dialog.h">
+					RelativePath="..\glade\progress_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\setup_dialog.h">
+					RelativePath="..\glade\setup_dialog.h"
+					>
 				</File>
 				<File
-					RelativePath="..\glade\trajview_dialog.h">
+					RelativePath="..\glade\trajview_dialog.h"
+					>
 				</File>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>

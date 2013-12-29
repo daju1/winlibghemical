@@ -255,14 +255,14 @@ void sequencebuilder::Build(model * mdl, char * sequence, f64 * tor)
 		else cout << "unknown residue " << sequence[n1] << endl;
 		
 		vector<i32s> tmpv1; atmr_vector tmpv2;
-		for (/*i32u*/ n2 = 0;n2 < id_vector.size();n2++)
+		for (i32u n2 = 0;n2 < id_vector.size();n2++)
 		{
 			if (id_vector[n2] & 0xFF00) continue;
 			tmpv1.push_back(id_vector[n2]); tmpv2.push_back(ref_vector[n2]);
 		}
 		
 		id_vector.resize(0); ref_vector.resize(0);
-		for (/*i32u*/ n2 = 0;n2 < tmpv1.size();n2++)
+		for (i32u n2 = 0;n2 < tmpv1.size();n2++)
 		{
 			id_vector.push_back(tmpv1[n2] + 0xFF00);
 			ref_vector.push_back(tmpv2[n2]);
@@ -349,7 +349,7 @@ cout << "nmol = " << mdl->nmol << endl;
 		
 		if (path_vector.size()) cout << path_vector.size() << " chains:" << endl;
 		
-		for (/*i32s*/ n2 = 0;n2 < (i32s) path_vector.size();n2++)
+		for (i32s n2 = 0;n2 < (i32s) path_vector.size();n2++)
 		{
 			for (i32s n3 = 0;n3 < ((i32s) path_vector[n2].size()) - 1;n3++)		// tag the main-chain bonds...
 			{
@@ -434,7 +434,7 @@ cout << "nmol = " << mdl->nmol << endl;
 					}
 					
 					CheckTemplate(tdata, 0);
-					for (/*i32s*/ n4 = 0;n4 < (i32s) tdata.size();n4++)
+					for (i32s n4 = 0;n4 < (i32s) tdata.size();n4++)
 					{
 						tdata[n4].ref->builder_res_id = (residue_vector[tmp1[0]].id << 8) + tdata[n4].id[0];
 						
@@ -508,7 +508,7 @@ cout << "nmol = " << mdl->nmol << endl;
 			newinfo.id_mol = n1;
 			newinfo.id_chn = mdl->ref_civ->size();
 			
-			for (/*i32u*/ n3 = 0;n3 < sequence.size();n3++) newinfo.sequence[n3] = sequence[n3];
+			for (i32u n3 = 0;n3 < sequence.size();n3++) newinfo.sequence[n3] = sequence[n3];
 			
 			mdl->ref_civ->push_back(newinfo);
 			
@@ -517,7 +517,7 @@ cout << "nmol = " << mdl->nmol << endl;
 			cout << "> chain " << newinfo.id_chn;
 			cout << ", length " << newinfo.length << ":" << endl;
 			
-			for (/*i32u*/ n3 = 0;n3 < sequence.size();n3++)
+			for (i32u n3 = 0;n3 < sequence.size();n3++)
 			{
 				cout << sequence[n3];
 				
@@ -529,7 +529,7 @@ cout << "nmol = " << mdl->nmol << endl;
 			
 			// finally un-tag the main-chain bonds...
 			
-			for (/*i32s*/ n3 = 0;n3 < ((i32s) path_vector[n2].size()) - 1;n3++)
+			for (i32s n3 = 0;n3 < ((i32s) path_vector[n2].size()) - 1;n3++)
 			{
 				iter_cl it1 = path_vector[n2][n3]->cr_list.begin();
 				while ((* it1).atmr != path_vector[n2][n3 + 1]) it1++;
@@ -592,7 +592,7 @@ void sequencebuilder::Build(model * mdl, sb_data_res * res, f64 * tor)
 		mdl->AddBond(newbond);
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < res->bnd_vector.size();n1++)
+	for (i32u n1 = 0;n1 < res->bnd_vector.size();n1++)
 	{
 		atom * tmp1[2]; i32s tmp2;
 		tmp2 = 0; while (id_vector[tmp2] != res->bnd_vector[n1].atm[0]) tmp2++; tmp1[0] = ref_vector[tmp2];
@@ -762,7 +762,7 @@ bool sequencebuilder::CheckTemplate(vector<sb_tdata> & tdata, i32s flag)
 			
 			bool result = CheckTemplate(tdata, flag);
 			
-			for (/*i32u*/ n1 = 0;n1 < tmpv1.size();n1++)
+			for (i32u n1 = 0;n1 < tmpv1.size();n1++)
 			{
 				tmpv2[tmpv3[n1]].bndr->flags[flag] = false;
 				if (!result) tdata[tmpv1[n1]].ref = NULL;

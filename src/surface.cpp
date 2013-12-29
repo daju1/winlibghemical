@@ -94,7 +94,7 @@ void color_surface::Update(void)
 	prj->PrintToLog(" done\n");
 	
 	avrg = 0.0; acnt = 0;
-	for (/*i32s*/ n1 = 0;n1 < 3;n1++)
+	for (i32s n1 = 0;n1 < 3;n1++)
 	{
 		i32s tmp1[2]; i32s tmp2[2] = { 0, 0 };
 		prj->PrintToLog("interpolating in ");
@@ -174,7 +174,7 @@ void color_surface::Update(void)
 								}
 							}
 							
-							for (/*i32s*/ n7 = 0;n7 < 3;n7++)
+							for (i32s n7 = 0;n7 < 3;n7++)
 							{
 								cs_line newline;
 								newline.index[0] = id2[n7];
@@ -190,7 +190,7 @@ void color_surface::Update(void)
 					}
 				}
 				
-				for (/*i32s*/ n4 = 0;n4 < 3;n4++)
+				for (i32s n4 = 0;n4 < 3;n4++)
 				{
 					i32s id1a[4]; i32s id1b[4];
 					i32s tmp1[2] = { (n4 + 1) % 3, (n4 + 2) % 3 };
@@ -224,7 +224,7 @@ void color_surface::Update(void)
 						}
 					}
 					
-					for (/*i32s*/ n5 = 0;n5 < 4;n5++)
+					for (i32s n5 = 0;n5 < 4;n5++)
 					{
 						cs_line newline;
 						newline.index[0] = id2[n5];
@@ -300,7 +300,7 @@ void color_surface::Update(void)
 	// check the counterclockwise winding of triangles !!!
 	// check the counterclockwise winding of triangles !!!
 	
-	for (/*i32s*/ n1 = 0;n1 < (i32s) tdata.size();n1++)
+	for (i32s n1 = 0;n1 < (i32s) tdata.size();n1++)
 	{
 		v3d<fGL> nv1 = v3d<fGL>(vdata[tdata[n1].index[0]].normal);
 		v3d<fGL> nv2 = v3d<fGL>(vdata[tdata[n1].index[1]].normal);

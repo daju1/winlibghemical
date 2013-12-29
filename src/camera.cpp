@@ -472,7 +472,7 @@ void camera::RenderObjects(graphics_view * gv)
 		gv->GetProject()->light_vector[n1]->Render();
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < gv->GetProject()->object_vector.size();n1++)
+	for (i32u n1 = 0;n1 < gv->GetProject()->object_vector.size();n1++)
 	{
 		if (gv->GetProject()->object_vector[n1]->transparent) continue;
 		gv->GetProject()->object_vector[n1]->Render();

@@ -36,7 +36,7 @@ GNU General Public License for more details.
 using namespace std;
 
 namespace OpenBabel {
-
+#if OBGraphBase_HAVE_MATCH
 bool OBGraphBase::Match(OBGraphBase &g,bool singleMatch)
 {
 	SetFinishedMatch(false);
@@ -134,6 +134,7 @@ bool OBGraphBase::Match(OBGraphBase &g,
 	return(false);
 }
 
+#endif // OBGraphBase_HAVE_MATCH
 OBNodeBase *OBGraphBase::Begin(vector<OBNodeBase*>::iterator &i)
 {
 	i = _vatom.begin();

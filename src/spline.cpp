@@ -36,7 +36,7 @@ void spline::Compute(fGL p1, fGL * p2)
 		else weight[n1] = 0.0;
 	}
 	
-	for (/*i32s*/ n1 = 1;n1 < order;n1++)
+	for (i32s n1 = 1;n1 < order;n1++)
 	{
 		for (i32s n2 = 0;n2 < ncp;n2++)
 		{
@@ -46,7 +46,7 @@ void spline::Compute(fGL p1, fGL * p2)
 		}
 	}
 	
-	for (/*i32s*/ n1 = 0;n1 < ncp;n1++)
+	for (i32s n1 = 0;n1 < ncp;n1++)
 	{
 		p2[0] += cpcrd[n1][0] * weight[n1];
 		p2[1] += cpcrd[n1][1] * weight[n1];

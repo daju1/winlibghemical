@@ -2592,7 +2592,7 @@ i32u default_tables::e_UpdateCharges(setup * su)
 			}
 			
 			const char * atmname = NULL;
-			for (/*i32s*/ n1 = 0;n1 < ATM_NAME_TAB_SIZE;n1++)
+			for (i32s n1 = 0;n1 < ATM_NAME_TAB_SIZE;n1++)
 			{
 				if (atm_name_tab[n1].id != ((* it1).atmtp_E & ATE_atmn_mask)) continue;
 				
@@ -2729,8 +2729,8 @@ i32u default_tables::e_UpdateCharges(setup * su)
 			}
 			
 			f64 charge = 0.0;
-			for (/*i32s*/ n1 = 0;n1 < charge_row;n1++) in_file.getline(txtbuff, sizeof(txtbuff));
-			for (/*i32s*/ n1 = 0;n1 < charge_ind;n1++) in_file >> charge;
+			for (i32s n1 = 0;n1 < charge_row;n1++) in_file.getline(txtbuff, sizeof(txtbuff));
+			for (i32s n1 = 0;n1 < charge_ind;n1++) in_file >> charge;
 			
 			if (charge < -2.0 || charge > +2.0)
 			{
@@ -3168,7 +3168,7 @@ bool default_tables::e_Init(eng1_mm * eng, mm_default_nbt1 * ref, bool is14)
 	if (skip) return false;
 	
 	i32s index[2] = { NOT_DEFINED, NOT_DEFINED };
-	for (/*i32s*/ n1 = 0;n1 < 2;n1++)
+	for (i32s n1 = 0;n1 < 2;n1++)
 	{
 		for (i32s n2 = 0;n2 < pt_size;n2++)
 		{

@@ -7,7 +7,7 @@
 
 /*################################################################################################*/
 #include "stdafx.h"
-#include "resource.h"
+#include "../consol/resource.h"
 #include "../consol/winghemical.h"
 
 #include "../src/win32_app.h"

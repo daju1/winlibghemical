@@ -171,6 +171,7 @@ public:
 	//@}
 };
 
+
 /*! \brief Graph Base Class
 
 The base class for graphs (e.g. rings, molecules, etc.) in a 
@@ -213,15 +214,20 @@ public:
 	virtual void ClearMatches()                 {}
 	virtual void PushBack(std::vector<OBNodeBase*>&) {}
 	virtual void PrepForMatch()                 {}
+#if OBGraphBase_HAVE_MATCH
 	virtual std::vector<std::pair<OBNodeBase*,std::vector<OBEdgeBase*> > >::iterator BgnMatch() 
 	  {return((std::vector<std::pair<OBNodeBase*,std::vector<OBEdgeBase*> > >::iterator) NULL);}
 	virtual std::vector<std::pair<OBNodeBase*,std::vector<OBEdgeBase*> > >::iterator EndMatch()
 	  {return((std::vector<std::pair<OBNodeBase*,std::vector<OBEdgeBase*> > >::iterator) NULL);}
+#endif
 	virtual OBNodeBase *GetFirstSeed() {return((OBNodeBase*)NULL);}
+#if OBGraphBase_HAVE_MATCH
 	bool Match(OBGraphBase &,bool singleMatch=false);
 	bool Match(OBGraphBase &,
 		       std::vector<std::pair<OBNodeBase*,std::vector<OBEdgeBase*> > >::iterator,
 		       std::vector<OBEdgeBase*>::iterator);
+#endif
+
 };
 
 } //namespace OpenBabel

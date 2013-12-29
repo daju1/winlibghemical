@@ -1,108 +1,328 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9,00"
 	Name="f2c"
 	ProjectGUID="{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/f2c.exe"
 				LinkIncremental="2"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/f2c.pdb"
 				SubSystem="1"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/f2c.exe"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCPreBuildEventTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCCustomBuildTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/f2c.exe"
+				LinkIncremental="2"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/f2c.pdb"
+				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/f2c.exe"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -111,149 +331,196 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\src\cds.c">
+				RelativePath=".\src\cds.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\data.c">
+				RelativePath=".\src\data.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\equiv.c">
+				RelativePath=".\src\equiv.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\error.c">
+				RelativePath=".\src\error.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\exec.c">
+				RelativePath=".\src\exec.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\expr.c">
+				RelativePath=".\src\expr.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\format.c">
+				RelativePath=".\src\format.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\formatdata.c">
+				RelativePath=".\src\formatdata.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\ftypes.h">
+				RelativePath=".\src\ftypes.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\gram.c">
+				RelativePath=".\src\gram.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\init.c">
+				RelativePath=".\src\init.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\intr.c">
+				RelativePath=".\src\intr.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\io.c">
+				RelativePath=".\src\io.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\lex.c">
+				RelativePath=".\src\lex.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\main.c">
+				RelativePath=".\src\main.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\mem.c">
+				RelativePath=".\src\mem.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\misc.c">
+				RelativePath=".\src\misc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\names.c">
+				RelativePath=".\src\names.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\niceprintf.c">
+				RelativePath=".\src\niceprintf.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\output.c">
+				RelativePath=".\src\output.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\p1output.c">
+				RelativePath=".\src\p1output.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\parse_args.c">
+				RelativePath=".\src\parse_args.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\pread.c">
+				RelativePath=".\src\pread.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\proc.c">
+				RelativePath=".\src\proc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\put.c">
+				RelativePath=".\src\put.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\putpcc.c">
+				RelativePath=".\src\putpcc.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\sysdep.c">
+				RelativePath=".\src\sysdep.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\vax.c">
+				RelativePath=".\src\vax.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\version.c">
+				RelativePath=".\src\version.c"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\src\defines.h">
+				RelativePath=".\src\defines.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\defs.h">
+				RelativePath=".\src\defs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\f2c.h">
+				RelativePath=".\src\f2c.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\format.h">
+				RelativePath=".\src\format.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\iob.h">
+				RelativePath=".\src\iob.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\machdefs.h">
+				RelativePath=".\src\machdefs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\names.h">
+				RelativePath=".\src\names.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\niceprintf.h">
+				RelativePath=".\src\niceprintf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\output.h">
+				RelativePath=".\src\output.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\p1defs.h">
+				RelativePath=".\src\p1defs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\parse.h">
+				RelativePath=".\src\parse.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\pccdefs.h">
+				RelativePath=".\src\pccdefs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\sysdep.h">
+				RelativePath=".\src\sysdep.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\tokdefs.h">
+				RelativePath=".\src\tokdefs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\src\usignal.h">
+				RelativePath=".\src\usignal.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>

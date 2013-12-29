@@ -361,7 +361,7 @@ atom::atom(const atom & p1)
 		crd_table[n1 * 3 + 2] = p1.crd_table[n1 * 3 + 2];
 	}
 	
-	for (/*i32u*/ n1 = 0;n1 < 4;n1++) id[n1] = p1.id[n1];
+	for (i32u n1 = 0;n1 < 4;n1++) id[n1] = p1.id[n1];
 	builder_res_id = p1.builder_res_id;
 	
 	index = p1.index;
