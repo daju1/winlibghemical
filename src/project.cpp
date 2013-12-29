@@ -372,7 +372,7 @@ void project::OpenTrajectory(const char * fn)
 		char mbuff1[256]; strstream str1(mbuff1, sizeof(mbuff1));
 		str1 << "the trajectory file contains " << total_traj_frames << " frames." << endl << ends;
 		PrintToLog(mbuff1);
-		
+
 		current_traj_frame = 0;
 	}
 	else PrintToLog("trajectory already exists!\n");
@@ -389,11 +389,26 @@ void project::CloseTrajectory(void)
 	}
 }
 
+size_t project::GetTrajectoryHeaderSize()
+{
+	return (8 + 2 * sizeof(int));
+}
+
+size_t project::GetTrajectoryEnergySize()
+{
+	return (2 * sizeof(float));
+}
+
+size_t project::GetTrajectoryFrameSize()
+{
+	return (GetTrajectoryEnergySize() + 3 * traj_num_atoms * sizeof(float));
+}
+
 void project::ReadFrame(void)
 {
-	i32s place = 8 + 2 * sizeof(int);						// skip the header...
-	place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-	place += 2 * sizeof(float);							// skip epot and ekin...
+	size_t place = GetTrajectoryHeaderSize();						// skip the header...
+	place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+	place += GetTrajectoryEnergySize();							// skip epot and ekin...
 	
 	trajfile->seekg(place, ios::beg);
 	
@@ -417,6 +432,20 @@ i32s project::GetTotalFrames(void)
 {
 	return total_traj_frames;
 }
+
+/*
+std::streampos fileSize( const char* filePath )
+{
+	std::streampos fsize = 0;
+	std::ifstream file( filePath, std::ios::binary );
+
+	fsize = file.tellg();
+	file.seekg( 0, std::ios::end );
+	fsize = file.tellg() - fsize;
+	file.close();
+
+	return fsize;
+}*/
 
 ifstream * project::GetTrajectoryFile(void)
 {

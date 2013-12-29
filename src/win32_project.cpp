@@ -1985,22 +1985,33 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 				{			
 
 					cout << "trying to open \"" << filename << "\"." << endl;
-					prj->OpenTrajectory(filename);						
+					prj->OpenTrajectory(filename);	
+
+					// CalcTotalFrames
+					size_t start_pos = prj->trajfile->tellg();
+					prj->trajfile->seekg(0, std::ios::end);
+					size_t end_pos = prj->trajfile->tellg();
+					prj->trajfile->seekg(start_pos, ios::beg);
+					size_t traj_body_size = end_pos - start_pos;
 				
+					i32s max_frames = prj->GetTotalFrames();
+					size_t real_frames = traj_body_size / prj->GetTrajectoryFrameSize();
+
+
+
 					float ekin;
 					float epot;
 
-					i32s max_frames = prj->GetTotalFrames();
-					total_frames += max_frames;
-					for (i32s loop = 0;loop < max_frames;loop++)
+					total_frames += real_frames;
+					for (i32s loop = 0;loop < real_frames;loop++)
 					{
 						//prj->SetCurrentFrame(loop);//current_traj_frame = loop;
 						//prj->ReadFrame();
 						//void project::ReadFrame(void)
 						{
-							i32s place = 8 + 2 * sizeof(int);						// skip the header...
-							place += (2 + 3 * prj->traj_num_atoms) * sizeof(float) * loop;		// get the correct frame...
-							//place += 2 * sizeof(float);							// skip epot and ekin...
+							i32s place = prj->GetTrajectoryHeaderSize();						// skip the header...
+							place += prj->GetTrajectoryFrameSize() * loop;		// get the correct frame...
+							//place += prj->GetTrajectoryEnergySize();							// skip epot and ekin...
 							
 							prj->trajfile->seekg(place, ios::beg);
 
@@ -2023,9 +2034,9 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 								}
 							}
 						}
-					}					
-					prj->CloseTrajectory();
+					}	
 
+					prj->CloseTrajectory();
 				}
 				ofile.close();
 				prj->TrajectorySetTotalFrames(outfilename, total_frames);

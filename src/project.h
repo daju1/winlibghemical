@@ -240,6 +240,9 @@ class project : public model
 	
 	// methods related to MD trajectories...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	size_t GetTrajectoryHeaderSize();
+	size_t GetTrajectoryEnergySize();
+	size_t GetTrajectoryFrameSize();
 	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
 	void OpenTrajectory(const char *);
 	void CloseTrajectory(void);
