@@ -35,6 +35,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmopac", "..\mopac7-1.00\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "f2c", "..\f2c\f2c.vcproj", "{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example_MolDyn_tst", "..\libghemical\src\simple_test\example_MolDyn_tst\example_MolDyn_tst.vcproj", "{32AF0521-2AF7-41EE-BBEF-9E340AA01936}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "look_md_results", "..\libghemical\src\simple_test\look_md_results\look_md_results.vcproj", "{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{C28DD6E8-2EF4-4176-8B58-892E38BB08A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -108,8 +114,29 @@ Global
 		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Release|Win32.ActiveCfg = Release|Win32
 		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Release|x64.ActiveCfg = Release|x64
 		{E5E8E4C0-ADA3-443D-8509-B25044D45EFF}.Release|x64.Build.0 = Release|x64
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Debug|Win32.ActiveCfg = Debug|Win32
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Debug|Win32.Build.0 = Debug|Win32
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Debug|x64.ActiveCfg = Debug|x64
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Debug|x64.Build.0 = Debug|x64
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Release|Win32.ActiveCfg = Release|Win32
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Release|Win32.Build.0 = Release|Win32
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Release|x64.ActiveCfg = Release|x64
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936}.Release|x64.Build.0 = Release|x64
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Debug|Win32.Build.0 = Debug|Win32
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Debug|x64.ActiveCfg = Debug|Win32
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Release|Win32.ActiveCfg = Release|Win32
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Release|Win32.Build.0 = Release|Win32
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32AF0521-2AF7-41EE-BBEF-9E340AA01936} = {C28DD6E8-2EF4-4176-8B58-892E38BB08A2}
+		{B598767C-871F-41D8-8FC7-BBA2C47E74B4} = {C28DD6E8-2EF4-4176-8B58-892E38BB08A2}
+		{6BABD4B0-3AE9-4B62-8035-E37AED6CA25D} = {C28DD6E8-2EF4-4176-8B58-892E38BB08A2}
+		{029E047F-9807-4130-A2B6-6FD8C1063833} = {C28DD6E8-2EF4-4176-8B58-892E38BB08A2}
+		{B8D5C8F2-DB4B-406A-86F8-53DE3BD7CB5F} = {C28DD6E8-2EF4-4176-8B58-892E38BB08A2}
 	EndGlobalSection
 EndGlobal

@@ -37,7 +37,7 @@ BOOL CALLBACK DlgProcMolDyn(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
     case WM_COMMAND: 
         switch (LOWORD(wParam)) 
         { 
-		case IDC_BUTTON_BROWSE:
+		case IDC_BUTTON_BROWSE_TRAJ:
 			{
 				if (moldyn_dlg) 
 					moldyn_dlg->handler_ButtonBrowse(NULL, moldyn_dlg);
@@ -286,16 +286,22 @@ BOOL CALLBACK DlgProcMolDyn_tst(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
     case WM_COMMAND: 
         switch (LOWORD(wParam)) 
         { 
-		case IDC_BUTTON_BROWSE:
+		case IDC_BUTTON_BROWSE_TRAJ:
 			{
 				if (moldyn_tst_dlg) 
-					moldyn_tst_dlg->handler_ButtonBrowse(NULL, moldyn_tst_dlg);
+					moldyn_tst_dlg->handler_ButtonBrowseTraj(NULL, moldyn_tst_dlg);
 			}
 			break;
-		case IDC_BUTTON_BROWSE2:
+		case IDC_BUTTON_BROWSE_INPUT_FRAME:
 			{
 				if (moldyn_tst_dlg) 
-					moldyn_tst_dlg->handler_ButtonBrowse2(NULL, moldyn_tst_dlg);
+					moldyn_tst_dlg->handler_ButtonBrowseInputFrame(NULL, moldyn_tst_dlg);
+			}
+			break;
+		case IDC_BUTTON_BROWSE_OUTPUT_FRAME:
+			{
+				if (moldyn_tst_dlg) 
+					moldyn_tst_dlg->handler_ButtonBrowseOutputFrame(NULL, moldyn_tst_dlg);
 			}
 			break;
 		case IDC_CHECK_LOAD_LAST_FRAME:
@@ -456,8 +462,9 @@ void moldyn_tst_dialog::OnInitDialog()
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	// gtk_entry_set_text(GTK_ENTRY(entry_trajfile), param->filename);
-	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE, param->filename);
-	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE2, param->filename2);
+	SetDlgItemText(hDlg,IDC_EDIT_TRAJFILE, param->filename_traj);
+	SetDlgItemText(hDlg,IDC_EDIT_INPUT_FRAME_FILE, param->filename_input_frame);
+	SetDlgItemText(hDlg,IDC_EDIT_OUTPUT_FRAME_FILE, param->filename_output_frame);
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	SendDlgItemMessage(this->hDlg,IDC_MOL_DYN_ATOM_LIST, LB_RESETCONTENT,0,0);
@@ -530,10 +537,13 @@ void moldyn_tst_dialog::handler_ButtonOK(HWND, void * data)
 	
 	//buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_trajfile));
 	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE, buffer, 1023);
-	strcpy(ref->param->filename, buffer);
+	strcpy(ref->param->filename_traj, buffer);
 
-	GetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, buffer, 1023);
-	strcpy(ref->param->filename2, buffer);
+	GetDlgItemText(ref->hDlg,IDC_EDIT_INPUT_FRAME_FILE, buffer, 1023);
+	strcpy(ref->param->filename_input_frame, buffer);
+
+	GetDlgItemText(ref->hDlg,IDC_EDIT_OUTPUT_FRAME_FILE, buffer, 1023);
+	strcpy(ref->param->filename_output_frame, buffer);
 
 	//ref->param->constant_e = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_e)) == TRUE ? true : false);
 	ref->param->constant_e = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_CONSTANT_E) 
@@ -570,7 +580,7 @@ void moldyn_tst_dialog::handler_ButtonCancel(HWND, void * data)		// not really n
 	ref->param->confirm = false;
 }
 
-void moldyn_tst_dialog::handler_ButtonBrowse(HWND, void * data)
+void moldyn_tst_dialog::handler_ButtonBrowseTraj(HWND, void * data)
 {
 	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;
 	//cout << "handler_ButtonBrowse() : ref = " << ref << endl;
@@ -596,7 +606,7 @@ void moldyn_tst_dialog::handler_ButtonBrowse(HWND, void * data)
 	gtk_dialog_run(GTK_DIALOG(ref->file_selector)); ref->file_selector = NULL;*/
 }
 
-void moldyn_tst_dialog::handler_ButtonBrowse2(HWND, void * data)
+void moldyn_tst_dialog::handler_ButtonBrowseInputFrame(HWND, void * data)
 {
 	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;
 	//cout << "handler_ButtonBrowse() : ref = " << ref << endl;
@@ -608,22 +618,13 @@ void moldyn_tst_dialog::handler_ButtonBrowse2(HWND, void * data)
 	TCHAR filename[1024];
 
 	sprintf(filename, "\0");
-	if (ref->param->load_last_frame)
+
+	DWORD nFilterIndex;
+	if (OpenFileDlg(0, filter, filename, nFilterIndex) == S_OK)
 	{
-		DWORD nFilterIndex;
-		if (OpenFileDlg(0, filter, filename, nFilterIndex) == S_OK)
-		{
-			SetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, filename);
-		}
+		SetDlgItemText(ref->hDlg,IDC_EDIT_INPUT_FRAME_FILE, filename);
 	}
-	else
-	{
-		DWORD nFilterIndex;
-		if (SaveFileDlg(0, filename, filter, nFilterIndex) == S_OK)
-		{
-			SetDlgItemText(ref->hDlg,IDC_EDIT_TRAJFILE2, filename);
-		}	
-	}
+	
 	
 /*	ref->file_selector = gtk_file_selection_new("Select a Trajectory File.");
 	g_signal_connect(GTK_FILE_SELECTION(ref->file_selector)->ok_button, "clicked", G_CALLBACK(handler_FileChooser), data);
@@ -633,6 +634,37 @@ void moldyn_tst_dialog::handler_ButtonBrowse2(HWND, void * data)
 	
 	gtk_dialog_run(GTK_DIALOG(ref->file_selector)); ref->file_selector = NULL;*/
 }
+
+
+void moldyn_tst_dialog::handler_ButtonBrowseOutputFrame(HWND, void * data)
+{
+	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;
+	//cout << "handler_ButtonBrowse() : ref = " << ref << endl;
+	
+	// handle the file selection...
+	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	TCHAR filter[] =     TEXT("Ghemical Last Frame File (*.frame)\0*.frame\0")
+						 TEXT("All Files (*.*)\0*.*\0");
+	TCHAR filename[1024];
+
+	sprintf(filename, "\0");
+
+	DWORD nFilterIndex;
+	if (SaveFileDlg(0, filename, filter, nFilterIndex) == S_OK)
+	{
+		SetDlgItemText(ref->hDlg,IDC_EDIT_OUTPUT_FRAME_FILE, filename);
+	}	
+
+	
+/*	ref->file_selector = gtk_file_selection_new("Select a Trajectory File.");
+	g_signal_connect(GTK_FILE_SELECTION(ref->file_selector)->ok_button, "clicked", G_CALLBACK(handler_FileChooser), data);
+	
+	g_signal_connect_swapped(GTK_FILE_SELECTION(ref->file_selector)->ok_button, "clicked", G_CALLBACK(gtk_widget_destroy), ref->file_selector);
+	g_signal_connect_swapped(GTK_FILE_SELECTION(ref->file_selector)->cancel_button, "clicked", G_CALLBACK(gtk_widget_destroy), ref->file_selector);
+	
+	gtk_dialog_run(GTK_DIALOG(ref->file_selector)); ref->file_selector = NULL;*/
+}
+
 void moldyn_tst_dialog::handler_FileChooser(HWND, void * data)
 {
 	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;

@@ -89,8 +89,9 @@ class moldyn_tst_dialog : public glade_dialog
 	static void handler_ButtonOK(HWND, void *);
 	static void handler_ButtonCancel(HWND, void *);
 	
-	static void handler_ButtonBrowse(HWND, void *);
-	static void handler_ButtonBrowse2(HWND, void *);
+	static void handler_ButtonBrowseTraj(HWND, void *);
+	static void handler_ButtonBrowseInputFrame(HWND, void *);
+	static void handler_ButtonBrowseOutputFrame(HWND, void *);
 	static void handler_FileChooser(HWND, void *);
 	static void handler_CheckLoadLastFrame(HWND, void * data);
 

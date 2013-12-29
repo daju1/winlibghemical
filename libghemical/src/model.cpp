@@ -3550,8 +3550,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	if (dyn_l != NULL) dyn_l->langevin_coupling = 0.000;		// set the initial MD settings...
 	/////////////////////////////////////////////////////
 	i32s last_dot;
-	char outfilename[1024];
-	strcpy(outfilename, param.filename);
+	char outfilename_traj[1024];
+	strcpy(outfilename_traj, param.filename_traj);
 
 #if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
 	char ofilename[1024];
@@ -3575,14 +3575,14 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 #endif
 
-	printf("outfilename = %s\n", outfilename);
+	printf("outfilename_traj = %s\n", outfilename_traj);
 	/////////////////////////////////////////////////////
-	ofstream ofile;
+	ofstream ofile_traj;
 	//ofile.open(param.filename, ios::out | ios::binary);
-	ofile.open(outfilename, ios_base::out | ios_base::trunc | ios_base::binary);
+	ofile_traj.open(outfilename_traj, ios_base::out | ios_base::trunc | ios_base::binary);
 	
 	char logfilename[1024];
-	strcpy(logfilename, param.filename);
+	strcpy(logfilename, param.filename_traj);
 	last_dot = NOT_DEFINED;
 	for (i32u fn = 0;fn < strlen(logfilename);fn++)
 	{
@@ -3605,9 +3605,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	const int frame_save_frq = 100;
 	const int total_frames = param.nsteps_s / frame_save_frq;
 	
-	ofile.write((char *) file_id, 8);					// file id, 8 chars.
-	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
-	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+	ofile_traj.write((char *) file_id, 8);					// file id, 8 chars.
+	ofile_traj.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+	ofile_traj.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
 	
 	ThreadUnlock();
 	
@@ -3764,12 +3764,15 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 	if (param.load_last_frame)
 	{
-		dyn->ReadLastFrame(param.filename2);
+		dyn->ReadLastFrame(param.filename_input_frame);
 
 		f64 ekin = dyn->KineticEnergy();
 		printf("ekin = %f\n", ekin);
 		f64 temp = dyn->ConvEKinTemp(ekin);
 		printf("temp = %f\n", temp);
+
+		param.nsteps_h = 0;
+		param.nsteps_e = 0;
 	}
 
 
@@ -4108,8 +4111,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			const float ekin = dyn->GetEKin();
 			const float epot = dyn->GetEPot();
 			
-			ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
-			ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+			ofile_traj.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+			ofile_traj.write((char *) & epot, sizeof(epot));	// potential energy, float.
 			
 			for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
 			{
@@ -4117,17 +4120,18 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 				for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
 				{
 					float t1a = cdata[t4];
-					ofile.write((char *) & t1a, sizeof(t1a));
+					ofile_traj.write((char *) & t1a, sizeof(t1a));
 				}
 			}
-		}
 
-		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
-		{
-			dyn->SaveLastFrame(param.filename2);
+			ofile_traj.flush();
+
+			dyn->SaveLastFrame(param.filename_output_frame);
 		}	
 
-		//if (!(n1 % 100))
+		if (!(n1 % 100))
+			logfile.flush();
+
 		if (!(n1 % 10))
 		{
 			ThreadLock();
@@ -4139,7 +4143,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		}
 	}
 	
-	ofile.close();
+	ofile_traj.close();
 	logfile.close();
 #if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
 	logfile2.close();

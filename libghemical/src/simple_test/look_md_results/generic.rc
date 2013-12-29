@@ -1,0 +1,4359 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+#include "afxres.h"
+
+// Generated Help ID header file
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.hm"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "generic.h"
+#include "winver.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+MYWINSURF               ICON    DISCARDABLE     "icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_CHECKED      BITMAP  DISCARDABLE     "bitmap_c.bmp"
+IDB_BITMAP_UNCHECKED    BITMAP  DISCARDABLE     "bitmap1.bmp"
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_SMALL               ICON    DISCARDABLE     "ico00001.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BITMAP_POLITIC_MAP  BITMAP  DISCARDABLE     "politic_map.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTSURFCUBEBOX DIALOG DISCARDABLE  22, 17, 230, 89
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            "MYWINSURF",IDC_MYICON,12,12,20,20,SS_SUNKEN | WS_BORDER
+    CTEXT           "Curf Cube Version 1.0",IDC_STATIC,48,10,134,8
+    CTEXT           "3D Surfing System",IDC_STATIC,48,20,134,8
+    DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+    CTEXT           "Copyright (C) 2007, Oleksiy Drozdov",IDC_STATIC,48,32,
+                    134,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_SUNKEN | 
+                    WS_BORDER,42,6,146,56
+    CTEXT           "alexey_drozdov@mail.ru",IDC_STATIC,48,46,134,8
+END
+
+IDD_DIALOG_HIDE_PLOTS DIALOG DISCARDABLE  0, 0, 466, 129
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Hide plots"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,409,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,409,24,50,14
+    LISTBOX         IDC_LIST_HIDE_PLOTS,7,7,382,115,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+END
+
+IDD_DIALOG_PRINT DIALOG DISCARDABLE  0, 0, 186, 173
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Печать"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Печать",IDPRINT,130,32,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,130,94,50,14
+    COMBOBOX        IDC_COMBO_PRINTER_NAME,7,7,112,51,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Что печатать?",IDC_STATIC,7,26,110,64
+    CONTROL         "Включить X в печать",IDC_CHECK_PRINT_INCLUDE_X,"Button",
+                    BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,16,
+                    43,94,10
+    CONTROL         "Включить Y в печать",IDC_CHECK_PRINT_INCLUDE_Y,"Button",
+                    BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,15,
+                    59,94,10
+    CONTROL         "Включить Z в печать",IDC_CHECK_PRINT_INCLUDE_Z,"Button",
+                    BS_AUTOCHECKBOX | BS_CENTER | BS_VCENTER | WS_TABSTOP,15,
+                    74,94,10
+    EDITTEXT        IDC_EDIT_COPIES,113,151,26,14,ES_AUTOHSCROLL
+    LTEXT           "Число копий",IDC_STATIC,103,141,43,8
+    GROUPBOX        "Ориентация бумаги",IDC_STATIC,7,125,92,41
+    CONTROL         "Книжная",IDC_RADIO_PORTRAIT,"Button",BS_AUTORADIOBUTTON,
+                    17,135,46,10
+    CONTROL         "Альбомная",IDC_RADIO_LANDSCAPE,"Button",
+                    BS_AUTORADIOBUTTON,17,149,54,10
+    COMBOBOX        IDC_COMBO_PAPER_SIZE,7,105,94,74,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Размер бумаги",IDC_STATIC,7,95,93,8
+    DEFPUSHBUTTON   "Настройка",IDPRINT_SETUP,130,7,50,14
+    PUSHBUTTON      "OK",IDOK,130,74,50,14
+END
+
+IDD_DIALOG_ABORT_PRINTING DIALOG DISCARDABLE  0, 0, 112, 39
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Abort Printing Dialod"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Остановить печать",IDCANCEL,7,18,98,14
+    CTEXT           "Идёт печать",IDC_STATIC,7,7,98,8
+END
+
+IDD_WAV_PARAM DIALOG DISCARDABLE  0, 0, 186, 169
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Wavelet parametrs"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Wav",ID_WAV_APPLY,128,66,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,149,50,14
+    GROUPBOX        "Wavelet",IDC_STATIC,7,42,112,121
+    COMBOBOX        IDC_COMBO_WAV_TYPE,11,27,102,96,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_WAV_ORDER,10,67,59,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_WAV_MAXLEVEL,13,118,40,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Тип вейвлета",IDC_STATIC,7,18,110,8
+    CTEXT           "Порядок",IDC_STATIC,9,54,48,8
+    CTEXT           "Макс.уровень",IDC_STATIC,10,102,52,8
+    CTEXT           "",IDC_STATIC_WAV_LEN,118,52,61,8
+    DEFPUSHBUTTON   "Дисплей",IDC_WAV_DISP,126,26,50,14
+    DEFPUSHBUTTON   "Wav epsilon ",IDC_WAV_EPSILON_APPLY,129,114,50,14
+    EDITTEXT        IDC_EDIT_WAV_EPSILON,129,97,47,14,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,59,106,56,38
+    CONTROL         "reconstruct",IDC_RADIO_WAV1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,65,113,44,10
+    CONTROL         "koeficients",IDC_RADIO_WAV2,"Button",BS_AUTORADIOBUTTON,
+                    65,129,47,10
+    CONTROL         "Low",IDC_CHECK_WAV_SHOW_LOW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,132,29,10
+    CONTROL         "High",IDC_CHECK_WAV_SHOW_HIGH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,143,31,10
+    CONTROL         "Pre delete",IDC_CHECK_WAV_PRE_DELETE_CALC_PLOTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,66,153,49,10
+    COMBOBOX        IDC_COMBO_WAV_ORDER2,75,67,42,110,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_WAV_INPUT_SIGNAL_TYPE,67,4,115,96,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Входной сигнал:",IDC_STATIC,10,7,55,8
+    PUSHBUTTON      "Epsilon",IDC_BUTTON_WAV_EPSILON_CALC_LEFT_RIGHT,128,82,
+                    50,14
+    DEFPUSHBUTTON   "Wav2",ID_WAV_APPLY2,129,131,50,14
+    DEFPUSHBUTTON   "Wav1",ID_WAV_APPLY1,9,151,29,12
+END
+
+IDD_DIALOG_AUDIO_WARNING DIALOG DISCARDABLE  0, 0, 186, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    CTEXT           "",IDC_STATIC_AUDIO_DLG_WARNING,7,49,172,8
+END
+
+IDD_DIALOG_SELECT_FILE_SAVE_AS DIALOGEX 20, 20, 167, 191
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Сохранить как"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Отмена",IDCANCEL,11,161,50,14
+    EDITTEXT        IDC_DIRECTORY_SAVE_AS,8,6,153,14,WS_DISABLED | NOT 
+                    WS_TABSTOP,WS_EX_CLIENTEDGE
+    LISTBOX         IDC_LIST_SAVE_AS,7,23,153,92,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,7,1,153,180
+    PUSHBUTTON      "Сохранить",IDOK,93,162,50,14
+    COMBOBOX        IDC_COMBO_SAVE_AS_FILE_TYPE,127,126,32,55,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_SAVE_AS_FILENAME,7,125,112,14,ES_AUTOHSCROLL
+    CTEXT           ".",IDC_STATIC,120,132,8,8
+END
+
+IDD_DIALOG_START_FINISH_DATE DIALOG DISCARDABLE  0, 0, 376, 383
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select start and finish date"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,310,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,310,46,50,14
+    EDITTEXT        IDC_EDIT_START_DATE,103,7,55,14,ES_AUTOHSCROLL
+    LTEXT           "Start Date YYYY/MM/DD",IDC_STATIC,7,10,85,8
+    LTEXT           "Finish Date YYYY/MM/DD",IDC_STATIC,7,31,85,8
+    EDITTEXT        IDC_EDIT_FINISH_DATE,100,26,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIRECTORY2,7,145,178,14,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_TABSTOP
+    LISTBOX         IDC_LIST2,7,161,177,110,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Select location of var directory",IDC_STATIC,7,129,110,
+                    8
+    COMBOBOX        IDC_COMBO_PERIOD,282,128,78,70,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    GROUPBOX        "Output Format",IDC_STATIC_FORMAT,270,143,90,55,
+                    BS_CENTER
+    CONTROL         "Excel",IDC_RADIO_EXCEL_OUTPUT_FORMAT,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,282,156,33,10
+    CONTROL         "Matlab",IDC_RADIO_MATLAB_OUTPUT_FORMAT,"Button",
+                    BS_AUTORADIOBUTTON,282,169,37,10
+    CONTROL         "TezeyVar",IDC_RADIO_TEZEYVAR_OUTPUT_FORMAT,"Button",
+                    BS_AUTORADIOBUTTON,282,184,46,10
+    CTEXT           "Meaning time:",IDC_STATIC,282,117,78,8
+    CONTROL         "Min",IDC_CHECK_COMMON_USE_MIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,297,27,10
+    CONTROL         "Mean",IDC_CHECK_COMMON_USE_MEAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,322,34,10
+    CONTROL         "Max",IDC_CHECK_COMMON_USE_MAX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,335,29,10
+    EDITTEXT        IDC_EDIT_INSTRUMENT_NUMBER,331,92,29,14,ES_AUTOHSCROLL
+    CTEXT           "Instrument Number:",IDC_STATIC,282,92,41,16
+    PUSHBUTTON      "Use path in",IDC_USE_PATH_IN,310,25,50,14
+    CONTROL         "Median",IDC_CHECK_COMMON_USE_MEDIAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,309,39,10
+    CONTROL         "Mean Angle",IDC_CHECK_COMMON_USE_MEAN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,322,54,10
+    CONTROL         "Median Angle3",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,309,59,8
+    CONTROL         "Median Angle",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,309,59,10
+    CONTROL         "Mean Angle3",IDC_CHECK_COMMON_USE_MEAN_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,322,58,10
+    CONTROL         "Cut",IDC_CHECK_COMMON_TO_CUT_PAGES_FOR_EXCEL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,333,157,27,10
+    CONTROL         "Use Reverse Angles",IDC_CHECK_COMMON_USE_REVERSE_ANGLES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,281,81,10
+    CONTROL         "Min Angle",IDC_CHECK_COMMON_USE_MIN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,297,47,10
+    CONTROL         "Min Angle 3",IDC_CHECK_COMMON_USE_MIN_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,297,53,10
+    CONTROL         "Max Angle",IDC_CHECK_COMMON_USE_MAX_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,335,49,10
+    CONTROL         "Max Angle 3",IDC_CHECK_COMMON_USE_MAX_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,335,55,10
+    CONTROL         "Max_Min",IDC_CHECK_COMMON_USE_MAX_MIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,348,45,10
+    CONTROL         "Median Angle 4",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,309,63,8
+    CONTROL         "Mean Angle 4",IDC_CHECK_COMMON_USE_MEAN_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,322,60,10
+    CONTROL         "Min Angle 4",IDC_CHECK_COMMON_USE_MIN_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,297,53,10
+    CONTROL         "Max Angle 4",IDC_CHECK_COMMON_USE_MAX_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,335,55,10
+    CONTROL         "Max_Min Angle",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,62,348,65,10
+    CONTROL         "Max_Min Angle 3",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,348,71,10
+    CONTROL         "Max_Min Angle 4",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,348,71,10
+    COMBOBOX        IDC_COMBO_DELIMITER,312,65,48,70,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Delim",IDC_STATIC,282,67,18,8
+    CONTROL         "Min xyz",IDC_CHECK_COMMON_USE_MIN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,297,39,10
+    CONTROL         "Median xyz",IDC_CHECK_COMMON_USE_MEDIAN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,309,51,10
+    CONTROL         "Mean xyz",IDC_CHECK_COMMON_USE_MEAN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,322,46,10
+    CONTROL         "Max xyz",IDC_CHECK_COMMON_USE_MAX_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,335,41,10
+    CONTROL         "Max_Min xyz",IDC_CHECK_COMMON_USE_MAX_MIN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,348,57,10
+    CONTROL         "Max_Min",IDC_CHECK_COMMON_USE_MAXMIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,363,45,10
+    CONTROL         "Max_Min Angle",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,363,65,10
+    CONTROL         "Max_Min Angle 3",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,363,71,10
+    CONTROL         "Max_Min Angle 4",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,363,71,10
+    CONTROL         "Max_Min xyz",IDC_CHECK_COMMON_USE_MAXMIN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,363,57,10
+    COMBOBOX        IDC_COMBO_FILE_FORMAT,14,65,144,56,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Test time format",ID_TEST_TIME_FORMAT,163,63,58,14
+    CONTROL         "This is local time",IDC_CHECK_THIS_IS_LOCAL_TIME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,84,67,10
+    EDITTEXT        IDC_EDIT_LOCAL_TIME_OFFSET,179,84,40,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    GROUPBOX        "File format",IDC_STATIC,7,55,225,47
+    LTEXT           "Local Time offset in hours",IDC_STATIC,85,85,88,8
+    PUSHBUTTON      "Use whole dir",IDC_USE_WHOLE_DIRECTORY,193,145,50,14
+    COMBOBOX        IDC_COMBO_FILE_EXTENSION,195,127,48,62,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use Mean Per Day",IDC_CHECK_COMMON_USE_MEAN_PER_DAY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,284,238,76,10
+END
+
+IDD_DIALOG_PRINT_RAPORT DIALOG DISCARDABLE  0, 0, 221, 197
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select start and finish date"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,164,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,164,24,50,14
+    EDITTEXT        IDC_EDIT_START_DATE_PRINT_RAPORT,99,7,55,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Start Date YYYY/MM/DD",IDC_STATIC,7,10,85,8
+    LTEXT           "Finish Date YYYY/MM/DD",IDC_STATIC,7,31,85,8
+    EDITTEXT        IDC_EDIT_FINISH_DATE_PRINT_RAPORT,100,26,55,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIRECTORY_PRINT_RAPORT,7,63,138,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LISTBOX         IDC_LIST_PRINT_RAPORT,7,79,138,110,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Select location of var directory",IDC_STATIC,7,47,110,8
+    GROUPBOX        "Output Format",IDC_STATIC_FORMAT,150,92,64,55
+    CONTROL         "0",IDC_RADIO_PRINT_RAPORT_TYPE_0,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,159,106,20,10
+    CONTROL         "1",IDC_RADIO_PRINT_RAPORT_TYPE_1,"Button",
+                    BS_AUTORADIOBUTTON,160,120,20,10
+    CONTROL         "2",IDC_RADIO_PRINT_RAPORT_TYPE_2,"Button",
+                    BS_AUTORADIOBUTTON,159,134,20,10
+    CONTROL         "Use Noise",IDC_CHECK_PRINT_RAPORT_USE_NOISE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,153,161,49,10
+    DEFPUSHBUTTON   "Просмотр",ID_VIEW_RAPORT,163,52,50,14
+END
+
+IDD_LAGER_PARAM DIALOG DISCARDABLE  0, 0, 337, 219
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Lager Parametrs"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Close",IDCANCEL,276,194,44,14
+    GROUPBOX        "Шкала времени",IDC_STATIC,7,9,89,115
+    GROUPBOX        "",IDC_STATIC,8,124,234,84
+    GROUPBOX        "Lager",IDC_STATIC,109,9,115,115
+    EDITTEXT        IDC_TIME,41,17,45,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TIME1,42,35,45,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TIME2,42,54,45,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Уст. t, обнул. сигнал",IDC_SETTIME,13,106,77,14
+    EDITTEXT        IDC_ALPHA,167,13,45,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_BETA,167,31,45,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EPSILON,167,50,45,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Lager Apply",IDC_LAGER_APPLY,165,107,53,13
+    EDITTEXT        IDC_ERROR,150,169,92,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ALPHA_DET,150,151,92,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MAXORDER,167,69,45,14,ES_AUTOHSCROLL
+    LTEXT           "Ошибка аппроксимации",IDC_STATIC,38,172,88,8
+    LTEXT           "Epsilon",IDC_STATIC,131,52,24,8
+    LTEXT           "Beta",IDC_STATIC,131,33,16,8
+    LTEXT           "Max Order",IDC_STATIC,127,71,35,8
+    LTEXT           "Time 0",IDC_STATIC,17,20,21,8
+    LTEXT           "dt",IDC_STATIC,17,36,8,8
+    PUSHBUTTON      "Расчёт рекомендуемого min(alpha)",
+                    IDC_BUTTON_ALPHA_DETERMINATION,16,151,124,14
+    LTEXT           "Alpha",IDC_STATIC,129,16,19,8
+    EDITTEXT        IDC_FUNDET,150,132,92,14,ES_AUTOHSCROLL
+    LTEXT           "Fundamental Determinant:",IDC_STATIC,58,135,84,8
+    PUSHBUTTON      "Уточнить",IDC_LAGER_APPLY2,246,107,50,13
+    EDITTEXT        IDC_TIME3,42,72,45,14,ES_AUTOHSCROLL
+    LTEXT           "Time Pred",IDC_STATIC,7,74,32,8
+    EDITTEXT        IDC_ERROR2,150,188,92,14,ES_AUTOHSCROLL
+    LTEXT           "Ошибка предсказания",IDC_STATIC,42,191,94,8
+    PUSHBUTTON      "Time &End",IDC_SETTIMEEND,7,55,35,14
+    PUSHBUTTON      "Show",IDC_ANALIT_STRING,254,139,53,13
+    PUSHBUTTON      "Сохранить",IDC_ANALIT_SAVE,254,160,53,13
+    PUSHBUTTON      "Lager &Disp",IDC_LAGER_DISP,117,107,39,13
+    GROUPBOX        "nNet",IDC_STATIC,230,9,90,115
+    GROUPBOX        "Analitical result",IDC_STATIC,246,128,67,59
+    CONTROL         "Include real roots",IDC_CHECK_INCLUDE_REAL_ROOTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,141,90,70,10
+    EDITTEXT        IDC_EDIT_NNET_EPOCHS,280,18,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NNET_GOAL_E,280,35,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NNET_GOAL_Q,280,53,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NNET_MIN_GRAD,280,72,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NNET_FULL_TURN,280,89,40,14,ES_AUTOHSCROLL
+    LTEXT           "Epochs",IDC_STATIC,243,22,25,8
+    LTEXT           "Goal E",IDC_STATIC,245,40,22,8
+    LTEXT           "Goal Q",IDC_STATIC,245,57,23,8
+    LTEXT           "Min grad",IDC_STATIC,242,75,28,8
+    LTEXT           "Full turn step",IDC_STATIC,236,92,41,8
+END
+
+IDD_DIALOG_SELECT_FILE DIALOG DISCARDABLE  20, 20, 167, 258
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Select File"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,11,236,50,14
+    EDITTEXT        IDC_DIRECTORY,8,56,153,14,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_TABSTOP
+    LISTBOX         IDC_LIST,8,75,153,153,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_STATIC,8,88,153,162
+    PUSHBUTTON      "OK",IDOK,95,236,50,14
+    LTEXT           "",IDC_STATIC_SELECT_FILE_DLG_NAME,5,1,161,8
+    CONTROL         "Signal2",IDC_CHECK_SIGNAL2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,122,9,39,10
+    COMBOBOX        IDC_COMBO_SCALE_MODE,10,29,143,49,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_SAVEPLOT DIALOG DISCARDABLE  0, 0, 231, 42
+STYLE DS_3DLOOK | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_STATIC,69,18,19,8
+END
+
+IDD_DIALOG_WINPLOT_SCALE DIALOG DISCARDABLE  0, 0, 262, 116
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Winplot scale"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,71,92,50,18
+    PUSHBUTTON      "Cancel",IDCANCEL,199,92,50,18
+    DEFPUSHBUTTON   "Умолчания",ID_PLOT_SCALE_DEFAULT,134,92,50,18
+    GROUPBOX        "Шкала Х",IDC_STATIC,7,7,114,69
+    GROUPBOX        "Шкала Y",IDC_STATIC,130,7,125,69
+    EDITTEXT        IDC_EDIT_SCALE_X_MIN,54,20,62,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_X_MAX,54,38,62,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_X_STEP,54,58,62,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    CTEXT           "Мин",IDC_STATIC,12,20,31,8
+    CTEXT           "Макс",IDC_STATIC,12,38,31,9
+    CTEXT           "Шаг",IDC_STATIC,12,58,32,8
+    EDITTEXT        IDC_EDIT_SCALE_Y_MIN,184,20,65,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_Y_MAX,184,38,65,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SCALE_Y_STEP,184,58,65,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    CTEXT           "Мин",IDC_STATIC,135,20,41,8
+    CTEXT           "Макс",IDC_STATIC,141,38,35,9
+    CTEXT           "Шаг",IDC_STATIC,135,58,41,8
+    COMBOBOX        IDC_COMBO_SCALE_LEFT_RIGHT,12,76,75,56,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "<< >>",IDC_BUTTON_SCALE_LEFT_RIGHT,91,76,25,13
+    CONTROL         "Подпись",IDC_CHECK_WINPLOT_LINE_WRITE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,135,76,45,10
+END
+
+IDD_DIALOG_KORRELATION_COEFFICIENT DIALOG DISCARDABLE  0, 0, 466, 247
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Correlation coefficient"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,409,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,409,24,50,14
+    LISTBOX         IDC_LIST_KORRELATION_PLOTS,7,120,378,115,
+                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+    EDITTEXT        IDC_EDIT_KORRELATION,8,5,379,20,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ONLY_KORRELATION_COEFFICIENT,321,97,63,14,
+                    ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "Correlation coefficient",IDC_STATIC,241,100,75,8
+    EDITTEXT        IDC_EDIT_CORRELATION_PARAM2,67,77,317,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CORRELATION_PARAM1,68,54,317,14,ES_RIGHT | 
+                    ES_AUTOHSCROLL
+    RTEXT           "Param 1",IDC_STATIC,19,58,34,8
+    RTEXT           "Param 2",IDC_STATIC,21,79,34,8
+    EDITTEXT        IDC_EDIT_X,415,154,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PROBALITY_INT_X,415,174,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Button1",IDC_BUTTON_PROBALITY_INT,411,221,50,14
+    EDITTEXT        IDC_EDIT_X2,415,195,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ONLY_KORRELATION_COEFFICIENT_MIN_INTERVAL,391,
+                    109,63,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ONLY_KORRELATION_COEFFICIENT_MAX_INTERVAL,392,
+                    88,63,14,ES_AUTOHSCROLL
+END
+
+IDD_PROP DIALOGEX 0, 0, 234, 234
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Light Properties"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Lighting",IDC_STATIC,7,7,104,113
+    GROUPBOX        "Light Coordinates",IDC_STATIC,123,7,104,113
+    GROUPBOX        "Material",IDC_STATIC,7,126,220,102
+    CONTROL         "Slider1",IDC_AMBIENT,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,13,36,58,15
+    LTEXT           "",IDC_AMB_TEXT,73,38,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Ambient",IDC_STATIC,29,22,34,8
+    CONTROL         "Slider1",IDC_DIFFUSE,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,13,65,58,15
+    LTEXT           "",IDC_DIFFUSE_TEXT,73,68,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Diffuse",IDC_STATIC,29,55,34,8
+    CONTROL         "Slider1",IDC_SPECULAR,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,13,98,58,15
+    LTEXT           "",IDC_SPECULAR_TEXT,73,100,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Specular",IDC_STATIC,29,88,34,8
+    CONTROL         "Slider1",IDC_XPOS,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,127,33,58,15
+    LTEXT           "",IDC_XPOS_TEXT,191,33,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "X",IDC_STATIC,143,23,34,8
+    CONTROL         "Slider1",IDC_YPOS,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,127,65,58,15
+    LTEXT           "",IDC_YPOS_TEXT,191,65,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Y",IDC_STATIC,143,55,34,8
+    CONTROL         "Slider1",IDC_ZPOS,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,127,98,58,15
+    LTEXT           "",IDC_ZPOS_TEXT,191,98,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Z",IDC_STATIC,143,89,34,8
+    CONTROL         "Slider1",IDC_AMBMAT,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,15,145,58,15
+    LTEXT           "",IDC_AMBMAT_TEXT,73,146,27,12,0,WS_EX_STATICEDGE
+    CONTROL         "Slider1",IDC_DIFFMAT,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,13,170,58,15
+    LTEXT           "",IDC_DIFFMAT_TEXT,73,169,27,12,0,WS_EX_STATICEDGE
+    CONTROL         "Slider1",IDC_SPECMAT,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,14,197,58,15
+    LTEXT           "",IDC_SPECMAT_TEXT,73,197,27,12,0,WS_EX_STATICEDGE
+    CONTROL         "Slider1",IDC_SHINE,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,129,149,58,15
+    LTEXT           "",IDC_SHINE_TEXT,190,149,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Shinines",IDC_STATIC,145,139,34,8
+    CONTROL         "Slider1",IDC_EMISSION,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,129,182,58,15
+    LTEXT           "",IDC_EMISSION_TEXT,191,184,27,12,0,WS_EX_STATICEDGE
+    LTEXT           "Emission",IDC_STATIC,145,172,34,8
+    LTEXT           "Specular",IDC_STATIC,36,188,34,8
+    LTEXT           "Diffuse",IDC_STATIC,35,161,34,8
+    LTEXT           "Ambient",IDC_STATIC,35,138,34,8
+END
+
+IDD_DIALOG_PLAY_MOLS DIALOG DISCARDABLE  0, 0, 364, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Play mols"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,307,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,307,24,50,14
+    CONTROL         "Slider1",IDC_SLIDER_PLAY_MOLS,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,23,49,328,15
+    LTEXT           "",IDC_STATIC_PLAY_MOLS_SLIDER,115,31,82,8
+END
+
+IDD_DIALOG_SURF_FILTERS DIALOG DISCARDABLE  0, 0, 409, 103
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Surf Filters"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,350,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,350,21,50,14
+    CONTROL         "Slider1",IDC_SLIDER_SURF_FILTER,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,14,34,224,12
+    LTEXT           "",IDC_STATIC_SURF_FILTER_LEVEL_MAX,168,24,60,8
+    LTEXT           "",IDC_STATIC_SURF_FILTER_LEVEL_MIN,17,22,50,8
+    PUSHBUTTON      "Delete negative",IDC_BUTTON_SURF_FILTER_DELETE_NEGATIVE,
+                    241,19,83,11
+    PUSHBUTTON      "Delete under filter level",
+                    IDC_BUTTON_SURF_FILTER_DELETE_UNDER_FILTER_LEVEL,241,34,
+                    83,11
+    EDITTEXT        IDC_EDIT_SURF_FILTER_LEVEL,76,23,87,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_MEDIAN_FILTER_VERT_ARM,45,62,25,15,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_MEDIAN_FILTER_GOR_ARM,121,61,27,15,
+                    ES_AUTOHSCROLL
+    PUSHBUTTON      "Use median filter",IDC_BUTTON_USE_MEDIAN_FILTERING,153,
+                    60,61,15
+    GROUPBOX        "Median filtering",IDC_STATIC,7,50,213,32
+    CTEXT           "Gorisontal arm",IDC_STATIC,80,60,36,17
+    CTEXT           "Vertical arm",IDC_STATIC,11,60,26,16
+    PUSHBUTTON      "Restore with filtred",IDC_BUTTON_RESTORE_WITH_FILTRED,
+                    321,74,69,14
+    PUSHBUTTON      "Save original as grid",IDC_BUTTON_SAVE_ORIGINAL_AS_GRID,
+                    234,60,83,14
+    PUSHBUTTON      "Save filtred as grid",IDC_BUTTON_SAVE_FILTRED_AS_GRID,
+                    234,76,83,13
+    PUSHBUTTON      "Restore with original",IDC_BUTTON_RESTORE_WITH_ORIGINAL,
+                    321,59,69,14
+    CONTROL         "Negative filter mode",IDC_CHECK_SURF_FILTER_MODE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,243,9,79,10
+    PUSHBUTTON      "Set mediana as filter level",
+                    IDC_BUTTON_SURF_FILTER_LEVEL_ON_MEDIANA,75,9,87,11
+    GROUPBOX        "Level filtering",IDC_STATIC,7,2,328,46
+    GROUPBOX        "Save or restore",IDC_STATIC,226,50,176,44
+    GROUPBOX        "Square interpolation filtering",IDC_STATIC,7,81,102,19
+    PUSHBUTTON      "Calculate ABCD and izo A",
+                    IDC_BUTTON_SURF_FILTER_CALCULATE_ABCD_AND_IZO_A,10,90,91,
+                    10
+    CONTROL         "Disvisible",IDC_CHECK_SURF_FILTER_DISVISIBLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,343,39,55,10
+    CONTROL         "ZeroFiltredPoints",
+                    IDC_CHECK_SURF_FILTER_ZERO_FILTRED_POINTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,169,10,65,10
+    CONTROL         "Ones",IDC_CHECK_SURF_FILTER_ONES_NOT_FILTRED,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,11,33,10
+    PUSHBUTTON      "Gradient",IDC_BUTTON_SURF_FILTERS_GRADIENT,113,84,50,14
+    COMBOBOX        IDC_COMBO_SURF_FILTERS_GRADIENT,169,84,48,47,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_GROUP | WS_TABSTOP
+END
+
+IDD_DIALOG_SURF_VIEW_ANGLES_TRANS DIALOG DISCARDABLE  0, 0, 231, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "View angles and transes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,174,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,174,24,50,14
+    EDITTEXT        IDC_EDIT_SURF_ANGLE_X,28,25,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_ANGLE_Y,75,25,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_ANGLE_Z,122,25,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_TRANS_X,28,55,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_TRANS_Y,77,55,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_TRANS_Z,125,55,40,14,ES_AUTOHSCROLL
+    LTEXT           "Angle X",IDC_STATIC,33,13,26,8
+    LTEXT           "Angle Y",IDC_STATIC,83,14,26,8
+    LTEXT           "Angle Z",IDC_STATIC,129,13,26,8
+    LTEXT           "Trans X",IDC_STATIC,36,43,26,8
+    LTEXT           "Trans Y",IDC_STATIC,81,43,26,8
+    LTEXT           "Trans Z",IDC_STATIC,127,42,26,8
+    GROUPBOX        "View",IDC_STATIC,7,7,162,76
+    EDITTEXT        IDC_EDIT_SURF_FIELD_VIEW_ANGLE,177,55,40,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Field view angle",IDC_STATIC,172,43,52,8
+END
+
+IDD_DIALOG_SURF_PALETTE DIALOGEX 0, 0, 177, 246
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Palette"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,120,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,120,24,50,14
+    COMBOBOX        IDC_COMBO_SURF_COLORMAP,17,49,76,153,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Select palette",IDC_STATIC,7,7,95,232
+    CONTROL         "Inverse map",IDC_CHECK_SURF_INVERSE_COLORMAP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,19,68,52,10
+    CONTROL         "Local map",IDC_CHECK_SURF_LOCAL_COLORMAP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,20,84,49,10
+    LISTBOX         IDC_LIST_SURF_CREATE_PALETTE,119,49,51,190,
+                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+    LTEXT           "Standat palettes",IDC_STATIC,19,36,69,8
+    PUSHBUTTON      "Interpolate",IDC_BUTTON_INTERPOLATE,28,119,50,14
+    CTEXT           "",IDC_STATIC_SURF_PALETTE_LEN,13,183,85,12,0,
+                    WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Apply",IDC_BUTTON_SURF_PALETTE_APPLY,31,199,50,14
+    PUSHBUTTON      "Plot palette",IDC_BUTTON_SURF_PALETTE_PLOT,31,217,50,14
+END
+
+IDD_DIALOG_SURF_TOPAINT DIALOGEX 0, 0, 430, 105
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Object to paint"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,373,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,373,24,50,14
+    CONTROL         "Slider1",IDC_SLIDER_SURF_TOPAINT,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,27,22,321,15
+    EDITTEXT        IDC_EDIT_SURF_TOPAINT,13,8,28,14,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    CTEXT           "",IDC_STATIC_SURF_TOPAINT_MAX,333,9,29,8,0,
+                    WS_EX_STATICEDGE
+    GROUPBOX        "",IDC_STATIC,7,1,360,39
+    PUSHBUTTON      ">",IDC_BUTTON_SURF_TOPAINT_PLUS,352,24,9,14
+    PUSHBUTTON      "<",IDC_BUTTON_SURF_TOPAINT_MINUS,16,24,9,14
+    PUSHBUTTON      "STOP",IDC_BUTTON_SURF_TOPAINT_STOP,244,8,28,14,
+                    BS_CENTER
+    PUSHBUTTON      "---->",IDC_BUTTON_SURF_TOPAINT_START_PLUS,275,8,19,14
+    PUSHBUTTON      "<----",IDC_BUTTON_SURF_TOPAINT_START_MINUS,222,8,19,14
+    EDITTEXT        IDC_EDIT_SURF_TOPAINT_TIMER_MILLISECONDS,300,8,28,14,
+                    ES_AUTOHSCROLL
+    LISTBOX         IDC_LIST_SURF_TOPAINT,7,40,359,61,LBS_OWNERDRAWFIXED | 
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL
+    COMBOBOX        IDC_COMBO_SURF_TOPAINT,375,46,48,77,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Zoom",ID_VIEW_ZOOM,373,87,50,14
+    EDITTEXT        IDC_EDIT_SURF_TOPAINT_XMINMAX,55,8,69,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_TOPAINT_YMINMAX,138,8,80,14,ES_AUTOHSCROLL
+    LTEXT           "x=",IDC_STATIC,45,10,8,8
+    LTEXT           "y=",IDC_STATIC,127,12,8,8
+END
+
+IDD_DIALOG_KOHONEN DIALOGEX 0, 0, 425, 222
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Kohonen neural net"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Neuron Net",IDC_STATIC,293,7,125,117
+    LTEXT           "Neurons:",IDC_STATIC,302,20,30,8
+    EDITTEXT        IDC_EDIT_KOHONEN_NEURONS,302,33,27,14,ES_AUTOHSCROLL
+    LTEXT           "Initial learn rate:",IDC_STATIC,302,52,50,8
+    EDITTEXT        IDC_EDIT_KOHONEN_LEARN_RATE,302,64,28,14,ES_AUTOHSCROLL
+    LTEXT           "Momentum:",IDC_STATIC,302,82,38,8
+    EDITTEXT        IDC_EDIT_KOHONEN_MOMENTUM,302,95,28,14,ES_AUTOHSCROLL
+    LTEXT           "Delay(ms) :",IDC_STATIC,293,129,36,8
+    EDITTEXT        IDC_EDIT_KOHONEN_DELAY,336,126,40,14,ES_AUTOHSCROLL
+    LTEXT           "Path:",IDC_STATIC,295,152,18,8
+    LTEXT           "Iteration:",IDC_STATIC,295,168,28,8
+    LTEXT           "",IDC_STATIC_KOHONEN_PATH,331,150,34,11,0,
+                    WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_KOHONEN_ITERATIONS,331,167,34,10,0,
+                    WS_EX_STATICEDGE
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,288,145,130,1,
+                    WS_EX_STATICEDGE
+    GROUPBOX        "Map",IDC_STATIC,7,7,276,208
+    PUSHBUTTON      "Start",IDC_BUTTON_KOHONEN_START,290,201,50,14,
+                    WS_DISABLED
+    PUSHBUTTON      "Stop",IDC_BUTTON_KOHONEN_STOP,378,201,40,14,WS_DISABLED
+    CONTROL         "",IDC_STATIC_KOHONEN_MAP,"Static",SS_BLACKFRAME,58,17,
+                    216,192
+    EDITTEXT        IDC_EDIT_KOHONEN_N_INPUT_VECTORS,13,34,40,14,
+                    ES_AUTOHSCROLL
+    PUSHBUTTON      "Save result",IDC_BUTTON_KOHONEN_SAVE_RESULT,7,151,46,14,
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_KOHONEN_NEURONS_DY,340,33,31,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_KOHONEN_MAP_J0,19,73,33,98,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_KOHONEN_MAP_J1,19,92,33,92,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Save Classes",IDC_BUTTON_KOHONEN_SAVE_CLASESS,7,132,47,
+                    14,WS_DISABLED
+    EDITTEXT        IDC_EDIT_KOHONEN_DISTANCE_LEARN_RATE,340,64,31,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_KOHONEN_DISTANCE_MOMENTUM,340,94,31,14,
+                    ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_KOHONEN_TYPE,331,183,80,84,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_KOHONEN_CONSCIENCE_LEARN_RATE,380,65,28,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_KOHONEN_CONSCIENCE_MOMENTUM,380,94,28,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "distance",IDC_STATIC,339,111,28,8
+    LTEXT           "conscience",IDC_STATIC,374,111,38,8
+    LTEXT           "Algorithm:",IDC_STATIC,296,185,32,8
+    PUSHBUTTON      "Surf result",IDC_BUTTON_KOHONEN_SURF_RESULT,7,170,46,14
+    COMBOBOX        IDC_COMBO_KOHONEN_SURF_RESULT_TYPE,7,190,48,56,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Noise",IDC_CHECK_KOHONEN_ADD_SMALL_NOISE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,369,167,34,10
+END
+
+IDD_COMMAND_DIALOG DIALOG DISCARDABLE  0, 0, 322, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Command interpreter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,265,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,265,24,50,14
+    EDITTEXT        IDC_EDIT_COMMAND,7,15,242,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_INTER_WELLS_PARAM DIALOG DISCARDABLE  0, 0, 312, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Inter Wells Param"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,255,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,255,24,50,14
+    CONTROL         "Slider1",IDC_SLIDER_INTER_WELLS_PARAM,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,27,176,15
+    EDITTEXT        IDC_EDIT_INTER_WELLS_PARAM,111,7,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_INTER_WELLS_PARAM2,111,44,40,14,ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER_INTER_WELLS_PARAM2,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    7,60,176,15
+    GROUPBOX        "Static",IDC_STATIC,197,7,48,76
+    CONTROL         "And",IDC_RADIO_INTER_WELL_PARAM_AND,"Button",
+                    BS_AUTORADIOBUTTON,199,20,29,10
+    CONTROL         "Or",IDC_RADIO_INTER_WELL_PARAM_OR,"Button",
+                    BS_AUTORADIOBUTTON,199,36,23,10
+    LTEXT           "Tolschina deviation",IDC_STATIC,23,9,62,8
+    LTEXT           "Glubina deviation",IDC_STATIC,37,47,56,8
+END
+
+IDD_OPEN_FILES_TO_COMMON DIALOG DISCARDABLE  0, 0, 231, 42
+STYLE DS_3DLOOK | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Use whole directory",IDC_CHECK_USE_WHOLE_DIRECTORY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,18,78,10
+    GROUPBOX        "If you want to use all files in the directory check this",
+                    IDC_STATIC,7,7,217,28
+END
+
+IDD_DIALOG_SELECT_FILE_DELIMITER DIALOG DISCARDABLE  0, 0, 337, 166
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select file delimiter"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Delimiter",IDC_STATIC,7,7,205,40
+    CONTROL         "Tabulation",IDC_CHECK_DELIMITER_TAB,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,19,49,10
+    CONTROL         "Comma",IDC_CHECK_DELIMITER_COMMA,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,32,39,10
+    CONTROL         "Space",IDC_CHECK_DELIMITER_SPACE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,71,20,37,10
+    CONTROL         "Comma && point",IDC_CHECK_DELIMITER_COMMA_POINT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,71,32,63,10
+    CONTROL         "Other",IDC_CHECK_DELIMITER_OTHER,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,136,19,33,10
+    EDITTEXT        IDC_EDIT_DELIMITER_OTHER,173,17,27,14,WS_DISABLED
+    LISTBOX         IDC_LIST_SELECT_FILE_DELIMITER,7,52,323,107,
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | 
+                    WS_TABSTOP
+    CONTROL         "Use Many Delimiters As One",
+                    IDC_CHECK_USE_MANY_DELIMITERS_AS_ONE,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,219,19,105,10
+END
+
+IDD_DIALOG_CELL_LIST_PAGE DIALOG DISCARDABLE  0, 0, 412, 198
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cell list page"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_COMBO_FILE_FORMAT,14,17,151,56,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "File format",IDC_STATIC,7,7,165,52
+    COMBOBOX        IDC_COMBO_TIME_FORMAT,187,20,144,56,CBS_DROPDOWN | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Test time format",ID_TEST_TIME_FORMAT,336,17,58,14,
+                    WS_DISABLED
+    CONTROL         "This is local time",IDC_CHECK_THIS_IS_LOCAL_TIME,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,187,38,67,10
+    EDITTEXT        IDC_EDIT_LOCAL_TIME_OFFSET,352,38,40,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    GROUPBOX        "Time format",IDC_STATIC_TIME_FORMAT,177,7,228,52
+    LTEXT           "Local Time offset in hours",
+                    IDC_STATIC_LOCAL_TIME_OFFSET,258,39,88,8,WS_DISABLED
+    CONTROL         "List1",IDC_LIST_OF_CELLS,"SysListView32",
+                    LVS_OWNERDRAWFIXED | LVS_OWNERDATA | NOT WS_VISIBLE | 
+                    WS_BORDER | WS_TABSTOP,7,64,398,127
+END
+
+IDD_DIALOG_START_FINISH_DATE1 DIALOGEX 0, 0, 376, 307
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select start and finish date"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_START_DATE,305,7,55,14,ES_AUTOHSCROLL
+    LTEXT           "Start Date YYYY/MM/DD",IDC_STATIC,205,13,85,8
+    LTEXT           "Finish Date YYYY/MM/DD",IDC_STATIC,205,30,85,8
+    EDITTEXT        IDC_EDIT_FINISH_DATE,305,25,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIRECTORY2,7,21,178,14,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_TABSTOP
+    LISTBOX         IDC_LIST2,7,40,177,85,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Select location of var directory",IDC_STATIC,7,7,110,8
+    COMBOBOX        IDC_COMBO_PERIOD,282,58,78,70,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    GROUPBOX        "Output Format",IDC_STATIC_FORMAT,205,79,155,69,
+                    BS_CENTER
+    CTEXT           "Meaning time:",IDC_STATIC,282,47,78,8
+    CONTROL         "Min",IDC_CHECK_COMMON_USE_MIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,177,27,10
+    CONTROL         "Mean",IDC_CHECK_COMMON_USE_MEAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,202,34,10
+    CONTROL         "Max",IDC_CHECK_COMMON_USE_MAX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,215,29,10
+    CONTROL         "Median",IDC_CHECK_COMMON_USE_MEDIAN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,189,39,10
+    CONTROL         "Mean Angle",IDC_CHECK_COMMON_USE_MEAN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,202,54,10
+    CONTROL         "Median Angle3",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,189,59,8
+    CONTROL         "Median Angle",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,189,59,10
+    CONTROL         "Mean Angle3",IDC_CHECK_COMMON_USE_MEAN_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,202,58,10
+    CONTROL         "Cut files fo Excel",
+                    IDC_CHECK_COMMON_TO_CUT_PAGES_FOR_EXCEL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,292,92,68,10
+    CONTROL         "Use Reverse Angles",IDC_CHECK_COMMON_USE_REVERSE_ANGLES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,165,161,81,10
+    CONTROL         "Min Angle",IDC_CHECK_COMMON_USE_MIN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,177,47,10
+    CONTROL         "Min Angle 3",IDC_CHECK_COMMON_USE_MIN_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,177,53,10
+    CONTROL         "Max Angle",IDC_CHECK_COMMON_USE_MAX_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,215,49,10
+    CONTROL         "Max Angle 3",IDC_CHECK_COMMON_USE_MAX_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,215,55,10
+    CONTROL         "Polarization",IDC_CHECK_COMMON_USE_MAX_MIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,228,52,10
+    CONTROL         "Median Angle 4",IDC_CHECK_COMMON_USE_MEDIAN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,189,63,8
+    CONTROL         "Mean Angle 4",IDC_CHECK_COMMON_USE_MEAN_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,202,60,10
+    CONTROL         "Min Angle 4",IDC_CHECK_COMMON_USE_MIN_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,177,53,10
+    CONTROL         "Max Angle 4",IDC_CHECK_COMMON_USE_MAX_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,215,55,10
+    CONTROL         "PolarizAngle",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,62,228,55,10
+    CONTROL         "PolarizAngle 3",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,228,61,10
+    CONTROL         "PolarizAngle 4",IDC_CHECK_COMMON_USE_MAX_MIN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,228,61,10,0,
+                    HIDC_CHECK_COMMON_USE_MAX_MIN_ANGLE4
+    COMBOBOX        IDC_COMBO_DELIMITER,312,130,48,70,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Output delimiter",IDC_STATIC,232,133,50,8
+    CONTROL         "Min xyz",IDC_CHECK_COMMON_USE_MIN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,177,39,10
+    CONTROL         "Median xyz",IDC_CHECK_COMMON_USE_MEDIAN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,189,51,10
+    CONTROL         "Mean xyz",IDC_CHECK_COMMON_USE_MEAN_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,202,46,10
+    CONTROL         "Max xyz",IDC_CHECK_COMMON_USE_MAX_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,215,41,10
+    CONTROL         "Polarization xyz",IDC_CHECK_COMMON_USE_MAX_MIN_XYZ,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,282,228,64,10
+    CONTROL         "InvPolarizat",IDC_CHECK_COMMON_USE_MAXMIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,243,53,10
+    CONTROL         "InvPolarizAngle",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,62,243,65,10
+    CONTROL         "InvPolarizAngle 3",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,243,71,10
+    CONTROL         "InvPolarizAngle 4",IDC_CHECK_COMMON_USE_MAXMIN_ANGLE4,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,243,71,10
+    CONTROL         "InvPolarizat xyz",IDC_CHECK_COMMON_USE_MAXMIN_XYZ,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,282,243,65,10
+    CONTROL         "Use Mean Per Day",IDC_CHECK_COMMON_USE_MEAN_PER_DAY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,79,161,76,10
+    EDITTEXT        IDC_EDIT_INSTRUMENT_NUMBER,246,58,29,14,ES_AUTOHSCROLL
+    CTEXT           "Instrument Number:",IDC_STATIC,195,58,41,16
+    CONTROL         "Use whole directory",IDC_CHECK_USE_WHOLE_DIRECTORY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,141,78,10
+    GROUPBOX        "If you want to use all files in the directory check this",
+                    IDC_STATIC,7,130,175,24
+    COMBOBOX        IDC_COMBO_TIME_FORMAT,216,108,144,56,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Output time format",IDC_STATIC,218,94,64,8
+    DEFPUSHBUTTON   "OK",IDOK,310,159,50,14
+    CONTROL         "Dispersion",IDC_CHECK_COMMON_USE_DISP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,257,49,10
+    CONTROL         "Disp Angle",IDC_CHECK_COMMON_USE_DISP_ANGLE,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,62,257,50,
+                    10
+    CONTROL         "Disp Angle3",IDC_CHECK_COMMON_USE_DISP_ANGLE3,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,130,257,54,
+                    10
+    CONTROL         "Disp Angle 4",IDC_CHECK_COMMON_USE_DISP_ANGLE4,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,205,257,56,
+                    10
+    CONTROL         "Disp xyz",IDC_CHECK_COMMON_USE_DISP_XYZ,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,282,257,42,
+                    10
+    CONTROL         "Asimmetry",IDC_CHECK_COMMON_USE_ASIM,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,271,47,10
+    CONTROL         "Excess",IDC_CHECK_COMMON_USE_EXCESS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,284,39,10
+END
+
+IDD_DIALOG_AUTO_BUILD_PROFILE DIALOG DISCARDABLE  0, 0, 681, 326
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Auto Build Profile"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,557,172,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,624,172,50,14
+    GROUPBOX        "Оконно-сдвиговый алгоритм поиска аномалий",
+                    IDC_STATIC_WINDOW_CYCLE,7,7,667,60
+    CONTROL         "Формировка границ аномалий в соседних окнах",
+                    IDC_CHECK_DIMA,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,
+                    30,182,10
+    CONTROL         "Формировка границ аномалий в одном окне",IDC_CHECK_1,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,51,169,10
+    EDITTEXT        IDC_EDIT_LIMIT_DIMA,210,26,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LIMIT_1,210,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "Пороги фильтрации",IDC_STATIC_LIMIT,193,12,68,8
+    EDITTEXT        IDC_EDIT_MINIMUM_OF_SIGNAL,266,47,40,14,ES_AUTOHSCROLL
+    CTEXT           "Минимум сигнала",IDC_STATIC_MIN_SIGNAL,266,25,36,18
+    CONTROL         "Запрет повт.исп.точек",IDC_CHECK_POVTOR_ZAPRET,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,315,28,92,10
+    EDITTEXT        IDC_EDIT_POVTOR_ZAPRET,371,47,30,14,ES_AUTOHSCROLL
+    CTEXT           "Плечо области запрета:",IDC_STATIC_POVTOR_ZAPRET,315,46,
+                    53,15
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,408,12,1,49
+    LTEXT           "Параметры изменения длины окна",
+                    IDC_STATIC_WIN_LEN_PARAM,439,12,121,8
+    COMBOBOX        IDC_COMBO_START_WINDOW_LEN,535,30,48,30,CBS_DROPDOWN | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_END_WINDOW_LEN,535,49,48,30,CBS_DROPDOWN | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_WIN_STEP_VELONSITY,423,47,40,14,ES_AUTOHSCROLL
+    LTEXT           "нелинейность шага (от 0 до 1)",
+                    IDC_STATIC_WIN_STEP_VELONSITY,415,22,57,19
+    LTEXT           "Нач. длина окна",IDC_STATIC_START_WINDOW_LEN,477,35,56,
+                    8
+    LTEXT           "Кон. длина окна",IDC_STATIC_END_WINDOW_LEN,477,53,56,8
+    GROUPBOX        "Поиск аномалий через анализ локальніх єкстремумов",
+                    IDC_STATIC,7,77,667,88
+    CONTROL         "использовать алгоритм ""локалов""",IDC_CHECK_USE_LOCALS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,92,134,10
+    CONTROL         "простой",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,16,107,43,10
+    CONTROL         "на вторых производных",IDC_RADIO2,"Button",
+                    BS_AUTORADIOBUTTON,16,120,97,10
+    CONTROL         "Radio3",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE,16,132,39,10
+    CONTROL         "фильтр по квантилю крутизны перегиба",
+                    IDC_CHECK_USE_PEREGIB_KRUTIZNA_QUANTIL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,152,121,153,10
+    EDITTEXT        IDC_EDIT_PEREGIB_KRUTIZNA_QUANTIL,257,135,40,14,
+                    ES_AUTOHSCROLL
+    CTEXT           "Разделение аномалий по квантилю наклона",
+                    IDC_STATIC_NAKLON_QUANTIL,16,144,84,19
+    EDITTEXT        IDC_EDIT_NAKLON_QUANTIL,103,145,40,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,367,86,1,70
+    COMBOBOX        IDC_COMBO_LOCALS_START_J,251,106,48,59,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Нач. уровень фильтрации",IDC_STATIC_LOCALS_START_J,152,
+                    107,88,8
+    COMBOBOX        IDC_COMBO_LOCALS_START_J2,477,102,48,59,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Нач. уровень фильтрации",IDC_STATIC,377,103,88,8
+    CONTROL         "Оконно-сдвиговый алгоритм после фильтрации по локальным экстремумам",
+                    IDC_CHECK_USE_WINDOW_CYCLES_AFTER_LOCALS,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,375,87,278,10
+    CONTROL         "Формировка границ аномалий в соседних окнах",
+                    IDC_CHECK_DIMA_AFTER_LOCALS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,375,121,182,10
+    CONTROL         "Формировка границ аномалий в одном окне",
+                    IDC_CHECK_1_AFTER_LOCALS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,375,142,169,10
+    EDITTEXT        IDC_EDIT_GLUBINA_K,131,169,40,14,ES_AUTOHSCROLL
+    LTEXT           "Коэффициент расчёта глубины",IDC_STATIC,18,172,106,8
+    LTEXT           "(от 0 до 0.5)",IDC_STATIC_PEREGIB_KRUTIZNA_QUANTIL,210,
+                    137,40,8
+    EDITTEXT        IDC_EDIT_NUM_COLOMNS,348,172,149,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    PUSHBUTTON      "...",IDC_BUTTON_BROSE_NUM_COLOMNS,506,172,20,14
+    CONTROL         "исп.  номера колонок",IDC_CHECK_USE_NUM_COL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,246,176,89,10
+    EDITTEXT        IDC_DIRECTORY2,16,212,178,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED | NOT WS_TABSTOP
+    LISTBOX         IDC_LIST2,16,233,177,85,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use whole directory",IDC_CHECK_USE_WHOLE_DIRECTORY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,194,78,10
+    GROUPBOX        "",IDC_STATIC,7,186,198,137
+    CONTROL         "Относительный",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,595,25,69,10
+    CONTROL         "Разностный",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON,595,
+                    38,57,10
+    CONTROL         "Radio6",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE,595,51,39,10
+    LTEXT           "Тип градиента",IDC_STATIC_GRADIENT_TYPE,596,14,50,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,587,15,2,46
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,305,87,2,71
+    CONTROL         "max",IDC_CHECK_LOCAL_MAX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,313,111,29,10
+    CONTROL         "min",IDC_CHECK_LOCAL_MIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,313,125,27,10
+    CONTROL         "min_max",IDC_CHECK_LOCAL_MIN_MAX,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,313,140,43,10
+    LTEXT           "На выходе из ""локалов"":",IDC_STATIC_LOCALS_OUTPUT,313,
+                    90,49,19
+    CONTROL         "max",IDC_CHECK_LOCAL_MAX2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,580,114,29,10
+    CONTROL         "min",IDC_CHECK_LOCAL_MIN2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,580,128,27,10
+    CONTROL         "min_max",IDC_CHECK_LOCAL_MIN_MAX2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,580,143,43,10
+    LTEXT           "Какие ""локалы"" подавать сюда",IDC_STATIC_INPUT_LOCALS,
+                    557,100,108,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,559,114,4,39
+    CONTROL         "",IDC_STATIC_AUTOBUILD_PROFILE,"Static",SS_BLACKFRAME,
+                    213,193,461,80
+    COMBOBOX        IDC_COMBO_DELIMITER,190,174,48,70,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_SAVE_PROFILE DIALOG DISCARDABLE  0, 0, 260, 69
+STYLE DS_3DLOOK | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "по длине профиля",IDC_RADIO_PROFILE_LEN,"Button",
+                    BS_AUTORADIOBUTTON,140,19,77,10
+    CONTROL         "Северную",IDC_RADIO_NORTH_PROJECTION,"Button",
+                    BS_AUTORADIOBUTTON,7,35,49,10
+    GROUPBOX        "Как сохранять координаты",IDC_STATIC,7,7,246,55
+    CONTROL         "Восточную коорд.",IDC_RADIO_EAST_PROJECTION,"Button",
+                    BS_AUTORADIOBUTTON,57,35,76,10
+    CONTROL         "Авто выбор северной,  восточной или горизонтальной проекции",
+                    IDC_RADIO_AUTO_NORTH_OR_EAST_OR_GORIZONTAL_PROJECTION,
+                    "Button",BS_AUTORADIOBUTTON,7,52,235,10
+    CONTROL         "Горизонтальная проекция",
+                    IDC_RADIO_GORIZONTAL_PROJECTION,"Button",
+                    BS_AUTORADIOBUTTON,140,35,105,10
+    CONTROL         "3D XYZ",IDC_RADIO_3D_XYZ,"Button",BS_AUTORADIOBUTTON,7,
+                    19,41,10
+END
+
+IDD_DIALOG_SURF_ALPHA DIALOG DISCARDABLE  0, 0, 189, 223
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Alpha"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,132,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,132,24,50,14
+    EDITTEXT        IDC_EDIT_SURF_ALPHA,27,112,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_RAZLOM_THICKNESS,27,37,69,14,
+                    ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER_SURF_ALPHA,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,20,135,125,15
+    CONTROL         "Slider1",IDC_SLIDER_SURF_ALPHA_PLANE,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,17,86,125,15
+    EDITTEXT        IDC_EDIT_SURF_ALPHA_PLANE,27,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Alpha plane",IDC_STATIC,81,69,38,8
+    LTEXT           "Alpha surface",IDC_STATIC,82,113,44,8
+    LTEXT           "Razlom thickness",IDC_STATIC,27,20,56,8
+    CONTROL         "Slider1",IDC_SLIDER_SURF_ALPHA_GDIPLUS_PROFILES,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    21,182,125,15
+    EDITTEXT        IDC_EDIT_SURF_ALPHA_GDIPLUS_PROFILES,31,162,40,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Alpha profiles",IDC_STATIC,85,165,43,8
+END
+
+IDD_DIALOG_CUBE_DRAW_MODES DIALOGEX 0, 0, 241, 190
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Profile coordinate draw_modes"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Isosurface",IDC_CHECK_ISOSURFACE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,28,49,10
+    CONTROL         "Many Isosurfaces",IDC_CHECK_MANY_ISOSURFACES,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,44,71,10
+    LTEXT           "Use cube draw mode",IDC_STATIC,23,15,68,8
+    CONTROL         "Scatter plot",IDC_CHECK_SCATTER_PLOT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,60,52,10
+    GROUPBOX        "Extremums",IDC_STATIC,7,95,224,64
+    LTEXT           "",IDC_STATIC_VMAX,15,110,208,12,0,WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_VMIN,15,134,208,12,0,WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_CUBE_ISOSURFACES DIALOG DISCARDABLE  0, 0, 189, 225
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Isosurfaces"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,132,21,50,14
+    EDITTEXT        IDC_EDIT_CUBE_ISOSURFACES_OPACITY,75,142,40,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_ISOSURFACES_NUMBER,75,121,39,14,
+                    ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER_CUBE_ISOSURFACES_OPACITY,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    18,163,125,15
+    CONTROL         "Slider1",IDC_SLIDER_CUBE_ISOLEVEL,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,18,40,125,15
+    EDITTEXT        IDC_EDIT_CUBE_ISOLEVEL,75,20,40,14,ES_AUTOHSCROLL
+    LTEXT           "Isolevel",IDC_STATIC,31,23,25,8
+    LTEXT           "Opacity",IDC_STATIC,31,148,25,8
+    LTEXT           "Number of isosurfaces",IDC_STATIC,31,118,44,17
+    CONTROL         "Slider1",IDC_SLIDER_CUBE_ISOLEVEL2,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,18,202,125,15
+    EDITTEXT        IDC_EDIT_CUBE_ISOLEVEL2,75,182,40,14,ES_AUTOHSCROLL
+    LTEXT           "Isolevel",IDC_STATIC,31,188,25,8
+    GROUPBOX        "Many isosurfaces",IDC_STATIC,7,68,175,150
+    GROUPBOX        "One isosurface",IDC_STATIC,7,7,175,55
+    COMBOBOX        IDC_COMBO_CUBE_ISOLEVEL_INDEX,122,184,48,73,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Apply",IDC_BUTTON_CUBE_ISOSURFACES_NUMBER,122,121,50,14
+    EDITTEXT        IDC_EDIT_ISOSURFACE_MIN,18,96,50,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ISOSURFACE_STEP,75,96,47,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_ISOSURFACE_MAX,129,96,53,14,ES_AUTOHSCROLL
+    LTEXT           "Min",IDC_STATIC,18,81,12,8
+    LTEXT           "Step",IDC_STATIC,75,81,16,8
+    LTEXT           "Max",IDC_STATIC,130,81,14,8
+    PUSHBUTTON      "Save",IDC_BUTTON_ISOSURFACE_SAVE,153,41,29,14
+END
+
+IDD_DIALOG_CUBE_ALPHA DIALOG DISCARDABLE  0, 0, 189, 87
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Alpha"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,132,7,50,14
+    CONTROL         "Slider1",IDC_SLIDER_CUBE_ALPHA,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,13,38,125,15
+    EDITTEXT        IDC_EDIT_CUBE_ALPHA,59,17,40,14,ES_AUTOHSCROLL
+    LTEXT           "Alpha",-1,28,20,19,8
+END
+
+IDD_DIALOG_BLN_PROFILE_PLANE_DRAW_MODES DIALOG DISCARDABLE  0, 0, 186, 190
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cube draw_modes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Isosurface",IDC_CHECK_ISOSURFACE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,28,49,10
+    CONTROL         "Many Isosurfaces",IDC_CHECK_MANY_ISOSURFACES,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,23,44,71,10
+    LTEXT           "Use cube draw mode",IDC_STATIC,23,15,68,8
+    CONTROL         "Slider1",IDC_SLIDER_SURF_ALPHA_PLANE,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,17,86,125,15
+    EDITTEXT        IDC_EDIT_SURF_ALPHA_PLANE,27,66,40,14,ES_AUTOHSCROLL
+    LTEXT           "Alpha plane",IDC_STATIC,81,69,38,8
+END
+
+IDD_DIALOG_LAB_LAYERS_LIST DIALOG DISCARDABLE  0, 0, 275, 233
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Laboratory layers list"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Список лабораторных слоёв",IDC_STATIC,0,7,274,8
+    CONTROL         "",IDC_STATIC_LAB_LAYERS_LIST,"Static",SS_BLACKFRAME,0,
+                    17,274,100
+    CTEXT           "Список ненайденных скважин",IDC_STATIC,0,121,274,8
+    CONTROL         "",IDC_STATIC_LAB_ERRORS,"Static",SS_BLACKFRAME,0,141,
+                    274,85
+    CTEXT           "Эти лаб анализы не отображаются в 3D",IDC_STATIC,0,131,
+                    274,8
+END
+
+IDD_DIALOG_KAROTAZH_INTERPOLATION DIALOG DISCARDABLE  0, 0, 186, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Karotazh Interpolation"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Interpolate",IDOK,103,7,76,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    COMBOBOX        IDC_COMBO_SELECT_KAROTAZH,7,70,172,79,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select karotazh:",IDC_STATIC,7,52,172,8
+    PUSHBUTTON      "Karotazh Save as dat",IDC_BUTTON_SAVE_AS_DAT,7,7,85,14
+END
+
+IDD_DIALOG_KAROTAZH_PROJECTION DIALOG DISCARDABLE  0, 0, 186, 131
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Karotazh Projection"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    COMBOBOX        IDC_COMBO_SELECT_KAROTAZH,7,112,172,79,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select karotazh:",IDC_STATIC,7,94,172,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE,7,72,172,68,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select cube:",IDC_STATIC,7,56,172,8
+END
+
+IDD_DIALOG_KAROTAZH_CUBE_PROJECTION_ON_PROFILE DIALOGEX 0, 0, 186, 167
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cube on Profile Projection"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,93,50,14
+    COMBOBOX        IDC_COMBO_SELECT_CUBE,7,148,172,68,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select cube:",IDC_STATIC,55,133,67,8
+    CONTROL         "Acad Y scale",IDC_CHECK_CONVERT_TO_ACAD_YSCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,70,58,10
+    PUSHBUTTON      "Load Y Scale",IDC_BUTTON_LOAD_ACAD_Y_SCALE,129,26,50,14
+    CONTROL         "X - real profile length",
+                    IDC_CHECK_NON_STRETCHED_X_SCALE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,86,80,10
+    GROUPBOX        "Тип нахлёста",IDC_STATIC,7,7,60,55
+    CONTROL         "0",IDC_RADIO_NAHLJOST_0,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,16,17,20,10
+    CONTROL         "1",IDC_RADIO_NAHLJOST_1,"Button",BS_AUTORADIOBUTTON,16,
+                    34,20,10
+    CONTROL         "2",IDC_RADIO_NAHLJOST_2,"Button",BS_AUTORADIOBUTTON,16,
+                    49,20,10
+    EDITTEXT        IDC_EDIT_DIRECTORY,7,114,148,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BUTTON_BROSE_DIRECTORY,162,114,17,14
+    LTEXT           "Select output directory",IDC_STATIC,16,101,72,8
+    PUSHBUTTON      "Load X Limits",IDC_BUTTON_LOAD_X_LIMITS,71,7,50,14
+    LTEXT           "",IDC_STATIC_X_MIN_CUBE_PROJECTION,71,27,51,14,0,
+                    WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATIC_X_MAX_CUBE_PROJECTION,71,46,51,14,0,
+                    WS_EX_STATICEDGE
+END
+
+IDD_DIALOG_KAROTAZH_CUBE_PROJECTION_ON_PROFILE1 DIALOG DISCARDABLE  0, 0, 186, 175
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cube on Profile Projection"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,46,50,14
+    COMBOBOX        IDC_COMBO_SELECT_CUBE,7,156,172,68,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select cube:",IDC_STATIC,54,141,67,8
+    CONTROL         "Acad Y scale",IDC_CHECK_CONVERT_TO_ACAD_YSCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,77,58,10
+    CONTROL         "X - real profile length",
+                    IDC_CHECK_NON_STRETCHED_X_SCALE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,93,80,10
+    GROUPBOX        "Тип нахлёста",IDC_STATIC,7,7,112,55
+    CONTROL         "0",IDC_RADIO_NAHLJOST_0,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,16,17,20,10
+    CONTROL         "1",IDC_RADIO_NAHLJOST_1,"Button",BS_AUTORADIOBUTTON,16,
+                    34,20,10
+    CONTROL         "2",IDC_RADIO_NAHLJOST_2,"Button",BS_AUTORADIOBUTTON,16,
+                    49,20,10
+    EDITTEXT        IDC_EDIT_DIRECTORY,7,124,148,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BUTTON_BROSE_DIRECTORY,162,124,17,14
+    LTEXT           "Select output directory",IDC_STATIC,16,111,72,8
+END
+
+IDD_DIALOG_SAVE_BITMAP DIALOG DISCARDABLE  0, 0, 186, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Save Bitmap"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    EDITTEXT        IDC_EDIT_BITMAP_WIDTH,47,28,40,14,ES_AUTOHSCROLL
+    LTEXT           "Width",IDC_STATIC,20,31,20,8
+    LTEXT           "Height",IDC_STATIC,19,54,22,8
+    EDITTEXT        IDC_EDIT_BITMAP_HEIGHT,46,51,40,14,ES_AUTOHSCROLL
+    CONTROL         "Save screen",IDC_CHECK_SAVE_BITMAP_AS_SCREEN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,108,52,56,10
+    CONTROL         "Constant Proportions",IDC_CHECK_CONSTANT_PROPORTIONS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,73,81,10
+    PUSHBUTTON      "Calc W",IDC_BUTTON_CALC_W,7,7,32,11,NOT WS_VISIBLE
+    PUSHBUTTON      "Calc H",IDC_BUTTON_CALC_H,45,7,32,11,NOT WS_VISIBLE
+    PUSHBUTTON      "Fill W",IDC_BUTTON_FILL_W,7,16,32,11,NOT WS_VISIBLE
+    PUSHBUTTON      "Fill H",IDC_BUTTON_FILL_H,44,17,32,11,NOT WS_VISIBLE
+END
+
+IDD_DIALOG_CUBE_ADD_GEOCUBE DIALOG DISCARDABLE  0, 0, 285, 163
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Geo Cube"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,228,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,228,24,50,14
+    GROUPBOX        "Surf - Eng Geo Element mapping",IDC_STATIC,7,7,187,37
+    PUSHBUTTON      "Load",IDC_BUTTON_LOAD_SURF_GEOELEMENT_MAPPING_FILE,33,
+                    21,50,14
+    PUSHBUTTON      "Print",IDC_BUTTON_PRINT_SURF_GEOELEMENT_MAPPING_FILE,
+                    105,20,50,14
+    GROUPBOX        "Geo Cube Type",IDC_STATIC,7,49,271,33
+    COMBOBOX        IDC_COMBO_SELECT_GEO_CUBE_TYPE,7,65,271,122,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Ground Description",IDC_STATIC,7,83,122,73
+    CONTROL         "Normative",IDC_RADIO_GROUND_DESCRIPTION_NORMATIVE,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,98,48,10
+    CONTROL         "Calculated on deformations",
+                    IDC_RADIO_GROUND_DESCRIPTION_CALCULATED_ON_DEFORMATIONS,
+                    "Button",BS_AUTORADIOBUTTON,15,116,101,10
+    CONTROL         "Calculated on carry ability",
+                    IDC_RADIO_GROUND_DESCRIPTION_CALCULATED_ON_CARRY_ABILITY,
+                    "Button",BS_AUTORADIOBUTTON,15,135,96,10
+    GROUPBOX        "Strength Description",IDC_STATIC_STRENGTH_DESCRIPTION,
+                    133,86,145,70,NOT WS_VISIBLE
+    CONTROL         "Simple",IDC_RADIO_STRENGTH_DESCRIPTION_SIMPLE,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_GROUP,142,98,37,
+                    10
+    CONTROL         "On snip",IDC_RADIO_STRENGTH_DESCRIPTION_ON_SNIP,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,108,40,10
+    CONTROL         "Water saturated",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_WATER_SATURETED,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,118,67,10
+    CONTROL         "In task condition",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_IN_TASK_CONDITION,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,129,68,10
+    CONTROL         "In nature condition",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_IN_NATURE_CONDITION,
+                    "Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,140,75,
+                    10
+    CONTROL         "Any",IDC_RADIO_STRENGTH_DESCRIPTION_ANY,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,239,97,28,10
+    CONTROL         "Full cube filling",IDC_CHECK_FULL_GEO_CUBE_FILLING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,207,41,62,10
+END
+
+IDD_DIALOG_SVAI_BURO_NABIVNIE DIALOGEX 0, 0, 329, 354
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Буронабивные сваи"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,262,81,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,262,103,50,14
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_INTERNAL_FRICTION_ANGLE,14,191,183,
+                    115,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Расчётн.знач.по нес.сп.(95%) угла внут. трения, град",
+                    IDC_STATIC,22,181,172,8
+    EDITTEXT        IDC_EDIT_D,261,180,40,14,ES_AUTOHSCROLL
+    LTEXT           "D, (m) = ",IDC_STATIC,225,183,28,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_SPECIFIC_GRAVITY_OF_GROUND,14,220,
+                    183,115,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Поверхность ростверка",IDC_STATIC,15,135,82,8
+    COMBOBOX        IDC_COMBO_SELECT_SURFACE_ROSTVERK,14,147,183,115,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_FLUIDITY_INDEX,14,250,183,115,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Или альтитуда ростверка",IDC_CHECK_ROSTVERK_ALTITUDA,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,203,131,103,10
+    EDITTEXT        IDC_EDIT_ROSTVERK_ALTITUDA,204,145,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Ростверк",IDC_STATIC,7,121,315,45
+    COMBOBOX        IDC_COMBO_SELECT_SURFACE_RELIEF,13,98,183,115,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Рельеф",IDC_STATIC,7,77,198,40
+    GROUPBOX        "Диаметр сваи",IDC_STATIC,218,171,94,27
+    LTEXT           "Relief surface:",IDC_STATIC,18,86,46,8
+    GROUPBOX        "Кубы физических свойств",IDC_STATIC,7,170,197,97
+    COMBOBOX        IDC_COMBO_BURO_NABIV_SVAJ_PARAM,56,62,256,97,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_BURO_NABIV_SVAJ_SVAI_TYPE,56,15,256,97,
+                    CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Gamma_cf =",IDC_STATIC,59,46,43,8
+    LTEXT           "",IDC_STATIC_GAMMA_CF,108,43,204,14,0,WS_EX_CLIENTEDGE
+    LTEXT           "в песках           в супесях         в суглинках        в глинах",
+                    IDC_STATIC,109,29,203,8
+    GROUPBOX        "Кубы свойств при водонасыщении",
+                    IDC_STATIC_WATER_SATURATION,7,270,197,78
+    CONTROL         "Учит. водонасыщение",IDC_CHECK_USE_WATER_SATURATION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,200,91,10
+    CONTROL         "",IDC_STATIC_WATER_SATURATION_TAB,"Static",
+                    SS_BLACKFRAME,205,221,117,127
+    GROUPBOX        "Тип сваи",IDC_STATIC,7,7,315,53
+    LTEXT           "Результат",IDC_STATIC,14,65,36,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_SPECIFIC_GRAVITY_OF_SUSPENDED_IN_WATER_GROUND,
+                    14,295,183,115,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Показатель текучести водонас. грунта, д.е.",
+                    IDC_STATIC_FLUIDITY_INDEX_OF_WATER_SATURATED_GROUND,14,
+                    312,149,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_FLUIDITY_INDEX_OF_WATER_SATURATED_GROUND,
+                    14,323,183,115,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Отметьте водонасыщенные ИГЭ",
+                    IDC_STATIC_USE_WATER_SATURATION,206,212,112,8
+    LTEXT           "Коэффиц. надёжности",IDC_STATIC,209,80,43,17
+    EDITTEXT        IDC_EDIT_GAMMA_K,209,101,40,14,ES_AUTOHSCROLL
+    CONTROL         "Забив.",IDC_RADIO_SVAI_TYPE_ZABIVNYE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,14,17,39,10
+    CONTROL         "Буров.",IDC_RADIO_SVAI_TYPE_BUROVYE,"Button",
+                    BS_AUTORADIOBUTTON,14,28,38,10
+    CONTROL         "Radio3",IDC_RADIO_SVAI_TYPE_3,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,14,40,39,10
+    CONTROL         "Radio4",IDC_RADIO_SVAI_TYPE_4,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,14,49,39,10
+    CONTROL         "Расчётн.знач. удельного веса грунта, кН/м3",
+                    IDC_CHECK_SELECT_CUBE_SPECIFIC_GRAVITY_OF_GROUND,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,208,167,10
+    CONTROL         "Показатель текучести, д.е.",
+                    IDC_CHECK_SELECT_CUBE_FLUIDITY_INDEX,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,236,108,10
+    LTEXT           "Расчётн.знач.уд. веса взвеш.в воде грунта, кН/м3",
+                    IDC_STATIC_SPECIFIC_GRAVITY_OF_SUSPENDED_IN_WATER_GROUND,
+                    14,282,172,8
+    EDITTEXT        IDC_EDIT_SAND_GAMMA_CF,107,42,40,14,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE
+    EDITTEXT        IDC_EDIT_SANDY_LOAM_GAMMA_CF,157,42,40,14,ES_AUTOHSCROLL | 
+                    NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_LOAM_GAMMA_CF,212,42,40,14,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE
+    EDITTEXT        IDC_EDIT_CLAY_GAMMA_CF,263,42,40,14,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE
+END
+
+IDD_DIALOG_CUBE_SIZE DIALOG DISCARDABLE  0, 0, 317, 158
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cube Size"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,260,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,40,50,14
+    GROUPBOX        "Grid cube line geometry",IDC_STATIC,7,58,303,93
+    LTEXT           "X Direction",IDC_STATIC,13,88,36,8
+    LTEXT           "Y Direction",IDC_STATIC,13,108,36,8
+    LTEXT           "Z Direction",IDC_STATIC,13,128,36,8
+    LTEXT           "Minimum",IDC_STATIC,58,71,28,8
+    LTEXT           "Maximum",IDC_STATIC,121,71,30,8
+    LTEXT           "Spacing",IDC_STATIC,184,71,27,8
+    LTEXT           "# of lines",IDC_STATIC,246,71,30,8
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_X,58,82,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_Y,58,102,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_Z,58,122,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_X,121,82,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_Y,121,102,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_Z,121,122,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_X,184,82,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_Y,184,102,40,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_Z,184,122,40,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_X,246,82,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_Y,246,102,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_Z,246,122,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_X,"msctls_updown32",
+                    UDS_ARROWKEYS,286,82,10,14
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_Y,"msctls_updown32",
+                    UDS_ARROWKEYS,285,102,10,14
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_Z,"msctls_updown32",
+                    UDS_ARROWKEYS,285,122,10,14
+    PUSHBUTTON      "Extract",IDC_BUTTON_CUBE_SIZE_EXTRACT,65,7,50,14
+    EDITTEXT        IDC_EDITCUBE_SIZE_EXTRACT,73,23,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Fill Minimums",IDC_BUTTON_CUBE_SIZE_FILL_MINIMUMS,7,143,
+                    50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Default",IDC_BUTTON_CUBE_SIZE_DEFAULT,7,39,50,14
+    PUSHBUTTON      "Fill Spacing",IDC_BUTTON_CUBE_SIZE_FILL_SPACING,108,143,
+                    50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Calc Spacing",IDC_BUTTON_CUBE_SIZE_CALC_SPACING,209,143,
+                    50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Calc Nlines",IDC_BUTTON_CUBE_SIZE_CALC_NLINES,260,143,
+                    50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Fill Nlines",IDC_BUTTON_CUBE_SIZE_FILL_NLINES,159,143,
+                    50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Fill Maximums",IDC_BUTTON_CUBE_SIZE_FILL_MAXIMUMS,58,
+                    143,50,8,NOT WS_VISIBLE
+    PUSHBUTTON      "By Driddata",IDC_BUTTON_BY_GRIDDATA,7,7,50,14
+    PUSHBUTTON      "By Karotazy",IDC_BUTTON_BY_KAROTAZHY,7,24,50,14
+    PUSHBUTTON      "Printf",IDC_BUTTON_CUBE_SIZE_PRINTF,196,7,50,14
+    COMBOBOX        IDC_COMBO_CUBE_SIZE_CUBE,121,25,63,74,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "By cube",IDC_BUTTON_CUBE_SIZE_BY_CUBE,128,7,50,14
+    PUSHBUTTON      "Undefine",IDC_BUTTON_CUBE_SIZE_UNDEFINE,260,23,50,14
+END
+
+IDD_DIALOG_ENGINEER_GEO_ELEMENT_PROP DIALOG DISCARDABLE  0, 0, 343, 299
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Engineer Geo Element Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,286,81,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,286,98,50,14
+    GROUPBOX        "Parameter Type",IDC_STATIC,7,7,219,33
+    COMBOBOX        IDC_COMBO_SELECT_GEO_CUBE_TYPE,7,23,214,122,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Ground Description",IDC_STATIC,7,41,122,73
+    CONTROL         "Normative",IDC_RADIO_GROUND_DESCRIPTION_NORMATIVE,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,55,48,10
+    CONTROL         "Calculated on deformations",
+                    IDC_RADIO_GROUND_DESCRIPTION_CALCULATED_ON_DEFORMATIONS,
+                    "Button",BS_AUTORADIOBUTTON,15,74,101,10
+    CONTROL         "Calculated on carry ability",
+                    IDC_RADIO_GROUND_DESCRIPTION_CALCULATED_ON_CARRY_ABILITY,
+                    "Button",BS_AUTORADIOBUTTON,15,92,96,10
+    GROUPBOX        "Strength Description",IDC_STATIC_STRENGTH_DESCRIPTION,
+                    133,44,94,70,NOT WS_VISIBLE
+    CONTROL         "Simple",IDC_RADIO_STRENGTH_DESCRIPTION_SIMPLE,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE | WS_GROUP,142,55,37,
+                    10
+    CONTROL         "On snip",IDC_RADIO_STRENGTH_DESCRIPTION_ON_SNIP,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,66,40,10
+    CONTROL         "Water saturated",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_WATER_SATURETED,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,76,67,10
+    CONTROL         "In task condition",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_IN_TASK_CONDITION,"Button",
+                    BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,87,68,10
+    CONTROL         "In nature condition",
+                    IDC_RADIO_STRENGTH_DESCRIPTION_IN_NATURE_CONDITION,
+                    "Button",BS_AUTORADIOBUTTON | NOT WS_VISIBLE,142,98,75,
+                    10
+    EDITTEXT        IDC_EDIT_GEO_ELEMENT_PROP_VALUE,285,24,51,14,
+                    ES_AUTOHSCROLL
+    PUSHBUTTON      "Get Value",IDC_BUTTON_GET_VALUE,286,7,50,14,NOT 
+                    WS_VISIBLE
+    PUSHBUTTON      "Set Value",IDC_BUTTON_SET_VALUE,286,48,50,14
+    COMBOBOX        IDC_COMBO_COMBO,232,23,104,59,CBS_DROPDOWN | NOT 
+                    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Unset Value",IDC_BUTTON_UNSET_VALUE,231,48,50,14
+END
+
+IDD_DIALOG_ADD_EMPTY_GEO_ELEMENT DIALOG DISCARDABLE  0, 0, 186, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create Empty Geo Element"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    COMBOBOX        IDC_COMBO_GROUND_TYPE,27,60,87,69,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_GEO_ELEMENT_KEY,48,26,40,14,ES_AUTOHSCROLL
+    LTEXT           "Key",IDC_STATIC,59,14,13,8
+    LTEXT           "Ground type",IDC_STATIC,47,47,40,8
+END
+
+IDD_DIALOG_GRIDDATA_PROP DIALOG DISCARDABLE  0, 0, 186, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Griddata Prop"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    CONTROL         "Use line interpolation",
+                    IDC_CHECK_GRIDDATA__USE_LINE_INTERPOLATION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,18,58,81,10
+    EDITTEXT        IDC_EDIT_GRIDDATA_NPOINTS_OF_LINE_INTERPOLATION,125,58,
+                    40,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_GRIDDATA_GRIDDATA DIALOG DISCARDABLE  0, 0, 342, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Grid Data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,285,52,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,285,70,50,14
+    COMBOBOX        IDC_COMBO_GRIDDATA_FUN,7,63,266,85,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_DRID_DATA_FILE,50,13,215,14,ES_AUTOHSCROLL | 
+                    NOT WS_VISIBLE
+    LTEXT           "Filename:",IDC_STATIC,13,14,31,8,NOT WS_VISIBLE
+    PUSHBUTTON      "Brose",IDC_BUTTON_DRID_DATA_FILE_BROSE,285,13,50,14,NOT 
+                    WS_VISIBLE
+END
+
+IDD_DIALOG_CUBE_SUSPENDEDINWATERSPECIFICGRAVITY DIALOG DISCARDABLE  0, 0, 275, 121
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Suspended in water specific gravity"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,218,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,24,50,14
+    LTEXT           "Specific gravity of ground particles cube:",
+                    IDC_STATICSPECIFIC_GRAVITY_OF_GROUND_PARTICLES_CUBE,39,
+                    51,156,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_SPECIFIC_GRAVITY_OF_GROUND_PARTICLES,
+                    35,61,183,115,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Porosity factor cube:",IDC_STATIC_POROSTY_FACTOR_CUBE,
+                    40,84,156,8
+    COMBOBOX        IDC_COMBO_SELECT_CUBE_POROSTY_FACTOR,36,94,183,115,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Метод расчёта",IDC_STATIC,7,7,178,37
+    CONTROL         "Cube",IDC_RADIO_SUSPENDED_IN_WATER_CUBE,"Button",
+                    BS_AUTORADIOBUTTON,73,13,33,10
+    CONTROL         "Engineer Geo Element",
+                    IDC_RADIO_SUSPENDED_IN_WATER_GEOELEMENT,"Button",
+                    BS_AUTORADIOBUTTON,73,25,87,10
+    PUSHBUTTON      "Button1",IDC_BUTTON_CALCULATION_METHOD_SELECTED,239,100,
+                    29,14,NOT WS_VISIBLE
+END
+
+IDD_DIALOG_SVAI_BURO_NABIVNIE_ADDITIONAL DIALOG DISCARDABLE  0, 0, 282, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Additional"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Увеличить боковое сопротивление плотных песков на 30% (Примечание 3 табл.2)",
+                    IDC_CHECK_INCREASE_FI_IF_DENSE_SAND,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,38,219,20
+    CONTROL         "Увеличить боковое сопротивление малопористых пылеватоглинистых пород  на 15 (Примечание 4 табл.2)",
+                    IDC_CHECK_INCREASE_FI_IF_NOT_POROSTY_CLAY,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,62,219,20
+    CONTROL         "Уменьшать сопротивление под нижним концом сваи при коэффициенте пористости больше 0,6 (Примечание б табл.7)",
+                    IDC_CHECK_DECREASE_CLAY_R_IF_POROSTY,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,6,219,29
+END
+
+IDD_DIALOG_PROFILE_CREATE_ON_WELLS DIALOG DISCARDABLE  0, 0, 307, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create profile on Wells"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,250,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,250,24,50,14
+    GROUPBOX        "Wells list",IDC_STATIC,7,49,293,34
+    EDITTEXT        IDC_EDIT_WELLS_LIST,15,61,277,14,ES_AUTOHSCROLL
+    LTEXT           "Profile Name",IDC_STATIC,19,18,41,8
+    EDITTEXT        IDC_EDIT_PROFILE_NAME,71,15,94,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_GEO_ELEMENT_MAPPING DIALOG DISCARDABLE  0, 0, 203, 262
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Geo Element Mapping"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Surf - Litho Geo Element mapping",IDC_STATIC,7,7,187,37
+    PUSHBUTTON      "Load",IDC_BUTTON_LOAD_SURF_LITHOGEOELEMENT_MAPPING_FILE,
+                    33,21,50,14
+    GROUPBOX        "Surf - Eng Geo Element mapping",IDC_STATIC,7,130,187,37
+    PUSHBUTTON      "Load",IDC_BUTTON_LOAD_SURF_GEOELEMENT_MAPPING_FILE,33,
+                    144,50,14
+    CONTROL         "",IDC_STATIC_SURF_LITO_MAPPING,"Static",SS_BLACKFRAME,7,
+                    47,189,78
+    CONTROL         "",IDC_STATIC_SURF_ENGEO_MAPPING,"Static",SS_BLACKFRAME,
+                    7,169,189,86
+END
+
+IDD_DIALOG_SURFACES_LIST DIALOG DISCARDABLE  0, 0, 208, 310
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Очерёдность наслоения поверхностей"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Старшинство при взааимном бланковании",IDC_STATIC,7,135,
+                    194,8
+    CONTROL         "",IDC_STATIC_SURFACES_BLANK_ORDER,"Static",
+                    SS_BLACKFRAME,7,151,194,111
+    CONTROL         "",IDC_STATIC_SURFACES_ORDER,"Static",SS_BLACKFRAME,7,16,
+                    194,89
+    CTEXT           "Очерёдность наслоения ",IDC_STATIC,7,7,194,8
+    PUSHBUTTON      "Произвести взаимное бланкование поверхностей",
+                    IDC_BUTTON_SURF_AUTO_BLANKING,7,268,194,14
+    PUSHBUTTON      "Отменить бланкование",IDC_BUTTON_NO_BLANK,50,289,109,14
+    PUSHBUTTON      "Перестроить разрезы",IDC_BUTTON_CUTTING,53,114,103,14
+END
+
+IDD_DIALOG_LAB_TRIAL_TREE DIALOG DISCARDABLE  0, 0, 201, 186
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Laboratory Trials Tree"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_DIALOG_LAB_SHTAMP_DEF_MODUL DIALOG DISCARDABLE  0, 0, 231, 148
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Shtamp Def Modul"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Algorithm",IDC_STATIC,7,7,136,134
+    GROUPBOX        "Show",IDC_STATIC,153,7,65,134
+    CONTROL         "Show1",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,17,38,10
+    CONTROL         "Algorithm 1 Ip (W)",IDC_RADIO__SHTAMP_DEF_MODUL_ALG1,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,23,25,72,10
+    CONTROL         "Algorithm 2 Ip (Wcp)",IDC_RADIO__SHTAMP_DEF_MODUL_ALG2,
+                    "Button",BS_AUTORADIOBUTTON,23,37,80,10
+    CONTROL         "Algorithm 3 Ip (Wm)",IDC_RADIO__SHTAMP_DEF_MODUL_ALG3,
+                    "Button",BS_AUTORADIOBUTTON,23,50,77,10
+    CONTROL         "Algorithm 4 Ip = 0",IDC_RADIO__SHTAMP_DEF_MODUL_ALG4,
+                    "Button",BS_AUTORADIOBUTTON,23,62,71,10
+    CONTROL         "Show2",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,31,38,10
+    CONTROL         "Show3",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW3,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,45,38,10
+    CONTROL         "Show4",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW4,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,59,38,10
+    CONTROL         "Show5",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW5,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,72,38,10
+    CONTROL         "Show6",IDC_CHECK_SHTAMP_DEF_MODUL_SHOW6,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,163,84,38,10
+    CONTROL         "Def module new raschotn  method по всей совокупности опытов иначе чем срез, изменив знак в формуле 19, перевернув формулу 20 и в любом случае не используя формулу 21",
+                    IDC_CHECK_DEF_MODUL_NEW_RASCHETN,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,23,78,118,63
+END
+
+IDD_DIALOG_LAB_EXCLUDED_LIST DIALOG DISCARDABLE  0, 0, 402, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Исключённые опыты"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_DIALOG_LAB_PARAM_TREE DIALOG DISCARDABLE  0, 0, 273, 186
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Laboratory Param Tree"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_DIALOG_WELLS_LAB_DRAW_MODE DIALOG DISCARDABLE  0, 0, 240, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Рехим отображения лабортаорных анализов"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,183,25,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,104,25,50,14
+    COMBOBOX        IDC_COMBO_LAB_DRAW_MODE,7,7,226,94,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_DIALOG_STAT_ZOND_SVAI DIALOG DISCARDABLE  0, 0, 243, 170
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Статичесоке зондирование расчёт свай "
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,186,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,186,24,50,14
+    GROUPBOX        "СНиП",IDC_STATIC,7,7,147,57
+    CONTROL         "СНиП 2.02.03-85",IDC_RADIO_SNIP_1,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,18,23,71,10
+    CONTROL         "СП 50-102-2003",IDC_RADIO_SNIP_2,"Button",
+                    BS_AUTORADIOBUTTON,18,42,68,10
+    GROUPBOX        "Свая",IDC_STATIC,7,71,147,92
+    CONTROL         "Круглая",IDC_RADIO_SVAJA_1,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,18,92,43,10
+    CONTROL         "Квадратная",IDC_RADIO_SVAJA_2,"Button",
+                    BS_AUTORADIOBUTTON,18,110,56,10
+    CONTROL         "Radio5",IDC_RADIO_SVAJA_3,"Button",BS_AUTORADIOBUTTON,
+                    18,129,39,10
+END
+
+IDD_DIALOG_KAROTAZH_LIST2 DIALOG DISCARDABLE  0, 0, 153, 241
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Wells draw and Karotazh list"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Karotazh list",IDC_STATIC,7,111,139,8
+    CONTROL         "",IDC_STATIC_KAROTAZH_LIST,"Static",SS_BLACKFRAME,7,123,
+                    139,111
+    CONTROL         "",IDC_STATIC_WELLS_DRAW,"Static",SS_BLACKFRAME,7,16,139,
+                    89
+    CTEXT           "Wells draw",IDC_STATIC,7,7,139,8
+END
+
+IDD_DIALOG_ADDING_GEO_CUBE DIALOGEX 0, 0, 186, 118
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Добавление гео куба"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,97,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,59,97,50,14
+    CONTROL         "Заполнять куб только полностью",
+                    IDC_CHECK_FULL_CUBE_FILLING,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,21,84,129,10
+    GROUPBOX        "",IDC_STATIC,7,21,172,57
+    CONTROL         "Нормативные значения",IDC_RADIO_NORMATIVE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,21,31,97,10
+    CONTROL         "85 %",IDC_RADIO_RASCHOTN_85,"Button",BS_AUTORADIOBUTTON,
+                    21,63,31,10
+    CONTROL         "95 %",IDC_RADIO_RASCHOTN_95,"Button",BS_AUTORADIOBUTTON,
+                    75,63,31,10
+    CONTROL         "99 %",IDC_RADIO_RASCHOTN_99,"Button",BS_AUTORADIOBUTTON,
+                    125,63,31,10
+    CTEXT           "Расчётные с доверительным интервалом:",IDC_STATIC,21,44,
+                    139,18
+    LTEXT           "",IDC_STATIC_PARAM_NAME,7,7,172,13,0,WS_EX_CLIENTEDGE
+END
+
+IDD_DIALOG_PROFILES_COORDINATE_GRID DIALOG DISCARDABLE  0, 0, 395, 113
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Profiles Coordinate Grid"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,338,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,338,24,50,14
+    GROUPBOX        "Profiles grid line geometry",IDC_STATIC,7,7,309,93
+    LTEXT           "X Direction",IDC_STATIC,19,43,36,8
+    LTEXT           "Y Direction",IDC_STATIC,19,63,36,8
+    LTEXT           "Z Direction",IDC_STATIC,19,83,36,8
+    LTEXT           "Minimum",IDC_STATIC,64,26,28,8
+    LTEXT           "Maximum",IDC_STATIC,127,26,30,8
+    LTEXT           "Spacing",IDC_STATIC,190,26,27,8
+    LTEXT           "# of lines",IDC_STATIC,252,26,30,8
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_X,64,37,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_Y,64,57,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MIN_Z,64,77,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_X,127,37,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_Y,127,57,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_MAX_Z,127,77,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_X,190,37,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_Y,190,57,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_SPACING_Z,190,77,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_X,252,37,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_Y,252,57,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CUBE_SIZE_NLINES_Z,252,77,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_X,"msctls_updown32",
+                    UDS_ARROWKEYS,292,37,11,14
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_Y,"msctls_updown32",
+                    UDS_ARROWKEYS,291,57,11,14
+    CONTROL         "Spin1",IDC_SPIN_CUBE_SIZE_Z,"msctls_updown32",
+                    UDS_ARROWKEYS,291,77,11,14
+    CONTROL         "Приоритет северной координаты",
+                    IDC_CHECK_NORTH_COORDINATE_PRIORITY,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,318,68,59,30
+    CONTROL         "Вкл. координатную сетку",IDC_CHECK_USE_GRID_ON_PLANE,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,318,
+                    41,64,26
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTSURFCUBEBOX, DIALOG
+    BEGIN
+        VERTGUIDE, 42
+        VERTGUIDE, 188
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_DIALOG_PRINT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 166
+    END
+
+    IDD_DIALOG_ABORT_PRINTING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 105
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 32
+    END
+
+    IDD_WAV_PARAM, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 163
+    END
+
+    IDD_DIALOG_AUDIO_WARNING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_DIALOG_START_FINISH_DATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 360
+        VERTGUIDE, 62
+        VERTGUIDE, 130
+        VERTGUIDE, 205
+        VERTGUIDE, 270
+        VERTGUIDE, 282
+        VERTGUIDE, 360
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 376
+        HORZGUIDE, 281
+        HORZGUIDE, 297
+        HORZGUIDE, 309
+        HORZGUIDE, 322
+        HORZGUIDE, 335
+        HORZGUIDE, 348
+        HORZGUIDE, 363
+    END
+
+    IDD_LAGER_PARAM, DIALOG
+    BEGIN
+        RIGHTMARGIN, 320
+        BOTTOMMARGIN, 208
+        HORZGUIDE, 9
+        HORZGUIDE, 120
+        HORZGUIDE, 124
+    END
+
+    IDD_DIALOG_SELECT_FILE, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 250
+    END
+
+    IDD_SAVEPLOT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 35
+    END
+
+    IDD_DIALOG_WINPLOT_SCALE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 255
+        VERTGUIDE, 12
+        VERTGUIDE, 43
+        VERTGUIDE, 54
+        VERTGUIDE, 116
+        VERTGUIDE, 121
+        VERTGUIDE, 130
+        VERTGUIDE, 135
+        VERTGUIDE, 176
+        VERTGUIDE, 184
+        VERTGUIDE, 249
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 110
+        HORZGUIDE, 20
+        HORZGUIDE, 38
+        HORZGUIDE, 58
+        HORZGUIDE, 76
+        HORZGUIDE, 92
+        HORZGUIDE, 110
+    END
+
+    IDD_DIALOG_KORRELATION_COEFFICIENT, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 235
+    END
+
+    IDD_PROP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 228
+    END
+
+    IDD_DIALOG_PLAY_MOLS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 357
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_SURF_VIEW_ANGLES_TRANS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_SURF_PALETTE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 170
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 239
+    END
+
+    IDD_DIALOG_SURF_TOPAINT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 423
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 101
+    END
+
+    IDD_DIALOG_KOHONEN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 418
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 215
+    END
+
+    IDD_COMMAND_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 315
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_DIALOG_INTER_WELLS_PARAM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_OPEN_FILES_TO_COMMON, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 35
+    END
+
+    IDD_DIALOG_SELECT_FILE_DELIMITER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 330
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 159
+    END
+
+    IDD_DIALOG_CELL_LIST_PAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 405
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+
+    IDD_DIALOG_START_FINISH_DATE1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 360
+        VERTGUIDE, 62
+        VERTGUIDE, 130
+        VERTGUIDE, 205
+        VERTGUIDE, 282
+        VERTGUIDE, 360
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 300
+        HORZGUIDE, 257
+    END
+
+    IDD_DIALOG_AUTO_BUILD_PROFILE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 674
+        VERTGUIDE, 7
+        VERTGUIDE, 16
+        VERTGUIDE, 152
+        VERTGUIDE, 313
+        VERTGUIDE, 674
+        HORZGUIDE, 186
+    END
+
+    IDD_SAVE_PROFILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 253
+        VERTGUIDE, 140
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 62
+        HORZGUIDE, 29
+        HORZGUIDE, 45
+    END
+
+    IDD_DIALOG_SURF_ALPHA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+    END
+
+    IDD_DIALOG_CUBE_DRAW_MODES, DIALOG
+    BEGIN
+        VERTGUIDE, 15
+        VERTGUIDE, 223
+    END
+
+    IDD_DIALOG_CUBE_ISOSURFACES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        VERTGUIDE, 18
+        VERTGUIDE, 31
+        VERTGUIDE, 75
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 218
+        HORZGUIDE, 89
+        HORZGUIDE, 110
+        HORZGUIDE, 135
+        HORZGUIDE, 156
+        HORZGUIDE, 178
+        HORZGUIDE, 196
+        HORZGUIDE, 217
+    END
+
+    IDD_DIALOG_CUBE_ALPHA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 80
+    END
+
+    IDD_DIALOG_BLN_PROFILE_PLANE_DRAW_MODES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 23
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_DIALOG_LAB_LAYERS_LIST, DIALOG
+    BEGIN
+        RIGHTMARGIN, 274
+        VERTGUIDE, 18
+        VERTGUIDE, 70
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 226
+    END
+
+    IDD_DIALOG_KAROTAZH_INTERPOLATION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_KAROTAZH_PROJECTION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 124
+    END
+
+    IDD_DIALOG_KAROTAZH_CUBE_PROJECTION_ON_PROFILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 16
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 160
+        HORZGUIDE, 128
+    END
+
+    IDD_DIALOG_KAROTAZH_CUBE_PROJECTION_ON_PROFILE1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 168
+    END
+
+    IDD_DIALOG_SAVE_BITMAP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_CUBE_ADD_GEOCUBE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 278
+        VERTGUIDE, 15
+        VERTGUIDE, 142
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 156
+    END
+
+    IDD_DIALOG_SVAI_BURO_NABIVNIE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 322
+        VERTGUIDE, 14
+        VERTGUIDE, 312
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 347
+    END
+
+    IDD_DIALOG_CUBE_SIZE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        VERTGUIDE, 13
+        VERTGUIDE, 58
+        VERTGUIDE, 121
+        VERTGUIDE, 184
+        VERTGUIDE, 246
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
+        HORZGUIDE, 79
+        HORZGUIDE, 96
+        HORZGUIDE, 116
+        HORZGUIDE, 136
+    END
+
+    IDD_DIALOG_ENGINEER_GEO_ELEMENT_PROP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 336
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 292
+    END
+
+    IDD_DIALOG_ADD_EMPTY_GEO_ELEMENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_GRIDDATA_PROP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_GRIDDATA_GRIDDATA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 335
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_CUBE_SUSPENDEDINWATERSPECIFICGRAVITY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_DIALOG_SVAI_BURO_NABIVNIE_ADDITIONAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 226
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_DIALOG_PROFILE_CREATE_ON_WELLS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_GEO_ELEMENT_MAPPING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 196
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 255
+    END
+
+    IDD_DIALOG_SURFACES_LIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 201
+        VERTGUIDE, 18
+        VERTGUIDE, 104
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 303
+    END
+
+    IDD_DIALOG_LAB_TRIAL_TREE, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 194
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 179
+    END
+
+    IDD_DIALOG_LAB_SHTAMP_DEF_MODUL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        VERTGUIDE, 23
+        VERTGUIDE, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 141
+    END
+
+    IDD_DIALOG_LAB_EXCLUDED_LIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 395
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_DIALOG_LAB_PARAM_TREE, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 266
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 179
+    END
+
+    IDD_DIALOG_WELLS_LAB_DRAW_MODE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_DIALOG_STAT_ZOND_SVAI, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        VERTGUIDE, 18
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
+
+    IDD_DIALOG_KAROTAZH_LIST2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 146
+        VERTGUIDE, 18
+        VERTGUIDE, 70
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 234
+    END
+
+    IDD_DIALOG_ADDING_GEO_CUBE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 21
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+        HORZGUIDE, 54
+    END
+
+    IDD_DIALOG_PROFILES_COORDINATE_GRID, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 388
+        VERTGUIDE, 318
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 106
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+MYWINPLOT MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Open",                        ID_WINPLOT_FILE_OPEN
+        MENUITEM "Exit",                        ID_WINPLOT_FILE_EXIT
+    END
+    POPUP "Plot"
+    BEGIN
+        MENUITEM "Save",                        ID_PLOT_SAVE
+    END
+    MENUITEM "Scale",                       ID_WINPLOT_SCALE
+END
+
+MYMDIAPP MENU DISCARDABLE 
+BEGIN
+    POPUP "&Файл"
+    BEGIN
+        MENUITEM "&Открыть var...",             ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "Сигнал &Антен",               ID_FILE_NEW
+        MENUITEM "&Кросс-корреляция",           ID_FILE_COV
+        MENUITEM "А&вто корреляция",            ID_FILE_AUTOCOV
+        MENUITEM SEPARATOR
+        MENUITEM "&Закрыть Антены",             ID_FILE_CLOSE
+        MENUITEM "Закр&ыть кросс-корреляцию",   ID_FILE_CLOSE_COV
+        MENUITEM "Зак&рыть автокорреляцию",     ID_FILE_CLOSE_AUTOCOV
+        MENUITEM SEPARATOR
+        MENUITEM "Настройка печати",            ID_FILE_PRINT_SETUP
+        MENUITEM "Свойства печати (тест)",      ID_FILE_PRINT_PROP
+        MENUITEM "Печать",                      ID_FILE_PRINT
+        MENUITEM SEPARATOR
+        MENUITEM "Составление сводного файла...", ID_FILE_COMMON2
+        MENUITEM "Распечатать ежедневній отчёт за период...", 
+                                                ID_FILE_PRINT_RAPORT_ON_PERIOD
+
+        MENUITEM SEPARATOR
+        MENUITEM "&Импорт Сводного файла полётов", 
+                                                ID_FILE_IMPORT_COMMON_POLYOTY
+
+        MENUITEM "&Импорт ФАЙЛА ТАБЛИЦЫ ЗЕМЛЕТРЯСЕНИЙ NEIC 2", 
+                                                ID_FILE_IMPORT_EARTHQUAKES_NEIC2
+
+        POPUP "&Импорт "
+        BEGIN
+            MENUITEM "&Импорт формата Матлаб",      ID_FILE_IMPORT_MATLAB
+            MENUITEM "&Импорт формата Excel Сводного файла", 
+                                                    ID_FILE_IMPORT_EXCEL_COMMON_FILE
+
+            MENUITEM "&Импорт формата Excel Сводного файла Полусуточного", 
+                                                    ID_FILE_IMPORT_EXCEL_COMMON_FILE_HALF_OF_DAY
+
+            MENUITEM "&Импорт ФАЙЛА ТАБЛИЦЫ ЗЕМЛЕТРЯСЕНИЙ КОМСП", 
+                                                    ID_FILE_IMPORT_EARTHQUAKES
+
+            MENUITEM "&Импорт ФАЙЛА ТАБЛИЦЫ ЗЕМЛЕТРЯСЕНИЙ NEIC", 
+                                                    ID_FILE_IMPORT_EARTHQUAKES_NEIC
+
+            MENUITEM SEPARATOR
+            MENUITEM "&Импорт csv...",              ID_FILE_IMPORT
+            MENUITEM "&Импорт формата Excel",       ID_FILE_IMPORT_EXCEL
+            MENUITEM "&Импорт формата Excel Сводного файла параметров", 
+                                                    ID_FILE_IMPORT_EXCEL_COMMON_FILE_PARAM
+
+            MENUITEM SEPARATOR
+        END
+        MENUITEM SEPARATOR
+        POPUP "Конверт к "
+        BEGIN
+            MENUITEM "Конверт к формату Уварова",   ID_FILE_CONVERT_TO_UVAROV
+
+            MENUITEM "Конверт к формату Матлаб с усреднением по минутам", 
+                                                    ID_FILE_CONVERT_TO_MATLAB
+
+            MENUITEM "Конверт к формату Excel с усреднением по минутам", 
+                                                    ID_FILE_CONVERT_TO_EXCEL
+            MENUITEM "Конверт к формату Матлаб по-секундно", 
+                                                    ID_FILE_CONVERT_TO_MATLAB_ON_SECOND
+
+            MENUITEM "Конверт",                     ID_FILE_CONVERT
+            MENUITEM SEPARATOR
+            MENUITEM "Составление сводного файла... (старый)", 
+                                                    ID_FILE_COMMON
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Сохранить как...",           ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Выход",                      ID_FILE_EXIT
+    END
+    POPUP "&График"
+    BEGIN
+        MENUITEM "Установить режим отображения на графиках", 
+                                                ID_SET_DISPLAY_MODE
+        MENUITEM "Отменить режим отображения на графиках", 
+                                                ID_CANCEL_DISPLAY_MODE
+        MENUITEM "Удалить рассчётные графики",  ID_DELETE_CALCULATED_GRAPHICS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Скрыть рассчётные графики",   ID_HIDE_PLOTS
+        MENUITEM SEPARATOR
+        MENUITEM "XYZ angle",                   ID_XYZ_ANGLE
+        MENUITEM "XYZ angle 2",                 ID_XYZ_ANGLE2
+        MENUITEM "XYZ 3 angle",                 ID_XYZ_3_ANGLE
+        MENUITEM "XYZ 3_angle 2",               ID_XYZ_3_ANGLE2
+        MENUITEM SEPARATOR
+        MENUITEM "Прологарифмировать сигнал",   ID_LOGARIPHM_OF_SIGNAL
+        MENUITEM "Прологарифмировать сигнал 2", ID_LOGARIPHM_OF_SIGNAL2
+        MENUITEM SEPARATOR
+        MENUITEM "XYZ LOG angle",               ID_XYZ_LOG_ANGLE
+        MENUITEM "XYZ LOG angle 2",             ID_XYZ_LOG_ANGLE2
+        MENUITEM "XYZ 3 LOG angle",             ID_XYZ_3_LOG_ANGLE
+        MENUITEM "XYZ 3 LOG angle 2",           ID_XYZ_3_LOG_ANGLE2
+        MENUITEM SEPARATOR
+        MENUITEM "Прологарифмировать фильтрацию сигнала", 
+                                                ID_LOGARIPHM_OF_FILTRED_SIGNAL
+
+        MENUITEM "Прологарифмировать фильтрацию сигнала 2", 
+                                                ID_LOGARIPHM_OF_FILTRED_SIGNAL
+
+        MENUITEM SEPARATOR
+        MENUITEM "Гистограмма сигнала",         ID_HIST_OF_SIGNAL
+        MENUITEM "Гистограмма отношения приведённого к углу", 
+                                                ID_HIST_OF_ANGLE
+        MENUITEM "Гистограмма магнитуд землетрясений", 
+                                                ID_HIST_OF_EARTHQUAKES
+        MENUITEM SEPARATOR
+        MENUITEM "Дисперсия",                   ID_SET_DISPERSION_PLOT
+        MENUITEM "Прологарифмировать дисперсию", ID_LOGARIPHM_OF_DISPERSION
+        MENUITEM SEPARATOR
+        MENUITEM "Энергия",                     ID_ENERGY_OF_LOG_XYZ
+        MENUITEM "Сглаженная энергия",          ID_FILTRED_ENERGY_OF_LOG_XYZ
+        MENUITEM "Энергия фильтрации",          ID_ENERGY_OF_FILTRED_LOG_XYZ
+        MENUITEM "Сглаженная энергия фильтрации", 
+                                                ID_FILTRED_ENERGY_OF_FILTRED_LOG_XYZ
+
+        MENUITEM SEPARATOR
+        MENUITEM "Корректировка шкалы времени", ID_CORRECT_TIME_SCALE
+        MENUITEM SEPARATOR
+        MENUITEM "Сохранить как метафайл",      ID_SAVE_GRAPH_AS_METAFILE
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Font",                        ID_EDIT_FONT
+    END
+    POPUP "&Вид"
+    BEGIN
+        MENUITEM "&Полный масштаб",             ID_VIEW_FULL_ZOOM
+        MENUITEM "&МАСШТАБИРОВАТЬ Y при горизонтальной прокрутке", 
+                                                ID_VIEW_SCALE_Y_ON_HSCROLL
+        MENUITEM SEPARATOR
+    END
+    POPUP "&Окна"
+    BEGIN
+        MENUITEM "&Каскадом",                   ID_WINDOW_CASCADE
+        MENUITEM "Упорядочить &Горизонтально",  ID_WINDOW_TILEHORZ
+        MENUITEM "Упорядочить &Вертикально",    ID_WINDOW_TILEVERT
+        MENUITEM "Упорядочить &свёрнутые",      ID_WINDOW_ARRANGE
+    END
+    POPUP "&Корреляции"
+    BEGIN
+        MENUITEM "Рассчёт корреляций",          ID_SOLVE_CORRELATIONS
+        MENUITEM SEPARATOR
+        MENUITEM "Установить прямой режим расчёта корреляций", 
+                                                ID_SET_DIRECT_CORRELATION_MODE
+
+        MENUITEM "Установить обратный режим расчёта корреляций", 
+                                                ID_SET_REVERSE_CORRELATION_MODE
+
+        MENUITEM SEPARATOR
+        MENUITEM "Реверс режима расчёта корреляций корреляций", ID_REVERSE
+        MENUITEM SEPARATOR
+        MENUITEM "Расчёт корреляций в реальном времени", 
+                                                ID_SET_REAL_TIME_CORR_MODE
+        MENUITEM "Остановить расчёт корреляций", 
+                                                ID_UNSET_REAL_TIME_CORR_MODE
+    END
+    POPUP "Вейвлеты"
+    BEGIN
+        MENUITEM "Параметры...",                ID_WAVLETS_PARAM_DIALOG
+        MENUITEM "Рассчитать вейвлет-разложение", ID_SOLVE_WAVLETS
+        MENUITEM SEPARATOR
+        MENUITEM "Расчёт вейвлет разложений в реальном времени", 
+                                                ID_SET_REALTIME_WAVELET_MODE
+        MENUITEM "Остановить расчёт и дисплей вейвлет-разложений", 
+                                                ID_UNSET_REALTIME_WAVELET_MODE
+
+    END
+    POPUP "Lager"
+    BEGIN
+        MENUITEM "Параметры...",                ID_LAGER_PARAM_DIALOG
+        MENUITEM "Solve",                       ID_LAGER_SOLVE
+        MENUITEM "Train",                       ID_LAGER_TRAIN
+    END
+    POPUP "Ковариация"
+    BEGIN
+        MENUITEM "Двух приборов",               ID_COVAR_OF_TWO_INSTRUMENTS
+        MENUITEM "Двух приборов логарифмическая", 
+                                                ID_COVAR_OF_TWO_INSTRUMENTS_LOG
+
+        MENUITEM "Анализ",                      ID_COV_TWO_INSTR_ANALIZE
+        MENUITEM SEPARATOR
+        MENUITEM "Surf X",                      ID_SURF_OF_TWO_INSTRUMENTS_X
+        MENUITEM "Surf Y",                      ID_SURF_OF_TWO_INSTRUMENTS_Y
+        MENUITEM "Surf Z",                      ID_SURF_OF_TWO_INSTRUMENTS_Z
+        MENUITEM SEPARATOR
+        MENUITEM "Surf Covar X",                ID_SURF_COVAR_OF_TWO_INSTRUMENTS_X
+
+        MENUITEM "Surf Covar Y",                ID_SURF_COVAR_OF_TWO_INSTRUMENTS_Y
+
+        MENUITEM "Surf Covar Z",                ID_SURF_COVAR_OF_TWO_INSTRUMENTS_Z
+
+        MENUITEM SEPARATOR
+        MENUITEM "Time Covar",                  ID_TIME_COVAR_OF_TWO_INSTRUMENTS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Plot 3D X",                   ID_PLOT3D_OF_TWO_INSTRUMENTS_X
+
+        MENUITEM "Plot 3D Y",                   ID_PLOT3D_OF_TWO_INSTRUMENTS_Y
+
+        MENUITEM "Plot 3D Z",                   ID_PLOT3D_OF_TWO_INSTRUMENTS_Z
+
+    END
+    POPUP "Корреляция"
+    BEGIN
+        MENUITEM "Коеффициент",                 ID_KORRELATION_COEFFICIENT
+    END
+    POPUP "Earthquakes"
+    BEGIN
+        MENUITEM "Dlg",                         ID_EARTHQUAKES_DLG
+    END
+    POPUP "Test"
+    BEGIN
+        MENUITEM "Plot",                        ID_TEST_PLOT
+        MENUITEM "Map",                         ID_TEST_MAP
+        MENUITEM "Geoid",                       ID_TEST_GEOID
+        MENUITEM "Surf",                        ID_TEST_SURF3
+    END
+END
+
+MYWINSURF MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open ...",                   ID_WINSURF_FILE_OPEN
+        MENUITEM "Import gsf",                  ID_WINSURF_FILE_OPEN_IMPORT_GSF
+
+        MENUITEM "&Save",                       ID_WINSURF_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_WINSURF_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "Import &dat",                 ID_WINSURF_FILE_IMPORT
+        MENUITEM "Import &bln",                 ID_WINSURF_FILE_IMPORT_BLN
+        MENUITEM "Import &dxf",                 ID_WINSURF_FILE_IMPORT_DXF
+        MENUITEM "Scale &dxf on XY",            ID_WINSURF_FILE_SCALE_DXF_ON_XY
+
+        MENUITEM "Scale &dxf on Y",             ID_WINSURF_FILE_SCALE_DXF_ON_Y
+
+        MENUITEM "Import &profile ...",         ID_WINSURF_FILE_IMPORT_PROFILE
+
+        MENUITEM SEPARATOR
+        MENUITEM "Import &Surface",             ID_WINSURF_FILE_IMPORT_GRID
+        MENUITEM "Import &Fault",               ID_WINSURF_FILE_IMPORT_FAULT_GRID
+
+        MENUITEM SEPARATOR
+        MENUITEM "Import Cube",                 ID_FILE_IMPORTCUBE
+        MENUITEM SEPARATOR
+        POPUP "Import wells"
+        BEGIN
+            MENUITEM "Import wells",                ID_WINSURF_FILE_IMPORT_DRILLS_NEW
+
+            MENUITEM "Import &wells (primitive)",   ID_WINSURF_FILE_IMPORT_DRILLS_NEW2
+
+            MENUITEM "Import &wells (litho well_colomns)", 
+                                                    ID_WINSURF_FILE_IMPORT_DRILLS_NEW3
+
+            MENUITEM "Import &wells (eng well_colomns)", 
+                                                    ID_WINSURF_FILE_IMPORT_DRILLS_NEW4
+
+            MENUITEM SEPARATOR
+            MENUITEM "Import wells karotazh",       ID_FILE_IMPORTWELLSKAROTAZH
+
+            MENUITEM SEPARATOR
+            MENUITEM "Import wells zond input",     ID_FILE_IMPORTWELLS_ZOND_INPUT
+
+            MENUITEM "Import wells zond output",    ID_FILE_IMPORTWELLS_ZOND_OUTPUT
+
+            MENUITEM "Import wells zond with correct input", 
+                                                    ID_FILE_IMPORTWELLS_ZOND_WITH_CORRECT_INPUT
+
+            MENUITEM SEPARATOR
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Import &bitmap",              ID_WINSURF_FILE_IMPORTBITMAP
+        MENUITEM SEPARATOR
+        MENUITEM "Autobuild Profile",           ID_FILE_AUTOBUILDPROFILE
+        MENUITEM "Import digital model",        ID_FILE_IMPORT_DIGITAL_MODEL
+        , GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Import mols",                 ID_WINSURF_FILE_IMPORT_MOLS
+        , GRAYED
+        MENUITEM "Play mols",                   ID_WINSURF_FILE_PLAY_MOLS
+        , GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Play earthquakes",            ID_WINSURF_FILE_PLAY_EARTHQUAKES
+
+        MENUITEM "Stop Play earthquakes",       ID_WINSURF_FILE_STOP_PLAY_EARTHQUAKES
+
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint",                      ID_WINSURF_FILE_PRINT
+        MENUITEM "Print S&etup",                ID_WINSURF_FILE_PRINT_SETUP
+        MENUITEM "Page Se&tup",                 ID_FILE_PAGESETUP
+        MENUITEM "Print Pre&view",              ID_FILE_PRINTPREVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_WINSURF_FILE_EXIT
+    END
+    POPUP "Doc"
+    BEGIN
+        MENUITEM "Add empty line object",       ID_SURF_ADDEMPTYLINEOBJECT
+        MENUITEM "Draw geoid",                  ID_SURFVIEW_DRAWGEOID
+        MENUITEM "Sphere radius",               ID_VIEW_SPHERE_RADIUS
+        MENUITEM SEPARATOR
+        MENUITEM "Unregister",                  ID_SURFTEST_UNREGISTER
+        MENUITEM "Register",                    ID_SURFTEST_REGISTER
+        MENUITEM SEPARATOR
+        MENUITEM "Font",                        ID_SURFTEST_FONT
+        MENUITEM SEPARATOR
+        MENUITEM "Enter command",               ID_SURFTEST_ENTERCOMMAND
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Zoom",                        ID_VIEW_ZOOM
+        MENUITEM "Draw cube",                   ID_SURFVIEW_DRAWCUBE
+        MENUITEM "Perspective",                 ID_SURFVIEW_PERSPECTIVE
+        MENUITEM "Lines draw mode",             ID_VIEW_LINES_DRAW_MODE
+        MENUITEM SEPARATOR
+        MENUITEM "Use Palette",                 ID_VIEW_SURF_USE_PALETTE
+        MENUITEM "Fon color",                   ID_SURF_FON_COLOR
+        MENUITEM "Palette",                     ID_SURF_COLORMAP
+        MENUITEM "Alpha",                       ID_VIEW_ALPHA
+        MENUITEM SEPARATOR
+        MENUITEM "Cut's plane",                 ID_VIEW_CUTSPLANE
+        MENUITEM "Cut's by 3 planes",           ID_VIEW_CUTSPLANE3
+        MENUITEM SEPARATOR
+        MENUITEM "Angles and transes",          IDD_SURF_VIEW_ANGLES_TRANS
+        MENUITEM SEPARATOR
+        MENUITEM "Save bitmap",                 ID_VIEW_SAVEBITMAP_2
+        MENUITEM SEPARATOR
+        MENUITEM "Update All Views",            ID_VIEW_UPDATEALLVIEWS
+    END
+    POPUP "Geo"
+    BEGIN
+        POPUP "Add Geo Colomn"
+        BEGIN
+            MENUITEM "Stratigrafical",              ID_GEO_ADDGEOCOLOMN_STRATIGRAFICAL
+
+            MENUITEM "Lithilogical",                ID_GEO_ADDGEOCOLOMN_LITHILOGICAL
+
+            MENUITEM "Engineer Geological",         ID_GEO_ADDGEOCOLOMN_ENGINEERGEOLOGICAL
+
+            MENUITEM "Hydro Geological",            ID_GEO_ADDGEOCOLOMN_HYDROGEOLOGICAL
+
+            MENUITEM "Laboratory Exploration",      ID_GEO_ADDGEOCOLOMN_LABORATORYEXPLORATION
+
+            MENUITEM "Field Exploration",           ID_GEO_ADDGEOCOLOMN_FIELDEXPLORATION
+
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Cube Size",                   ID_GEO_CUBESIZE
+        MENUITEM "Geo Element Mapping",         ID_GEO_GEOELEMENTMAPPING
+        MENUITEM "Geo Cube",                    ID_GEO_GEOCUBE
+        MENUITEM "Raschet buro nabivnyh svaj",  ID_WELLS_RASCHETBURONABIVNYHSVAJ
+
+        MENUITEM "Suspended in water specific gravity", 
+                                                ID_GEO_SUSPENDEDINWATERSPECIFICGRAVITY
+
+    END
+    POPUP "Lab"
+    BEGIN
+        MENUITEM "Import laboratory analizes",  ID_FILE_IMPORTWELLS_LABORATORYANALIZES
+
+        MENUITEM "Layers List",                 ID_LAB_LAYERSLIST
+        MENUITEM "Excluded trials list",        ID_LAB_EXCLUDEDTRIALSLIST
+        MENUITEM "Trial Tree",                  ID_LAB_TRIALTREE
+        MENUITEM "Param Tree",                  ID_LAB_PARAMTREE
+        MENUITEM SEPARATOR
+        MENUITEM "Context with plot",           ID_LAB_CONTEXTWITHPLOT
+        MENUITEM "Context with results",        ID_LAB_CONTEXTWITHRESULTS
+        MENUITEM "Context with labnumber trial list", 
+                                                ID_LAB_CONTEXT_WITH_LAB_NUMBER_TRIAL_LIST
+
+        MENUITEM "Context with normatives",     ID_LAB_CONTEXTWITHNORMATIVES
+        MENUITEM SEPARATOR
+        MENUITEM "Context with korrelation",    ID_LAB_CONTEXTWITHKORRELATION
+
+        MENUITEM "Compression with Min Sq",     ID_LAB_COMPRESSIONWITHMINSQ
+        MENUITEM "Use Mavrodi Beta",            ID_LAB_USEMAVRODIBETA
+        MENUITEM SEPARATOR
+        MENUITEM "Passport Ukrainian language", ID_LAB_PASSPORTUKRAINIANLANGUAGE
+
+    END
+    POPUP "Surfs"
+    BEGIN
+        MENUITEM "Filters",                     ID_SURF_FILTERS
+        MENUITEM "Zero if blanked",             ID_SURF_ZEROIFBLANKED
+        MENUITEM SEPARATOR
+        MENUITEM "Draw Quads Numbers",          ID_SURF_DRAWQUADSNUMBERS
+        MENUITEM SEPARATOR
+        MENUITEM "Surfaces Faults Cutlines",    ID_SURF_SURFACESFAULTSCUTLINES
+
+        MENUITEM SEPARATOR
+        MENUITEM "Surfaces Blank",              ID_SURF_SURFACESBLANK
+        MENUITEM "Faults Blank",                ID_SURF_FAULTSBLANK
+        MENUITEM "Broken Planes Blank",         ID_SURF_BROKENPLANESBLANK
+        MENUITEM "No Blank",                    ID_SURF_NOBLANK
+        MENUITEM SEPARATOR
+        MENUITEM "Fill->Line->Points (surfaces)", ID_VIEW_FILL
+        MENUITEM "Fill->Line->Points (faults)", ID_VIEW_FILL_FAULTS
+        MENUITEM SEPARATOR
+        MENUITEM "Flat",                        ID_VIEW_FLAT_SHADING
+        MENUITEM SEPARATOR
+        MENUITEM "Izo lines",                   ID_VIEW_IZOLINES
+        MENUITEM "Save As Surfer 7 Grid",       ID_WINSURF_FILE_SAVEAS_SURFER7_GRID
+
+        MENUITEM SEPARATOR
+        MENUITEM "Order Lists",                 ID_SURFS_ORDERLISTS
+        MENUITEM "Inverse order in the tree",   ID_SURFS_INVERSEORDERINTHETREE
+
+    END
+    POPUP "Catches"
+    BEGIN
+        MENUITEM "Create New Geo Catch",        ID_SURF_CREATENEWGEOCATCH
+        MENUITEM "Init Geo Catch Gorizont Plane", 
+                                                ID_SURF_INITGEOCATCHGORIZONTPLANE
+
+        MENUITEM "Blanking of Geo Catch Blank Lines", 
+                                                ID_SURF_BLANKINGOFGEOCATCHBLANKLINES
+
+        MENUITEM "Blank GeoCatch Gorizont Plane", 
+                                                ID_SURF_BLANKGEOCATCHGORIZONTPLANE
+
+    END
+    POPUP "Wells"
+    BEGIN
+        MENUITEM "Edges triangulation",         ID_WELLS_EDGESTRIANGULATION
+        MENUITEM "Inter Wells Lines Parameters", 
+                                                ID_WELLS_INTERWELLSLINESPARAMETERS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Draw Sloj Names",             ID_WELLS_DRAWSLOJNAMES
+        MENUITEM "Show All Sloi",               ID_WELLS_SHOWALLSLOI
+        MENUITEM SEPARATOR
+        MENUITEM "Karotazh scale",              ID_WELLS_KAROTAZHSCALE
+        MENUITEM "Wells draw and Karotazh list", ID_WELLS_KAROTAZHLIST
+        MENUITEM SEPARATOR
+        MENUITEM "Karotazh Interpolation",      ID_WELLS_KAROTAZHINTERPOLATION
+
+        MENUITEM "Karotazh Projection",         ID_WELLS_KAROTAZHPROJECTION
+        MENUITEM SEPARATOR
+        MENUITEM "Test dublicate",              ID_WELLS_TESTDUBLICATE
+        MENUITEM "Test pesok (-1) or glina (+1)", 
+                                                ID_WELLS_TESTPESOK1ORGLINA1
+        MENUITEM SEPARATOR
+        MENUITEM "Determine Pesok Glina From PCK", 
+                                                ID_WELLS_DETERMINEPESOKGLINAFROMPCK
+
+        MENUITEM SEPARATOR
+        MENUITEM "Режим отображения лабораторных анализов", 
+                                                ID_WELLS_LABDRAWMODE
+        MENUITEM "Save to DB",                  ID_WELLS_SAVETODB
+        MENUITEM "Ustja to relief griddata",    ID_WELLS_USTJATORELIEFGRIDDATA
+
+    END
+    POPUP "Profiles"
+    BEGIN
+        MENUITEM "Build Intersections",         ID_PROFILES_BUILD_INTERSECTIONS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Visual",                      ID_VIEW_SURF_TOPAINT
+        MENUITEM "Save Of Cube Projection Grids", 
+                                                ID_PROFILES_SAVEOFCUBEPROJECTIONGRIDS
+
+        MENUITEM SEPARATOR
+        MENUITEM "Create on wells",             ID_PROFILES_CREATEONWELLS
+        MENUITEM "Cutting",                     ID_PROFILES_CUTTING
+        MENUITEM SEPARATOR
+        MENUITEM "Coordinate Grid",             ID_PROFILES_COORDINATEGRID
+    END
+    POPUP "Lights"
+    BEGIN
+        MENUITEM "Prop",                        ID_SURF_LIGHT_PROP
+        POPUP "Add Light"
+        BEGIN
+            MENUITEM "light ...",                   ID_LIGHTS_ADDLIGHT_LIGHT
+            MENUITEM "Local Directional",           ID_LIGHTS_ADDLIGHT_LOCALDIRECTIONAL
+
+            MENUITEM "Local Spotlight",             ID_LIGHTS_ADDLIGHT_LOCALSPOTLIGHT
+
+            MENUITEM "Global Directional",          ID_LIGHTS_ADDLIGHT_GLOBALDIRECTIONAL
+
+            MENUITEM "Global Spotlight",            ID_LIGHTS_ADDLIGHT_GLOBALSPOTLIGHT
+
+        END
+        MENUITEM "Enable Local Lights",         ID_LIGHTS_ENABLELOCALLIGHTS
+        MENUITEM "Enable Global Lights",        ID_LIGHTS_ENABLEGLOBALLIGHTS
+    END
+    POPUP "Select"
+    BEGIN
+        MENUITEM "Object",                      ID_SELECT_OBJECT
+        MENUITEM "Objects with Same ID",        ID_SELECT_OBJECTSWITHSAMEID
+        MENUITEM "Objects with Same name",      ID_SELECT_OBJECTSWITHSAMENAME
+
+        MENUITEM "Point",                       ID_SELECT_POINT
+        MENUITEM "Edge or line",                ID_SELECT_EDGE, GRAYED
+        MENUITEM "Triangle",                    ID_SELECT_TRIANGLE, GRAYED
+        MENUITEM "Quad",                        ID_SELECT_QUAD, GRAYED
+        MENUITEM "Polygon",                     ID_SELECT_POLYGON, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "Select All",                  ID_SELECT_SELECTALL
+        MENUITEM "Select None",                 ID_SELECT_SELECTNONE
+        MENUITEM "Inverse Selection",           ID_SELECT_INVERSESELECTION
+        MENUITEM "Delete Selection",            ID_SELECT_DELETESELECTION
+        , GRAYED
+        MENUITEM "Uncheck Selection",           ID_SELECT_UNCHECKSELECTION
+        MENUITEM "Uncheck Unselection",         ID_SELECT_UNCHECKUNSELECTION
+        MENUITEM "Check Selection",             ID_SELECT_CHECKSELECTION
+        MENUITEM "Check Unselection",           ID_SELECT_CHECKUNSELECTION
+        MENUITEM SEPARATOR
+        MENUITEM "Selection set color",         ID_SELECT_SELECTIONSETCOLOR
+        MENUITEM "Selection set color from current Wells Sloj", 
+                                                ID_SELECT_SELECTIONSETCOLORFROMCURRENTWELLSSLOJ
+
+        MENUITEM "Selection Get Names and IDs", ID_SELECT_SELECTIONGETNAMES_AND_ID
+
+        MENUITEM "Selection Set Name",          ID_SELECT_SELECTIONSETNAME
+        MENUITEM "Selection Set ID (int)",      ID_SELECT_SELECTIONSETIDINT
+        MENUITEM SEPARATOR
+        MENUITEM "Selection to Grid Data",      ID_SELECT_SELECTIONTOGRIDDATA
+
+        MENUITEM "Selection with current wells sloj to Grid Data", 
+                                                ID_SELECT_SELECTIONWITHCURRENTWELLSSLOJTOGRIDDATA
+
+        MENUITEM "Selection to Layer...",       ID_SELECT_SELECTIONTOLAYER
+    END
+    POPUP "Mouse"
+    BEGIN
+        POPUP "Draw"
+        BEGIN
+            MENUITEM "Spheres",                     ID_MOUSE_DRAW_SPHERES
+            MENUITEM "Line",                        ID_MOUSE_DRAW_LINE
+            MENUITEM "GridData",                    ID_MOUSE_DRAW_GRIDDATA
+            MENUITEM "Polygon",                     ID_MOUSE_DRAW_POLYGON
+            , GRAYED
+            MENUITEM "Rect",                        ID_MOUSE_DRAW_RECT
+            , GRAYED
+            MENUITEM "Cube",                        ID_MOUSE_DRAW_CUBE
+            , GRAYED
+        END
+        POPUP "Erase"
+        BEGIN
+            MENUITEM "GridData",                    ID_MOUSE_ERASE_GRIDDATA
+            MENUITEM "Spheres",                     ID_MOUSE_ERASE_SPHERES
+            MENUITEM "Line",                        ID_MOUSE_ERASE_LINE
+            MENUITEM "Line's point",                ID_MOUSE_ERASE_LINESPOINT
+
+            MENUITEM "Polygon",                     ID_MOUSE_ERASE_POLYGON
+            , GRAYED
+            MENUITEM "Polygon's point",             ID_MOUSE_ERASE_POLYGONSPOINT
+            , GRAYED
+            MENUITEM "Rect",                        ID_MOUSE_ERASE_RECT
+            , GRAYED
+            MENUITEM "Cube",                        ID_MOUSE_ERASE_CUBE
+            , GRAYED
+        END
+        POPUP "Edit"
+        BEGIN
+            MENUITEM "Line",                        ID_MOUSE_EDIT_LINE
+            POPUP "Cutting of line by ..."
+            BEGIN
+                MENUITEM "Select and double point",     ID_MOUSE_EDIT_CUTTINGOFLINEBY_SELECTANDDOUBLEPOINT
+
+                MENUITEM "Select and delete bond",      ID_MOUSE_EDIT_CUTTINGOFLINEBY_SELECTANDDELETEBOND
+
+                MENUITEM "Double new point on bond",    ID_MOUSE_EDIT_CUTTINGOFLINEBY_DOUBLENEWPOINTONBOND
+                , GRAYED
+            END
+            MENUITEM "Connect lines",               ID_MOUSE_EDIT_CONNECTLINES
+
+        END
+        MENUITEM "Select",                      ID_MOUSE_SELECT
+        MENUITEM "Zoom             (Z)",        ID_MOUSE_ZOOM
+        MENUITEM "Clipping         (C)",        ID_MOUSE_CLIPPING
+        MENUITEM "Translate XY  (T)",           ID_MOUSE_TRANSLATEXY
+        MENUITEM "Translate Z    (G)",          ID_MOUSE_TRANSLATEZ
+        MENUITEM "Orbit XY         (O)",        ID_MOUSE_ORBITXY
+        MENUITEM "Orbit Z           (L)",       ID_MOUSE_ORBITZ
+        MENUITEM "Rotate XY      (R)",          ID_MOUSE_ROTATEXY
+        MENUITEM "Rotate Z        (F)",         ID_MOUSE_ROTATEZ
+        MENUITEM "Measure",                     ID_MOUSE_MEASURE
+        MENUITEM SEPARATOR
+    END
+    POPUP "Surf Test"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "CreatePalleteFile",           ID_SURFTEST_CREATEPALLETEFILE
+
+        MENUITEM SEPARATOR
+        MENUITEM "Can Disable Depth Test",      ID_VIEW_CANDISABLEDEPTHTEST
+        MENUITEM "Status",                      ID_SURFVIEW_STATUS
+        MENUITEM SEPARATOR
+        MENUITEM "IFFT test",                   ID_SURFTEST_FFTTEST
+        MENUITEM "IFFT4 test",                  ID_SURFTEST_IFFT4TEST
+        MENUITEM "Shtamp Def modul",            ID_LAB_SHTAMPDEFMODUL
+        MENUITEM SEPARATOR
+        MENUITEM "Excel Execute 1",             ID_SURFTEST_EXCELEXECUTE1
+    END
+    POPUP "Grid"
+    BEGIN
+        MENUITEM "Data ...",                    ID_GRID_DATA
+        MENUITEM "Data (old)...",               ID_GRID_DATA_OLD
+        MENUITEM "Griddata Properties",         ID_GRID_GRIDDATAPROPERTIES
+        MENUITEM "Data (by Surfer)...",         ID_GRID_DATABYSURFER
+        MENUITEM SEPARATOR
+        MENUITEM "GridData Save to DB",         ID_GRID_GRIDDATASAVETODB
+    END
+    POPUP "Clear"
+    BEGIN
+        MENUITEM "Clear surf",                  ID_SURF_CLEAR
+        MENUITEM "Clear faults",                ID_SURF_CLEAR_FAULTS
+        MENUITEM "Clear geocatches",            ID_CLEAR_CLEARGEOCATCHES
+        MENUITEM "Clear wells",                 ID_SURF_CLEARDRILLS
+        MENUITEM "Clear Karotazh list",         ID_CLEAR_CLEARKAROTAZHLIST
+        MENUITEM "Clear Karotazhy",             ID_CLEAR_CLEARKAROTAZHY
+        MENUITEM "Clear Cubes",                 ID_CLEAR_CLEARCUBES
+        MENUITEM SEPARATOR
+        MENUITEM "Clear lines",                 ID_SURF_CLEARLINES
+        MENUITEM "Clear cut lines",             ID_SURF_CLEARCUTLINES
+        MENUITEM "Clear izolines",              ID_CLEAR_CLEARIZOLINES
+        MENUITEM "Clear Blank Lines",           ID_CLEAR_CLEARBLANKLINES
+        MENUITEM "Clear Cutlines Polygones",    ID_CLEAR_CLEARCUTLINESPOLYGONES
+
+        MENUITEM SEPARATOR
+        MENUITEM "Clear spheres",               ID_SURF_CLEARSPHERES
+        MENUITEM "Clear triangles",             ID_SURF_CLEARTRIANGLES
+        MENUITEM "Clear poligones",             ID_SURF_CLEARPOLIGONES
+        MENUITEM "Clear strings",               ID_SURF_CLEARSTRINGS
+        MENUITEM "Clear Points",                ID_CLEAR_CLEARPOINTS
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Bitmaps",               ID_CLEAR_CLEARBITMAPS
+        MENUITEM "Clear Bmp Profiles",          ID_CLEAR_CLEARBMPPROFILES
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Objects",               ID_CLEAR_CLEAROBJECTS
+        MENUITEM "Clear Collections",           ID_CLEAR_CLEARCOLLECTIONS
+        MENUITEM SEPARATOR
+        MENUITEM "Clear griddata",              ID_CLEAR_CLEARGRIDDATA
+        MENUITEM "Clear bln profiles",          ID_CLEAR_CLEARBLNPROFILES
+        MENUITEM "Clear Auto build profiles",   ID_CLEAR_CLEARAUTOBUILDPROFILES
+
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Geo Colomns",           ID_CLEAR_CLEARGEOCOLOMNS
+    END
+    POPUP "Tree", INACTIVE
+    BEGIN
+        MENUITEM "Properties Dialog",           ID_TREE_PROPERTIESDIALOG
+        MENUITEM "Properties Window",           ID_TREE_PROPERTIES_WINDOW
+        MENUITEM "Color Dialog",                ID_TREE_COLORDIALOG
+        MENUITEM "Object Save As",              ID_TREE_OBJECTSAVEAS
+        MENUITEM "Object to Layer",             ID_TREE_OBJECTTOLAYER
+        MENUITEM "Object Set Name",             ID_TREE_OBJECTSETNAME
+        MENUITEM "Object ReDraw",               ID_TREE_OBJECTREDRAW
+        MENUITEM SEPARATOR
+        MENUITEM "Object Delete",               ID_TREE_OBJECTDELETE
+        MENUITEM "ObjectList Delete Unchecked", ID_TREE_OBJECTLISTDELETEUNCHECKED
+
+        MENUITEM SEPARATOR
+        POPUP "Griddata"
+        BEGIN
+            MENUITEM "griddata",                    ID_TREE_GRIDDATA_GRIDDATA
+
+            MENUITEM "Griddata with ole surfer",    ID_TREE_GRIDDATA_GRIDDATAWITHOLESURFER
+
+            MENUITEM "set to draw ",                ID_TREE_GRIDDATA_SETTODRAW
+
+            MENUITEM "Unset to draw",               ID_TREE_GRIDDATA_UNSETTODRAW
+
+            MENUITEM "Add Data From Dat File",      ID_TREE_GRIDDATA_ADDDATAFROMDATFILE
+
+        END
+        MENUITEM SEPARATOR
+        POPUP "Geo Surface"
+        BEGIN
+            MENUITEM "Geo Surface Save As Surfer 7 grid", 
+                                                    ID_TREE_GEOSURFACESAVEASSURFER7GRID
+
+            MENUITEM "Geo Surface Save Blanklines", ID_TREE_GEOSURFASE_GEOSURFACESAVEBLANKLINES
+
+            MENUITEM "Geo Surface Build Cutlines",  ID_TREE_GEOSURFACEBUILDCUTLINES
+
+            MENUITEM "Geo Surface Copy Cutlines to Blank Lines", 
+                                                    ID_TREE_GEOSURFACECOPYCUTLINESTOBLANKLINES
+
+            MENUITEM "Geo Surface Copy Cut Plane Lines to Blank Lines", 
+                                                    ID_TREE_GEOSURFACECOPYCUTPLANELINESTOBLANKLINES
+
+            MENUITEM "Geo Surface Blank of Blank Lines (on base point)", 
+                                                    ID_TREE_GEOSURFACEBLANKOFBLANKLINES
+
+            MENUITEM "Geo Surface Blank",           ID_TREE_GEOSURFACEBLANK
+            MENUITEM "Geo Surface Blank on base point", 
+                                                    ID_TREE_GEOSURFACEBLANKONBASEPOINT
+
+            MENUITEM "Geo Surface Blank With Own Cutlines", 
+                                                    ID_TREE_GEOSURFACEBLANKWITHOWNCUTLINES
+
+            MENUITEM "Geo Surface Blank With Own Cutlines on base point", 
+                                                    ID_TREE_GEOSURFACEBLANKWITHOWNCUTLINESONBASEPOINT
+
+            MENUITEM "Geo Surface Blank With Own Blank Lines", 
+                                                    ID_TREE_GEOSURFACEBLANKWITHOWNBLANKLINES
+
+            MENUITEM "Geo Surface Blank With Own Blank Lines on base point", 
+                                                    ID_TREE_GEOSURFACEBLANKWITHOWNBLANKLINESONBASEPOINT
+
+            MENUITEM "Geo Surface NoBlank",         ID_TREE_GEOSURFACENOBLANK
+
+            MENUITEM "Geo Surface Load Blank Lines", 
+                                                    ID_TREE_GEOSURFACELOADBLANKLINES
+
+            MENUITEM "Project blank lines on surface", 
+                                                    ID_TREE_GEOSURFASE_PROJECTBLANKLINESONSURFACE
+
+            MENUITEM "Geo Surface Izolines",        ID_TREE_GEOSURFASE_GEOSURFACEIZOLINES
+
+            MENUITEM "Rebuild by griddata",         ID_TREE_GEOSURFACE_REBUILDBYGRIDDATA
+
+        END
+        MENUITEM SEPARATOR
+        POPUP "Line"
+        BEGIN
+            MENUITEM "Line Free Middle Points",     ID_TREE_LINEFREEMIDDLEPOINTS
+
+            MENUITEM "Close",                       ID_TREE_LINE_CLOSE
+            MENUITEM "Unclose",                     ID_TREE_LINE_UNCLOSE
+        END
+        MENUITEM SEPARATOR
+        POPUP "Cube"
+        BEGIN
+            MENUITEM "SaveAs3DGrid",                ID_TREE_CUBE_SAVEAS3DGRID
+
+        END
+        MENUITEM SEPARATOR
+        POPUP "Bln Profile"
+        BEGIN
+            MENUITEM "Create Empty Line Object",    ID_TREE_BLNPROFILE_CREATEEMPTYLINEOBJECT
+
+            MENUITEM "Edit Attaches",               ID_TREE_BLNPROFILE_EDITATTACHES
+
+            MENUITEM "Print Attaches",              ID_TREE_BLNPROFILE_PRINTATTACHES
+
+            MENUITEM "map",                         ID_TREE_BLNPROFILE_MAP
+            MENUITEM "GDI map",                     ID_TREE_BLNPROFILE_GDIMAP
+
+            MENUITEM "Non Stretched GDI view",      ID_TREE_BLNPROFILE_NONSTRETCHEDGDIVIEW
+
+            MENUITEM "Stretched GDI view",          ID_TREE_BLNPROFILE_STRETCHEDGDIVIEW
+
+            MENUITEM "Save as cube projection grids", 
+                                                    ID_TREE_BLNPROFILE_SAVEASCUBEPROJECTIONGRIDS
+
+            MENUITEM "Add Broke Points To Lines",   ID_TREE_BLNPROFILE_ADDBROKEPOINTSTOLINES
+
+            MENUITEM "Cutting",                     ID_TREE_BLNPROFILE_CUTTING
+
+            MENUITEM "Save As Razrez",              ID_TREE_BLNPROFILE_SAVEASRAZREZ
+
+            MENUITEM "Dxf Razrez",                  ID_TREE_BLNPROFILE_DXFRAZREZ
+
+        END
+        MENUITEM "Set Color From Current Wells Sloj", 
+                                                ID_TREE_SETCOLORFROMCURRENTWELLSSLOJ
+
+        MENUITEM SEPARATOR
+        MENUITEM "Tree height",                 ID_WINSURF_VIEW_TREE_HEIGTH
+        MENUITEM "Tree wldgth",                 ID_WINSURF_VIEW_TREE_WIDGTH
+        MENUITEM SEPARATOR
+        POPUP "GeoColomn"
+        BEGIN
+            MENUITEM "Add new Geo Element",         ID_TREE_GEOCOLOMN_ADDNEWGEOELEMENT
+
+            MENUITEM "Add Empty Geo Element",       ID_TREE_GEOCOLOMN_ADDEMPTYGEOELEMENT
+
+            MENUITEM "to GridData",                 ID_TREE_GEOCOLOMN_TOGRIDDATA
+
+            MENUITEM "to Griddata _surf_and_cutting", 
+                                                    ID_TREE_GEOCOLOMN_TOGRIDDATASURFANDCUTTING
+
+        END
+        POPUP "GeoElement"
+        BEGIN
+            MENUITEM "toGridData",                  ID_TREE_GEOELEMENT_TOGRIDDATA
+
+            MENUITEM "Ground Type",                 ID_TREE_GEOELEMENT_GROUNDTYPE
+
+            MENUITEM "Zaboj to GridData ",          ID_TREE_GEOELEMENT_MINALTITUDETOGRIDDATA
+
+        END
+        POPUP "Wells Draw List"
+        BEGIN
+            MENUITEM "Move Item Up",                ID_TREE_WELLSDRAWLIST_MOVEITEMUP
+
+            MENUITEM "Move Item Down",              ID_TREE_WELLSDRAWLIST_MOVEITEMDOWN
+
+            MENUITEM SEPARATOR
+        END
+        POPUP "Karotazh List"
+        BEGIN
+            MENUITEM "Right",                       ID_TREE_KAROTAZHLIST_RIGHT
+
+            MENUITEM "Letf",                        ID_TREE_KAROTAZHLIST_LEFT
+
+            MENUITEM "Both",                        ID_TREE_KAROTAZHLIST_BOTH
+
+        END
+        POPUP "Lab"
+        BEGIN
+            MENUITEM "Well Element Prop",           ID_TREE_LAB_WELLELEMENTPROP
+
+            MENUITEM "Well Element Prop Save",      ID_TREE_LAB_WELLELEMENTPROPSAVE
+
+            MENUITEM "Well Element Context Plot Height", 
+                                                    ID_TREE_LAB_WELLELEMENTCONTEXTPLOTHEIGHT
+
+            MENUITEM "water_saturated_part_of_full_water_capacity", 
+                                                    ID_TREE_LAB_WATERSATURATEDPARTOFFULLWATERCAPACITY
+
+            POPUP ""
+            BEGIN
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT0
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT1
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT2
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT3
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT_PLOT_TITLE
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT_PLOT_XLABEL
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT_PLOT_YLABEL
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT_PLOT_XAXES
+
+                MENUITEM "Well Element Context Font",   ID_TREE_LAB_WELLELEMENTCONTEXTFONT_PLOT_YAXES
+
+            END
+            MENUITEM "Lab Layer Compression_pressure_interval", 
+                                                    ID_TREE_LAB_LABLAYER_COMPRESSION_PRESSURE_INTERVAL
+
+            MENUITEM "Lab Layer Compression_pressure", 
+                                                    ID_TREE_LAB_LABLAYER_COMPRESSION_PRESSURE
+
+            MENUITEM "Layer Param Rorrelation Coefficient", 
+                                                    ID_TREE_LAB_LAYERPARAMRORRELATIONCOEFFICIENT
+
+            MENUITEM "E Second Derivative Limit",   ID_TREE_LAB_E_SECOND_DERIVATIVE_LIMIT
+
+            MENUITEM "Gurvich Y Second Derivative Limit", 
+                                                    ID_TREE_LAB_GURVICH_Y_SECOND_DERIVATIVE_LIMIT
+
+            MENUITEM "Passport",                    ID_TREE_LAB_PASSPORT
+            POPUP "Param"
+            BEGIN
+                MENUITEM "AddCube",                     ID_TREE_LAB_PARAM_ADDCUBE
+
+                MENUITEM "Param Check All",             ID_TREE_LAB_PARAMCHECKALL
+
+                MENUITEM "Param Uncheck All",           ID_TREE_LAB_PARAMUNCHECKALL
+
+                MENUITEM "Param Check",                 ID_TREE_LAB_PARAMCHECK
+
+                MENUITEM "Param UnCheck",               ID_TREE_LAB_PARAMUNCHECK
+
+            END
+        END
+        MENUITEM SEPARATOR
+        POPUP "Well"
+        BEGIN
+            MENUITEM "Save Zond Input",             ID_TREE_WELL_SAVEZONDINPUT
+
+        END
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About Surf Cube",             ID_HELP_ABOUTSURFCUBE
+    END
+END
+
+MYWINMAP MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_WINMAP_FILE_EXIT
+    END
+    MENUITEM "Map",                         65535
+END
+
+MYWINGEOID MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_WINGEOID_FILE_EXIT
+    END
+    POPUP "Geoid"
+    BEGIN
+        MENUITEM "Earthquakes",                 ID_GEOID_EARTHQUAKES
+        MENUITEM "Light prop",                  ID_SURF_LIGHT_PROP
+    END
+END
+
+MYWINSURF_VIEW_ONLY MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open ...",                   ID_WINSURF_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint",                      ID_WINSURF_FILE_PRINT
+        MENUITEM "Print S&etup",                ID_WINSURF_FILE_PRINT_SETUP
+        MENUITEM "Page Se&tup",                 ID_FILE_PAGESETUP
+        MENUITEM "Print Pre&view",              ID_FILE_PRINTPREVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_WINSURF_FILE_EXIT
+    END
+    POPUP "Doc"
+    BEGIN
+        MENUITEM "Sphere radius",               ID_VIEW_SPHERE_RADIUS
+        MENUITEM SEPARATOR
+        MENUITEM "Unregister",                  ID_SURFTEST_UNREGISTER
+        MENUITEM "Register",                    ID_SURFTEST_REGISTER
+        MENUITEM SEPARATOR
+        MENUITEM "Font",                        ID_SURFTEST_FONT
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Zoom",                        ID_VIEW_ZOOM
+        MENUITEM "Draw cube",                   ID_SURFVIEW_DRAWCUBE
+        MENUITEM "Perspective",                 ID_SURFVIEW_PERSPECTIVE
+        MENUITEM "Lines draw mode",             ID_VIEW_LINES_DRAW_MODE
+        MENUITEM SEPARATOR
+        MENUITEM "Use Palette",                 ID_VIEW_SURF_USE_PALETTE
+        MENUITEM "Fon color",                   ID_SURF_FON_COLOR
+        MENUITEM "Palette",                     ID_SURF_COLORMAP
+        MENUITEM "Alpha",                       ID_VIEW_ALPHA
+        MENUITEM SEPARATOR
+        MENUITEM "Cut's plane",                 ID_VIEW_CUTSPLANE
+        MENUITEM "Cut's by 3 planes",           ID_VIEW_CUTSPLANE3
+        MENUITEM SEPARATOR
+        MENUITEM "Angles and transes",          IDD_SURF_VIEW_ANGLES_TRANS
+        MENUITEM SEPARATOR
+        MENUITEM "Save bitmap",                 ID_VIEW_SAVEBITMAP_2
+    END
+    POPUP "Surfs"
+    BEGIN
+        MENUITEM "Fill->Line->Points (surfaces)", ID_VIEW_FILL
+        MENUITEM "Fill->Line->Points (faults)", ID_VIEW_FILL_FAULTS
+        MENUITEM SEPARATOR
+        MENUITEM "Flat",                        ID_VIEW_FLAT_SHADING
+        MENUITEM "Inverse order in the tree",   ID_SURFS_INVERSEORDERINTHETREE
+
+    END
+    POPUP "Wells"
+    BEGIN
+        MENUITEM "Draw Sloj Names",             ID_WELLS_DRAWSLOJNAMES
+        MENUITEM "Show All Sloi",               ID_WELLS_SHOWALLSLOI
+    END
+    POPUP "Profiles "
+    BEGIN
+        MENUITEM "Coordinate Grid",             ID_PROFILES_COORDINATEGRID
+    END
+    POPUP "Lights"
+    BEGIN
+        MENUITEM "Prop",                        ID_SURF_LIGHT_PROP
+        POPUP "Add Light"
+        BEGIN
+            MENUITEM "light ...",                   ID_LIGHTS_ADDLIGHT_LIGHT
+            MENUITEM "Local Directional",           ID_LIGHTS_ADDLIGHT_LOCALDIRECTIONAL
+
+            MENUITEM "Local Spotlight",             ID_LIGHTS_ADDLIGHT_LOCALSPOTLIGHT
+
+            MENUITEM "Global Directional",          ID_LIGHTS_ADDLIGHT_GLOBALDIRECTIONAL
+
+            MENUITEM "Global Spotlight",            ID_LIGHTS_ADDLIGHT_GLOBALSPOTLIGHT
+
+        END
+        MENUITEM "Enable Local Lights",         ID_LIGHTS_ENABLELOCALLIGHTS
+        MENUITEM "Enable Global Lights",        ID_LIGHTS_ENABLEGLOBALLIGHTS
+    END
+    POPUP "Mouse"
+    BEGIN
+        MENUITEM "Select",                      ID_MOUSE_SELECT
+        MENUITEM "Zoom             (Z)",        ID_MOUSE_ZOOM
+        MENUITEM "Clipping         (C)",        ID_MOUSE_CLIPPING
+        MENUITEM "Translate XY  (T)",           ID_MOUSE_TRANSLATEXY
+        MENUITEM "Translate Z    (G)",          ID_MOUSE_TRANSLATEZ
+        MENUITEM "Orbit XY         (O)",        ID_MOUSE_ORBITXY
+        MENUITEM "Orbit Z           (L)",       ID_MOUSE_ORBITZ
+        MENUITEM "Rotate XY      (R)",          ID_MOUSE_ROTATEXY
+        MENUITEM "Rotate Z        (F)",         ID_MOUSE_ROTATEZ
+        MENUITEM "Measure",                     ID_MOUSE_MEASURE
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About Surf Cube",             ID_HELP_ABOUTSURFCUBE
+    END
+END
+
+IDR_MENU_PLOT_2D_VIEW MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+END
+
+IDR_MENU_MAP_VIEW MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+END
+
+IDR_MENU_GDIPLUS_MAP_VIEW MENU DISCARDABLE 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "Zoom"
+    BEGIN
+        MENUITEM "Zoom In",                     ID_ZOOM_ZOOMIN
+        MENUITEM "Zoom Out",                    ID_ZOOM_ZOOMOUT
+        MENUITEM SEPARATOR
+        MENUITEM "Zoom Y In",                   ID_ZOOM_ZOOMYIN
+        MENUITEM "Zoom Y Out",                  ID_ZOOM_ZOOMYOUT
+        MENUITEM "Zoom X Y equival",            ID_ZOOM_ZOOMXYEQUIVAL
+        MENUITEM SEPARATOR
+    END
+    POPUP "Mouse"
+    BEGIN
+        POPUP "Draw"
+        BEGIN
+            MENUITEM "GridData",                    ID_MOUSE_DRAW_GRIDDATA
+            MENUITEM "Line",                        ID_MOUSE_DRAW_LINE
+            MENUITEM "Spheres",                     ID_MOUSE_DRAW_SPHERES
+            MENUITEM "Polygon",                     ID_MOUSE_DRAW_POLYGON
+            , GRAYED
+            MENUITEM "Rect",                        ID_MOUSE_DRAW_RECT
+            , GRAYED
+            MENUITEM "Cube",                        ID_MOUSE_DRAW_CUBE
+            , GRAYED
+        END
+        POPUP "Erase"
+        BEGIN
+            MENUITEM "GridData",                    ID_MOUSE_ERASE_GRIDDATA
+            MENUITEM "Line",                        ID_MOUSE_ERASE_LINE
+            MENUITEM "Line's point",                ID_MOUSE_ERASE_LINESPOINT
+
+            MENUITEM "Spheres",                     ID_MOUSE_ERASE_SPHERES
+            MENUITEM "Polygon",                     ID_MOUSE_ERASE_POLYGON
+            , GRAYED
+            MENUITEM "Polygon's point",             ID_MOUSE_ERASE_POLYGONSPOINT
+            , GRAYED
+            MENUITEM "Rect",                        ID_MOUSE_ERASE_RECT
+            , GRAYED
+            MENUITEM "Cube",                        ID_MOUSE_ERASE_CUBE
+            , GRAYED
+        END
+        POPUP "Edit"
+        BEGIN
+            MENUITEM "Line",                        ID_MOUSE_EDIT_LINE
+            POPUP "Cutting of line by ..."
+            BEGIN
+                MENUITEM "Select and double point",     ID_MOUSE_EDIT_CUTTINGOFLINEBY_SELECTANDDOUBLEPOINT
+
+                MENUITEM "Select and delete bond",      ID_MOUSE_EDIT_CUTTINGOFLINEBY_SELECTANDDELETEBOND
+
+                MENUITEM "Double new point on bond",    ID_MOUSE_EDIT_CUTTINGOFLINEBY_DOUBLENEWPOINTONBOND
+                , GRAYED
+            END
+            MENUITEM "Connect lines",               ID_MOUSE_EDIT_CONNECTLINES
+
+            POPUP "Well "
+            BEGIN
+                MENUITEM SEPARATOR
+                MENUITEM "move sloj",                   ID_MOUSE_EDIT_WELL_MOVESLOJ
+
+                MENUITEM "add sloj",                    ID_MOUSE_EDIT_WELL_ADDSLOJ
+
+                MENUITEM "remove sloj",                 ID_MOUSE_EDIT_WELL_REMOVESLOJ
+
+                MENUITEM SEPARATOR
+                MENUITEM "move and add",                ID_MOUSE_EDIT_WELL_MOVEANDADD
+
+            END
+            MENUITEM "Lito - IGE",                  ID_MOUSE_EDIT_LITOIGE
+        END
+        MENUITEM "Select",                      ID_MOUSE_SELECT
+        MENUITEM "Zoom             (Z)",        ID_MOUSE_ZOOM
+        MENUITEM "Translate XY  (T)",           ID_MOUSE_TRANSLATEXY
+        MENUITEM "Measure",                     ID_MOUSE_MEASURE
+        MENUITEM SEPARATOR
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Data
+//
+
+IDR_RELIEF_DATA1        RCDATA  DISCARDABLE     "topo.dat"
+IDR_TOPOMAP_DATA1       RCDATA  DISCARDABLE     "palette/topomap1.dat"
+IDR_TOPOMAP_DATA2       RCDATA  DISCARDABLE     "palette/topomap2.dat"
+IDR_CLRMAP              RCDATA  DISCARDABLE     "palette/clrmap.dat"
+IDR_COLORMAP_SURFER     RCDATA  DISCARDABLE     "palette/colormap_surfer.dat"
+IDR_COLORMAP_HSV        RCDATA  DISCARDABLE     "palette/colormap_hsv.dat"
+IDR_COLORMAP_HOT        RCDATA  DISCARDABLE     "palette/colormap_hot.dat"
+IDR_COLORMAP_GRAY       RCDATA  DISCARDABLE     "palette/colormap_gray.dat"
+IDR_COLORMAP_BONE       RCDATA  DISCARDABLE     "palette/colormap_bone.dat"
+IDR_COLORMAP_COPPER     RCDATA  DISCARDABLE     "palette/colormap_copper.dat"
+IDR_COLORMAP_PINK       RCDATA  DISCARDABLE     "palette/colormap_pink.dat"
+IDR_COLORMAP_WHITE      RCDATA  DISCARDABLE     "palette/colormap_white.dat"
+IDR_COLORMAP_FLAG       RCDATA  DISCARDABLE     "palette/colormap_flag.dat"
+IDR_COLORMAP_LINES      RCDATA  DISCARDABLE     "palette/colormap_lines.dat"
+IDR_COLORMAP_COLORCUBE  RCDATA  DISCARDABLE     "palette/colormap_colorcube.dat"
+IDR_COLORMAP_VGA        RCDATA  DISCARDABLE     "palette/colormap_vga.dat"
+IDR_COLORMAP_JET        RCDATA  DISCARDABLE     "palette/colormap_jet.dat"
+IDR_COLORMAP_PRISM      RCDATA  DISCARDABLE     "palette/colormap_prism.dat"
+IDR_COLORMAP_COOL       RCDATA  DISCARDABLE     "palette/colormap_cool.dat"
+IDR_COLORMAP_AUTUMN     RCDATA  DISCARDABLE     "palette/colormap_autumn.dat"
+IDR_COLORMAP_SPRING     RCDATA  DISCARDABLE     "palette/colormap_spring.dat"
+IDR_COLORMAP_WINTER     RCDATA  DISCARDABLE     "palette/colormap_winter.dat"
+IDR_COLORMAP_SUMMER     RCDATA  DISCARDABLE     "palette/colormap_summer.dat"
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Unknown language: 0x22, 0x1 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_UKR)
+#ifdef _WIN32
+LANGUAGE 0x22, 0x1
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICONSM           ICON    DISCARDABLE     "psheetsm.ico"
+MYMDIAPP                ICON    DISCARDABLE     "GENERIC.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_OPEN_FILE           BITMAP  DISCARDABLE     "bmp00001.bmp"
+IDB_CLOSED_FILE         BITMAP  DISCARDABLE     "bmp00002.bmp"
+IDB_DOCUMENT            BITMAP  DISCARDABLE     "bmp00003.bmp"
+IDB_BITMAP_CHECKED      BITMAP  DISCARDABLE     "bitmap_c.bmp"
+IDB_BITMAP_UNCHECKED    BITMAP  DISCARDABLE     "bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_FILE_POLYOTY DIALOG DISCARDABLE  0, 0, 444, 309
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Import poljoty file"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,387,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,387,24,50,14
+    LISTBOX         IDC_LIST_POLYOTY,7,197,430,105,LBS_NOINTEGRALHEIGHT | 
+                    LBS_EXTENDEDSEL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_DELIMITER,49,15,48,70,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use t2",IDC_CHECK_USE_T2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,88,49,37,10
+    COMBOBOX        IDC_COMBO_TIME_FORMAT,36,68,144,56,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Test time format",ID_TEST_TIME_FORMAT,185,66,58,14
+    CONTROL         "This is local time",IDC_CHECK_THIS_IS_LOCAL_TIME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,36,87,67,10
+    EDITTEXT        IDC_EDIT_LOCAL_TIME_OFFSET,201,87,40,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "not add to existing plots",
+                    IDC_CHECK_NOT_ADD_TO_EXISTING_PLOTS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,287,14,90,10
+    CONTROL         "Use all data colomns",IDC_CHECK_USE_ALL_COLS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,336,125,81,10
+    EDITTEXT        IDC_EDIT_MAX_COLS,385,155,40,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_START_DATE,188,140,55,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    LTEXT           "Start Date YYYY/MM/DD",IDC_STATIC_START_DATE,96,143,85,
+                    8
+    LTEXT           "Finish Date YYYY/MM/DD",IDC_STATIC_FINISH_DATE,96,164,
+                    85,8
+    EDITTEXT        IDC_EDIT_FINISH_DATE,187,160,55,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Use start finish date",IDC_CHECK_USE_START_FINISH_DATE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,142,78,10
+    GROUPBOX        "Rows",IDC_STATIC,7,113,245,68
+    GROUPBOX        "Cols",IDC_STATIC,313,116,125,57
+    GROUPBOX        "Delimiter",IDC_STATIC,7,7,102,26
+    GROUPBOX        "Time format",IDC_STATIC,7,40,245,67
+    CTEXT           "Or enter number of data colomns to use besides time colomn(s)",
+                    IDC_STATIC,327,136,54,33
+    LTEXT           "Local Time offset in hours",IDC_STATIC,107,88,88,8
+    CONTROL         "If you want use previous start finish date - check this first",
+                    IDC_CHECK_USE_PREVIOUSE_START_FINISH_DATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,125,223,10
+    CONTROL         "Use indexed time scale",
+                    IDC_CHECK_USE_INDEXED_TIME_SCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,135,50,89,10
+    PUSHBUTTON      "File with var",IDC_BUTTON_CREATE_COMMON_FILE_WITH_VAR,
+                    387,67,50,14
+    PUSHBUTTON      "Common file on profils",
+                    IDC_BUTTON_COMMON_FILE_ON_PROFILS,340,97,90,14
+    CONTROL         "Display on 3 documents",IDC_CHECK_DISP_ON_3_DOCS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,289,35,91,10
+    CONTROL         "Ignore first lines:",IDC_CHECK_IGNORE_FIRST_LINES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,184,67,10
+    EDITTEXT        IDC_EDIT_N_LINES_TO_IGNORE,103,182,40,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    PUSHBUTTON      "Ignore",IDC_BUTTON_N_LINES_TO_IGNORE,155,182,50,14,
+                    WS_DISABLED
+    CONTROL         "Use t1",IDC_CHECK_USE_T1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,37,50,37,10
+    CONTROL         "Use time format",IDC_CHECK_USE_TIME_FORMAT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,59,35,65,10
+    CONTROL         "Use file header",IDC_CHECK_USE_HEADER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,145,17,63,10
+    PUSHBUTTON      "Do input for nnet",IDC_BUTTON_POLYOTY_PREPARE_FOR_NNET2,
+                    260,85,65,14
+END
+
+IDD_DIALOG_EARTHQUAKES DIALOG DISCARDABLE  0, 0, 428, 159
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Earthquakes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT_LOGNITUDE,7,74,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LATITUDE,7,46,21,14,ES_AUTOHSCROLL
+    CTEXT           "Latitude of research point",IDC_STATIC,7,34,102,10
+    CTEXT           "Lognitude of research point",IDC_STATIC,7,62,102,10
+    CTEXT           "Name of research point",IDC_STATIC,74,90,123,8
+    EDITTEXT        IDC_EDIT_LATITUDE2,42,46,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LATITUDE3,74,46,38,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LOGNITUDE2,42,74,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_LOGNITUDE3,75,74,39,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_LATITUDE,131,47,84,41,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_LOGNITUDE,131,74,84,42,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "North-South",IDC_STATIC,131,34,47,10
+    CTEXT           "East-West",IDC_STATIC,131,63,47,10
+    LTEXT           "°",IDC_STATIC,30,49,8,8
+    LTEXT           "°",IDC_STATIC,30,75,8,8
+    LTEXT           "'",IDC_STATIC,65,47,8,8
+    LTEXT           "'",IDC_STATIC,66,76,8,8
+    LTEXT           """",IDC_STATIC,119,46,8,8
+    LTEXT           """",IDC_STATIC,119,74,8,8
+    DEFPUSHBUTTON   "OK",IDOK,371,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,371,24,50,14
+    COMBOBOX        IDC_COMBO_NAME_OF_RESEARCH_POINT,39,104,180,71,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_SCALE_MODE,212,7,143,49,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_NEAR_R,299,60,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Save earhquakes per day",
+                    IDC_BUTTON_SAVE_EARTHQUAKES_PER_DAY,69,138,133,14
+    PUSHBUTTON      "Save near, large and depth focus earhquakes",
+                    IDC_BUTTON_SAVE_NEAR_EARTHQUAKES,234,132,175,14
+    COMBOBOX        IDC_COMBO_PERIOD,270,33,78,70,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    CTEXT           "Meaning time:",IDC_STATIC,269,23,78,8
+    LTEXT           "Circle r = ",IDC_STATIC,234,64,30,8
+    GROUPBOX        "Select earthquakes",IDC_STATIC,224,51,197,101
+    LTEXT           "km",IDC_STATIC,349,63,10,8
+    LTEXT           "Magnitude boder",IDC_STATIC,234,85,54,8
+    EDITTEXT        IDC_EDIT_MAGNITUDE_BORDER,299,80,40,14,ES_AUTOHSCROLL
+    LTEXT           "Depth interval min",IDC_STATIC,235,115,58,8
+    LTEXT           "max",IDC_STATIC,349,113,14,8
+    EDITTEXT        IDC_EDIT_DEPTH_INTERVAL_MIN,299,111,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEPTH_INTERVAL_MAX,367,111,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Depth focus earthquakes",IDC_STATIC,231,100,182,29
+END
+
+IDD_DIALOG_SURF_ZOOM DIALOG DISCARDABLE  0, 0, 186, 78
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Zoom"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    EDITTEXT        IDC_EDIT_SURF_ZOOM_XYZ,81,26,40,14,ES_AUTOHSCROLL
+    LTEXT           "Zoom Z / Zoom XY",IDC_STATIC_SURF_ZOOM_XYZ,13,29,61,8
+    CONTROL         "Equial XY zoom",IDC_CHECK_SURF_ZOOM_EQUIAL_XY,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,13,42,65,10
+    EDITTEXT        IDC_EDIT_SURF_ZOOM_XY,81,50,40,14,ES_AUTOHSCROLL
+    LTEXT           "Zoom Y / Zoom X",IDC_STATIC_SURF_ZOOM_XY,13,55,61,8
+    CONTROL         "Equial XYZ zoom",IDC_CHECK_SURF_ZOOM_EQUIAL_XYZ,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,14,70,10
+    GROUPBOX        "",IDC_STATIC,7,7,118,64
+END
+
+IDD_DIALOG_SURF_IZOLINES DIALOG DISCARDABLE  0, 0, 255, 65
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Isolines"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,195,9,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,191,28,50,14
+    EDITTEXT        IDC_EDIT_SURF_IZO_START,6,13,47,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    EDITTEXT        IDC_EDIT_SURF_IZO_STEP,62,13,54,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_IZO_END,128,13,48,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    LTEXT           "Static",IDC_STATIC_SURF_ZMIN,9,38,43,8,WS_DISABLED
+    LTEXT           "Static",IDC_STATIC_SURF_ZMAX,131,35,45,8,WS_DISABLED
+    LTEXT           "Step for izolines",IDC_STATIC,63,36,50,8
+END
+
+IDD_DIALOG_KAROTAZH_SCALE DIALOG DISCARDABLE  0, 0, 186, 292
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Karotazh scale"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    CONTROL         "Slider1",IDC_SLIDER_SURF_SPHERE_RADIUS,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    7,159,106,15
+    LTEXT           "",IDC_STATIC_SURF_SPHERE_RADIUS_VALUE,7,146,104,8
+    EDITTEXT        IDC_EDIT_SURF_SPHERE_RADIUS_MAX,121,159,40,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SPHERE_SLICES,65,13,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slices",IDC_STATIC,31,16,20,8
+    LTEXT           "Stacks",IDC_STATIC,32,38,23,8
+    EDITTEXT        IDC_EDIT_SPHERE_STACKS,65,35,40,14,ES_AUTOHSCROLL
+    CONTROL         "Logarithmic",IDC_CHECK_KAROTAZH_SCALE_LOGARITHMIC,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,124,52,10
+    COMBOBOX        IDC_COMBO_SELECT_KAROTAZH,7,273,172,79,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "Select karotazh:",IDC_STATIC,7,259,172,8
+    CONTROL         "Scale from 0",IDC_CHECK_KAROTAZH_SCALE_FROM_ZERO,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,14,127,55,10
+    PUSHBUTTON      "Init",IDC_INIT_INITIAL_PARAMETERS,7,7,7,6,NOT 
+                    WS_VISIBLE
+    GROUPBOX        "Scale",IDC_STATIC,7,115,172,109
+    CONTROL         "Slider1",IDC_SLIDER_KAROTAZH_ALPHA,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,89,106,15
+    EDITTEXT        IDC_EDIT_KAROTAZH_ALPHA,53,68,40,14,ES_AUTOHSCROLL
+    GROUPBOX        "Alpha",IDC_STATIC,7,57,172,55
+    CONTROL         "On/Off",IDC_CHECK_KAROTAZH_ON_OFF,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,121,69,38,10
+    CONTROL         "Point values",IDC_CHECK_KAROTAZH_DISP_POINT_VALUES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,121,84,55,10
+    PUSHBUTTON      "Color",IDC_BUTTON_SET_KAROTAZH_COLOR,13,68,30,14
+    CONTROL         "Slider1",IDC_SLIDER_SURF_SPHERE_RADIUS2,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    7,196,106,15
+    LTEXT           "",IDC_STATIC_SURF_SPHERE_RADIUS_VALUE2,7,183,104,8
+    EDITTEXT        IDC_EDIT_SURF_SPHERE_RADIUS_MAX2,121,196,40,14,
+                    ES_AUTOHSCROLL
+    LTEXT           "Scale 3D",IDC_STATIC,123,146,30,8
+    LTEXT           "Scale 2D",IDC_STATIC,125,182,30,8
+    GROUPBOX        "Draw mode 2D",IDC_STATIC,7,228,172,29
+    CONTROL         "Right",IDC_RADIO_DRAW_MODE_2D_RIGHT,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,7,238,33,10
+    CONTROL         "Left",IDC_RADIO_DRAW_MODE_2D_LEFT,"Button",
+                    BS_AUTORADIOBUTTON,65,238,28,10
+    CONTROL         "Both",IDC_RADIO_DRAW_MODE_2D_BOTH,"Button",
+                    BS_AUTORADIOBUTTON,121,238,31,10
+    CONTROL         "values 2D",IDC_CHECK_KAROTAZH_DISP_POINT_VALUES2,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,121,99,48,10
+    PUSHBUTTON      "",IDC_INIT_DRAW_MODE_2D,172,232,7,6,NOT WS_VISIBLE
+END
+
+IDD_DIALOG_SURF_IMPORT_PROFILE DIALOG DISCARDABLE  0, 0, 313, 233
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Import pofile to surf"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,256,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,256,24,50,14
+    EDITTEXT        IDC_EDIT_PROFILE_FILE_NAME,17,94,208,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "....",IDC_BROSE_PROFILE_FILE_NAME,225,94,15,14
+    EDITTEXT        IDC_EDIT_PROFILE_MAP_ATTACH_FILE_NAME_ON_MAP,18,144,207,
+                    14,ES_AUTOHSCROLL
+    PUSHBUTTON      "....",IDC_BROSE_PROFILE_MAP_ATTACH_FILE_NAME,225,144,16,
+                    14
+    GROUPBOX        "Profile grid direction",
+                    IDC_STATIC_PROFILE_GRID_DIRECTION,7,35,241,48
+    CONTROL         "North South",IDC_RADIO_PROFILE_GRID_DIRECTION_NORTH,
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,17,47,54,10
+    CONTROL         "East West",IDC_RADIO_PROFILE_GRID_DIRECTION_EAST,"Button",
+                    BS_AUTORADIOBUTTON,17,62,49,10
+    EDITTEXT        IDC_EDIT_PROFILE_GRID_COORDINATE,81,60,80,14,
+                    ES_AUTOHSCROLL
+    PUSHBUTTON      "Apply",IDC_BUTTON_APPLY_PROFILE_GRID,189,60,50,14
+    EDITTEXT        IDC_EDIT_PROFILE_ATTACH_LINE_ON_PROFILE_FILE_NAME,17,173,
+                    208,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "....",
+                    IDC_BROSE_PROFILE_ATTACH_LINE_ON_PROFILE_FILE_NAME,225,
+                    173,17,14
+    CTEXT           "Attach line ON MAP Golden Software Blanking (*.bln) file name",
+                    IDC_STATIC_ATTACH_ON_MAP,19,132,207,8
+    CTEXT           "Attach line ON PROFILE Golden Software Blanking (*.bln) file name",
+                    IDC_STATIC_ATTACH_LINE_ON_PROFILE,14,160,217,8
+    CTEXT           "Profil grid coordinate",
+                    IDC_STATIC_PROFILE_GRID_COORDINATE,75,47,76,8
+    GROUPBOX        "Attach profile to map coordinate",
+                    IDC_STATIC_ATTACH_COORDINATES,7,124,299,102
+    PUSHBUTTON      "Apply",IDC_BUTTON_APPLY_PROFILE_ATTACHING,251,144,49,14
+    GROUPBOX        "Profile file name",IDC_STATIC_PROFILE_FILE_NAME,7,84,
+                    299,32
+    GROUPBOX        "Select type of profile first",IDC_STATIC,7,7,242,27
+    CONTROL         "Grid",IDC_RADIO_PROFILE_TYPE_GRID,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,13,18,28,10
+    CONTROL         "Bln",IDC_RADIO_PROFILE_TYPE_BLN,"Button",
+                    BS_AUTORADIOBUTTON,42,18,26,10
+    CONTROL         "Bln on Map",IDC_RADIO_PROFILE_TYPE_BLN_ON_MAP,"Button",
+                    BS_AUTORADIOBUTTON,66,18,49,10
+    CONTROL         "Bitmap",IDC_RADIO_PROFILE_TYPE_BITMAP,"Button",
+                    BS_AUTORADIOBUTTON,117,18,35,10
+    CTEXT           "",IDC_STATIC_ATTACH_ON_MAP2,230,133,70,8
+    CTEXT           "",IDC_STATIC_ATTACH_LINE_ON_PROFILE2,235,160,65,8
+    CONTROL         "Plan",IDC_RADIO_PROFILE_TYPE_PLAN,"Button",
+                    BS_AUTORADIOBUTTON,153,18,29,10
+    CONTROL         "Bmp pofile",IDC_RADIO_PROFILE_TYPE_BMPPROFILE3D,"Button",
+                    BS_AUTORADIOBUTTON,185,18,48,10
+    CONTROL         "New profile",IDC_CHECK_NEW_PROFILE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,248,97,51,10
+    GROUPBOX        "Attach mode",IDC_STATIC_ATTACH_MODE,254,43,52,40
+    CONTROL         "Point",IDC_RADIO_ATTACH_MODE_POINT,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,260,55,32,10
+    CONTROL         "Line",IDC_RADIO_ATTACH_MODE_LINE,"Button",
+                    BS_AUTORADIOBUTTON,260,68,29,10
+    PUSHBUTTON      "....",IDC_BROSE_PROFILE_COORDINATE_ATTACH_FILE_NAME,165,
+                    60,16,14
+    CONTROL         "Create layers",IDC_CHECK_CREATE_LAYERS,"Button",
+                    BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,255,169,42,
+                    19
+    EDITTEXT        IDC_EDIT_PROFILE_ACAD_YSCALE_FILENAME,18,204,208,14,
+                    ES_AUTOHSCROLL
+    PUSHBUTTON      "....",IDC_BROSE_PROFILE_ACAD_YSCALE_FILE,226,204,17,14
+    CTEXT           "Acad Y SCALE Golden Software Blanking (*.bln) file name",
+                    IDC_STATIC_ACAD_YSCALED_BLN,18,193,217,8
+    CTEXT           "",IDC_STATIC_ACAD_YSCALE,229,193,65,8
+    CONTROL         "Y Scale",IDC_CHECK_APPLY_YSCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,253,207,41,10
+END
+
+IDD_DIALOG_FILE_POLYOTY_FOR_NNET DIALOGEX 0, 0, 311, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Polyoty for nnet"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,253,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,253,24,50,14
+    PUSHBUTTON      "Sum Profiles",IDC_BUTTON_PROFILES_SUMMING,55,39,50,14
+    COMBOBOX        IDC_COMBO_N_SUM_PROFILES,13,39,37,73,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Moving Aver",IDC_BUTTON_MOVING_AVERANGE,55,21,50,14
+    EDITTEXT        IDC_EDIT_MOVING_AVERANGE,13,21,25,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    CONTROL         "Spin1",IDC_SPIN_MOVING_AVERANGE,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS,39,21,11,
+                    14
+    PUSHBUTTON      "Visual all profiles",
+                    IDC_BUTTON_VISUALISATION_OF_PROFILES3,128,16,66,11
+    GROUPBOX        "Handling",IDC_STATIC,7,7,108,55
+    PUSHBUTTON      "Shape",IDC_BUTTON_KOHONEN_INPUT,236,94,26,14
+    PUSHBUTTON      "Shape",IDC_BUTTON_KOHONEN_INPUT2,205,94,26,14
+    COMBOBOX        IDC_COMBO_POLYOTY_COLS_NAMES,33,87,49,120,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Test",IDC_BUTTON1,278,48,24,14
+    GROUPBOX        "Visual",IDC_STATIC,118,7,85,55
+    PUSHBUTTON      "2D Plot profiles",IDC_BUTTON_VISUALISATION_OF_PROFILES2,
+                    128,31,66,10
+    PUSHBUTTON      "Visual profiles",IDC_BUTTON_VISUALISATION_OF_PROFILES,
+                    128,45,66,12
+    GROUPBOX        "Kohonen topology map - classification of signal images",
+                    IDC_STATIC,7,67,298,59
+    COMBOBOX        IDC_COMBO_POLYOTY_KOHONEN_NPOINTS,34,111,49,120,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Use extemums",IDC_BUTTON_KOHONEN_INPUT3,94,105,66,14
+    CONTROL         "Scale",IDC_CHECK_POLYOTY_KOHONEN_TOSCALE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,93,80,34,10
+    CONTROL         "Izo sphere",IDC_CHECK_POLYOTY_KOHONEN_IZO_SPHERE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,93,91,49,10
+    CONTROL         "Or",IDC_RADIO_POLYOTY_KOHONEN_OR,"Button",
+                    BS_AUTORADIOBUTTON,169,91,23,10
+    CONTROL         "And",IDC_RADIO_POLYOTY_KOHONEN_AND,"Button",
+                    BS_AUTORADIOBUTTON,169,80,29,10
+    CONTROL         "Shift",IDC_CHECK_POLYOTY_KOHONEN_SHIFT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,169,102,30,10
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,200,78,1,42,
+                    WS_EX_STATICEDGE
+    LTEXT           "Shape interp N points:",IDC_STATIC,9,100,70,8
+    LTEXT           "Start from parameter:",IDC_STATIC,9,76,66,8
+    LTEXT           "Use picks of",IDC_STATIC,223,73,40,8
+    LTEXT           "1 param",IDC_STATIC,204,81,26,8
+    LTEXT           "3 param",IDC_STATIC,235,81,26,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,88,79,1,40,
+                    WS_EX_STATICEDGE
+    COMBOBOX        IDC_COMBO_POLYOTY_KOHONEN_USE_N_PARAMETERS,266,80,35,99,
+                    CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Length",IDC_BUTTON_POLYOTY_KOHONEN_1_PARAM_PICK_LEN,205,
+                    110,25,14
+    PUSHBUTTON      "Length",IDC_BUTTON_POLYOTY_KOHONEN_3_PARAM_PICK_LEN,236,
+                    111,25,14
+END
+
+IDD_DIALOG_DRILLS_LIST DIALOG DISCARDABLE  0, 0, 488, 250
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Import wells file"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,370,229,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,431,229,50,14
+    PUSHBUTTON      "Сохранить типы колонок",IDC_BUTTON_SAVE_COLOMNS_TYPES,7,
+                    229,108,14
+    PUSHBUTTON      "Загрузить типы колонок",IDC_BUTTON_LOAD_COLOMNS_TYPES,
+                    161,229,98,14
+END
+
+IDD_SELECT_LAYER_DIALOG DIALOG DISCARDABLE  0, 0, 269, 46
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "    Select Layer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,212,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,212,24,50,14
+    COMBOBOX        IDC_COMBO_SELECT_LAYER,7,7,197,85,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT_ENTER_NEW_LAYR_NAME,7,24,197,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_SPHERE_RADIUS DIALOG DISCARDABLE  0, 0, 186, 97
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sphere radius"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    CONTROL         "Slider1",IDC_SLIDER_SURF_SPHERE_RADIUS,
+                    "msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,
+                    13,66,100,15
+    LTEXT           "",IDC_STATIC_SURF_SPHERE_RADIUS_VALUE,16,49,95,8
+    EDITTEXT        IDC_EDIT_SURF_SPHERE_RADIUS_MAX,131,66,40,14,
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SPHERE_SLICES,65,13,40,14,ES_AUTOHSCROLL
+    LTEXT           "Slices",IDC_STATIC,31,16,20,8
+    LTEXT           "Stacks",IDC_STATIC,32,38,23,8
+    EDITTEXT        IDC_EDIT_SPHERE_STACKS,65,35,40,14,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DIALOG_FILE_POLYOTY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 437
+        VERTGUIDE, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 302
+    END
+
+    IDD_DIALOG_EARTHQUAKES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 421
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 152
+    END
+
+    IDD_DIALOG_SURF_ZOOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 71
+        HORZGUIDE, 71
+    END
+
+    IDD_DIALOG_SURF_IZOLINES, DIALOG
+    BEGIN
+        RIGHTMARGIN, 186
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_DIALOG_KAROTAZH_SCALE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 121
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 285
+        HORZGUIDE, 248
+    END
+
+    IDD_DIALOG_SURF_IMPORT_PROFILE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 226
+    END
+
+    IDD_DIALOG_DRILLS_LIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 481
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 243
+    END
+
+    IDD_SELECT_LAYER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 262
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_DIALOG_SPHERE_RADIUS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 90
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_SURF_PRINT_PREVIEW MENU DISCARDABLE 
+BEGIN
+    MENUITEM "Update",                      ID_UPDATE
+    MENUITEM "Print",                       ID_PRINT
+    MENUITEM "Close",                       ID_CLOSE
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 3,3,0,0
+ PRODUCTVERSION 3,3,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0xbL
+#else
+ FILEFLAGS 0xaL
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\\ 0\0"
+            VALUE "FileDescription", "Geo Surf Cube - Временные вариации показаний прибора Tезей\\ 0\0"
+            VALUE "FileVersion", "1.0\\ 0\0"
+            VALUE "InternalName", "Geo Surf Cube - TezeyVar\\ 0\0"
+            VALUE "LegalCopyright", "Copyright \\ 1 Alexey Drozdov 2006\\ 0\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "\\ 0\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Geo Surf Cube - TezeyVar\\ 0\0"
+            VALUE "ProductVersion", "1.0\\ 0\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""generic.h""\r\n"
+    "#include ""winver.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Unknown language: 0x22, 0x1 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG_CUBE_CUTS_PLANE DIALOGEX 0, 0, 252, 175
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cuts plane"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Draw plane",IDC_BUTTON_DRAW_SURF_CUTS_PLANE,6,88,50,14
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_A,6,24,40,14,ES_AUTOHSCROLL
+    LTEXT           "x + ",IDC_STATIC,49,27,9,8
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_B,60,24,40,14,ES_AUTOHSCROLL
+    LTEXT           "y + ",IDC_STATIC,103,27,11,8
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_C,118,24,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_D,177,24,50,14,ES_AUTOHSCROLL
+    LTEXT           "z +",IDC_STATIC,163,27,10,8
+    LTEXT           "= 0",IDC_STATIC,231,27,11,8
+    CTEXT           "Cut's plane equation",IDC_STATIC,48,11,151,8
+    PUSHBUTTON      "Cut",IDC_BUTTON_SURF_CUTS_PLANE,140,87,44,15
+    DEFPUSHBUTTON   "Erase plane",IDC_BUTTON_ERASE_SURF_CUTS_PLANE,67,88,50,
+                    14
+    LTEXT           "",IDC_STATIC_MIN_MAX_D,6,46,235,13,0,WS_EX_CLIENTEDGE
+    CONTROL         "Slider1",IDC_SLIDER_CUT_PLANE,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,6,67,235,15
+    PUSHBUTTON      "Cut Save",IDC_BUTTON_SURF_CUTS_PLANE_SAVE,198,88,43,14
+    GROUPBOX        "One plane cutting",IDC_STATIC,0,0,249,172
+    PUSHBUTTON      "Init",IDC_INIT_ONE_PLANE_CUTTING_CONTROLS,221,5,20,11,
+                    NOT WS_VISIBLE
+    PUSHBUTTON      "Enable",IDC_ENABLE_ONE_PLANE_CLIPPING_BUTTONS,183,5,28,
+                    10,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_CUBE_GORIZONTAL_CUTTING_ALTITUDE,62,149,40,14,
+                    ES_AUTOHSCROLL
+    GROUPBOX        "Gorizontal cutting",IDC_STATIC,6,112,235,55
+    LTEXT           "Altitude",IDC_STATIC,20,152,24,11
+    PUSHBUTTON      "Apply",IDC_BUTTONCUBE_GORIZONTAL_CUTTING_APPLY,113,149,
+                    50,14
+    PUSHBUTTON      "Save",IDC_BUTTONCUBE_GORIZONTAL_CUTTING_SAVE,179,149,50,
+                    14
+    LTEXT           "",IDC_STATIC_MIN_MAX_DD,6,127,235,13,0,WS_EX_CLIENTEDGE
+END
+
+IDD_DIALOG_SURF_CUTS_PLANE3 DIALOGEX 0, 0, 428, 78
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cuts plane"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_X,20,27,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_Y,101,27,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_Z,180,28,40,14,ES_AUTOHSCROLL
+    LTEXT           "X",-1,38,16,8,8
+    LTEXT           "Y",-1,115,16,8,8
+    LTEXT           "Z",-1,194,17,8,8
+    PUSHBUTTON      "Draw XYZ planes",IDC_BUTTON_DRAW_SURF_CUTS_XYZ_PLANES,
+                    243,27,65,14
+    COMBOBOX        IDC_COMBO_SURF_CUTS_XYZ_PLANES_UNVISIBLE,313,27,108,91,
+                    CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Erase XYZ planes",IDC_BUTTON_ERASE_SURF_CUTS_XYZ_PLANES,
+                    246,57,65,14
+    LTEXT           "",IDC_STATIC_MIN_X,7,46,76,13,0,WS_EX_CLIENTEDGE
+    LTEXT           "",IDC_STATIC_MIN_Y,86,46,74,13,0,WS_EX_CLIENTEDGE
+    LTEXT           "",IDC_STATIC_MIN_Z,164,46,76,13,0,WS_EX_CLIENTEDGE
+    LTEXT           "",IDC_STATIC_MAX_X,7,59,76,12,0,WS_EX_CLIENTEDGE
+    LTEXT           "",IDC_STATIC_MAX_Y,86,59,74,12,0,WS_EX_CLIENTEDGE
+    LTEXT           "",IDC_STATIC_MAX_Z,164,59,76,12,0,WS_EX_CLIENTEDGE
+    GROUPBOX        "3 planes cutting",-1,7,7,414,68
+    PUSHBUTTON      "Init",IDC_INIT_THREE_PLANES_CUTTING_CONTROLS,399,13,22,
+                    10,NOT WS_VISIBLE
+END
+
+IDD_DIALOG_SURF_CUTS_PLANE DIALOGEX 0, 0, 419, 81
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cuts plane"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Draw plane",IDC_BUTTON_DRAW_SURF_CUTS_PLANE,248,24,50,
+                    14
+    PUSHBUTTON      "Cancel",IDCANCEL,358,64,58,14
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_A,6,24,40,14,ES_AUTOHSCROLL
+    LTEXT           "x + ",IDC_STATIC,49,27,9,8
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_B,60,24,40,14,ES_AUTOHSCROLL
+    LTEXT           "y + ",IDC_STATIC,103,27,11,8
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_C,118,24,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SURF_CUTS_PLANE_D,177,24,50,14,ES_AUTOHSCROLL
+    LTEXT           "z +",IDC_STATIC,163,27,10,8
+    LTEXT           "= 0",IDC_STATIC,231,27,11,8
+    CTEXT           "Cut's plane equation",IDC_STATIC,48,11,151,8
+    PUSHBUTTON      "Cut",IDC_BUTTON_SURF_CUTS_PLANE,8,46,45,14
+    PUSHBUTTON      "Cut unvisible",IDC_BUTTON_SURF_CUTS_PLANE_UNVISIBLE,68,
+                    46,46,14
+    PUSHBUTTON      "Cut unvisible",IDC_BUTTON_SURF_CUTS_PLANE_UNVISIBLE2,
+                    126,46,46,14
+    DEFPUSHBUTTON   "Erase plane",IDC_BUTTON_ERASE_SURF_CUTS_PLANE,305,24,50,
+                    14
+    LTEXT           "",IDC_STATIC_MIN_MAX_D,178,46,238,13,0,WS_EX_CLIENTEDGE
+    CONTROL         "Slider1",IDC_SLIDER_CUT_PLANE,"msctls_trackbar32",
+                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,8,63,348,15
+    PUSHBUTTON      "Cut Save",IDC_BUTTON_SURF_CUTS_PLANE_SAVE,364,24,45,14
+    CONTROL         "Fast",IDC_CHECK_FAST_CUTS_PLANE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,8,11,29,10
+    GROUPBOX        "One plane cutting",IDC_STATIC,1,0,414,78
+    PUSHBUTTON      "Init",IDC_INIT_ONE_PLANE_CUTTING_CONTROLS,395,4,20,11,
+                    NOT WS_VISIBLE
+    PUSHBUTTON      "Enable",IDC_ENABLE_ONE_PLANE_CLIPPING_BUTTONS,363,6,28,
+                    10,NOT WS_VISIBLE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DIALOG_CUBE_CUTS_PLANE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 249
+        VERTGUIDE, 6
+        VERTGUIDE, 241
+        BOTTOMMARGIN, 172
+        HORZGUIDE, 59
+        HORZGUIDE, 102
+        HORZGUIDE, 163
+    END
+
+    IDD_DIALOG_SURF_CUTS_PLANE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 416
+        VERTGUIDE, 8
+        BOTTOMMARGIN, 78
+        HORZGUIDE, 38
+        HORZGUIDE, 46
+        HORZGUIDE, 60
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

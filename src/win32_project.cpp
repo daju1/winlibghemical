@@ -1454,10 +1454,36 @@ void win_project::popup_TrajSetTotalFrames(HWND widget, void * data)
 	win_project * prj = dynamic_cast<win_project *>(gv->prj);
 	if (prj)
 	{
-prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letter A with nframes.");
-		
-		static const char command[] = "traj_set_total_frames A ";
-		new command_dialog(prj, gv, command);
+		if (prj->GetTrajectoryFile())
+			prj->CloseTrajectory();
+
+		DWORD nFilterIndex;
+		char filename[512];
+		if (S_OK != OpenFileDlg(widget, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex))
+		{	
+			return;
+		}
+
+		prj->OpenTrajectory(filename);	
+
+		// CalcTotalFrames
+		size_t start_pos = prj->trajfile->tellg();
+		prj->trajfile->seekg(0, std::ios::end);
+		size_t end_pos = prj->trajfile->tellg();
+		prj->trajfile->seekg(start_pos, ios::beg);
+		size_t traj_body_size = end_pos - start_pos;
+
+		i32s max_frames = prj->GetTotalFrames();
+		size_t real_frames = traj_body_size / prj->GetTrajectoryFrameSize();
+
+		prj->CloseTrajectory();
+
+		//prj->Message("PLEASE NOTE!\nThe command string, which is displayed in the next dialog, is incomplete.\nYou should replace the letter A with nframes.");
+		//static const char command[] = "traj_set_total_frames A ";
+		//new command_dialog(prj, gv, command);
+
+		prj->TrajectorySetTotalFrames(filename, real_frames);
+
 	}
 }
 void win_project::popup_UnSetSelectedAtomsUnderGravi(HWND widget, void * data)

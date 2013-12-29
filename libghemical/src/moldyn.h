@@ -154,8 +154,9 @@ class moldyn_tst_param
 	double g[3];
 
 	
-	char filename[1024];
-	char filename2[1024];
+	char filename_traj[1024];
+	char filename_input_frame[1024];
+	char filename_output_frame[1024];
 	bool load_last_frame;
 
 #if SNARJAD_TARGET_WORKING

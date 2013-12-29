@@ -237,8 +237,9 @@ moldyn_tst_param::moldyn_tst_param(setup * su)
 	g[1] = 0.0; //Gy
 	g[2] = 0.0; //Gz
 	
-	strcpy(filename, "untitled.traj");
-	strcpy(filename2, "untitled.frame");
+	strcpy(filename_traj, "untitled.traj");
+	strcpy(filename_input_frame, "input.frame");
+	strcpy(filename_output_frame, "output.frame");
 	
 	setup1_sf * susf = dynamic_cast<setup1_sf *>(su);
 	if (susf != NULL) timestep = 5.0;			// override...
