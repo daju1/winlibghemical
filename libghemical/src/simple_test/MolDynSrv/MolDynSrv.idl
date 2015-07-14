@@ -1,0 +1,18 @@
+// MolDynSrv.idl : IDL source for MolDynSrv
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (MolDynSrv.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(AB20C533-9EB1-4ADA-90FE-A0FDB3899157),
+	version(1.0),
+	helpstring("MolDynSrv 1.0 Type Library")
+]
+library MolDynSrvLib
+{
+	importlib("stdole2.tlb");
+};

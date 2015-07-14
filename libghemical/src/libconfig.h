@@ -4,7 +4,7 @@
 
 #define SOUND_GRAVI_OSCILLATOR 0
 #define WRITE_LOCKED_FORCES 0
-#define WRITE_WORKED_FORCES 1
+#define WRITE_WORKED_FORCES 0
 
 //#define CURRENT_ENG1_MM			ENG1_MM_DEFAULT
 #define CURRENT_ENG1_MM			ENG1_MM_PERIODIC
@@ -103,8 +103,8 @@
 
 /* Where the data files are ; set in the configure.ac */
 //#define LIBDATA_PATH "/usr/local/share/libghemical"
-//#define LIBDATA_PATH "d://winlibghemical/libghemical"
-#define LIBDATA_PATH "libghemical"
+#define LIBDATA_PATH "d://winlibghemical/work/libghemical"
+//#define LIBDATA_PATH "libghemical"
 //#define LIBDATA_PATH __FILE__
 //#define LIBDATA_PATH __PATH__
 

@@ -475,48 +475,48 @@ printf("periodic_box_HALFdim[0] = %f\n", p1->periodic_box_HALFdim[0]);
 printf("periodic_box_HALFdim[1] = %f\n", p1->periodic_box_HALFdim[1]);
 printf("periodic_box_HALFdim[2] = %f\n", p1->periodic_box_HALFdim[2]);
 }
-void CopyCRD(model * p1, engine * p2, i32u p3)
+void CopyCRD(model * mdl, engine * eng, i32u p3)
 {
-	if (p3 >= p1->cs_vector.size())
+	if (p3 >= mdl->cs_vector.size())
 	{
 		cout << "BUG: cs overflow at CopyCRD() mdl->eng." << endl;
 		exit(EXIT_FAILURE);
 	}
 	
-	atom ** glob_atmtab = p2->GetSetup()->GetAtoms();
-	for (i32s n1 = 0;n1 < p2->GetSetup()->GetAtomCount();n1++)
+	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
+	for (i32s n1 = 0;n1 < eng->GetSetup()->GetAtomCount();n1++)
 	{
 		const fGL * cdata = glob_atmtab[n1]->GetCRD(p3);
 		/*if ( n1 == 0)
 		{
-			p1->maxCRD[0] = cdata[0];
-			p1->minCRD[0] = cdata[0];
-			p1->maxCRD[1] = cdata[1];
-			p1->minCRD[1] = cdata[1];
-			p1->maxCRD[2] = cdata[2];
-			p1->minCRD[2] = cdata[2];
+			mdl->maxCRD[0] = cdata[0];
+			mdl->minCRD[0] = cdata[0];
+			mdl->maxCRD[1] = cdata[1];
+			mdl->minCRD[1] = cdata[1];
+			mdl->maxCRD[2] = cdata[2];
+			mdl->minCRD[2] = cdata[2];
 		}
 		else
 		{
-			if (p1->maxCRD[0] < cdata[0]) p1->maxCRD[0] = cdata[0];
-			if (p1->minCRD[0] > cdata[0]) p1->minCRD[0] = cdata[0];
-			if (p1->maxCRD[1] < cdata[1]) p1->maxCRD[1] = cdata[1];
-			if (p1->minCRD[1] > cdata[1]) p1->minCRD[1] = cdata[1];
-			if (p1->maxCRD[2] < cdata[2]) p1->maxCRD[2] = cdata[2];
-			if (p1->minCRD[2] > cdata[2]) p1->minCRD[2] = cdata[2];
+			if (mdl->maxCRD[0] < cdata[0]) mdl->maxCRD[0] = cdata[0];
+			if (mdl->minCRD[0] > cdata[0]) mdl->minCRD[0] = cdata[0];
+			if (mdl->maxCRD[1] < cdata[1]) mdl->maxCRD[1] = cdata[1];
+			if (mdl->minCRD[1] > cdata[1]) mdl->minCRD[1] = cdata[1];
+			if (mdl->maxCRD[2] < cdata[2]) mdl->maxCRD[2] = cdata[2];
+			if (mdl->minCRD[2] > cdata[2]) mdl->minCRD[2] = cdata[2];
 		}*/
 		
-		p2->crd[n1 * 3 + 0] = cdata[0];
-		p2->crd[n1 * 3 + 1] = cdata[1];
-		p2->crd[n1 * 3 + 2] = cdata[2];
+		eng->crd[n1 * 3 + 0] = cdata[0];
+		eng->crd[n1 * 3 + 1] = cdata[1];
+		eng->crd[n1 * 3 + 2] = cdata[2];
 	}
 	
 	// the rest is SF-related...
 	// the rest is SF-related...
 	// the rest is SF-related...
 	
-	eng1_sf * esf = dynamic_cast<eng1_sf *>(p2);
-	setup1_sf * ssf = dynamic_cast<setup1_sf *>(p2->GetSetup());
+	eng1_sf * esf = dynamic_cast<eng1_sf *>(eng);
+	setup1_sf * ssf = dynamic_cast<setup1_sf *>(eng->GetSetup());
 	if (esf != NULL && ssf != NULL)
 	{
 		i32s bt3_counter = 0;

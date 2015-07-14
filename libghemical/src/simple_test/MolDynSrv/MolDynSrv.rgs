@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'MolDynSrv'
+		'MolDynSrv.EXE'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

@@ -1035,71 +1035,6 @@ void moldyn_tst::WriteWorkedForcesHeader()
 #endif
 void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 {
-#if WRITE_LOCKED_FORCES
-	double sum_mom_xy = 0.0;
-
-	double sum_vel[3];
-	sum_vel[0] = 0.0;
-	sum_vel[1] = 0.0;
-	sum_vel[2] = 0.0;
-
-	double sum_vel_up[3];
-	sum_vel_up[0] = 0.0;
-	sum_vel_up[1] = 0.0;
-	sum_vel_up[2] = 0.0;
-
-	double sum_vel_dw[3];
-	sum_vel_dw[0] = 0.0;
-	sum_vel_dw[1] = 0.0;
-	sum_vel_dw[2] = 0.0;
-
-	double sum_fup[3];
-	sum_fup[0] = 0.0;
-	sum_fup[1] = 0.0;
-	sum_fup[2] = 0.0;
-	double sum_fdw[3];
-	sum_fdw[0] = 0.0;
-	sum_fdw[1] = 0.0;
-	sum_fdw[2] = 0.0;
-#endif
-#if WRITE_WORKED_FORCES
-	double sum_mom_xy = 0.0;
-
-	double sum_vel[3];
-	sum_vel[0] = 0.0;
-	sum_vel[1] = 0.0;
-	sum_vel[2] = 0.0;
-
-	double sum_vel_wk_up[3];
-	sum_vel_wk_up[0] = 0.0;
-	sum_vel_wk_up[1] = 0.0;
-	sum_vel_wk_up[2] = 0.0;
-
-	double sum_vel_wk_dw[3];
-	sum_vel_wk_dw[0] = 0.0;
-	sum_vel_wk_dw[1] = 0.0;
-	sum_vel_wk_dw[2] = 0.0;
-
-
-	double sum_vel_up[3];
-	sum_vel_up[0] = 0.0;
-	sum_vel_up[1] = 0.0;
-	sum_vel_up[2] = 0.0;
-
-	double sum_vel_dw[3];
-	sum_vel_dw[0] = 0.0;
-	sum_vel_dw[1] = 0.0;
-	sum_vel_dw[2] = 0.0;
-
-	double sum_f_wk_up[3];
-	sum_f_wk_up[0] = 0.0;
-	sum_f_wk_up[1] = 0.0;
-	sum_f_wk_up[2] = 0.0;
-	double sum_f_wk_dw[3];
-	sum_f_wk_dw[0] = 0.0;
-	sum_f_wk_dw[1] = 0.0;
-	sum_f_wk_dw[2] = 0.0;
-#endif
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		for (i32s n2 = 0;n2 < 3;n2++)
@@ -1108,19 +1043,7 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
 			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
 			
-#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 
-			if (n2 == 2 && locked[n1])
-			{
-				tmpA = 0.0;	// make sure that locked atoms remain locked!
-				tmp1 = 0.0;	// make sure that locked atoms remain locked!
-				tmp2 = 0.0;	// make sure that locked atoms remain locked!
-				
-				// the engine class really cannot compute and return zero forces
-				// for the locked atoms.
-				
-				// then how to ensure translational invariance and stuff like that?
-			}
-#else
+
 			if (locked[n1])
 			{
 				tmpA = 0.0;	// make sure that locked atoms remain locked!
@@ -1132,66 +1055,12 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 				
 				// then how to ensure translational invariance and stuff like that?
 			}
-#endif
 			
 			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
 			
 			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
-#if WRITE_LOCKED_FORCES
-			sum_vel[n2] += vel[n1 * 3 + n2];
-			if (eng->crd[n1 * 3 + 1] > 0.0)
-			{
-				sum_vel_up[n2] += vel[n1 * 3 + n2];
-			}
-			else
-			{
-				sum_vel_dw[n2] += vel[n1 * 3 + n2];
-			}
-#endif
-#if WRITE_WORKED_FORCES
-			if (worked[n1])
-			{
-				if (eng->crd[n1 * 3 + 1] > 0.0)
-				{
-					sum_vel_wk_up[n2] += vel[n1 * 3 + n2];
-				}
-				else
-				{
-					sum_vel_wk_dw[n2] += vel[n1 * 3 + n2];
-				}
-			}
-			//else
-			{
-				sum_vel[n2] += vel[n1 * 3 + n2];
-				if (eng->crd[n1 * 3 + 1] > 0.0)
-				{
-					sum_vel_up[n2] += vel[n1 * 3 + n2];
-				}
-				else
-				{
-					sum_vel_dw[n2] += vel[n1 * 3 + n2];
-				}
-			}
-#endif
+
 		}
-#if WRITE_LOCKED_FORCES
-		// это неверно
-		// момент по часовой стрелке
-		// y*vx-x*vy
-		sum_mom_xy += 
-			eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0] - 
-			eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1];
-#endif
-#if WRITE_WORKED_FORCES
-		if (!worked[n1])
-		{
-			// момент против часовой стрелки
-			// x*vy-y*vx
-			sum_mom_xy += mass[n1] * 
-				(eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1] - 
-				eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0]);
-		}
-#endif
 	}
 	
 	eng->DoSHAKE();
@@ -1200,98 +1069,9 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 	epot = eng->energy;
 
 	{	
-#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM
-	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
-	{
-		//a = -F/m
-		//dv = a*dt
-		
-		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
-		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];				
-		if (!locked[n1]) 
-			acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
 
-		if (gravi[n1])
-		{
-#if GRAVI_OSCILLATOR_WORKING 
-#if !GRAVI_OSCILLATOR_WORKING_LINEAR
-			if (!locked[n1]) acc[n1 * 3 + 2] += this->m_g[2] * cos (eng->crd[n1 * 3 + 2] / len_g);
-#else
-			if (!locked[n1]) acc[n1 * 3 + 2] += this->m_g[2];
-#endif
-#else
-			acc[n1 * 3 + 0] += this->m_g[0];
-			acc[n1 * 3 + 1] += this->m_g[1];
-			if (!locked[n1]) 
-				acc[n1 * 3 + 2] += this->m_g[2];
-#endif
-		}
-		
-		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
-		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
-		if (!locked[n1]) 
-			vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
-	}
-#else
-#if WRITE_LOCKED_FORCES
-	FILE * locked_forces_stream = fopen(locked_forces_fn, "at");
-	if (locked_forces_stream)
-		fprintf(locked_forces_stream, "%f", tstep1*step_counter);
-#endif /*WRITE_LOCKED_FORCES*/
-#if WRITE_WORKED_FORCES
-	FILE * worked_forces_stream = fopen(worked_forces_fn, "at");
-	if (worked_forces_stream)
-		fprintf(worked_forces_stream, "%f", tstep1*step_counter);
-#endif /*WRITE_LOCKED_FORCES*/
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
-#if WRITE_LOCKED_FORCES
-		if (locked[n1])
-		{
-			if (locked_forces_stream)
-			{
-				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 0]);
-				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 1]);
-				//fprintf(locked_forces_stream, ",%f", -eng->d1[n1 * 3 + 2]);
-				/*if (mass[n1] > 13)
-				{
-				}
-				else
-				{
-				}*/
-				if (eng->crd[n1 * 3 + 1] > 0.0)
-				{
-	sum_fup[0] += -eng->d1[n1 * 3 + 0];
-	sum_fup[1] += -eng->d1[n1 * 3 + 1];
-	sum_fup[2] += -eng->d1[n1 * 3 + 2];
-				}
-				else
-				{
-	sum_fdw[0] += -eng->d1[n1 * 3 + 0];
-	sum_fdw[1] += -eng->d1[n1 * 3 + 1];
-	sum_fdw[2] += -eng->d1[n1 * 3 + 2];
-				}
-			}
-		}
-#endif /*WRITE_LOCKED_FORCES*/
-#if WRITE_WORKED_FORCES
-		if (worked[n1])
-		{
-				if (eng->crd[n1 * 3 + 1] > 0.0)
-				{
-	sum_f_wk_up[0] += -eng->d1[n1 * 3 + 0];
-	sum_f_wk_up[1] += -eng->d1[n1 * 3 + 1];
-	sum_f_wk_up[2] += -eng->d1[n1 * 3 + 2];
-				}
-				else
-				{
-	sum_f_wk_dw[0] += -eng->d1[n1 * 3 + 0];
-	sum_f_wk_dw[1] += -eng->d1[n1 * 3 + 1];
-	sum_f_wk_dw[2] += -eng->d1[n1 * 3 + 2];
-				}
-			
-		}
-#endif /*WRITE_WORKED_FORCES*/
 		if (locked[n1]) continue;
 		//a = -F/m
 		//dv = a*dt
@@ -1300,112 +1080,23 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
 		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
 
-#if SOUND_GRAVI_OSCILLATOR
-		acc[n1 * 3 + gravi_dim] += m_g_gravi_dim;
-#endif
 
 		if (gravi[n1])
 		{
-#if GRAVI_OSCILLATOR_WORKING 
-#if !GRAVI_OSCILLATOR_WORKING_LINEAR
-			acc[n1 * 3 + 2] += this->m_g[2] * cos (eng->crd[n1 * 3 + 2] / len_g);
-#else
-			acc[n1 * 3 + 2] += this->m_g[2]);
-#endif
-#else
 			acc[n1 * 3 + 0] += this->m_g[0];
 			acc[n1 * 3 + 1] += this->m_g[1];
 			acc[n1 * 3 + 2] += this->m_g[2];
-#endif
 		}
 		
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
-#endif
-#if WRITE_LOCKED_FORCES
-	if (locked_forces_stream)
-	{
-#if SOUND_GRAVI_OSCILLATOR
-		fprintf(locked_forces_stream, ",%f", m_g_gravi_dim);
-#endif
-		fprintf(locked_forces_stream, ",%f", temperature);
-		fprintf(locked_forces_stream, ",%f", ConvEKinTemp(ekin));
 
-		fprintf(locked_forces_stream, ",%f", sum_mom_xy);
-
-		fprintf(locked_forces_stream, ",%f", sum_vel[0]);
-		fprintf(locked_forces_stream, ",%f", sum_vel[1]);
-		fprintf(locked_forces_stream, ",%f", sum_vel[2]);
-
-		fprintf(locked_forces_stream, ",%f", sum_vel_up[0]);
-		fprintf(locked_forces_stream, ",%f", sum_vel_up[1]);
-		fprintf(locked_forces_stream, ",%f", sum_vel_up[2]);
-
-		fprintf(locked_forces_stream, ",%f", sum_vel_dw[0]);
-		fprintf(locked_forces_stream, ",%f", sum_vel_dw[1]);
-		fprintf(locked_forces_stream, ",%f", sum_vel_dw[2]);
-
-		fprintf(locked_forces_stream, ",%f", sum_fup[0]);
-		fprintf(locked_forces_stream, ",%f", sum_fup[1]);
-		fprintf(locked_forces_stream, ",%f", sum_fup[2]);
-
-		fprintf(locked_forces_stream, ",%f", sum_fdw[0]);
-		fprintf(locked_forces_stream, ",%f", sum_fdw[1]);
-		fprintf(locked_forces_stream, ",%f", sum_fdw[2]);
-
-		fprintf(locked_forces_stream, "\n");
-		fclose(locked_forces_stream);
-	}
-#endif /*WRITE_LOCKED_FORCES*/
-#if WRITE_WORKED_FORCES
-	if (worked_forces_stream)
-	{
-#if SOUND_GRAVI_OSCILLATOR
-		fprintf(worked_forces_stream, ",%f", m_g_gravi_dim);
-#endif
-		fprintf(worked_forces_stream, ",%f", temperature);
-		fprintf(worked_forces_stream, ",%f", ConvEKinTemp(ekin));
-
-		fprintf(worked_forces_stream, ",%f", sum_mom_xy);
-
-		fprintf(worked_forces_stream, ",%f", sum_vel[0]);
-		fprintf(worked_forces_stream, ",%f", sum_vel[1]);
-		fprintf(worked_forces_stream, ",%f", sum_vel[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[0]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[1]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[0]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[1]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_vel_up[0]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_up[1]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_up[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_vel_dw[0]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_dw[1]);
-		fprintf(worked_forces_stream, ",%f", sum_vel_dw[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[0]);
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[1]);
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[2]);
-
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[0]);
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[1]);
-		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[2]);
-
-		fprintf(worked_forces_stream, "\n");
-		fclose(worked_forces_stream);
-	}
-#endif /*WRITE_WORKED_FORCES*/
 	}
 	
 	ekin = KineticEnergy();
-#if 1
+
 	if (enable_temperature_control)
 	{
 		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
@@ -1415,56 +1106,10 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 
 		bool with_constant_impuls = true;
 		bool and_with_zero_impuls = true;
-		/*if (delta <= -0.1)
-		{
-			 tc = 1.0 + delta;
-			 with_constant_impuls = false;
-		}*/
 
 		SetEKin(ekin * tc, with_constant_impuls, and_with_zero_impuls);
 	}
-#else
-	if (enable_temperature_control)
-	{
-		// фрикционный коэффициент, измен€ющийс€ во времени
-		f64 tt = temperature < 1.0 ? 1.0 : temperature;
-		psi += relax_rate_2 * ((ConvEKinTemp(ekin) / tt) - 1.0);
 
-		printf ("psi = %f\n", psi);
-		
-		// определ€ем суммарный импульс системы до применени€ термостата
-		f64 sum_p[3];
-		SumModelImpuls(sum_p);
-		f64 tc = 1.0 - psi;
-
-		f64 dp[3];//поправка к импульсу в расчЄте на каждый атом
-		for (i32s n2 = 0;n2 < 3;n2++) 
-			dp[n2] = sum_p[n2] * psi / (eng->GetAtomCount() - num_locked);
-
-		for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
-		{
-			if (!locked[n1])
-			{
-				for (i32s n2 = 0;n2 < 3;n2++)
-				{
-					// умножаем импульс каждого атома на коэффициент tc
-					vel[n1 * 3 + n2] *= tc / mass[n1];
-					//дл€ сохранени€ суммарного импульса системы 
-					//вводим поправку дл€ каждого незафиксированного атома
-					vel[n1 * 3 + n2] += dp[n2] / mass[n1];
-				}	
-			}
-		}
-#if 1
-		//ќтладка
-		f64 sum_p3[3];
-		SumModelImpuls(sum_p3);
-
-		for (i32s n2 = 0;n2 < 3;n2++) 
-			printf ("sum_p[%d]\t%f\t%f\t\t%f\n", n2,  sum_p[n2], sum_p3[n2], sum_p[n2]-sum_p3[n2]);
-#endif
-	}
-#endif
 	step_counter++;
 }
 
@@ -1554,6 +1199,15 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 			printf ("sum_p[%d]\t%f\t%f\t%f\t\t%f\n", n2,  sum_p1[n2], sum_p2[n2], sum_p3[n2], sum_p1[n2]-sum_p3[n2]);
 #endif
 	}
+#if 1 
+	//ќтладка
+	f64 ekin_tst = KineticEnergy();
+	if (p1 != ekin_tst)
+	{
+		printf("\n");
+	}
+#endif
+	ekin = p1;
 }
 
 void moldyn_tst::SumModelImpuls(f64 * sum_p)

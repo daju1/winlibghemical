@@ -2866,7 +2866,7 @@ void model::GeomOptGetParam(geomopt_param & param)
 #define LANGEVIN_COUPLING	0.0005		// see moldyn.cpp ; this is 1/100 temperature coupling...
 
 
-#include "../../src/glade/moldyn_atomlist_dialog.h"
+//#include "../../src/glade/moldyn_atomlist_dialog.h"
 void model::DoMolDyn_0(moldyn_param & param, bool updt)
 {
 // make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
@@ -3186,8 +3186,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 	//#######################################################################
 	//#######################################################################
-	if (false)
-		new moldyn_atomlist_dialog( dyn);		// the object will call delete itself...
+//	if (false)
+//		new moldyn_atomlist_dialog( dyn);		// the object will call delete itself...
 	//#######################################################################
 	//#######################################################################
 
@@ -3405,16 +3405,6 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 void model::DoMolDyn_tst(moldyn_tst_param & param, bool updt)
 {
-#if DIFFUSE_WORKING
-	FILE * out;
-	out = fopen("diffuse.txt", "wt");
-	fclose (out);
-#endif
-#if KLAPAN_DIFFUSE_WORKING
-	FILE * out;
-	out = fopen("diffuse_klap.txt", "wt");
-	fclose (out);
-#endif
 // make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // this means: 1) make sure that PrintToLog() is safe, 2) only call UpdateAllGraphicsViews(false) because
@@ -3463,20 +3453,6 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #endif /*USE_ENGINE_PBC2*/
 	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
 
-#if KLAPAN_DIFFUSE_WORKING
-	char klap_name[1048];
-	DWORD nFilterIndex;
-	if (OpenFileDlg(0, "Klapan List File (*.dat)\0*.dat\0All files \0*.*\0", 
-		klap_name, nFilterIndex) 
-		!= S_OK)
-	{
-		return;
-	}
-	eng_pbc->ReadClapanList(klap_name);
-#endif
-#if GRAVI_OSCILLATOR_WORKING 	
-	eng_pbc->SetGraviAtomFlagOnSolvent();
-#endif
 
 // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
 //if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
@@ -3508,35 +3484,12 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //	else dyn = new moldyn_langevin(eng, param.timestep);
 
 
-#if WRITE_LOCKED_FORCES
-	dyn->WriteLockedForcesHeader();
-#endif
-#if WRITE_WORKED_FORCES
-	dyn->WriteWorkedForcesHeader();
-#endif
-#if SOUND_GRAVI_OSCILLATOR
-	dyn->InitGraviOscillator(param);
-#endif
 
-#if !GRAVI_OSCILLATOR_START_ON_T_USTANOV
-#if GRAVI_OSCILLATOR_WORKING 	
-	dyn->InitGraviOscillator(param, eng_pbc);
-#endif
-#endif
-
-#if KLAPAN_DIFFUSE_WORKING || GRAVI_OSCILLATOR_WORKING 	
-	DWORD nFilter_Index;
-	char fixed_name[1048];
-	if (S_OK == OpenFileDlg(0, "Fixed List File (*.dat)\0*.dat\0All files \0*.*\0", fixed_name, nFilter_Index))
-	{
-		dyn->LockAtoms(fixed_name);
-	}
-#endif
 
 	//#######################################################################
 	//#######################################################################
-	if (false)
-		new moldyn_atomlist_dialog(dyn);		// the object will call delete itself...
+//	if (false)
+//		new moldyn_atomlist_dialog(dyn);		// the object will call delete itself...
 	//#######################################################################
 	//#######################################################################
 
@@ -3553,27 +3506,6 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	char outfilename_traj[1024];
 	strcpy(outfilename_traj, param.filename_traj);
 
-#if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
-	char ofilename[1024];
-	strcpy(ofilename, param.filename);
-	last_dot = NOT_DEFINED;
-	for (i32u fn = 0;fn < strlen(ofilename);fn++)
-	{
-		if (ofilename[fn] == '.') last_dot = (i32s) fn;
-	}	
-	if (last_dot < 0) last_dot = strlen(ofilename);
-	ofilename[last_dot + 0] = '\0'; 
-
-
-#if SNARJAD_TARGET_WORKING
-	sprintf(outfilename, "%s_vel_%0.3f.traj", ofilename, param.start_snarjad_vel[2]);
-#endif
-
-#if PROBNIY_ATOM_WORKING
-	sprintf(outfilename, "%s_at_mv_dir_%d.traj", ofilename, this->prob_atom_move_direction);
-#endif
-
-#endif
 
 	printf("outfilename_traj = %s\n", outfilename_traj);
 	/////////////////////////////////////////////////////
@@ -3602,7 +3534,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	const int number_of_atoms = GetAtomCount();
 	const char file_id[10] = "traj_v10";
 	
-	const int frame_save_frq = 100;
+	const int frame_save_frq = 10;
 	const int total_frames = param.nsteps_s / frame_save_frq;
 	
 	ofile_traj.write((char *) file_id, 8);					// file id, 8 chars.
@@ -3617,130 +3549,10 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //	str2b << "E_solute,";		// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solvent,";	// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solusolv,";	// a primitive implementation for energy components ; FIXME!!!
-	str2b << "SolventMolsThroughZ,";
-#if KLAPAN_DIFFUSE_WORKING
-	str2b << "SolventMolsThroughKlap,";
-	str2b << "Klapan_Z,";
-	str2b << "Solvent_Z,";
-#endif
-#if GRAVI_OSCILLATOR_WORKING 	
-	str2b << "G,v_theor,v_pract";
-#endif
-	//str2b << "NThroughZmin,";
-	//str2b << "NThroughZmax";
+
+
 	str2b << endl << ends;
 	logfile << mbuff1;
-
-#if SNARJAD_TARGET_WORKING
-	i32s n_snarjad = eng->GetAtomCount() - 1;
-	printf("pre LockAtom()\n");
-	dyn->LockAtom(n_snarjad);
-	// устанавливаем цель
-	dyn->SetTarget(param.target_list);
-	dyn->n_snarjad = n_snarjad;
-
-	char logfilename2[1024];
-	strcpy(logfilename2, param.filename);
-	last_dot = NOT_DEFINED;
-	for (i32u fn = 0;fn < strlen(logfilename2);fn++)
-	{
-		if (logfilename2[fn] == '.') last_dot = (i32s) fn;
-	}	
-	if (last_dot < 0) last_dot = strlen(logfilename2);
-	logfilename2[last_dot + 0] = '\0'; 
-
-
-	sprintf(logfilename, "%s_vel_%0.3f.log", logfilename2, param.start_snarjad_vel[2]);
-	
-	printf("logfilename = %s\n", logfilename);
-
-	ofstream logfile2;
-	logfile2.open(logfilename, ios::out);
-
-	{	
-		ostrstream str2b(mbuff1, sizeof(mbuff1));
-		str2b << "step," << "T,";
-		str2b << "r," << "rz," << "Epot,";
-		str2b << "sn_vel[0],";
-		str2b << "sn_vel[1],";
-		str2b << "sn_vel[2],";
-		str2b << "sn_crd[0],";
-		str2b << "sn_crd[1],";
-		str2b << "sn_crd[2],";
-		str2b << "sn_f[0],";
-		str2b << "sn_f[1],";
-		str2b << "sn_f[2],";
-		str2b << "target_crd[0],";
-		str2b << "target_crd[1],";
-		str2b << "target_crd[2]";
-
-#if USE_BOUNDARY_OPT_ON_MOLDYN
-		if (param.box_optimization)
-		{
-			str2b << ",boundary[0]";
-			str2b << ",boundary[1]";
-			str2b << ",boundary[2]";
-		}
-#endif
-
-		str2b << endl << ends;
-		logfile2 << mbuff1;
-	}
-#endif /*SNARJAD_TARGET_WORKING*/
-
-#if PROBNIY_ATOM_WORKING
-	i32s n_prob_atom = eng->GetAtomCount() - 1;
-	printf("pre LockAtom()\n");
-	dyn->LockAtom(n_prob_atom);
-	// устанавливаем цель
-	dyn->SetTarget(param.target_list);
-	dyn->n_prob_atom = n_prob_atom;
-
-	char logfilename2[1024];
-	strcpy(logfilename2, param.filename);
-	last_dot = NOT_DEFINED;
-	for (i32u fn = 0;fn < strlen(logfilename2);fn++)
-	{
-		if (logfilename2[fn] == '.') last_dot = (i32s) fn;
-	}	
-	if (last_dot < 0) last_dot = strlen(logfilename2);
-	logfilename2[last_dot + 0] = '\0'; 
-
-
-	sprintf(logfilename, "%s_pr_at_mv_dir_%d.log", logfilename2, prob_atom_move_direction ? +1 : -1);
-	
-	printf("logfilename = %s\n", logfilename);
-
-	ofstream logfile2;
-	logfile2.open(logfilename, ios::out);
-
-	{	
-		ostrstream str2b(mbuff1, sizeof(mbuff1));
-		str2b << "step," << "T,";
-		str2b << "rz," << "Epot,";
-
-		str2b << "prob_atom_crd[0],";
-		str2b << "prob_atom_crd[1],";
-		str2b << "prob_atom_crd[2],";
-
-		str2b << "prob_atom_f[0],";
-		str2b << "prob_atom_f[1],";
-		str2b << "prob_atom_f[2],";
-
-		str2b << "target_crd[0],";
-		str2b << "target_crd[1],";
-		str2b << "target_crd[2]";
-/*
-#if USE_BOUNDARY_OPT_ON_MOLDYN
-		str2b << ",boundary[0]";
-		str2b << ",boundary[1]";
-		str2b << ",boundary[2]";
-#endif
-*/
-		str2b << endl << ends;
-		logfile2 << mbuff1;
-	}
-#endif /*PROBNIY_ATOM_WORKING*/
 
 #if USE_BOUNDARY_OPT_ON_MOLDYN
 	boundary_opt * b_opt = NULL;
@@ -3793,6 +3605,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations2();
 		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
 		
+		// so we were loaded from a frame comment this
 		if (n1 < param.nsteps_h && !(n1 % 100))
 		{
 			dyn->temperature = param.temperature * ((f64) n1 / (f64) param.nsteps_h);
@@ -3817,195 +3630,22 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 				dyn_l->langevin_coupling = LANGEVIN_COUPLING;
 			}
 		}
+
 		
 		bool enable_tc = false;
 		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
-#if SOUND_GRAVI_OSCILLATOR
-		else
-			dyn->TakeGraviStep();
-#endif
+
 		if (!param.constant_e || param.langevin) enable_tc = true;
 
-#if SNARJAD_TARGET_WORKING
-		if (n1 == param.nsteps_h + param.nsteps_e)
-		{
-			// запуск снаряда по цели
-			printf("zapusk_snarjada\n");
-			f64 start_snarjad_crd[3];
-			// извлекаем начальные координаты снаряда
-			dyn->GetSnarjadVelCrd(NULL, start_snarjad_crd, NULL);
-			// устанавливаем цель
-			dyn->SetTarget(param.target_list);
-			// расчитываем координаты цели
-			dyn->ComputeTargetCrd();
-			// корректируем x и y координаты снаряда, чтобы они совпадали с центром цели
-			start_snarjad_crd[0] = dyn->target_crd[0];
-			start_snarjad_crd[1] = dyn->target_crd[1];
 
-			if (param.start_snarjad_vel[2] > 0)
-			{
-				start_snarjad_crd[2] = dyn->target_crd[2]-0.5;
-			}
-			else
-			{
-				start_snarjad_crd[2] = dyn->target_crd[2]+0.5;
-			}
-
-			// запуск снаряда по цели
-			dyn->ShootSnarjad(n_snarjad, param.start_snarjad_vel, start_snarjad_crd);
-			//MessageBox(0,"","",0);
-		}
-#endif
-#if PROBNIY_ATOM_WORKING
-		f64 prob_atom_crd[3];
-		if (n1 == param.nsteps_h + param.nsteps_e)
-		{
-			// устанавливаем цель
-			dyn->SetTarget(param.target_list);
-		}
-		if (
-			n1 >= param.nsteps_h + param.nsteps_e &&
-			!(n1 % 10))
-		{
-			int iii = n1 - param.nsteps_h + param.nsteps_e;
-			f64 step = 0.001;
-			// расчитываем координаты цели
-			dyn->ComputeTargetCrd();
-			// корректируем x и y координаты prob_atom, чтобы они совпадали с центром цели
-			prob_atom_crd[0] = dyn->target_crd[0];
-			prob_atom_crd[1] = dyn->target_crd[1];
-
-			if (this->prob_atom_move_direction)
-			{
-				prob_atom_crd[2] = dyn->target_crd[2]-0.5 + iii*step;
-			}
-			else
-			{
-				prob_atom_crd[2] = dyn->target_crd[2]+0.5 - iii*step;
-			}
-			dyn->SetProbAtom(n_prob_atom, prob_atom_crd);
-		}
-
-#endif
-
-#if GRAVI_OSCILLATOR_START_ON_T_USTANOV
-#if GRAVI_OSCILLATOR_WORKING 	
-	if (n1 == param.nsteps_h + param.nsteps_e)
-		dyn->InitGraviOscillator(param, eng_pbc);
-#endif
-#endif
-#if GRAVI_OSCILLATOR_WORKING 	
-		dyn->TakeGraviStep();
-#endif
 		//##############################################################################
 		dyn->TakeMDStep(enable_tc);
 		//##############################################################################
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-		if (b_opt && param.box_optimization && !(n1 % 10)) b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+		if (b_opt && param.box_optimization && !(n1 % 10)) 
+			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif
 
-#if PROBNIY_ATOM_WORKING
-		if (
-			n1 >= param.nsteps_h + param.nsteps_e &&
-			!(n1 % 10))
-		{
-			f64 prob_atom_f[3];
-			dyn->GetProbAtomForce(prob_atom_f);
-			double rz = prob_atom_crd[2] - dyn->target_crd[2];
-
-			ostrstream str2b(mbuff1, sizeof(mbuff1));
-			str2b << n1 << "," << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
-			str2b << rz << "," << dyn->GetEPot() << ",";
-			str2b << prob_atom_crd[0] << "," << prob_atom_crd[1] << "," << prob_atom_crd[2] << ",";
-			str2b << -prob_atom_f[0] << "," << -prob_atom_f[1] << "," << -prob_atom_f[2] << ",";
-			str2b << dyn->target_crd[0] << "," << dyn->target_crd[1] << "," << dyn->target_crd[2];
-/*#if USE_BOUNDARY_OPT_ON_MOLDYN
-			str2b 
-				<< "," << this->periodic_box_HALFdim[0] 
-				<< "," << this->periodic_box_HALFdim[1]
-				<< "," << this->periodic_box_HALFdim[2];
-#endif*/
-			str2b << endl << ends;
-
-			logfile2 << mbuff1;
-			PrintToLog(mbuff1);
-
-		}
-#endif
-
-#if SNARJAD_TARGET_WORKING
-		if (
-			n1 > param.nsteps_h + param.nsteps_e &&
-			!(n1 % 10))
-		{
-			f64 sn_crd[3], sn_vel[3], sn_f[3];
-			// извлекаем координаты снаряда
-			dyn->GetSnarjadVelCrd(sn_vel, sn_crd, sn_f);
-			// расчитываем координаты цели
-			dyn->ComputeTargetCrd();
-
-			double r = 0.0;
-
-			for(i32s n2 = 0; n2 < 3; n2++)
-			{
-				double tmp0 = dyn->target_crd[n2] - sn_crd[n2];
-				r += tmp0 * tmp0;
-			}
-			r = sqrt(r);
-
-			double rz = sn_crd[2] - dyn->target_crd[2];
-			// если предыдущий шаг инициализирован
-			if(b_snarjad_through_membrana_started)
-			{
-				// если это не проход через граничные периодические условия
-				if (fabs(m_pre_snarjad_crd_z-sn_crd[2]) < this->periodic_box_HALFdim[2])
-				{
-					// если сняряд прошёл цель с отрицательной стороны
-					if (m_pre_snarjad_crd_z < m_pre_target_crd_z
-						&&
-						sn_crd[2] >= dyn->target_crd[2])
-					{
-						n_snarjad_through_membrana++;
-					}
-					// если сняряд прошёл цель с положительной стороны
-					if (m_pre_snarjad_crd_z >= m_pre_target_crd_z
-						&&
-						sn_crd[2] < dyn->target_crd[2])
-					{
-						n_snarjad_through_membrana--;
-					}
-				}
-			}
-
-
-			m_pre_snarjad_crd_z					= sn_crd[2];
-			m_pre_target_crd_z					= dyn->target_crd[2];
-			//m_pre_snarjad_membrana_dist_z		= rz;
-			b_snarjad_through_membrana_started	= true;
-
-			ostrstream str2b(mbuff1, sizeof(mbuff1));
-			str2b << n1 << "," << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
-			str2b << r << "," << rz << "," << dyn->GetEPot() << ",";
-			str2b << sn_vel[0] << "," << sn_vel[1] << "," << sn_vel[2] << ",";
-			str2b << sn_crd[0] << "," << sn_crd[1] << "," << sn_crd[2] << ",";
-			str2b << -sn_f[0] << "," << -sn_f[1] << "," << -sn_f[2] << ",";
-			str2b << dyn->target_crd[0] << "," << dyn->target_crd[1] << "," << dyn->target_crd[2];
-#if USE_BOUNDARY_OPT_ON_MOLDYN
-			if (param.box_optimization)
-			{
-				str2b 
-					<< "," << this->periodic_box_HALFdim[0] 
-					<< "," << this->periodic_box_HALFdim[1]
-					<< "," << this->periodic_box_HALFdim[2];
-			}
-#endif
-			str2b << endl << ends;
-
-			logfile2 << mbuff1;
-			PrintToLog(mbuff1);
-		}
-
-#endif
 		if (!(n1 % 10))
 		{
 			ThreadLock();
@@ -4022,60 +3662,20 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ostrstream str2a(mbuff1, sizeof(mbuff1));
 			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
 			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
-#if KLAPAN_DIFFUSE_WORKING
-			str2a << "GetSolventNumberThroughZ = "  <<  eng_pbc->GetSolventNumberThroughZ() << " ";
-			str2a << "GetSolventNumberThroughKlapan = "  <<  eng_pbc->GetSolventNumberThroughKlapan() << " ";
-			str2a << "Z_Klapan = "  <<  eng_pbc->GetKlapanZ() << " ";
-			str2a << "Z_Solvent = "  <<  eng_pbc->GetSolventZ() << " ";
-#endif
-#if GRAVI_OSCILLATOR_WORKING 	
-			str2a << "G = " << dyn->GetGravi(2) << " ";
-			str2a << "v_theor = " << dyn->GetTheorV() << " ";
-			str2a << "v_pract = " << dyn->GetPractV() << " ";
-#endif
-//			str2a << "NThroughZmin = "  <<  eng_pbc->GetNThroughZmin() << "";
-//			str2a << "NThroughZmax = "  <<  eng_pbc->GetNThroughZmax() << "";
+
 			str2a << endl << ends;
 			PrintToLog(mbuff1);
-#if 0
-			ostrstream str2b(mbuff1, sizeof(mbuff1));
-			str2b << "step " << n1 << " T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " ";
-			str2b << "Epot = " << dyn->GetEPot() << " Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " ;; ";
-			str2b << "E_solute = " << eng->E_solute << " ";		// a primitive implementation for energy components ; FIXME!!!
-			str2b << "E_solvent = " << eng->E_solvent << " ";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << "E_solusolv = " << eng->E_solusolv << " ";	// a primitive implementation for energy components ; FIXME!!!
-			str2b << endl << ends;
-			logfile << mbuff1;
-#else			
+	
 			
 			ostrstream str2b(mbuff1, sizeof(mbuff1));
-#if 1
 			str2b << /*`"time " <<*/ n1 * param.timestep * 1.0e-15 << ",";
-#else
-			str2b << /*`"step " <<*/ n1 << ",";
-#endif
 			str2b << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
 			str2b << /*"Epot = " <<*/ dyn->GetEPot() << ",";
 			str2b << (dyn->GetEKin() + dyn->GetEPot()) << ",";
-//			str2b << /*"E_solute = " <<*/ eng->E_solute << ",";		// a primitive implementation for energy components ; FIXME!!!
-//			str2b << /*"E_solvent = " <<*/ eng->E_solvent << ",";	// a primitive implementation for energy components ; FIXME!!!
-//			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << ",";	// a primitive implementation for energy components ; FIXME!!!
-#if KLAPAN_DIFFUSE_WORKING
-			str2b << eng_pbc->GetSolventNumberThroughZ() << ",";
-			str2b << eng_pbc->GetSolventNumberThroughKlapan() << ",";
-			str2b << eng_pbc->GetKlapanZ() << ",";
-			str2b << eng_pbc->GetSolventZ() << ",";
-#endif
-#if GRAVI_OSCILLATOR_WORKING 	
-			str2b << dyn->GetGravi(2) << ",";
-			str2b << dyn->GetTheorV() << ",";
-			str2b << dyn->GetPractV();
-#endif
-//			str2b << eng_pbc->GetNThroughZmin() << ",";
-//			str2b << eng_pbc->GetNThroughZmax() << ",";
+
 			str2b << endl << ends;
 			logfile << mbuff1;
-#endif
+
 			ThreadUnlock();
 		}
 		
@@ -4145,13 +3745,11 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	
 	ofile_traj.close();
 	logfile.close();
-#if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
-	logfile2.close();
-#endif
 	
 	delete dyn;
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-	if (b_opt) delete b_opt;
+	if (b_opt) 
+		delete b_opt;
 #endif
 // we will not delete current_eng here, so that we can draw plots using it...
 // we will not delete current_eng here, so that we can draw plots using it...
