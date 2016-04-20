@@ -29,7 +29,7 @@ using namespace std;
 /*################################################################################################*/
 extern HINSTANCE hInst;								// current instance
 #if 1
-BOOL CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+INT_PTR CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
 	static setup_dialog * stp_dlg;
     switch (message) 
@@ -66,7 +66,7 @@ BOOL CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     } 
     return FALSE; 
 } 
-BOOL CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+INT_PTR CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
 	static setup_dialog * stp_dlg;
     switch (message) 
@@ -103,7 +103,7 @@ BOOL CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     } 
     return FALSE; 
 } 
-BOOL CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+INT_PTR CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
 	static setup_dialog * stp_dlg;
     switch (message) 
@@ -140,7 +140,7 @@ BOOL CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     } 
     return FALSE; 
 } 
-BOOL CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+INT_PTR CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
 	static setup_dialog * stp_dlg;
     switch (message) 
@@ -177,7 +177,7 @@ BOOL CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM
     } 
     return FALSE; 
 } 
-BOOL CALLBACK DlgProcSetup2_mm_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
+INT_PTR CALLBACK DlgProcSetup2_mm_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
 { 
 	static setup_dialog * stp_dlg;
     switch (message) 

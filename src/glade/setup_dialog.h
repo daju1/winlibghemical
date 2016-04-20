@@ -31,12 +31,12 @@ class setup_dialog : public glade_dialog
 	// Идентификаторы страниц блокнота
 	HPROPSHEETPAGE hPage[setup_dialog_npages];
 
-	friend BOOL CALLBACK DlgProcSetup(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) ;
-	friend BOOL CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	friend BOOL CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	friend BOOL CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	friend BOOL CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-	friend BOOL CALLBACK DlgProcSetup2_mm_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend INT_PTR CALLBACK DlgProcSetup(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) ;
+	friend INT_PTR CALLBACK DlgProcSetup1_qm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend INT_PTR CALLBACK DlgProcSetup1_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend INT_PTR CALLBACK DlgProcSetup1_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend INT_PTR CALLBACK DlgProcSetup2_qm_mm(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	friend INT_PTR CALLBACK DlgProcSetup2_mm_sf(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	protected:
 	
 	win_project * prj;	

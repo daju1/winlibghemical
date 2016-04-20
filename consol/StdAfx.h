@@ -24,6 +24,8 @@
 #include "resource.h"
 
 // TODO: reference additional headers your program requires here
+#undef GWL_USERDATA
+#define GWL_USERDATA        (-21)
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

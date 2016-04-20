@@ -19,6 +19,8 @@
 #include <strstream>
 using namespace std;
 
+#define GWL_WNDPROC         (-4)
+
 BOOL CALLBACK DlgProcList(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 HWND CreateListView (HWND hwndParent);
 HWND CreateListView (HWND hwndParent, double part_h, double part_v); 

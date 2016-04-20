@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -78,10 +78,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Comdlg32.lib odbc32.lib odbccp32.lib comctl32.lib babel.lib win_project.lib libghemical.lib"
-				OutputFile="../../ghemical_debug4.exe"
+				OutputFile="$(OutDir)\$(ProjectName)D.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ghemical.pdb"
 				SubSystem="1"
@@ -113,7 +113,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -172,10 +172,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Comdlg32.lib odbc32.lib odbccp32.lib comctl32.lib babel.lib win_project.lib libghemical.lib"
-				OutputFile="../../ghemical_debug4.exe"
+				OutputFile="$(OutDir)\$(ProjectName)D.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ghemical.pdb"
 				SubSystem="1"
@@ -207,8 +207,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -266,9 +266,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib comctl32.lib"
-				OutputFile="../../ghemical_release4.2.exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(OutDir)"
 				ProgramDatabaseFile=".\Release/ghemical2.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -299,7 +300,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -359,9 +360,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib comctl32.lib"
-				OutputFile="../../ghemical_release_4.exe"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(OutDir)"
 				ProgramDatabaseFile=".\Release/ghemical2.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
