@@ -88,7 +88,7 @@ class dummy_object
 	const obj_loc_data * GetLocData(void) const;
 	
 	protected:
-	
+	friend class object_location;
 	obj_loc_data * GetLocDataRW(void) const;
 	
 	public:
