@@ -313,6 +313,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\eng1_mm_default_nbt_wbp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\eng1_mm_prmfit.cpp"
 				>
 			</File>
