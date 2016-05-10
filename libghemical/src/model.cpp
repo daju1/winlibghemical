@@ -3629,7 +3629,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		dyn->TakeMDStep(enable_tc);
 		//##############################################################################
 #if USE_BOUNDARY_OPT_ON_MOLDYN
-		if (b_opt && param.box_optimization && !(n1 % 10)) 
+		if (b_opt && param.box_optimization && 1 == (n1 % 10)) 
 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif
 

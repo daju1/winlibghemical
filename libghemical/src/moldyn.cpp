@@ -1101,7 +1101,7 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		
 		f64 tc = sqrt(1.0 + temperature_coupling * delta);
 
-		bool with_constant_impuls = true;
+		bool with_constant_impuls = false;
 		bool and_with_zero_impuls = true;
 
 		SetEKin(ekin * tc, with_constant_impuls, and_with_zero_impuls);
@@ -1199,9 +1199,9 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 #if 1 
 	//Отладка
 	f64 ekin_tst = KineticEnergy();
-	if (p1 != ekin_tst)
+	if (fabs(p1 - ekin_tst) > 1e-6)
 	{
-		printf("\n");
+		printf("p1 - ekin_tst = %f\n", p1 - ekin_tst);
 	}
 #endif
 	ekin = p1;

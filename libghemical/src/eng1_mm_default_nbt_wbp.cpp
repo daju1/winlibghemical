@@ -125,8 +125,10 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 	{
 		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 		{
+#if SEVERAL_WBP
 			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
 				continue;
+#endif	
 
 			//f64 radius = bp_radius_solute;
 			f64 fc = bp_fc_wall;
@@ -187,8 +189,10 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 	{
 		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 		{
+#if SEVERAL_WBP
 			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
 				continue;
+#endif
 			//f64 radius = bp_radius_solute;
 			f64 fc = bp_fc_wall;
 			
