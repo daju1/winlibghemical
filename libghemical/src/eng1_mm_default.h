@@ -227,9 +227,19 @@ class eng1_mm_default_nbt_mbp : virtual public eng1_mm, virtual public engine_mb
 	void ComputeNBT1(i32u);		// virtual
 };
 
+#define WBP_COPIED_FROM_MIM 1
 class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
 {
 	protected:
+#if WBP_COPIED_FROM_MIM
+	f64 sw1; f64 sw2;
+	f64 swA; f64 swB;
+	
+	f64 shft1;
+	f64 shft3;
+	
+	f64 limit;
+#endif
 	
 	vector<mm_default_nbt1> nbt1_vector;
 	

@@ -2086,12 +2086,32 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 	
 	ostream * ostr = default_tables::GetInstance()->ostr;
 
+#if WBP_COPIED_FROM_MIM
+
 	fGL mindim = GetSetup()->GetModel()->periodic_box_HALFdim[0];
 	if (GetSetup()->GetModel()->periodic_box_HALFdim[1] < mindim) mindim = GetSetup()->GetModel()->periodic_box_HALFdim[1];
 	if (GetSetup()->GetModel()->periodic_box_HALFdim[2] < mindim) mindim = GetSetup()->GetModel()->periodic_box_HALFdim[2];
 	
+	sw1 = 0.6; if (sw1 < (mindim - 0.4)) sw1 = mindim - 0.4;	// will trigger if boxdim < 2.0 nm!!!
+	sw2 = shft1 = mindim - 0.2;
 	
-	update = true;	
+	limit = mindim;
+	update = true;
+	
+	// calculate the actual values...
+	
+	sw1 = sw1 * sw1;
+	sw2 = sw2 * sw2;
+	
+	swA = 3.0 * sw1;
+	swB = pow(sw2 - sw1, 3.0);
+	
+	shft3 = pow(shft1, 3.0);
+	
+	limit = limit * limit;
+#else
+	update = true;
+#endif
 	nbt1_vector.reserve(250000);
 	
 	// also check engine::bp_center!!!
@@ -2133,97 +2153,6 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 //		(* ostr) << bp_wall_crd << " " << bp_wall_crd << " ; ";
 		(* ostr) << endl;
 	}
-	
-	/*if (ostr != NULL) (* ostr) << "creating nbt1-terms: ";
-	i32s nbt1_err = 0;
-	
-	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
-	{
-		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
-		{
-			i32s test = range_cr1[ind1];
-			while (test < range_cr1[ind1 + 1])
-			{
-				if (cr1[test] == atmtab[ind2]) break;
-				else test++;
-			}
-			
-			if (test == range_cr1[ind1 + 1])	// if this is true, the atom are not in 1-2 or 1-3 positions.
-			{
-				test = range_cr2[ind1];
-				while (test < range_cr2[ind1 + 1])
-				{
-					if (cr2[test] == atmtab[ind2]) break;
-					else test++;
-				}
-				
-				bool is14 = (test != range_cr2[ind1 + 1]);	// if this is true, the atoms are 1-4 related.
-				
-				mm_default_nbt1 newnbt1;
-				newnbt1.atmi[0] = ind1;		// this is a local index...
-				newnbt1.atmi[1] = ind2;		// this is a local index...
-				
-				bool success = false;
-				if (dynamic_cast<setup1_mm *>(GetSetup())->EnableExceptions())
-				{
-					success = default_tables::GetInstance()->e_Init(this, & newnbt1, is14);
-				}
-				else
-				{
-					// see also eng1_mm_default_nbt_mim::UpdateTerms() ; should be the same!!!
-					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-					
-					bool errors = false;
-					const default_at * at;
-					
-					f64 r1 = 0.150; f64 e1 = 0.175;			// default...
-					at = default_tables::GetInstance()->GetAtomType(atmtab[ind1]->atmtp);
-					if (at != NULL) { r1 = at->vdw_R; e1 = at->vdw_E; }
-					else errors = true;
-					
-					f64 r2 = 0.150; f64 e2 = 0.175;			// default...
-					at = default_tables::GetInstance()->GetAtomType(atmtab[ind2]->atmtp);
-					if (at != NULL) { r2 = at->vdw_R; e2 = at->vdw_E; }
-					else errors = true;
-					
-					f64 optdist = r1 + r2;
-					f64 energy = sqrt(e1 * e2);
-					
-					f64 charge1 = atmtab[ind1]->charge;
-					f64 charge2 = atmtab[ind2]->charge;
-					newnbt1.qq = 138.9354518 * charge1 * charge2;
-					
-					if (is14)
-					{
-						energy *= 0.5;
-						newnbt1.qq *= 0.75;
-					}
-					
-					f64 tmp1 = optdist * pow(1.0 * energy, 1.0 / 12.0);
-					f64 tmp2 = optdist * pow(2.0 * energy, 1.0 / 6.0);
-					
-					newnbt1.kr = tmp1;
-					newnbt1.kd = tmp2;
-					
-					if (!errors) success = true;
-				}
-				
-				nbt1_err += !success;
-				nbt1_vector.push_back(newnbt1);
-			}
-		}
-	}
-	
-	// report possible errors...
-	
-	i32s total_err = nbt1_err;
-	if (total_err)
-	{
-		char mbuff1[256];
-		ostrstream str1(mbuff1, sizeof(mbuff1));
-		str1 << "WARNING : there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
-		GetSetup()->GetModel()->PrintToLog(mbuff1);
-	}*/
 }
 
 eng1_mm_default_nbt_wbp::~eng1_mm_default_nbt_wbp(void)
@@ -2282,10 +2211,6 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 			f64 t1c = sqrt(t1b);*/
 			f64 t1c = crd[l2g_mm[n1] * 3 + N2];
 			
-
-			
-//printf("t1c = %f \n", t1c);
-//printf("bp_wall_crd = %f \n", bp_wall_crd);
 			if (t1c > - bp_wall_crd) continue;
 			
 			// f = a(x-b)^2
@@ -2293,7 +2218,6 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 			
 			//глубина проникновения атома в зону действия потенциала стенки
 			f64 t2a = - bp_wall_crd - t1c;
-//printf("t2a = %f \n", t2a);
 			//энергия на которую увеличилась потенци альная энергия атома
 			f64 t2b = fc * t2a * t2a;
 			
@@ -2433,10 +2357,11 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 		
 		f64 t6a = 1.0 / (t4c) - 1.0 / (t5b);
 		
+#if WBP_COPIED_FROM_MIM
 		// s1 = (rE^2 - r^2)^2 * (rE^2 + 2r^2 - 3rB^2) / (rE^2 - rB^2)^3
 		// ds1/dr = [this will yield 2 terms quite easily...]
 		
-		/*f64 t3x;		// value
+		f64 t3x;		// value
 		f64 t3y; f64 t3z;	// derivative
 		if (t1b < sw1)
 		{
@@ -2456,19 +2381,23 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			t3x = t3d * t3e / swB;
 			t3y = 4.0 * t1c * t3d / swB;
 			t3z = 4.0 * t1c * t3c * t3e / swB;
-		}*/
+		}
 		
-		energy_nbt1a += t6a/* * t3x*/;
+		energy_nbt1a += t6a * t3x;
+#else // copied from mbp
+		energy_nbt1a += t6a;
+#endif
 		
 		// f2 = Q/r
 		// df2/dr = -Q/r^2
 		
 		f64 t6b = nbt1_vector[n1].qq / t1c;
 		
+#if WBP_COPIED_FROM_MIM
 		// s2 = (1 - (r/rE)^3)^2
 		// ds2/dr = -6r^2 * (1 - (r/rE)^3) / rE^3
 		
-		/*f64 t4x;		// value
+		f64 t4x;		// value
 		f64 t4y;		// derivative
 		if (t1c > shft1)
 		{
@@ -2482,17 +2411,25 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			
 			t4x = t4e * t4e;
 			t4y = 6.0 * t1b * t4e / shft3;
-		}*/
+		}
 		
-		energy_nbt1b += t6b/* * t4x*/;
+		energy_nbt1b += t6b * t4x;
 		
-		f64 tote = t6a/* * t3x*/ + t6b/* * t4x*/;
+		f64 tote = t6a * t3x + t6b * t4x;
+#else // copied from mbp
+		
+		energy_nbt1b += t6b;
+		
+		f64 tote = t6a + t6b;
+#endif
+
 int class1 = (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
 int class2 = (atmtab[atmi[1]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
 if (class1 == class2) { if (class1) E_solvent += tote; else E_solute += tote; }
 else E_solusolv += tote;
 		
-#if 1// from mbp
+#if !WBP_COPIED_FROM_MIM
+		// copied from mbp
 		if (p1 > 0)
 		{
 			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
@@ -2589,7 +2526,9 @@ void eng1_mm_default_nbt_wbp::UpdateTerms(void)
 					t1b += t1a * t1a;
 				}
 				
-//				if (t1b > limit) continue;
+#if WBP_COPIED_FROM_MIM
+				if (t1b > limit) continue;
+#endif
 				
 				test = range_cr2[ind1];
 				while (test < range_cr2[ind1 + 1])
@@ -2662,7 +2601,7 @@ void eng1_mm_default_nbt_wbp::UpdateTerms(void)
 	{
 		char mbuff1[256];
 		ostrstream str1(mbuff1, sizeof(mbuff1));
-		str1 << "WARNING (eng1_mm_default_nbt_mim::UpdateTerms): there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
+		str1 << "WARNING : there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
 		GetSetup()->GetModel()->PrintToLog(mbuff1);
 	}
 }
