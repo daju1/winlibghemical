@@ -174,11 +174,9 @@ eng->Compute(0);//miksei vaikuta mitään???
 	// set the values...
 	
 	atom_counter = 0;
-	{
 	for (iter_al it1 = su->GetModel()->GetAtomsBegin();it1 != su->GetModel()->GetAtomsEnd();it1++)
 	{
 		(* it1).charge = charge[atom_counter++];
-	}
 	}
 	
 	delete[] charge;

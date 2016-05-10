@@ -77,8 +77,8 @@ moldyn::moldyn(engine * p1, f64 p2)
 		mass[counter] = glob_atmtab[counter]->mass;
 		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
 		
-		locked[counter] = lflag;		
-
+		locked[counter] = lflag;
+		
 		for (i32s n1 = 0;n1 < 3;n1++)
 		{
 			vel[counter * 3 + n1] = 0.0;
@@ -87,7 +87,7 @@ moldyn::moldyn(engine * p1, f64 p2)
 		
 		counter++;
 	}
-
+	
 	// the rest are just default values; can be modified...
 	// the rest are just default values; can be modified...
 	// the rest are just default values; can be modified...
@@ -106,7 +106,6 @@ moldyn::~moldyn(void)
 	
 	delete[] locked;
 }
-
 
 void moldyn::TakeMDStep(bool enable_temperature_control)
 {
@@ -140,8 +139,7 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 	
 	eng->Compute(1);
 	epot = eng->energy;
-
-	{	
+	
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		if (locked[n1]) continue;
@@ -155,7 +153,6 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
-	}
 	}
 	
 	ekin = KineticEnergy();
@@ -1459,7 +1456,6 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 // strategy: find friction/random settings with equilibrium T a bit below simulation temperature,
 // and use mild temperature control to maintain the simulation temperature???
 	
-	{
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		if (langevin_weight[n1] >= 0.0)
@@ -1481,14 +1477,12 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 			langevin_r_forces[n1 * 3 + 2] = rC * langevin_weight[n1];
 		}
 	}
-	}
 	
 	f64 net_random_x = 0.0;
 	f64 net_random_y = 0.0;
 	f64 net_random_z = 0.0;
 	
 	i32s langevin_counter = 0;
-	{
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		if (langevin_weight[n1] >= 0.0)
@@ -1500,7 +1494,6 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 			langevin_counter++;
 		}
 	}
-	}
 	
 	if (langevin_counter > 0)
 	{
@@ -1508,7 +1501,7 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 		net_random_y /= (f64) langevin_counter;
 		net_random_z /= (f64) langevin_counter;
 	}
-	{
+	
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
@@ -1552,7 +1545,6 @@ void moldyn_langevin::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
-	}
 	}
 	
 	ekin = KineticEnergy();

@@ -12,7 +12,6 @@
 
 #include "model.h"
 
-
 /*################################################################################################*/
 
 setup::setup(model * p1)
@@ -305,14 +304,8 @@ engine * setup::CreateEngineByIDNumber(i32u id)
 	i32u index = 0;
 	while (index < GetEngineCount())
 	{
-		if (GetEngineIDNumber(index) == id)
-		{
-			break;
-		}
-		else 
-		{
-			index++;
-		}
+		if (GetEngineIDNumber(index) == id) break;
+		else index++;
 	}
 	
 	if (index < GetEngineCount())
@@ -330,7 +323,6 @@ engine * setup::CreateEngineByIDNumber(i32u id)
 
 engine::engine(setup * p1, i32u p2)
 {
-//cout << "engine p1 = " << p1 << " p2 = " << p2 << endl;
 	stp = p1;
 	if (!stp->HasSetupTables()) { cout << "fatal error : no setup tables at engine::engine()." << endl; exit(EXIT_FAILURE); }
 	
@@ -356,7 +348,7 @@ engine::~engine(void)
 	if (d2 != NULL) delete[] d2;
 }
 
-void engine::Check(i32u p1)
+void engine::Check(i32u)
 {
 	const f64 delta = 0.000001;	// the finite difference step...
 	
@@ -377,10 +369,9 @@ void engine::Check(i32u p1)
 			cout << "a = " << d1[n1 * 3 + n2] << " ";
 			cout << "n = " << tmp2 << endl;
 			
-			//if ((n1 % 5) == 4) cin >> old;
+			if ((n1 % 5) == 4) cin >> old;
 		}
 	}
-	cin >> old;
 }
 
 f64 engine::GetGradientVectorLength(void)
@@ -653,7 +644,6 @@ engine_mbp::~engine_mbp(void)
 
 engine_pbc::engine_pbc(setup * p1, i32u p2) : engine(p1, p2)
 {
-printf("engine_pbc::engine_pbc\np1 = %x p2 = %d", p1, p2);
 	// assume that GetModel()->GatherGroups() is done...
 	
 	nmol_mm = 0;
@@ -677,8 +667,7 @@ printf("engine_pbc::engine_pbc\np1 = %x p2 = %d", p1, p2);
 	
 	mrange = new i32s[nmol_mm + 1];
 	
-	mrange[0] = 0; 
-	i32s index = 1;
+	mrange[0] = 0; i32s index = 1;
 	for (i32s n1 = 0;n1 < nmol_mm;n1++)
 	{
 		while (index < GetSetup()->GetMMAtomCount() && atmtab[index]->id[0] == n1) index++;
@@ -706,7 +695,7 @@ void engine_pbc::CheckLocations(void)
 				sum[n3] += crd[index * 3 + n3];
 			}
 		}
-
+		
 		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			f64 test = sum[n2] / ac;

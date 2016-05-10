@@ -237,14 +237,12 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 			}
 			
 			vector<i32s> ind1b; vector<bool> dir1b;		// search for the 2nd group...
-			{
 			for (iter_cl it3 = atmr->cr_list.begin();it3 != atmr->cr_list.end();it3++)
 			{
 				if ((* it3) == (* it2)) continue;
 				
 				ind1b.push_back((* it3).bndr->tmp_bt1_index);
 				dir1b.push_back(atmr == (* it3).bndr->atmr[0]);
-			}
 			}
 			
 			vector<i32s> ind2b; vector<bool> dir2b;
@@ -670,7 +668,6 @@ bool eng1_mm_prmfit::SetTorsionConstraint(i32s ind_bt3, f64 opt, f64 fc, bool lo
 
 void eng1_mm_prmfit::ComputeBT1(i32u p1)
 {
-//printf("eng1_mm_prmfit::ComputeBT1 = %d\n", p1);
 	energy_bt1 = 0.0;
 	
 	// len -> length of the bond vector, in nanometers [nm].
@@ -733,7 +730,6 @@ void eng1_mm_prmfit::ComputeBT1(i32u p1)
 
 void eng1_mm_prmfit::ComputeBT2(i32u p1)
 {
-//printf("eng1_mm_prmfit::ComputeBT2 = %d\n", p1);
 	energy_bt2 = 0.0;
 	
 	// ang -> cosine of the bond angle, in the usual range [-1.0, +1.0]
@@ -811,7 +807,6 @@ void eng1_mm_prmfit::ComputeBT2(i32u p1)
 
 void eng1_mm_prmfit::ComputeBT3(i32u p1)
 {
-//printf("eng1_mm_prmfit::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	for (i32s n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
@@ -953,7 +948,6 @@ void eng1_mm_prmfit::ComputeBT3(i32u p1)
 
 void eng1_mm_prmfit::ComputeBT4(i32u p1)
 {
-//printf("eng1_mm_prmfit::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 	
 	for (i32s n1 = 0;n1 < (i32s) bt4_vector.size();n1++)
@@ -1077,7 +1071,6 @@ void eng1_mm_prmfit::ComputeBT4(i32u p1)
 
 void eng1_mm_prmfit::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_prmfit::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;

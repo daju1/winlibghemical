@@ -384,7 +384,7 @@ void file_trans::Synchronize(void)
 			};
 			
 			atom newatom(el, crd, prj->GetCRDSetCount());
-			prj->Add_Atom(newatom); atmr = & prj->GetLastAtom();
+			prj->AddAtom(newatom); atmr = & prj->GetLastAtom();
 			
 	// this seems to crash -> disabled!!!!!!!!!!
 	//		atmr->charge = oba->GetPartialCharge();

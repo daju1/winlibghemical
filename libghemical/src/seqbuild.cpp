@@ -107,7 +107,6 @@ chn_info::~chn_info(void)
 
 sequencebuilder::sequencebuilder(chn_info::chn_type ct, char * filename)
 {
-
 	type = ct;
 	
 	ifstream file;
@@ -115,12 +114,10 @@ sequencebuilder::sequencebuilder(chn_info::chn_type ct, char * filename)
 	
 	model::OpenLibDataFile(file, false, filename);
 	
-
 	// read information about the main chain...
 	
 	while (file.peek() != 'M') file.getline(buffer, sizeof(buffer));
 	file.getline(buffer, sizeof(buffer));
-	
 	
 	while (file.peek() != 'E')
 	{
@@ -147,7 +144,6 @@ sequencebuilder::sequencebuilder(chn_info::chn_type ct, char * filename)
 	
 	while (file.peek() != 'T') file.getline(buffer, sizeof(buffer));
 	file.getline(buffer, sizeof(buffer));
-
 	
 	while (file.peek() != 'E')
 	{
@@ -166,7 +162,6 @@ sequencebuilder::sequencebuilder(chn_info::chn_type ct, char * filename)
 	
 	while (file.peek() != 'T') file.getline(buffer, sizeof(buffer));
 	file.getline(buffer, sizeof(buffer)); mod[2] = new sb_data_res; mod[2]->ReadModification(file);
-
 	
 	// read descriptions for the residues...
 	
@@ -229,7 +224,7 @@ void sequencebuilder::Build(model * mdl, char * sequence, f64 * tor)
 			
 			id_vector.push_back(main_vector[n2].id[0]);
 			atom newatom(main_vector[n2].el, crd, mdl->cs_vector.size());
-			mdl->Add_Atom(newatom);
+			mdl->AddAtom(newatom);
 			
 			ref_vector.push_back(& mdl->atom_list.back());
 			
@@ -539,7 +534,7 @@ cout << "nmol = " << mdl->nmol << endl;
 		
 		// now check the HYDROGENS that are ignored by the seqbuilder generally.
 		// for hydrogens, set the same id's that the heavy atom has if they are valid ones.
-		{
+		
 		for (iter_al it1 = range[0];it1 != range[1];it1++)
 		{
 			if ((* it1).el.GetAtomicNumber() != 1) continue;
@@ -558,7 +553,6 @@ cout << "nmol = " << mdl->nmol << endl;
 			
 			(* it1).id[1] = heavy->id[1];
 			(* it1).id[2] = heavy->id[2];
-		}
 		}
 	}
 	
@@ -584,7 +578,7 @@ void sequencebuilder::Build(model * mdl, sb_data_res * res, f64 * tor)
 		
 		id_vector.push_back(res->atm_vector[n1].id[0]);
 		atom newatom(res->atm_vector[n1].el, crd, mdl->cs_vector.size());
-		mdl->Add_Atom(newatom);
+		mdl->AddAtom(newatom);
 		
 		ref_vector.push_back(& mdl->atom_list.back());
 		

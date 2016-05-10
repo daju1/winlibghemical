@@ -160,8 +160,6 @@ bool ReadMolecularAxisesFile(char * filename, vector<molecular_axis>& molaxis_li
 
 model::model(void)
 {
-printf("model::model(void)\n\n");
-
 	m_bMaxMinCoordCalculed = false;
 
 	current_setup = new setup1_mm(this);
@@ -368,14 +366,12 @@ void model::PushCRDSets(i32u p1)
 			delete[] (* it1).crd_table;
 			(* it1).crd_table = new fGL[new_cap * 3];
 			(* it1).crd_table_size_loc = new_cap;
-
-			{
+			
 			for (i32u n1 = 0;n1 < old_size;n1++)
 			{
 				(* it1).crd_table[n1 * 3 + 0] = buff[n1 * 3 + 0];
 				(* it1).crd_table[n1 * 3 + 1] = buff[n1 * 3 + 1];
 				(* it1).crd_table[n1 * 3 + 2] = buff[n1 * 3 + 2];
-			}
 			}
 		}
 		
@@ -447,7 +443,6 @@ void model::CenterCRDSet(i32u p1, bool all_atoms)
 		fGL * crd_table = (* it1).crd_table;
 		for (i32s n1 = 0;n1 < 3;n1++) sum[n1] += crd_table[p1 * 3 + n1];
 	}
-	{
 	
 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 	{
@@ -455,7 +450,6 @@ void model::CenterCRDSet(i32u p1, bool all_atoms)
 		
 		fGL * crd_table = (* it1).crd_table;
 		for (i32s n1 = 0;n1 < 3;n1++) crd_table[p1 * 3 + n1] -= sum[n1] / (fGL) GetAtomCount();
-	}
 	}
 }
 
@@ -467,9 +461,10 @@ cout << "Oops!!! This function is not yet ready." << endl;
 /*##############################################*/
 /*##############################################*/
 
-void model::Add_Atom(atom & p1)
+void model::AddAtom(atom & p1)
 {
 	SystemWasModified();
+	
 //////////////////////////////////////////////////////////////////////////obsolete...
 //	p1.index = (i32s) atom_list.size();	// try to keep the atom::index records up-to-date...
 //////////////////////////////////////////////////////////////////////////obsolete...
@@ -696,7 +691,6 @@ void model::GetRange(i32s molecule, iter_bl * result)
 
 i32s model::FindPath(atom * ref1, atom * ref2, i32s max, i32s flag, i32s dist)
 {
-printf ("model::FindPath (%d, %d) max = %d flag = %d dist = %d\n", ref1->index, ref2->index, max, flag, dist);
 	if (ref1 == ref2) return dist;
 	if (dist == max) return NOT_FOUND;
 	
@@ -1650,7 +1644,7 @@ void model::AddHydrogens(void)
 			crdh[2] = crdx[2] + _len * v1.data[2];
 			
 			atom newatom(element(1), crdh, cs_vector.size());
-			Add_Atom(newatom); other_atoms.push_back(& atom_list.back());
+			AddAtom(newatom); other_atoms.push_back(& atom_list.back());
 			bond newbond(& (* it1), & atom_list.back(), bondtype('S'));
 			AddBond(newbond);
 			
@@ -1705,15 +1699,15 @@ fGL model::Nematic_Initialize(fGL density, model ** ref2solv)
 		
 		fGL crdO[3] = { 0.0, 0.0, 0.0 };
 		atom newO(element(8), crdO, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newO); atom * ref_O = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newO); atom * ref_O = & (* ref2solv)->GetLastAtom();
 		
 		fGL crdH1[3] = { 0.095, 0.0, 0.0 };
 		atom newH1(element(1), crdH1, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newH1); atom * ref_H1 = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newH1); atom * ref_H1 = & (* ref2solv)->GetLastAtom();
 		
 		fGL crdH2[3] = { cos(angle)*0.095, sin(angle)*0.095, 0.0 };
 		atom newH2(element(1), crdH2, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newH2); atom * ref_H2 = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newH2); atom * ref_H2 = & (* ref2solv)->GetLastAtom();
 		
 		bond newb1(ref_O, ref_H1, bondtype('S')); (* ref2solv)->AddBond(newb1);
 		bond newb2(ref_O, ref_H2, bondtype('S')); (* ref2solv)->AddBond(newb2);
@@ -1871,7 +1865,7 @@ rot[2] += M_PI;
 
 
 				// add atoms
-				{				
+		
 				for (iter_al it1 = solvent->GetAtomsBegin();it1 != solvent->GetAtomsEnd();it1++)
 				{
 					const fGL * orig = (* it1).GetCRD(0);
@@ -1910,14 +1904,14 @@ rot[2] += M_PI;
 					newA.flags |= ATOMFLAG_IS_SOLVENT_ATOM;
 				//	newA.flags |= ATOMFLAG_MEASURE_ND_RDF;		// what about this???
 					
-					Add_Atom(newA);
+					AddAtom(newA);
 					av1.push_back(& (* it1));
 					av2.push_back(& GetLastAtom());
 				}
-				}
+
 
 				// add bonds
-				{				
+		
 				for (iter_bl it1 = solvent->GetBondsBegin();it1 != solvent->GetBondsEnd();it1++)
 				{
 					i32u ind1 = 0;
@@ -1943,9 +1937,7 @@ rot[2] += M_PI;
 					bond newB(av2[ind1], av2[ind2], (* it1).bt);
 					AddBond(newB);
 				}
-				}
 			}
-
 		}
 	}
 	
@@ -2068,7 +2060,6 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 
 
 				// add atoms
-				{				
 				for (iter_al it1 = solvent->GetAtomsBegin();it1 != solvent->GetAtomsEnd();it1++)
 				{
 					const fGL * orig = (* it1).GetCRD(0);
@@ -2107,14 +2098,12 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 					newA.flags |= ATOMFLAG_IS_SOLVENT_ATOM;
 				//	newA.flags |= ATOMFLAG_MEASURE_ND_RDF;		// what about this???
 					
-					Add_Atom(newA);
+					AddAtom(newA);
 					av1.push_back(& (* it1));
 					av2.push_back(& GetLastAtom());
 				}
-				}
 
 				// add bonds
-				{				
 				for (iter_bl it1 = solvent->GetBondsBegin();it1 != solvent->GetBondsEnd();it1++)
 				{
 					i32u ind1 = 0;
@@ -2139,7 +2128,6 @@ void model::SolvateBox(fGL dimx, fGL dimy, fGL dimz, fGL density, int element_nu
 					
 					bond newB(av2[ind1], av2[ind2], (* it1).bt);
 					AddBond(newB);
-				}
 				}
 			}
 		}
@@ -2452,7 +2440,6 @@ void model::SolvateSphere(fGL rad1, fGL rad2, fGL density, model * solvent)
 				
 				vector<atom *> av1;
 				vector<atom *> av2;
-				{
 				
 				for (iter_al it1 = solvent->GetAtomsBegin();it1 != solvent->GetAtomsEnd();it1++)
 				{
@@ -2481,12 +2468,10 @@ void model::SolvateSphere(fGL rad1, fGL rad2, fGL density, model * solvent)
 					newA.flags |= ATOMFLAG_IS_SOLVENT_ATOM;
 				//	newA.flags |= ATOMFLAG_MEASURE_ND_RDF;		// what about this???
 					
-					Add_Atom(newA);
+					AddAtom(newA);
 					av1.push_back(& (* it1));
 					av2.push_back(& GetLastAtom());
 				}
-				}
-				{
 				
 				for (iter_bl it1 = solvent->GetBondsBegin();it1 != solvent->GetBondsEnd();it1++)
 				{
@@ -2512,7 +2497,6 @@ void model::SolvateSphere(fGL rad1, fGL rad2, fGL density, model * solvent)
 					
 					bond newB(av2[ind1], av2[ind2], (* it1).bt);
 					AddBond(newB);
-				}
 				}
 			}
 		}
@@ -2540,7 +2524,7 @@ fGL model::S_Initialize(fGL density, model ** ref2solv, int element_number)
 		
 		fGL crd[3] = { 0.0, 0.0, 0.0 };
 		atom newA(element(element_number), crd, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newA);
+		(* ref2solv)->AddAtom(newA);
 	}
 	
 	f64 molarmass = 0.0;
@@ -2590,15 +2574,15 @@ fGL model::S_Initialize(fGL density, model ** ref2solv)
 		
 		fGL crdO[3] = { 0.0, 0.0, 0.0 };
 		atom newO(element(8), crdO, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newO); atom * ref_O = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newO); atom * ref_O = & (* ref2solv)->GetLastAtom();
 		
 		fGL crdH1[3] = { 0.095, 0.0, 0.0 };
 		atom newH1(element(1), crdH1, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newH1); atom * ref_H1 = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newH1); atom * ref_H1 = & (* ref2solv)->GetLastAtom();
 		
 		fGL crdH2[3] = { cos(angle)*0.095, sin(angle)*0.095, 0.0 };
 		atom newH2(element(1), crdH2, (* ref2solv)->GetCRDSetCount());
-		(* ref2solv)->Add_Atom(newH2); atom * ref_H2 = & (* ref2solv)->GetLastAtom();
+		(* ref2solv)->AddAtom(newH2); atom * ref_H2 = & (* ref2solv)->GetLastAtom();
 		
 		bond newb1(ref_O, ref_H1, bondtype('S')); (* ref2solv)->AddBond(newb1);
 		bond newb2(ref_O, ref_H2, bondtype('S')); (* ref2solv)->AddBond(newb2);
@@ -4269,8 +4253,6 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 	}
 	
 	chn_index.push_back(tmp_index);
-
-	{
 	
 	for (i32u n1 = 1;n1 < atom_data.size();n1++)
 	{
@@ -4295,10 +4277,9 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 			chn_index.push_back(tmp_index);
 		}
 	}
-	}
 	
 	// now create the chains, checking validity of the residues...
-	{
+	
 	for (i32u n1 = 0;n1 < chn_index.size();n1++)
 	{
 		char current_chn_id = mdata->chn_vector[chn_index[n1]]->chn_id;
@@ -4415,7 +4396,7 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 						newatom.SetCRD(n3, x, y, z);
 					}
 					
-					Add_Atom(newatom); atom_data[n2].ref = (& atom_list.back());
+					AddAtom(newatom); atom_data[n2].ref = (& atom_list.back());
 					
 					// if this atom was an alpha-carbon, then add it to the list... but alternative
 					// locations might cause trouble here; make sure that only one c-alpha is added!!!
@@ -4715,17 +4696,15 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 				
 				element el = element(8);
 				atom newatom(el, tmp4, cs_vector.size());
-				Add_Atom(newatom);
+				AddAtom(newatom);
 				
 				bond newbond(atom_data[ind1].ref, (& atom_list.back()), bt);
 				AddBond(newbond);
 			}
 		}
 	}
-	}
 	
 	// add disulphide bonds...
-	{
 	
 	for (i32u n1 = 0;n1 < ssbond_data.size();n1++)
 	{
@@ -4741,8 +4720,7 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 		if (counter == atom_data.size()) continue;
 		ssbond_data[n1].ref = atom_data[counter].ref;
 	}
-	}
-	{
+	
 	for (i32u n1 = 0;n1 < ssbond_data.size();n1 += 2)
 	{
 		if (ssbond_data[n1 + 0].ref == NULL || ssbond_data[n1 + 1].ref == NULL)
@@ -4757,7 +4735,6 @@ void model::readpdb_ReadData(const char * filename, readpdb_mdata * mdata, i32s 
 			bond newbond(ssbond_data[n1 + 0].ref, ssbond_data[n1 + 1].ref, bt);
 			AddBond(newbond);
 		}
-	}
 	}
 	
 	// ready...
@@ -4824,11 +4801,12 @@ void model::ecomp_AddGroupU(const char * gn)
 	PrintToLog(mbuff1);
 }
 
-/*bool model::ecomp_DeleteGroupU(int)
+bool model::ecomp_DeleteGroupU(int)
 {
+   return false;
 }
 
-void model::ecomp_UnRegisterAll(void)
+/*void model::ecomp_UnRegisterAll(void)
 {
 }
 

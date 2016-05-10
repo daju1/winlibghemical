@@ -44,8 +44,7 @@ struct sf_nbt3_coi;
 struct sf_nbt3_ips;
 struct sf_nbt3_arc;
 
-// NOT YET PROPERLY TESTED!!! 2 layers for all atoms a better compromise???
-#define LAYERS		3	
+#define LAYERS		3	// NOT YET PROPERLY TESTED!!! 2 layers for all atoms a better compromise???
 #define LAYER_LIMIT	0.10	// THEREFORE DISABLED IN CODE!!! but still makes the arrays -> memory!!!
 
 static const int size_nl[LAYERS] = { 100, 200, 400 };

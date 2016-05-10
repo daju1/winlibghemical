@@ -255,14 +255,12 @@ if (!GetSetup()->GetModel()->IsIndexClean())	// obsolete???
 			}
 			
 			vector<i32s> ind1b; vector<bool> dir1b;		// search for the 2nd group...
-			{
 			for (iter_cl it3 = atmr->cr_list.begin();it3 != atmr->cr_list.end();it3++)
 			{
 				if ((* it3) == (* it2)) continue;
 				
 				ind1b.push_back((* it3).bndr->tmp_bt1_index);
 				dir1b.push_back(atmr == (* it3).bndr->atmr[0]);
-			}
 			}
 			
 			vector<i32s> ind2b; vector<bool> dir2b;
@@ -624,7 +622,6 @@ bool eng1_mm_default_bt::SetTorsionConstraint(i32s ind_bt3, f64 opt, f64 fc, boo
 
 void eng1_mm_default_bt::ComputeBT1(i32u p1)
 {
-//printf("eng1_mm_default_bt::ComputeBT1 = %d\n", p1);
 	energy_bt1 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -690,7 +687,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_
 
 void eng1_mm_default_bt::ComputeBT2(i32u p1)
 {
-//printf("eng1_mm_default_bt::ComputeBT2 = %d\n", p1);
 	energy_bt2 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -770,7 +766,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_
 
 void eng1_mm_default_bt::ComputeBT3(i32u p1)
 {
-//printf("eng1_mm_default_bt::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -918,7 +913,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t9a; else E_
 
 void eng1_mm_default_bt::ComputeBT4(i32u p1)
 {
-//printf("eng1_mm_default_bt::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1059,7 +1053,6 @@ eng1_mm_default_bt2::~eng1_mm_default_bt2(void)
 }
 void eng1_mm_default_bt2::ComputeBT1(i32u p1)
 {
-//printf("eng1_mm_default_bt2::ComputeBT1 = %d\n", p1);
 	energy_bt1 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1167,7 +1160,6 @@ void eng1_mm_default_bt::WriteAngles(FILE * stream, int delim)
 
 void eng1_mm_default_bt2::ComputeBT2(i32u p1)
 {
-//printf("eng1_mm_default_bt2::ComputeBT2 = %d\n", p1);
 	energy_bt2 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1247,7 +1239,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_
 
 void eng1_mm_default_bt2::ComputeBT3(i32u p1)
 {
-//printf("eng1_mm_default_bt2::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1395,7 +1386,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t9a; else E_
 
 void eng1_mm_default_bt2::ComputeBT4(i32u p1)
 {
-//printf("eng1_mm_default_bt2::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1642,7 +1632,6 @@ eng1_mm_default_nbt_mbp::~eng1_mm_default_nbt_mbp(void)
 
 void eng1_mm_default_nbt_mbp::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_default_nbt_mbp::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
@@ -1833,24 +1822,21 @@ eng1_mm_default_nbt_mim::~eng1_mm_default_nbt_mim(void)
 
 void eng1_mm_default_nbt_mim::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_default_nbt_mim::ComputeNBT1 nbt1_vector.size()= %d\n", nbt1_vector.size());fflush(stdout);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
 	energy_nbt1d = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
-
+	
 	if (update) UpdateTerms();
 	
-//printf("after UpdateTerms();nbt1_vector.size()= %d\n", nbt1_vector.size());fflush(stdout);
 	// the nonbonded terms begin...
 	// the nonbonded terms begin...
 	// the nonbonded terms begin...
 	
 	for (i32s n1 = 0;n1 < (i32s) nbt1_vector.size();n1++)
 	{
-//printf("eng1_mm_default_nbt_mim::ComputeNBT1 n1 = %d\n", n1);fflush(stdout);//8776
 		i32s * atmi = nbt1_vector[n1].atmi;
 		
 		f64 t1a[3]; f64 t1b = 0.0;
@@ -1966,7 +1952,6 @@ else E_solusolv += tote;
 			}
 		}
 	}
-//printf("eng1_mm_default_nbt_mim::ComputeNBT1 = end\n");fflush(stdout);
 }
 
 void eng1_mm_default_nbt_mim::UpdateTerms(void)
@@ -2088,7 +2073,7 @@ void eng1_mm_default_nbt_mim::UpdateTerms(void)
 	{
 		char mbuff1[256];
 		ostrstream str1(mbuff1, sizeof(mbuff1));
-		str1 << "WARNING (eng1_mm_default_nbt_mim::UpdateTerms): there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
+		str1 << "WARNING : there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
 		GetSetup()->GetModel()->PrintToLog(mbuff1);
 	}
 }
@@ -2247,7 +2232,6 @@ eng1_mm_default_nbt_wbp::~eng1_mm_default_nbt_wbp(void)
 
 void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_default_nbt_wbp::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
@@ -2271,7 +2255,6 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 
 	if (use_down_wall)
 	{
-//printf("use_down_wall\n");
 		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
 		{
 			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
@@ -2401,14 +2384,12 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 #endif
 	if (update) UpdateTerms();
 	
-//printf("after UpdateTerms();nbt1_vector.size()= %d\n", nbt1_vector.size());fflush(stdout);
 	// the nonbonded terms begin...
 	// the nonbonded terms begin...
 	// the nonbonded terms begin...
 	
 	for (i32s n1 = 0;n1 < (i32s) nbt1_vector.size();n1++)
 	{
-//printf("eng1_mm_default_nbt_mim::ComputeNBT1 n1 = %d\n", n1);fflush(stdout);//8776
 		i32s * atmi = nbt1_vector[n1].atmi;
 		
 		f64 t1a[3]; f64 t1b = 0.0;
@@ -2551,7 +2532,6 @@ else E_solusolv += tote;
 		}
 #endif
 	}
-//printf("eng1_mm_default_nbt_mim::ComputeNBT1 = end\n");fflush(stdout);
 }
 
 void eng1_mm_default_nbt_wbp::UpdateTerms(void)
@@ -2691,12 +2671,10 @@ void eng1_mm_default_nbt_wbp::UpdateTerms(void)
 eng1_mm_default_mbp::eng1_mm_default_mbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_mbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_mbp(p1, p2)
 {
-//	cout << "eng1_mm_default_mbp" << endl;
 }
 
 eng1_mm_default_mbp::~eng1_mm_default_mbp(void)
 {
-//	cout << "~eng1_mm_default_mbp" << endl;
 }
 
 /*################################################################################################*/
@@ -2704,12 +2682,10 @@ eng1_mm_default_mbp::~eng1_mm_default_mbp(void)
 eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_mim(p1, p2)
 {
-//	cout << "eng1_mm_default_mim" << endl;
 }
 
 eng1_mm_default_mim::~eng1_mm_default_mim(void)
 {
-//	cout << "~eng1_mm_default_mim" << endl;
 }
 
 /*################################################################################################*/
@@ -2717,12 +2693,10 @@ eng1_mm_default_mim::~eng1_mm_default_mim(void)
 eng1_mm_default_mim2::eng1_mm_default_mim2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_mim(p1, p2)
 {
-//	cout << "eng1_mm_default_mim2" << endl;
 }
 
 eng1_mm_default_mim2::~eng1_mm_default_mim2(void)
 {
-//	cout << "~eng1_mm_default_mim2" << endl;
 }
 
 /*################################################################################################*/
@@ -2730,23 +2704,19 @@ eng1_mm_default_mim2::~eng1_mm_default_mim2(void)
 eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
 {
-//	cout << "eng1_mm_default_mbp" << endl;
 }
 
 eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
 {
-//	cout << "~eng1_mm_default_mbp" << endl;
 }
 
 eng1_mm_default_wbp2::eng1_mm_default_wbp2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_wbp(p1, p2), eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
 {
-//	cout << "eng1_mm_default_mbp" << endl;
 }
 
 eng1_mm_default_wbp2::~eng1_mm_default_wbp2(void)
 {
-//	cout << "~eng1_mm_default_mbp" << endl;
 }
 
 /*################################################################################################*/

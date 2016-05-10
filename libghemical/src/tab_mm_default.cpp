@@ -1062,7 +1062,6 @@ i32u default_tables::e_UpdateTypes(setup * su)
 	if (!mdl->ref_civ) mdl->UpdateChains();
 	
 	vector<chn_info> & ci_vector = (* mdl->ref_civ);
-	{
 	for (i32u n1 = 0;n1 < ci_vector.size();n1++)
 	{
 		iter_al chnR[2]; mdl->GetRange(1, n1, chnR);
@@ -2521,7 +2520,7 @@ if (htab_29.size() != 0 && htab_25.size() == 0)
 			}
 		}
 	}
-	}
+	
 	// ready...
 	// ready...
 	// ready...

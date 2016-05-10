@@ -492,8 +492,8 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 	
 	// handle the bonds that are not identical in reactants/products; collect patoms.
 	// TODO : add an option that all atoms are written into patoms??? but keep the current simple system!
+	
 	vector<bond *> bvect_r; vector<bond *> bvect_p;
-	{
 	for (iter_bl it1 = mdl->GetBondsBegin();it1 != mdl->GetBondsEnd();it1++)
 	{
 		bool bonded_to_r = false;
@@ -566,7 +566,6 @@ transition_state_search::transition_state_search(model * p1, f64 p2, f64 p3)
 				}
 			}
 		}
-	}
 	}
 	
 	for (i32u n1 = 0;n1 < bvect_r.size();n1++)

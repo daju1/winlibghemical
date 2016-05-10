@@ -254,7 +254,7 @@ class model
 	// methods for adding new atoms and bonds:
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
-	virtual void Add_Atom(atom &);		///< This will just push new atom to the atom list.
+	virtual void AddAtom(atom &);		///< This will just push new atom to the atom list.
 	virtual void RemoveAtom(iter_al);	///< This will delete all bonds associated with this atom, and erase atom from the list...
 	
 	virtual void AddMolAxis(molecular_axis &);

@@ -47,7 +47,7 @@ cout << "model::ReadStream_OLD() : starting file input." << endl;
 		
 		element el = element(tmp2[1]);
 		atom newatom(el, tmp4, prj.GetCRDSetCount());
-		prj.Add_Atom(newatom); tmp1.push_back(& prj.GetLastAtom());
+		prj.AddAtom(newatom); tmp1.push_back(& prj.GetLastAtom());
 		
 		for (i32s n1 = 0;n1 < tmp2[0];n1++)
 		{
@@ -161,7 +161,7 @@ if (n1 != ar_vector.size()) cout << "WARNING : bad atom id numbers!!!" << endl;
 				
 				if (selected) newatom.flags |= ATOMFLAG_SELECTED;
 				
-				prj.Add_Atom(newatom);
+				prj.AddAtom(newatom);
 
 				ar_vector.push_back(& prj.GetLastAtom());
 				
@@ -406,7 +406,7 @@ if (n1 != ar_vector.size()) cout << "WARNING : atom id number mismatch!!!" << en
 				newatom.flags = n3;
 				if (selected) newatom.flags |= ATOMFLAG_SELECTED;
 				
-				prj.Add_Atom(newatom);
+				prj.AddAtom(newatom);
 
 				ar_vector.push_back(& prj.GetLastAtom());
 				

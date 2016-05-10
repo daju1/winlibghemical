@@ -388,7 +388,6 @@ void DefineSecondaryStructure(model * mdl)
 	
 	cout << "looking for interchain strands";
 	
-	{
 	for (i32s n1 = 0;n1 < ((i32s) ci_vector.size()) - 1;n1++)
 	{
 		for (i32s n2 = n1 + 1;n2 < (i32s) ci_vector.size();n2++)
@@ -438,7 +437,7 @@ void DefineSecondaryStructure(model * mdl)
 			}
 		}
 	}
-	}
+	
 	cout << endl;
 	
 	for (i32u n1 = 0;n1 < ci_vector.size();n1++)

@@ -159,7 +159,6 @@ i32s typerule::ReadSubRule(istream * istr, ostream * ostr)
 				istr->getline(buffer, sizeof(buffer), ']');
 				
 				i32s tmp1[2] = { strlen(buffer), 0 };
-				{
 				for (i32s n1 = 0;n1 < tmp1[0];n1++)
 				{
 					if (buffer[n1] == '-') tmp1[1]++;
@@ -167,13 +166,12 @@ i32s typerule::ReadSubRule(istream * istr, ostream * ostr)
 					if (buffer[n1] == '=') tmp1[1]++;
 					if (buffer[n1] == '#') tmp1[1]++;
 					if (buffer[n1] == '?') tmp1[1]++;	// wildcard
-				}} tmp1[1] += (tmp1[1] - 1);
+				} tmp1[1] += (tmp1[1] - 1);
 				
 				signed char * newring = new signed char[tmp1[1] + 1];
 				newring[tmp1[1]] = 0;
 				
 				tmp1[0] = 0; char tmp2[3] = { 0, 0, 0 };
-				{
 				for (i32s n1 = 0;n1 < tmp1[1];n1++)
 				{
 					if (!(n1 % 2)) newring[n1] = buffer[tmp1[0]++];
@@ -192,7 +190,6 @@ i32s typerule::ReadSubRule(istream * istr, ostream * ostr)
 						
 						newring[n1] = (char) el.GetAtomicNumber();
 					}
-				}
 				}
 				
 				newsr.data = ring_vector.size();

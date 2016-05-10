@@ -158,7 +158,7 @@ class sequencebuilder
 class sb_data_atm
 {
 	protected:
-//	public:
+	
 	i32s id[2];
 	i32s prev[3];
 	
@@ -187,7 +187,6 @@ class sb_data_atm
 class sb_data_bnd
 {
 	protected:
-//	public:
 	
 	i32s atm[2];
 	bondtype bt;
@@ -207,7 +206,6 @@ class sb_data_bnd
 class sb_data_res
 {
 	protected:
-//	public:
 	
 	i32s id;
 	

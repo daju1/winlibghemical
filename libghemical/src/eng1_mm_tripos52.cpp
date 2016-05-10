@@ -73,7 +73,7 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 	
 	if (ostr != NULL) (* ostr) << "creating bt2-terms: ";
 	i32s bt2_err = 0;
-	{
+	
 	for (iter_al it1 = mdl->GetAtomsBegin();it1 != mdl->GetAtomsEnd();it1++)
 	{
 		if ((* it1).cr_list.size() < 2) continue;
@@ -116,7 +116,6 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 			}
 		}
 	}
-	}
 	
 	if (ostr != NULL)
 	{
@@ -133,7 +132,7 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 
 	if (ostr != NULL) (* ostr) << "creating bt3-terms: ";
 	i32s bt3_err = 0;
-	{
+	
 	for (iter_al it1 = mdl->GetAtomsBegin();it1 != mdl->GetAtomsEnd();it1++)
 	{
 		if ((* it1).cr_list.size() < 2) continue;
@@ -179,14 +178,12 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 			}
 			
 			vector<i32s> ind1b; vector<bool> dir1b;		// search for the 2nd group...
-			{
 			for (iter_cl it3 = atmr->cr_list.begin();it3 != atmr->cr_list.end();it3++)
 			{
 				if ((* it3) == (* it2)) continue;
 				
 				ind1b.push_back((* it3).bndr->tmp_bt1_index);
 				dir1b.push_back(atmr == (* it3).bndr->atmr[0]);
-			}
 			}
 			
 			vector<i32s> ind2b; vector<bool> dir2b;
@@ -274,7 +271,7 @@ eng1_mm_tripos52_bt::eng1_mm_tripos52_bt(setup * p1, i32u p2) : engine(p1, p2), 
 			}
 		}
 	}
-	}
+	
 	if (ostr != NULL)
 	{
 		(* ostr) << bt3_vector.size() << " terms, ";
@@ -607,7 +604,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_
 
 void eng1_mm_tripos52_bt::ComputeBT3(i32u p1)
 {
-//printf("eng1_mm_tripos52_bt::ComputeBT3 = %d\n", p1);
 	energy_bt3 = 0.0;
 	
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -766,9 +762,8 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t9a; else E_
 	}
 }
 
-void eng1_mm_tripos52_bt::ComputeBT4(i32u p1)
+void eng1_mm_tripos52_bt::ComputeBT4(i32u)
 {
-//printf("eng1_mm_tripos52_bt::ComputeBT4 = %d\n", p1);
 	energy_bt4 = 0.0;
 }
 
@@ -885,7 +880,6 @@ eng1_mm_tripos52_nbt_mbp::~eng1_mm_tripos52_nbt_mbp(void)
 
 void eng1_mm_tripos52_nbt_mbp::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_tripos52_nbt_mbp::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
@@ -1081,7 +1075,6 @@ eng1_mm_tripos52_nbt_mim::~eng1_mm_tripos52_nbt_mim(void)
 
 void eng1_mm_tripos52_nbt_mim::ComputeNBT1(i32u p1)
 {
-//printf("eng1_mm_tripos52_nbt_mim::ComputeNBT1 = %d\n", p1);
 	energy_nbt1a = 0.0;
 	energy_nbt1b = 0.0;
 	energy_nbt1c = 0.0;
@@ -1311,12 +1304,10 @@ void eng1_mm_tripos52_nbt_mim::UpdateTerms(void)
 eng1_mm_tripos52_mbp::eng1_mm_tripos52_mbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_mbp(p1, p2), eng1_mm_tripos52_bt(p1, p2), eng1_mm_tripos52_nbt_mbp(p1, p2)
 {
-//	cout << "eng1_mm_tripos52_mbp" << endl;
 }
 
 eng1_mm_tripos52_mbp::~eng1_mm_tripos52_mbp(void)
 {
-//	cout << "~eng1_mm_tripos52_mbp" << endl;
 }
 
 /*################################################################################################*/

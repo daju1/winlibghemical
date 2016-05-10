@@ -745,10 +745,9 @@ void project::DeleteDisplayLists(iGLu p1, iGLu p2)
 /*##############################################*/
 /*##############################################*/
 
-void project::Add_Atom(atom & p1)
+void project::AddAtom(atom & p1)
 {
-//	printf("project::Add_Atom(atom & p1)\n");
-	model::Add_Atom(p1);
+	model::AddAtom(p1);
 	if (pv != NULL) pv->AtomAdded(& atom_list.back());
 }
 
@@ -4031,7 +4030,7 @@ void project::MolAxisEvent(graphics_view * gv, vector<iGLu> & names)
 		{
 			/*fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
 			atom newatom(element::current_element, tmp1, cs_vector.size());
-			Add_Atom(newatom); draw_data[0] = & atom_list.back();*/
+			AddAtom(newatom); draw_data[0] = & atom_list.back();*/
 		}
 	}
 	else
@@ -4071,7 +4070,7 @@ void project::MolAxisEvent(graphics_view * gv, vector<iGLu> & names)
 		{
 			/*fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
 			atom newatom(element::current_element, tmp1, cs_vector.size());
-			Add_Atom(newatom); draw_data[1] = & atom_list.back();*/
+			AddAtom(newatom); draw_data[1] = & atom_list.back();*/
 		}
 		
 		// if different: update bondtype or add a new bond.
@@ -4101,7 +4100,7 @@ void project::DrawEvent(graphics_view * gv, vector<iGLu> & names)
 		{
 			fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
 			atom newatom(element::current_element, tmp1, cs_vector.size());
-			Add_Atom(newatom); draw_data[0] = & atom_list.back();
+			AddAtom(newatom); draw_data[0] = & atom_list.back();
 		}
 	}
 	else
@@ -4114,7 +4113,7 @@ void project::DrawEvent(graphics_view * gv, vector<iGLu> & names)
 		{
 			fGL tmp1[3]; gv->GetCRD(mouse, tmp1);
 			atom newatom(element::current_element, tmp1, cs_vector.size());
-			Add_Atom(newatom); draw_data[1] = & atom_list.back();
+			AddAtom(newatom); draw_data[1] = & atom_list.back();
 		}
 		
 		// if different: update bondtype or add a new bond.
@@ -5136,7 +5135,7 @@ struct mol_axis_vector
 	fGL len;
 };
 
-void project::TrajView_NematicCoordinatePlot(i32s type, i32s dim)
+void project::TrajView_NematicCoordinatePlot(i32s _type, i32s _dim)
 {
 	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
 	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
@@ -5650,7 +5649,7 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 	for (iter_al it1 = GetAtomsBegin();it1 != GetAtomsEnd();it1++)
 	{
 		atom newatm((* it1).el, (* it1).GetCRD(0), tmpmdl->GetCRDSetCount());
-		tmpmdl->Add_Atom(newatm);
+		tmpmdl->AddAtom(newatm);
 		
 		av.push_back(& (* it1));
 		av_tmp.push_back(& tmpmdl->GetLastAtom());
@@ -5949,7 +5948,7 @@ printf("project::DoEnergyPlot1D 0\n");
 	for (iter_al it1 = GetAtomsBegin();it1 != GetAtomsEnd();it1++)
 	{
 		atom newatm((* it1).el, (* it1).GetCRD(0), tmpmdl->GetCRDSetCount());
-		tmpmdl->Add_Atom(newatm);
+		tmpmdl->AddAtom(newatm);
 		
 		av.push_back(& (* it1));
 		av_tmp.push_back(& tmpmdl->GetLastAtom());
@@ -6090,7 +6089,7 @@ void project::DoEnergyPlot2D(i32s inda, i32s indb, i32s indc, i32s indd, i32s di
 	for (iter_al it1 = GetAtomsBegin();it1 != GetAtomsEnd();it1++)
 	{
 		atom newatm((* it1).el, (* it1).GetCRD(0), tmpmdl->GetCRDSetCount());
-		tmpmdl->Add_Atom(newatm);
+		tmpmdl->AddAtom(newatm);
 		
 		av.push_back(& (* it1));
 		av_tmp.push_back(& tmpmdl->GetLastAtom());

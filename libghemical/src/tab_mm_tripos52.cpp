@@ -320,7 +320,7 @@ f64 tripos52_tables::GetChargeInc(bond * ref)
 	{
 		atmtp[n1] = ref->atmr[n1]->atmtp;
 	}
-	{
+	
 	for (i32u n1 = 0;n1 < ci_vector.size();n1++)
 	{
 		if (ci_vector[n1].bndtp.GetValue() != ref->bt.GetValue()) continue;
@@ -336,7 +336,6 @@ f64 tripos52_tables::GetChargeInc(bond * ref)
 				else return -ci_vector[n1].delta;
 			}
 		}
-	}
 	}
 	
 	if (ostr != NULL)
@@ -359,7 +358,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt1 * ref, i32s bt)
 	{
 		atmtp[n1] = atmtab[ref->atmi[n1]]->atmtp;
 	}
-	{
+	
 	for (i32u n1 = 0;n1 < bs_vector.size();n1++)
 	{
 		if (bs_vector[n1].bndtp.GetValue() != bt) continue;
@@ -392,7 +391,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt1 * ref, i32s bt)
 			return true;
 		}
 	}
-	}
+	
 	if (ostr != NULL)
 	{
 		(* ostr) << "unknown bst: ";
@@ -416,7 +415,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt2 * ref, i32s * bt)
 	{
 		atmtp[n1] = atmtab[ref->atmi[n1]]->atmtp;
 	}
-	{
+	
 	for (i32u n1 = 0;n1 < ab_vector.size();n1++)
 	{
 		if (ab_vector[n1].atmtp[1] != atmtp[1]) continue;
@@ -458,7 +457,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt2 * ref, i32s * bt)
 			return true;
 		}
 	}
-	}
+	
 	if (ostr != NULL)
 	{
 		(* ostr) << "unknown abn: " << hex;
@@ -483,7 +482,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt3 * ref, i32s * bt)
 	{
 		atmtp[n1] = atmtab[ref->atmi[n1]]->atmtp;
 	}
-	{
+	
 	for (i32u n1 = 0;n1 < tr_vector.size();n1++)
 	{
 		if (tr_vector[n1].bndtp[1].GetValue() != bt[1]) continue;
@@ -529,7 +528,7 @@ bool tripos52_tables::Init(eng1_mm * eng, mm_tripos52_bt3 * ref, i32s * bt)
 			return true;
 		}
 	}
-	}
+	
 	if (ostr != NULL)
 	{
 		(* ostr) << "unknown tor: " << hex;

@@ -279,7 +279,7 @@ class project : public model
 	// we need to intercept these events from the model class for keeping project_view up-to-date!
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
-	void Add_Atom(atom &);		// virtual
+	void AddAtom(atom &);		// virtual
 	void RemoveAtom(iter_al);	// virtual
 	
 	void AddBond(bond &);		// virtual

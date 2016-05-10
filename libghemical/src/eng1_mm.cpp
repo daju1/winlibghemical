@@ -112,7 +112,6 @@ const char * setup1_mm::GetClassName(void)
 
 engine * setup1_mm::CreateEngineByIndex(i32u eng_index)
 {
-
 	if (eng_index >= GetEngineCount())
 	{
 		cout << "setup1_mm::CreateEngineByIndex() failed!" << endl;
@@ -144,7 +143,7 @@ if (GetModel()->use_boundary_potential) GetModel()->Message("use_boundary_potent
 		GetModel()->use_periodic_boundary_conditions = true;
 		
 		if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
-//		return new eng1_mm_default_mim(this, 1);
+//		return new eng1_mm_default_mim(this, 1);// original
 //		return new eng1_mm_default_mim2(this, 1);
 //		return new eng1_mm_default_wbp(this, 1);
 		return new eng1_mm_default_wbp2(this, 1);
@@ -169,7 +168,6 @@ const f64 eng1_mm::fudgeQQ = 0.75;
 
 eng1_mm::eng1_mm(setup * p1, i32u p2) : engine(p1, p2)
 {
-//cout << "eng1_mm p1 = " << p1 << " p2 = " << p2 << endl;
 
 // make qm-atoms "extra-atoms" separately at the end ; those can then be included in the calculations in a qm/mm model!
 // still all the computations and intermediate results will be calculated in a similar way for qm/mm atoms.
@@ -244,7 +242,6 @@ eng1_mm::~eng1_mm(void)
 
 void eng1_mm::Compute(i32u p1)
 {
-//printf("eng1_mm::Compute\n");fflush(stdout);
 	E_solute = 0.0;		// re-think this for eng2_xx_yy classes!!!
 	E_solvent = 0.0;	// re-think this for eng2_xx_yy classes!!!
 	E_solusolv = 0.0;	// re-think this for eng2_xx_yy classes!!!
@@ -274,13 +271,11 @@ void eng1_mm::Compute(i32u p1)
 	
 	ComputeNBT1(p1);
 	
-//	energy = energy_bt1;
 	energy = energy_bt1 + energy_bt2 + energy_bt3 + energy_bt4;
 	energy += energy_nbt1a + energy_nbt1b + energy_nbt1c + energy_nbt1d;
 	
 //cout << "energy-b = " << energy_bt1 << " " << energy_bt2 << " " << energy_bt3 << " " << energy_bt4 << " " << endl;
 //cout << "energy-nb = " << energy_nbt1a << " " << energy_nbt1b << " " << energy_nbt1c << " " << energy_nbt1d << " " << endl;
-//printf("eng1_mm::Compute end\n");fflush(stdout);
 }
 
 void eng1_mm::SearchCR1a(atom * atm1)

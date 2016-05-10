@@ -65,13 +65,11 @@ void conjugate_gradient::TakeCGStep(ls_mode mode)
 	// store the current search direction and the current value for a while...
 	
 	f64 sum = 0.0;
-	{
 	for (i32u n1 = 0;n1 < cgvar_vector.size();n1++)
 	{
 		cgvar_vector[n1].data2 = (* cgvar_vector[n1].ref1);
 		f64 tmp1 = cgvar_vector[n1].data1 * beta - (* cgvar_vector[n1].ref2);
 		cgvar_vector[n1].data1 = tmp1; sum += tmp1 * tmp1;
-	}
 	}
 	
 	f64 scale = sqrt(sum);
@@ -160,12 +158,10 @@ void conjugate_gradient::TakeCGStep(ls_mode mode)
 			
 			InitLineSearch(stpln + delta);
 			GetGradient();
-			{
 			
 			for (i32u n1 = 0;n1 < cgvar_vector.size();n1++)
 			{
 				tmp3 += cgvar_vector[n1].data1 * (* cgvar_vector[n1].ref2) / scale;
-			}
 			}
 			
 			f64 denom = tmp3 - tmp2;

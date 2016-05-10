@@ -147,7 +147,7 @@ if (n1 != ar_vector.size()) cout << "%Debug WARNING : atom id number mismatch!!!
 //newatom.flags = n3;
 //if (selected) newatom.flags |= ATOMFLAG_SELECTED;
 				
-				prj.Add_Atom(newatom);
+				prj.AddAtom(newatom);
 
 				ar_vector.push_back(& prj.GetLastAtom());
 				
