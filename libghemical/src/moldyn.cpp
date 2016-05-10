@@ -1264,6 +1264,49 @@ void moldyn_tst::SaveLastFrame(char * fn)
 	ofile.close();
 }
 
+void moldyn_tst::SaveLastFrameTxt(char * fn)
+{
+	const int number_of_atoms = eng->GetAtomCount();
+	const char file_id[10] = "framev01";
+
+	ofstream ofile;
+	ofile.open(fn, ios_base::app);
+	ofile << file_id << endl;// file id, 8 chars.
+	ofile << number_of_atoms << endl;// number of atoms, int.
+	ofile << step_counter << endl;// step_counter, int.
+	ofile << tstep1 << endl;// step_counter, int.
+
+
+	ofile << ekin << endl;// kinetic energy, float.
+	ofile << epot << endl << endl;// potential energy, float.
+
+	double t1a; 
+	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+	{
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
+			/*eng->crd[tt1 * 3 + tt2];
+			vel[tt1 * 3 + tt2];
+			eng->d1[tt1 * 3 + tt2];
+			acc[tt1 * 3 + tt2];*/
+
+			t1a = eng->crd[tt1 * 3 + tt2];
+			ofile << t1a << " ";
+
+			t1a = vel[tt1 * 3 + tt2];
+			ofile << t1a << " ";
+
+			t1a = acc[tt1 * 3 + tt2];
+			ofile << t1a << " ";
+
+			t1a = eng->d1[tt1 * 3 + tt2];
+			ofile << t1a << endl;
+		}
+		ofile << endl;
+	}
+	ofile.close();
+}
+
 void moldyn_tst::ReadLastFrame(char * fn)
 {
 	ifstream * framefile;

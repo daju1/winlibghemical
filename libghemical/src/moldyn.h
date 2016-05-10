@@ -331,6 +331,7 @@ class moldyn_tst  : public moldyn
 	char worked_forces_fn[1024];
 #endif
 	void SaveLastFrame(char * fn);
+	void SaveLastFrameTxt(char * fn);
 	void ReadLastFrame(char * fn);
 };
 

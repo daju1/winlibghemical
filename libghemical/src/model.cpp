@@ -3585,10 +3585,13 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 		param.nsteps_h = 0;
 		param.nsteps_e = 0;
+
+		sprintf(mbuff1, "%s.txt", param.filename_input_frame);
+		dyn->SaveLastFrameTxt(mbuff1);
 	}
 
 
-	for (i32s n1 = 0;n1 < param.nsteps_h + param.nsteps_e + param.nsteps_s;n1++)
+	for (i32s n1 = 1; n1 <= param.nsteps_h + param.nsteps_e + param.nsteps_s; n1++)
 	{
 		Sleep(10);
 		if (!(n1 % 10))
@@ -3727,6 +3730,8 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ofile_traj.flush();
 
 			dyn->SaveLastFrame(param.filename_output_frame);
+			sprintf(mbuff1, "%s.txt", param.filename_output_frame);
+			dyn->SaveLastFrameTxt(mbuff1);
 		}	
 
 		if (!(n1 % 100))
