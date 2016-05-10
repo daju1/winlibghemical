@@ -3653,7 +3653,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		{
 			ThreadLock();
 			
-			double progress = (double) (n1 + 1) / (double) (param.nsteps_h + param.nsteps_e + param.nsteps_s);
+			double progress = (double) n1 / (double) (param.nsteps_h + param.nsteps_e + param.nsteps_s);
 			bool cancel = SetProgress(progress, NULL);
 			
 			if (cancel)
@@ -3707,7 +3707,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			}
 		}
 		
-		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
+		if (!(n1 <= param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
 		{
 			CopyCRD(eng, this, 0);
 			
