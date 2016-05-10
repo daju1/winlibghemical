@@ -3609,7 +3609,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
 		
 		// so we were loaded from a frame comment this
-		if (n1 < param.nsteps_h && !(n1 % 100))
+		if (n1 < param.nsteps_h)// && !(n1 % 100))
 		{
 			dyn->temperature = param.temperature * ((f64) n1 / (f64) param.nsteps_h);
 			//cout << "setting T = " << dyn->temperature << endl;
@@ -3636,7 +3636,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 		
 		bool enable_tc = false;
-		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
+		if (n1 <= param.nsteps_h + param.nsteps_e) enable_tc = true;
 
 		if (!param.constant_e || param.langevin) enable_tc = true;
 
