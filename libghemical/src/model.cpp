@@ -3578,19 +3578,19 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	for (i32s n1 = 1; n1 <= param.nsteps_h + param.nsteps_e + param.nsteps_s; n1++)
 	{
 		Sleep(10);
-		if (!(n1 % 10))
+		if (1 == (n1 % 10))
 		{
 			//#############################################
 			eng1_mm * engmm = dynamic_cast<eng1_mm *>(eng);
 			if (engmm)	engmm->UpdateTerms();
 			//#############################################
 		}
-		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
-		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->update = true;
+		if (1 == (n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
+		if (1 == (n1 % 10) && eng_pbc != NULL) eng_pbc->update = true;
 		
-		//if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations();
-		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations2();
-		if (!(n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
+		//if (1 == (n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations();
+		if (1 == (n1 % 10) && eng_wbp != NULL) eng_wbp->CheckLocations2();
+		if (1 == (n1 % 10) && eng_wbp != NULL) eng_wbp->update = true;
 		
 		// so we were loaded from a frame comment this
 		if (n1 < param.nsteps_h)// && !(n1 % 100))
