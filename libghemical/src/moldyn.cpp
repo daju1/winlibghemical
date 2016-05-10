@@ -1270,7 +1270,7 @@ void moldyn_tst::SaveLastFrameTxt(char * fn)
 	const char file_id[10] = "framev01";
 
 	ofstream ofile;
-	ofile.open(fn, ios_base::app);
+	ofile.open(fn, ios_base::trunc);
 	ofile << file_id << endl;// file id, 8 chars.
 	ofile << number_of_atoms << endl;// number of atoms, int.
 	ofile << step_counter << endl;// step_counter, int.
