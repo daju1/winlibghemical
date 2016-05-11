@@ -1065,8 +1065,6 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 	eng->Compute(1);
 	epot = eng->energy;
 
-	{	
-
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		if (locked[n1]) continue;
@@ -1090,8 +1088,6 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
 
-	}
-	
 	ekin = KineticEnergy();
 
 	if (enable_temperature_control)

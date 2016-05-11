@@ -420,11 +420,11 @@ void win_app::work(int argc, char* argv[])
 //	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_DEFAULT);
 
 	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
-#if USE_ENGINE_PBC2
-	engine_pbc2 * eng_pbc = dynamic_cast<engine_pbc2 *>(eng);
+#if USE_ENGINE_PBC_TST
+	engine_pbc_tst * eng_pbc = dynamic_cast<engine_pbc_tst *>(eng);
 #else
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
-#endif /*USE_ENGINE_PBC2*/
+#endif /*USE_ENGINE_PBC_TST*/
 	
 	CopyCRD(mdl, eng, 0);
 	CalcMaxMinCoordinates(mdl, eng, 0);

@@ -7,7 +7,8 @@
 #define WRITE_WORKED_FORCES 0
 
 //#define CURRENT_ENG1_MM			ENG1_MM_DEFAULT
-#define CURRENT_ENG1_MM			ENG1_MM_PERIODIC
+//#define CURRENT_ENG1_MM			ENG1_MM_PERIODIC
+#define CURRENT_ENG1_MM			ENG1_MM_PERIODIC_WBP
 
 // режимы работы консольного приложени€ example4
 // запуск снар€да по цели: нагретой или при “ = 0  

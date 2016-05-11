@@ -951,7 +951,7 @@ void engine_wbp::CheckLocations2(void)
 
 /*################################################################################################*/
 
-engine_pbc2::engine_pbc2(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p2)
+engine_pbc_tst::engine_pbc_tst(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p2)
 {
 	n_solvent_through_z = 0;
 #if KLAPAN_DIFFUSE_WORKING
@@ -973,11 +973,11 @@ engine_pbc2::engine_pbc2(setup * p1, i32u p2) : engine_pbc(p1, p2), engine(p1, p
 
 }
 
-engine_pbc2::~engine_pbc2(void)
+engine_pbc_tst::~engine_pbc_tst(void)
 {
 }
 #if GRAVI_OSCILLATOR_WORKING 	
-void engine_pbc2::SetGraviAtomFlagOnSolvent()
+void engine_pbc_tst::SetGraviAtomFlagOnSolvent()
 {
 	M_solvent = 0.0;
 	atom ** atmtab = GetSetup()->GetMMAtoms();
@@ -1000,7 +1000,7 @@ void engine_pbc2::SetGraviAtomFlagOnSolvent()
 }
 #endif
 #if KLAPAN_DIFFUSE_WORKING
-void engine_pbc2::ReadClapanList(char * fn)
+void engine_pbc_tst::ReadClapanList(char * fn)
 {
 	ReadTargetListFile(fn, klapan_list);
 	num_klap = klapan_list.size();
@@ -1009,7 +1009,7 @@ void engine_pbc2::ReadClapanList(char * fn)
 }
 #endif
 
-void engine_pbc2::CheckLocations(void)
+void engine_pbc_tst::CheckLocations(void)
 {
 	static DWORD nchecking = 0;
 	atom ** atmtab = GetSetup()->GetMMAtoms();

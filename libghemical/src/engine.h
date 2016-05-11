@@ -370,7 +370,7 @@ class engine_wbp : virtual public engine, virtual public engine_pbc
 
 /*################################################################################################*/
 
-class engine_pbc2 : /*virtual*/ public engine_pbc
+class engine_pbc_tst : /*virtual*/ public engine_pbc
 {
 #if KLAPAN_DIFFUSE_WORKING
 
@@ -410,8 +410,8 @@ public:
 	int GetSolventNumberThroughZ(){return n_solvent_through_z;}
 
 	
-	engine_pbc2(setup *, i32u);
-	virtual ~engine_pbc2(void);
+	engine_pbc_tst(setup *, i32u);
+	virtual ~engine_pbc_tst(void);
 	
 /**	This will check that molecules have not escaped from the periodic box. 
 	If we doing geometry optimization or molecular dynamics for periodic models, 

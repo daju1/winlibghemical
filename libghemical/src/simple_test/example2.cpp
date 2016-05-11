@@ -101,11 +101,11 @@ int main(int argc, char ** argv)
 
 	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
 //	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
-#if USE_ENGINE_PBC2
-	engine_pbc2 * eng_pbc = dynamic_cast<engine_pbc2 *>(eng);
+#if USE_ENGINE_PBC_TST
+	engine_pbc_tst * eng_pbc = dynamic_cast<engine_pbc_tst *>(eng);
 #else
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
-#endif /*USE_ENGINE_PBC2*/
+#endif /*USE_ENGINE_PBC_TST*/
 	
 	CopyCRD(mdl, eng, 0);
 	CopyLockedCRD(mdl, eng, 0);

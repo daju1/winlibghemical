@@ -39,6 +39,7 @@ using namespace std;
 #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
 #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
 #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
+#define ENG1_MM_PERIODIC_WBP	0x0102		// eng1_mm_default_wbp
 
 #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
 

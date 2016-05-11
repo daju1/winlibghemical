@@ -143,10 +143,13 @@ if (GetModel()->use_boundary_potential) GetModel()->Message("use_boundary_potent
 		GetModel()->use_periodic_boundary_conditions = true;
 		
 		if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
-//		return new eng1_mm_default_mim(this, 1);// original
-//		return new eng1_mm_default_mim2(this, 1);
-//		return new eng1_mm_default_wbp(this, 1);
-		return new eng1_mm_default_wbp2(this, 1);
+		return new eng1_mm_default_mim(this, 1);
+		
+		case ENG1_MM_PERIODIC_WBP:
+		GetModel()->use_periodic_boundary_conditions = true;
+		
+		if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+		return new eng1_mm_default_wbp(this, 1);
 		
 		case ENG1_MM_EXPERIMENTAL:
 		GetModel()->use_periodic_boundary_conditions = false;

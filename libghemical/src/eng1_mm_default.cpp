@@ -648,6 +648,19 @@ void eng1_mm_default_bt::ComputeBT1(i32u p1)
 			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
 			
 			t1a[n2] = t9a - t9b;
+			/*
+			use_periodic_boundary_conditions = false;
+			//######################################################################
+			if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+			{
+				t1a[n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+			}
+			else if (t1a[n2] > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+			{
+				t1a[n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+			}
+			//######################################################################
+			*/
 			t1b += t1a[n2] * t1a[n2];
 		}
 		
@@ -1039,93 +1052,6 @@ if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_
 	}
 }
 
-/*################################################################################################*/
-
-eng1_mm_default_bt2::eng1_mm_default_bt2(setup * p1, i32u p2) : 
-	eng1_mm_default_bt(p1, p2),
-	engine(p1, p2),	
-	eng1_mm(p1, p2)
-{
-}
-eng1_mm_default_bt2::~eng1_mm_default_bt2(void)
-{
-//	cout << "~eng1_mm_default_mim" << endl;
-}
-void eng1_mm_default_bt2::ComputeBT1(i32u p1)
-{
-	energy_bt1 = 0.0;
-	
-	atom ** atmtab = GetSetup()->GetMMAtoms();
-	
-	// len -> length of the bond vector, in nanometers [nm].
-	
-	// the bond is a vector, since it has unique begin and end points.
-	// if a bond vector needs to be reversed, it's begin and end points are swapped.
-	// all data for both forward and reverse vectors are calculated and stored...
-	
-	// dlen[0] -> grad[0-2]: for atom 1 when direction = 0, for atom 0 when direction = 1
-	// dlen[1] -> grad[0-2]: for atom 0 when direction = 0, for atom 1 when direction = 1
-	
-	// the end point gradient of a vector is always the same as components of the unit vector!!!
-	
-	for (i32s n1 = 0;n1 < (i32s) bt1_vector.size();n1++)
-	{
-		i32s * atmi = bt1_vector[n1].atmi;
-		
-		f64 t1a[3]; f64 t1b = 0.0;
-		for (i32s n2 = 0;n2 < 3;n2++)
-		{
-			f64 t9a = crd[l2g_mm[atmi[0]] * 3 + n2];
-			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
-			
-			t1a[n2] = t9a - t9b;
-
-			//######################################################################
-			if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
-			{
-				t1a[n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
-			}
-			else if (t1a[n2] > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
-			{
-				t1a[n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
-			}
-			//######################################################################
-			t1b += t1a[n2] * t1a[n2];
-		}
-		
-		f64 t1c = sqrt(t1b);
-		bt1data[n1].len = t1c;
-		for (i32s n2 = 0;n2 < 3;n2++)
-		{
-			f64 t9a = t1a[n2] / t1c;
-			
-			bt1data[n1].dlen[0][n2] = +t9a;
-			bt1data[n1].dlen[1][n2] = -t9a;
-		}
-		
-		// f = a(x-b)^2
-		// df/dx = 2a(x-b)
-		
-		f64 t2a = t1c - bt1_vector[n1].opt;
-		f64 t2b = bt1_vector[n1].fc * t2a * t2a;
-		
-		energy_bt1 += t2b;
-if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
-		
-		if (p1 > 0)
-		{
-			f64 t2c = 2.0 * bt1_vector[n1].fc * t2a;
-			
-			for (i32s n2 = 0;n2 < 3;n2++)
-			{
-				f64 t2d = bt1data[n1].dlen[0][n2] * t2c;
-				
-				d1[l2g_mm[atmi[0]] * 3 + n2] += t2d;
-				d1[l2g_mm[atmi[1]] * 3 + n2] -= t2d;
-			}
-		}
-	}
-}
 void eng1_mm_default_bt::WriteAnglesHeader(FILE * stream, int delim)
 {
 	for (i32s n1 = 0;n1 < (i32s) bt2_vector.size();n1++)
@@ -1134,8 +1060,8 @@ void eng1_mm_default_bt::WriteAnglesHeader(FILE * stream, int delim)
 		fprintf(stream, "%cAngle(%d %d %d)", delim, atmi[0], atmi[1], atmi[2]); 
 		fprintf(stream, "%cAngle-opt(%d %d %d)", delim, atmi[0], atmi[1], atmi[2]); 
 	}
-
 }
+
 void eng1_mm_default_bt::WriteAngles(FILE * stream, int delim)
 {
 	for (i32s n1 = 0;n1 < (i32s) bt2_vector.size();n1++)
@@ -1156,362 +1082,6 @@ void eng1_mm_default_bt::WriteAngles(FILE * stream, int delim)
 
 	}
 }
-
-
-void eng1_mm_default_bt2::ComputeBT2(i32u p1)
-{
-	energy_bt2 = 0.0;
-	
-	atom ** atmtab = GetSetup()->GetMMAtoms();
-	
-	// ang -> cosine of the bond angle, in the usual range [-1.0, +1.0]
-	
-	// we need directions also here... the angle consists of three points, say A-B-C.
-	// when we reverse the angle, we will swap the end points: now they will be C-B-A.
-	
-	// dang[0] -> grad[0-2]: for atom 2 when direction = 0, for atom 0 when direction = 1
-	// dang[1] -> grad[0-2]: for atom 1 when direction = 0, for atom 1 when direction = 1
-	// dang[2] -> grad[0-2]: for atom 0 when direction = 0, for atom 2 when direction = 1
-	
-	for (i32s n1 = 0;n1 < (i32s) bt2_vector.size();n1++)
-	{
-		i32s * atmi = bt2_vector[n1].atmi;
-		
-		i32s * index1 = bt2_vector[n1].index1;
-		bool * dir1 = bt2_vector[n1].dir1;
-		
-		f64 * t1a = bt1data[index1[0]].dlen[dir1[0]];
-		f64 * t1b = bt1data[index1[1]].dlen[dir1[1]];
-		
-		f64 t1c = t1a[0] * t1b[0] + t1a[1] * t1b[1] + t1a[2] * t1b[2];
-		
-		if (t1c < -1.0) t1c = -1.0;		// domain check...
-		if (t1c > +1.0) t1c = +1.0;		// domain check...
-		
-		bt2data[n1].csa = t1c;
-		
-		for (i32s n2 = 0;n2 < 3;n2++)
-		{
-			f64 t9a = (t1b[n2] - t1c * t1a[n2]) / bt1data[index1[0]].len;
-			f64 t9b = (t1a[n2] - t1c * t1b[n2]) / bt1data[index1[1]].len;
-			
-			bt2data[n1].dcsa[0][n2] = t9a;
-			bt2data[n1].dcsa[1][n2] = -(t9a + t9b);
-			bt2data[n1].dcsa[2][n2] = t9b;
-		}
-		
-		f64 t2a; f64 t2b;	// t2a = f ; t2b = df/dx
-		if (bt2_vector[n1].opt > NEAR_LINEAR_LIMIT)
-		{
-			// f = a(1 + x)
-			// df/dx = a
-			
-			f64 t3b = bt2_vector[n1].fc;
-			t2a = t3b * (1.0 + t1c);
-			
-			t2b = t3b;
-		}
-		else
-		{
-			// f = a(acos(x)-b)^2
-			// df/dx = -2a(x-b)/sqrt(1-x*x)
-			
-			f64 t3b = acos(t1c) - bt2_vector[n1].opt;
-			t2a = bt2_vector[n1].fc * t3b * t3b;
-			
-			t2b = -2.0 * bt2_vector[n1].fc * t3b / sqrt(1.0 - t1c * t1c);
-		}
-		
-		energy_bt2 += t2a;
-if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_solute += t2a;
-		
-		if (p1 > 0)
-		{
-			for (i32s n2 = 0;n2 < 3;n2++)
-			{
-				d1[l2g_mm[atmi[0]] * 3 + n2] += bt2data[n1].dcsa[0][n2] * t2b;
-				d1[l2g_mm[atmi[1]] * 3 + n2] += bt2data[n1].dcsa[1][n2] * t2b;
-				d1[l2g_mm[atmi[2]] * 3 + n2] += bt2data[n1].dcsa[2][n2] * t2b;
-			}
-		}
-	}
-}
-
-void eng1_mm_default_bt2::ComputeBT3(i32u p1)
-{
-	energy_bt3 = 0.0;
-	
-	atom ** atmtab = GetSetup()->GetMMAtoms();
-	
-	for (i32s n1 = 0;n1 < (i32s) bt3_vector.size();n1++)
-	{
-		i32s * atmi = bt3_vector[n1].atmi;
-		
-		i32s * index2 = bt3_vector[n1].index2;
-		i32s * index1 = bt3_vector[n1].index1;
-		bool * dir1 = bt3_vector[n1].dir1;
-		
-		f64 t1a[2] = { bt2data[index2[0]].csa, bt2data[index2[1]].csa };
-		f64 t1b[2] = { 1.0 - t1a[0] * t1a[0], 1.0 - t1a[1] * t1a[1] };
-		
-		f64 t1c[2][3];
-		t1c[0][0] = bt1data[index1[0]].dlen[dir1[0]][0] - t1a[0] * bt1data[index1[1]].dlen[dir1[1]][0];
-		t1c[0][1] = bt1data[index1[0]].dlen[dir1[0]][1] - t1a[0] * bt1data[index1[1]].dlen[dir1[1]][1];
-		t1c[0][2] = bt1data[index1[0]].dlen[dir1[0]][2] - t1a[0] * bt1data[index1[1]].dlen[dir1[1]][2];
-		t1c[1][0] = bt1data[index1[3]].dlen[dir1[3]][0] - t1a[1] * bt1data[index1[2]].dlen[dir1[2]][0];
-		t1c[1][1] = bt1data[index1[3]].dlen[dir1[3]][1] - t1a[1] * bt1data[index1[2]].dlen[dir1[2]][1];
-		t1c[1][2] = bt1data[index1[3]].dlen[dir1[3]][2] - t1a[1] * bt1data[index1[2]].dlen[dir1[2]][2];
-		
-		f64 t1d = t1c[0][0] * t1c[1][0] + t1c[0][1] * t1c[1][1] + t1c[0][2] * t1c[1][2];
-		f64 t1e = t1d / sqrt(t1b[0] * t1b[1]);
-		
-		if (t1e < -1.0) t1e = -1.0;		// domain check...
-		if (t1e > +1.0) t1e = +1.0;		// domain check...
-		
-		f64 t1f[4];
-		t1f[0] = acos(t1e);
-		
-		// now we still have to determine the sign of the result...
-		// now we still have to determine the sign of the result...
-		// now we still have to determine the sign of the result...
-		
-		f64 t1g[3];
-		t1g[0] = bt1data[index1[2]].dlen[dir1[2]][1] * bt1data[index1[3]].dlen[dir1[3]][2] -
-			bt1data[index1[2]].dlen[dir1[2]][2] * bt1data[index1[3]].dlen[dir1[3]][1];
-		t1g[1] = bt1data[index1[2]].dlen[dir1[2]][2] * bt1data[index1[3]].dlen[dir1[3]][0] -
-			bt1data[index1[2]].dlen[dir1[2]][0] * bt1data[index1[3]].dlen[dir1[3]][2];
-		t1g[2] = bt1data[index1[2]].dlen[dir1[2]][0] * bt1data[index1[3]].dlen[dir1[3]][1] -
-			bt1data[index1[2]].dlen[dir1[2]][1] * bt1data[index1[3]].dlen[dir1[3]][0];
-		
-		f64 t1h = t1c[0][0] * t1g[0] + t1c[0][1] * t1g[1] + t1c[0][2] * t1g[2];
-		if (t1h < 0.0) t1f[0] = -t1f[0];
-		
-		t1f[1] = t1f[0] + t1f[0];	// 2x
-		t1f[2] = t1f[1] + t1f[0];	// 3x
-		t1f[3] = t1f[2] + t1f[0];	// 4x
-		
-		f64 t9a; f64 t9b;
-		if (bt3_vector[n1].constraint)
-		{
-			// Dx = x-b			| for the following formulas...
-			
-			// f = a(2PI-Dx)^4		| if Dx > +PI
-			// df/fx = -4a(2PI-Dx)^3
-			
-			// f = a(2PI+Dx)^4		| if Dx < -PI
-			// df/fx = +4a(2PI+Dx)^3
-			
-			// f = a(Dx)^4			| otherwise
-			// df/fx = 4a(Dx)^3
-			
-			f64 t8a = t1f[0] - bt3_vector[n1].fc1;
-			if (t8a > +M_PI)
-			{
-				t8a = 2.0 * M_PI - t8a;
-				f64 t8b = t8a * t8a;
-				
-				t9a = bt3_vector[n1].fc2 * t8b * t8b;
-				t9b = -4.0 * bt3_vector[n1].fc2 * t8b * t8a;
-			}
-			else if (t8a < -M_PI)
-			{
-				t8a = 2.0 * M_PI + t8a;
-				f64 t8b = t8a * t8a;
-				
-				t9a = bt3_vector[n1].fc2 * t8b * t8b;
-				t9b = +4.0 * bt3_vector[n1].fc2 * t8b * t8a;
-			}
-			else
-			{
-				f64 t8b = t8a * t8a;
-				
-				t9a = bt3_vector[n1].fc2 * t8b * t8b;
-				t9b = 4.0 * bt3_vector[n1].fc2 * t8b * t8a;
-			}
-		}
-		else
-		{
-			// f = a*cos(x)+b*cos(2x)+c*cos(3x) +d*cos(4x)
-			// df/dx = -a*sin(x)-2b*sin(2x)-3c*sin(3x) -4d*sin(4x)
-			
-			f64 t8a = bt3_vector[n1].fc1 * cos(t1f[0]);
-			f64 t8b = bt3_vector[n1].fc2 * cos(t1f[1]);
-			f64 t8c = bt3_vector[n1].fc3 * cos(t1f[2]);
-			f64 t8d = bt3_vector[n1].fc4 * cos(t1f[3]);
-			t9a = t8a + t8b + t8c + t8d;
-			
-			f64 t8r = bt3_vector[n1].fc1 * sin(t1f[0]);
-			f64 t8s = bt3_vector[n1].fc2 * sin(t1f[1]) * 2.0;
-			f64 t8t = bt3_vector[n1].fc3 * sin(t1f[2]) * 3.0;
-			f64 t8u = bt3_vector[n1].fc4 * sin(t1f[3]) * 4.0;
-			t9b = -(t8r + t8s + t8t + t8u);
-		}
-		
-		energy_bt3 += t9a;
-if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t9a; else E_solute += t9a;
-		
-		if (p1 > 0)
-		{
-			f64 t2a = bt1data[index1[0]].len * t1b[0];
-			f64 t2b = bt1data[index1[0]].len * t1a[0] / bt1data[index1[1]].len;
-			
-			f64 t3a = bt1data[index1[3]].len * t1b[1];
-			f64 t3b = bt1data[index1[3]].len * t1a[1] / bt1data[index1[2]].len;
-			
-			f64 t4c[3]; f64 t5c[3]; f64 t6a[3]; f64 t7a[3];
-			const i32s cp[3][3] = { { 0, 1, 2 }, { 1, 2, 0 }, { 2, 0, 1 } };
-			
-			for (i32s n2 = 0;n2 < 3;n2++)
-			{
-				f64 t4a = bt1data[index1[0]].dlen[dir1[0]][cp[n2][1]] * bt1data[index1[1]].dlen[dir1[1]][cp[n2][2]];
-				f64 t4b = bt1data[index1[0]].dlen[dir1[0]][cp[n2][2]] * bt1data[index1[1]].dlen[dir1[1]][cp[n2][1]];
-				t4c[n2] = (t4a - t4b) / t2a;
-				
-				f64 t5a = bt1data[index1[2]].dlen[dir1[2]][cp[n2][2]] * bt1data[index1[3]].dlen[dir1[3]][cp[n2][1]];
-				f64 t5b = bt1data[index1[2]].dlen[dir1[2]][cp[n2][1]] * bt1data[index1[3]].dlen[dir1[3]][cp[n2][2]];
-				t5c[n2] = (t5a - t5b) / t3a;
-				
-				d1[l2g_mm[atmi[0]] * 3 + n2] += t4c[n2] * t9b;
-				d1[l2g_mm[atmi[3]] * 3 + n2] += t5c[n2] * t9b;
-				
-				t6a[n2] = (t2b - 1.0) * t4c[n2] - t3b * t5c[n2];
-				t7a[n2] = (t3b - 1.0) * t5c[n2] - t2b * t4c[n2];
-				
-				d1[l2g_mm[atmi[1]] * 3 + n2] += t6a[n2] * t9b;
-				d1[l2g_mm[atmi[2]] * 3 + n2] += t7a[n2] * t9b;
-			}
-		}
-	}
-}
-
-void eng1_mm_default_bt2::ComputeBT4(i32u p1)
-{
-	energy_bt4 = 0.0;
-	
-	atom ** atmtab = GetSetup()->GetMMAtoms();
-	
-	for (i32s n1 = 0;n1 < (i32s) bt4_vector.size();n1++)
-	{
-		i32s * atmi = bt4_vector[n1].atmi;
-		
-		i32s index2 = bt4_vector[n1].index2;
-		bool dir2 = bt4_vector[n1].dir2;
-		i32s * index1 = bt4_vector[n1].index1;
-		bool * dir1 = bt4_vector[n1].dir1;
-		
-		f64 t1a[3];
-		t1a[0] = bt1data[index1[0]].dlen[dir1[0]][1] * bt1data[index1[1]].dlen[dir1[1]][2] -
-			bt1data[index1[0]].dlen[dir1[0]][2] * bt1data[index1[1]].dlen[dir1[1]][1];
-		t1a[1] = bt1data[index1[0]].dlen[dir1[0]][2] * bt1data[index1[1]].dlen[dir1[1]][0] -
-			bt1data[index1[0]].dlen[dir1[0]][0] * bt1data[index1[1]].dlen[dir1[1]][2];
-		t1a[2] = bt1data[index1[0]].dlen[dir1[0]][0] * bt1data[index1[1]].dlen[dir1[1]][1] -
-			bt1data[index1[0]].dlen[dir1[0]][1] * bt1data[index1[1]].dlen[dir1[1]][0];
-		
-		f64 t1b = 0.0;
-		for (i32s n2 = 0;n2 < 3;n2++)
-		{
-			t1b += bt1data[index1[2]].dlen[dir1[2]][n2] * t1a[n2];
-		}
-		
-		f64 t1c = 1.0 - bt2data[index2].csa * bt2data[index2].csa;
-		f64 t1d = sqrt(t1c);
-		
-		f64 t1e = t1b / t1d;
-		
-//cout << "t1e = " << t1e << " " << t1e * t1e << endl;
-//v3d<f64> v1(crd[l2g_mm[atmi[1]]], crd[l2g_mm[atmi[0]]]);
-//v3d<f64> v2(crd[l2g_mm[atmi[1]]], crd[l2g_mm[atmi[2]]]);
-//v3d<f64> v3(crd[l2g_mm[atmi[1]]], crd[l2g_mm[atmi[3]]]);
-//v3d<f64> v4 = v1.vpr(v2);
-//f64 ang = v3.ang(v4);
-//cout << "check = " << cos(ang) << " " << cos(ang) * cos(ang) << endl;
-//int zzz; cin >> zzz;
-
-		if (t1e < -1.0) t1e = -1.0;		// domain check...
-		if (t1e > +1.0) t1e = +1.0;		// domain check...
-		
-		// f = a(asin(x)-b)^2
-		// df/dx = 2a(asin(x)-b)/sqrt(1-x^2)
-		
-		f64 t1f = asin(t1e) - bt4_vector[n1].opt;
-		f64 t2a = bt4_vector[n1].fc * t1f * t1f;
-		
-		energy_bt4 += t2a;
-if (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2a; else E_solute += t2a;
-		
-		if (p1 > 0)
-		{
-			f64 t1g = 2.0 * bt4_vector[n1].fc * t1f / sqrt(1.0 - t1e * t1e);
-	//		f64 t1h = bt2data[index2].csa / t1d;
-			
-			f64 t9b = 1.0 - bt2data[index2].csa * bt2data[index2].csa;
-			f64 t9c = sqrt(t9b);
-			
-			for (i32s n2 = 0;n2 < 3;n2++)
-			{
-				// this code is borrowed from eng1_sf.cpp file...
-				// might not be optimal, just a quick way to go ahead.
-				
-	f64 t6a[2];	// epsilon i
-	t6a[0] = bt2data[index2].dcsa[dir2 ? 0 : 2][n2] * bt2data[index2].csa / t9b;
-	t6a[1] = bt2data[index2].dcsa[dir2 ? 2 : 0][n2] * bt2data[index2].csa / t9b;
-	
-	f64 t6b[2];	// sigma ii / r2X
-	t6b[0] = (1.0 - bt1data[index1[0]].dlen[dir1[0]][n2] * bt1data[index1[0]].dlen[dir1[0]][n2]) / bt1data[index1[0]].len;
-	t6b[1] = (1.0 - bt1data[index1[1]].dlen[dir1[1]][n2] * bt1data[index1[1]].dlen[dir1[1]][n2]) / bt1data[index1[1]].len;
-	
-	i32s n3[2];
-	n3[0] = (n2 + 1) % 3;		// index j
-	n3[1] = (n2 + 2) % 3;		// index k
-	
-	f64 t6c[2];	// sigma ij / r2X
-	t6c[0] = -bt1data[index1[0]].dlen[dir1[0]][n2] * bt1data[index1[0]].dlen[dir1[0]][n3[0]] / bt1data[index1[0]].len;
-	t6c[1] = -bt1data[index1[1]].dlen[dir1[1]][n2] * bt1data[index1[1]].dlen[dir1[1]][n3[0]] / bt1data[index1[1]].len;
-	
-	f64 t6d[2];	// sigma ik / r2X
-	t6d[0] = -bt1data[index1[0]].dlen[dir1[0]][n2] * bt1data[index1[0]].dlen[dir1[0]][n3[1]] / bt1data[index1[0]].len;
-	t6d[1] = -bt1data[index1[1]].dlen[dir1[1]][n2] * bt1data[index1[1]].dlen[dir1[1]][n3[1]] / bt1data[index1[1]].len;
-	
-	f64 t5a[2][3];	// components of dc/di
-	t5a[0][n2] = (t6c[0] * bt1data[index1[1]].dlen[dir1[1]][n3[1]] -
-		t6d[0] * bt1data[index1[1]].dlen[dir1[1]][n3[0]] + t1a[n2] * t6a[0]) / t9c;
-	t5a[0][n3[0]] = (t6d[0] * bt1data[index1[1]].dlen[dir1[1]][n2] -
-		t6b[0] * bt1data[index1[1]].dlen[dir1[1]][n3[1]] + t1a[n3[0]] * t6a[0]) / t9c;
-	t5a[0][n3[1]] = (t6b[0] * bt1data[index1[1]].dlen[dir1[1]][n3[0]] -
-		t6c[0] * bt1data[index1[1]].dlen[dir1[1]][n2] + t1a[n3[1]] * t6a[0]) / t9c;
-	t5a[1][n2] = (t6d[1] * bt1data[index1[0]].dlen[dir1[0]][n3[0]] -
-		t6c[1] * bt1data[index1[0]].dlen[dir1[0]][n3[1]] + t1a[n2] * t6a[1]) / t9c;
-	t5a[1][n3[0]] = (t6b[1] * bt1data[index1[0]].dlen[dir1[0]][n3[1]] -
-		t6d[1] * bt1data[index1[0]].dlen[dir1[0]][n2] + t1a[n3[0]] * t6a[1]) / t9c;
-	t5a[1][n3[1]] = (t6c[1] * bt1data[index1[0]].dlen[dir1[0]][n2] -
-		t6b[1] * bt1data[index1[0]].dlen[dir1[0]][n3[0]] + t1a[n3[1]] * t6a[1]) / t9c;
-				
-				f64 tmp1a = t5a[0][0] * bt1data[index1[2]].dlen[dir1[2]][0] +
-					t5a[0][1] * bt1data[index1[2]].dlen[dir1[2]][1] +
-					t5a[0][2] * bt1data[index1[2]].dlen[dir1[2]][2];
-				
-				f64 tmp3a = t5a[1][0] * bt1data[index1[2]].dlen[dir1[2]][0] +
-					t5a[1][1] * bt1data[index1[2]].dlen[dir1[2]][1] +
-					t5a[1][2] * bt1data[index1[2]].dlen[dir1[2]][2];
-				
-	f64 tmp4a = 0.0;
-	for (i32s n4 = 0;n4 < 3;n4++)
-	{
-		f64 tmp4b;
-		if (n2 != n4) tmp4b = -bt1data[index1[2]].dlen[!dir1[2]][n2] * bt1data[index1[2]].dlen[!dir1[2]][n4];
-		else tmp4b = 1.0 - bt1data[index1[2]].dlen[!dir1[2]][n4] * bt1data[index1[2]].dlen[!dir1[2]][n4];
-		tmp4a += (tmp4b / bt1data[index1[2]].len) * (t1a[n4] / t1d);
-	}
-				
-				d1[l2g_mm[atmi[0]] * 3 + n2] += tmp1a * t1g;
-				d1[l2g_mm[atmi[1]] * 3 + n2] -= (tmp1a + tmp3a + tmp4a) * t1g;
-				d1[l2g_mm[atmi[2]] * 3 + n2] += tmp3a * t1g;
-				d1[l2g_mm[atmi[3]] * 3 + n2] += tmp4a * t1g;
-			}
-		}
-	}
-}
-
 /*################################################################################################*/
 
 eng1_mm_default_nbt_mbp::eng1_mm_default_nbt_mbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_mbp(p1, p2)
@@ -1785,11 +1355,14 @@ else E_solusolv += tote;
 }
 
 /*################################################################################################*/
-#if USE_ENGINE_PBC2
-eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_pbc2(p1, p2)
+eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2)
+	: engine(p1, p2)
+	, eng1_mm(p1, p2)
+#if USE_ENGINE_PBC_TST
+	, engine_pbc_tst(p1, p2)
 #else
-eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_pbc(p1, p2)
-#endif /*USE_ENGINE_PBC2*/
+	, engine_pbc(p1, p2)
+#endif /*USE_ENGINE_PBC_TST*/
 {
 	fGL mindim = GetSetup()->GetModel()->periodic_box_HALFdim[0];
 	if (GetSetup()->GetModel()->periodic_box_HALFdim[1] < mindim) mindim = GetSetup()->GetModel()->periodic_box_HALFdim[1];
@@ -2162,18 +1735,6 @@ eng1_mm_default_mim::~eng1_mm_default_mim(void)
 
 /*################################################################################################*/
 
-eng1_mm_default_mim2::eng1_mm_default_mim2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
-	eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_mim(p1, p2)
-	, eng1_mm_default_nbt_sl(p1, p2)
-{
-}
-
-eng1_mm_default_mim2::~eng1_mm_default_mim2(void)
-{
-}
-
-/*################################################################################################*/
-/*################################################################################################*/
 eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
 	, eng1_mm_default_nbt_sl(p1, p2)
@@ -2181,16 +1742,6 @@ eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), 
 }
 
 eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
-{
-}
-
-eng1_mm_default_wbp2::eng1_mm_default_wbp2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
-	engine_wbp(p1, p2), eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
-	, eng1_mm_default_nbt_sl(p1, p2)
-{
-}
-
-eng1_mm_default_wbp2::~eng1_mm_default_wbp2(void)
 {
 }
 

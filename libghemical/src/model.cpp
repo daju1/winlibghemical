@@ -3135,11 +3135,11 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	engine_mbp * eng_mbp = dynamic_cast<engine_mbp *>(eng);
 	eng_mbp = NULL;
 	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
-#if USE_ENGINE_PBC2
-	engine_pbc2 * eng_pbc = dynamic_cast<engine_pbc2 *>(eng);
+#if USE_ENGINE_PBC_TST
+	engine_pbc_tst * eng_pbc = dynamic_cast<engine_pbc_tst *>(eng);
 #else
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
-#endif /*USE_ENGINE_PBC2*/
+#endif /*USE_ENGINE_PBC_TST*/
 	
 // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
 //if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
@@ -3433,11 +3433,11 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	engine_mbp * eng_mbp = dynamic_cast<engine_mbp *>(eng);
 	eng_mbp = NULL;
 	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
-#if USE_ENGINE_PBC2
-	engine_pbc2 * eng_pbc = dynamic_cast<engine_pbc2 *>(eng);
+#if USE_ENGINE_PBC_TST
+	engine_pbc_tst * eng_pbc = dynamic_cast<engine_pbc_tst *>(eng);
 #else
 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
-#endif /*USE_ENGINE_PBC2*/
+#endif /*USE_ENGINE_PBC_TST*/
 	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
 
 

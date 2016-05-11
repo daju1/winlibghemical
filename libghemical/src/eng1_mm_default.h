@@ -185,24 +185,6 @@ class eng1_mm_default_bt : virtual public eng1_mm
 	virtual void WriteAngles(FILE * stream, int delim);
 };
 
-class eng1_mm_default_bt2 : public eng1_mm_default_bt
-{
-
-	public:
-	
-	eng1_mm_default_bt2(setup *, i32u);
-	virtual ~eng1_mm_default_bt2(void);
-	
-	protected:
-	
-	void ComputeBT1(i32u);		// virtual
-	void ComputeBT2(i32u);		// virtual
-	void ComputeBT3(i32u);		// virtual
-	void ComputeBT4(i32u);		// virtual
-
-
-};
-
 /*################################################################################################*/
 
 /// molecular mechanics; nonbonded part, modified boundary potential.
@@ -231,6 +213,7 @@ class eng1_mm_default_nbt_mbp : virtual public eng1_mm, virtual public engine_mb
 /// molecular mechanics; nonbonded part, wall boundary potential.
 
 #define WBP_COPIED_FROM_MIM 1
+
 class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
 {
 	protected:
@@ -269,13 +252,16 @@ class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wb
 // TODO : how to calculate pressure in periodic boxes???
 // TODO : how to calculate pressure in periodic boxes???
 // TODO : how to calculate pressure in periodic boxes???
-#define USE_ENGINE_PBC2 1
+#define USE_ENGINE_PBC_TST 1
 
-#if USE_ENGINE_PBC2
-class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc2
+
+class eng1_mm_default_nbt_mim 
+	: virtual public eng1_mm
+#if USE_ENGINE_PBC_TST
+	, public engine_pbc_tst
 #else
-class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc
-#endif /*USE_ENGINE_PBC2*/
+	, public engine_pbc
+#endif /*USE_ENGINE_PBC_TST*/
 {
 	friend class project;
 	protected:
@@ -343,15 +329,6 @@ class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nb
 	~eng1_mm_default_wbp(void);
 };
 
-class eng1_mm_default_wbp2 : public eng1_mm_default_bt2, public eng1_mm_default_nbt_wbp
-	, public eng1_mm_default_nbt_sl
-{
-	public:
-	
-	eng1_mm_default_wbp2(setup *, i32u);
-	~eng1_mm_default_wbp2(void);
-};
-
 class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim
 	, public eng1_mm_default_nbt_sl
 {
@@ -359,15 +336,6 @@ class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nb
 	
 	eng1_mm_default_mim(setup *, i32u);
 	~eng1_mm_default_mim(void);
-};
-
-class eng1_mm_default_mim2 : public eng1_mm_default_bt2, public eng1_mm_default_nbt_mim
-	, public eng1_mm_default_nbt_sl
-{
-	public:
-	
-	eng1_mm_default_mim2(setup *, i32u);
-	~eng1_mm_default_mim2(void);
 };
 
 /*################################################################################################*/
