@@ -1040,6 +1040,10 @@ else E_solusolv += tote;
 	}
 }
 
+void eng1_mm_tripos52_nbt_mbp::ComputeNBT2(i32u p1)
+{
+}
+
 /*################################################################################################*/
 
 eng1_mm_tripos52_nbt_mim::eng1_mm_tripos52_nbt_mim(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_pbc(p1, p2)
@@ -1213,6 +1217,10 @@ else E_solusolv += tote;
 			}
 		}
 	}
+}
+
+void eng1_mm_tripos52_nbt_mim::ComputeNBT2(i32u p1)
+{
 }
 
 void eng1_mm_tripos52_nbt_mim::UpdateTerms(void)

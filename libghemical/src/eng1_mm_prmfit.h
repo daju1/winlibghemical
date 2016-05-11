@@ -166,6 +166,7 @@ class eng1_mm_prmfit : public eng1_mm
 	void ComputeBT4(i32u);		// virtual
 	
 	void ComputeNBT1(i32u);		// virtual
+	void ComputeNBT2(i32u);		// virtual
 };
 
 /*################################################################################################*/

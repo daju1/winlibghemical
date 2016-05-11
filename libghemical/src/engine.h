@@ -170,6 +170,7 @@ class engine
 	i32s natm;
 	
 	f64 * crd;
+	f64 * locked_crd;
 
 	f64 energy;	// GetEnergy() ???
 	
@@ -206,6 +207,7 @@ class engine
 	public:
 	
 	friend void CopyCRD(model *, engine *, i32u);
+	friend void CopyLockedCRD(model *, engine *, i32u);
 	friend void CopyCRD(engine *, model *, i32u);
 	
 	public:

@@ -332,6 +332,7 @@ engine::engine(setup * p1, i32u p2)
 	natm = stp->GetAtomCount();
 	
 	crd = new f64[natm * 3];
+	locked_crd = new f64[natm * 3];
 	
 	if (p2 > 0) d1 = new f64[natm * 3];
 	else d1 = NULL;
@@ -343,6 +344,7 @@ engine::engine(setup * p1, i32u p2)
 engine::~engine(void)
 {
 	delete[] crd;
+	delete[] locked_crd;
 	
 	if (d1 != NULL) delete[] d1;
 	if (d2 != NULL) delete[] d2;
@@ -541,6 +543,25 @@ void CopyCRD(model * mdl, engine * eng, i32u p3)
 	// ready!!!
 	// ready!!!
 	// ready!!!
+}
+
+void CopyLockedCRD(model * mdl, engine * eng, i32u p3)
+{
+	if (p3 >= mdl->cs_vector.size())
+	{
+		cout << "BUG: cs overflow at CopyCRD() mdl->eng." << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
+	for (i32s n1 = 0;n1 < eng->GetSetup()->GetAtomCount();n1++)
+	{
+		const fGL * cdata = glob_atmtab[n1]->GetCRD(p3);
+
+		eng->locked_crd[n1 * 3 + 0] = cdata[0];
+		eng->locked_crd[n1 * 3 + 1] = cdata[1];
+		eng->locked_crd[n1 * 3 + 2] = cdata[2];
+	}
 }
 
 void CopyCRD(engine * p1, model * p2, i32u p3)

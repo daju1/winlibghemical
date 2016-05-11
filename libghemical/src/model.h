@@ -183,6 +183,7 @@ class model
 	friend void CalcMaxMinCoordinates(model *, engine *, i32u);
 	
 	friend void CopyCRD(model *, engine *, i32u);
+	friend void CopyLockedCRD(model *, engine *, i32u);
 	friend void CopyCRD(engine *, model *, i32u);
 	
 	friend fGL plot_GetESPValue(fGL *, model *, fGL *);

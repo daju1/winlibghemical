@@ -213,6 +213,9 @@ friend class win_eld_view;
 	static void popup_UnLockSelectedAtoms(HWND widget, void * data);
 	static void popup_LockSelectedAtoms(HWND widget, void * data);
 
+	static void popup_SmoothlyUnLockSelectedAtoms(HWND widget, void * data);
+	static void popup_SmoothlyLockSelectedAtoms(HWND widget, void * data);
+
 	static void popup_SelectMolecularAxises(HWND widget, void * data);
 
 	static void popup_SelectLockedAtoms(HWND widget, void * data);

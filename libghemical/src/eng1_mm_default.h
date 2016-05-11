@@ -227,6 +227,9 @@ class eng1_mm_default_nbt_mbp : virtual public eng1_mm, virtual public engine_mb
 	void ComputeNBT1(i32u);		// virtual
 };
 
+
+/// molecular mechanics; nonbonded part, wall boundary potential.
+
 #define WBP_COPIED_FROM_MIM 1
 class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
 {
@@ -301,9 +304,28 @@ class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc
 	void ComputeNBT1(i32u);		// virtual
 };
 
+
+/// molecular mechanics; nonbonded part, smoothly locked atom potential.
+
+class eng1_mm_default_nbt_sl : virtual public eng1_mm
+{
+	protected:
+	
+	f64 fc_smoothly_locked;
+	
+	public:
+	
+	eng1_mm_default_nbt_sl(setup *, i32u);
+	virtual ~eng1_mm_default_nbt_sl(void);
+	
+	protected:
+	
+	void ComputeNBT2(i32u);		// virtual
+};
 /*################################################################################################*/
 
 class eng1_mm_default_mbp : public eng1_mm_default_bt, public eng1_mm_default_nbt_mbp
+	, public eng1_mm_default_nbt_sl
 {
 	public:
 	
@@ -313,6 +335,7 @@ class eng1_mm_default_mbp : public eng1_mm_default_bt, public eng1_mm_default_nb
 
 
 class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nbt_wbp
+	, public eng1_mm_default_nbt_sl
 {
 	public:
 	
@@ -321,6 +344,7 @@ class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nb
 };
 
 class eng1_mm_default_wbp2 : public eng1_mm_default_bt2, public eng1_mm_default_nbt_wbp
+	, public eng1_mm_default_nbt_sl
 {
 	public:
 	
@@ -329,6 +353,7 @@ class eng1_mm_default_wbp2 : public eng1_mm_default_bt2, public eng1_mm_default_
 };
 
 class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim
+	, public eng1_mm_default_nbt_sl
 {
 	public:
 	
@@ -337,6 +362,7 @@ class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nb
 };
 
 class eng1_mm_default_mim2 : public eng1_mm_default_bt2, public eng1_mm_default_nbt_mim
+	, public eng1_mm_default_nbt_sl
 {
 	public:
 	

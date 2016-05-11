@@ -108,6 +108,7 @@ int main(int argc, char ** argv)
 #endif /*USE_ENGINE_PBC2*/
 	
 	CopyCRD(mdl, eng, 0);
+	CopyLockedCRD(mdl, eng, 0);
 
 	printf("\n%f %f %f %f %f %f\n",
 		mdl->maxCRD[0],

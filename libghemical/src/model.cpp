@@ -2644,6 +2644,7 @@ void model::DoEnergy(void)
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
+	CopyLockedCRD(this, eng, 0);
 	eng->Compute(0);
 	
 	if (dynamic_cast<eng1_sf *>(eng) != NULL) CopyCRD(eng, this, 0);	// for ribbons...
@@ -2707,6 +2708,7 @@ void model::DoGeomOpt(geomopt_param & param, bool updt)
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
+	CopyLockedCRD(this, eng, 0);
 	if (param.recalc_box && !m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 	
@@ -3157,6 +3159,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
+	CopyLockedCRD(this, eng, 0);
 	if (!m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 
@@ -3456,6 +3459,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	PrintToLog(mbuff1);
 	
 	CopyCRD(this, eng, 0);
+	CopyLockedCRD(this, eng, 0);
 	if (param.recalc_box && !m_bMaxMinCoordCalculed)
 		CalcMaxMinCoordinates(this, eng, 0);
 
@@ -5178,6 +5182,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	// копируем координаты атомов из модели в вычислительную машину	
 	CopyCRD(this, eng, 0);
+	CopyLockedCRD(this, eng, 0);
 
 
 	f64 energy00 = 0.0;
@@ -5717,8 +5722,6 @@ bool model::LoadBox(char * boxfilename)
 			ch = fgets(szBuff,n,stream);
 			if( ch != NULL && strlen(szBuff) > 1)
 			{
-				printf("szBuff = %s\n", szBuff);
-
 				f64	box0, box1, box2;
 				if (3 == sscanf(szBuff, "%lf %lf %lf", 
 					&box0, 

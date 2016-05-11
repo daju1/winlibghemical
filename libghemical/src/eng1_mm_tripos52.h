@@ -182,6 +182,7 @@ class eng1_mm_tripos52_nbt_mbp : virtual public eng1_mm, virtual public engine_m
 	protected:
 	
 	void ComputeNBT1(i32u);		// virtual
+	void ComputeNBT2(i32u);		// virtual
 };
 
 // molecular mechanics; nonbonded part, minimum image model.
@@ -218,6 +219,7 @@ class eng1_mm_tripos52_nbt_mim : virtual public eng1_mm, public engine_pbc
 	void UpdateTerms(void);
 	
 	void ComputeNBT1(i32u);		// virtual
+	void ComputeNBT2(i32u);		// virtual
 };
 
 /*################################################################################################*/

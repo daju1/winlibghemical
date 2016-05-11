@@ -673,19 +673,19 @@ BEGIN
 
             MENUITEM SEPARATOR
             MENUITEM "Set Under Gravi",             ID_SELECTEDATOMS_SETUNDERGRAVI
-
             MENUITEM "Unset Under Gravi",           ID_SELECTEDATOMS_UNSETUNDERGRAVI
 
             MENUITEM SEPARATOR
             MENUITEM "Set As Working",              ID_SELECTEDATOMS_SETASWORKING
-
             MENUITEM "Unset As Working",            ID_SELECTEDATOMS_UNSETASWORKING
 
             MENUITEM SEPARATOR
             MENUITEM "Set As Special",              ID_SELECTEDATOMS_SETASSPECIAL
-
             MENUITEM "Unset As Special",            ID_SELECTEDATOMS_UNSETASSPECIAL
 
+            MENUITEM SEPARATOR
+            MENUITEM "Smoothly lock",               ID_SELECTEDATOMS_SMOOTHLYLOCK
+            MENUITEM "Smoothly unlock",             ID_SELECTEDATOMS_SMOOTHLYUNLOCK
         END
         MENUITEM "Select Locked Atoms",         ID_SELECT_SELECTLOCKEDATOMS
         MENUITEM "Select Working Atoms",        ID_SELECT_SELECTWORKINGATOMS

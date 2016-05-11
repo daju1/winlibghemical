@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
 //	engine * eng = mdl->GetCurrentSetup()->CreateEngineByIDNumber(ENG1_MM_DEFAULT);
 	
 	CopyCRD(mdl, eng, 0);
+	CopyLockedCRD(mdl, eng, 0);
 	
 	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);
 	

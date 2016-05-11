@@ -124,6 +124,7 @@ class crec
 // the LOCKED flag means : 1) DoSHAKE() should not move it 2) in MD acc/vel always 0.0, and is not included when calculating Ekin/T.
 // THIS IS STILL AN INCOMPLETE IMPLEMENTATION!!! the flag is IGNORED for example in geometry optimization ; see the sf-model...
 #define ATOMFLAG_IS_GRAVI		(1 << 16)	// 0x00000008	16 ja yli???
+#define ATOMFLAG_IS_SMOOTHLY_LOCKED		(1 << 17)
 
 // - protected??? not needed?
 

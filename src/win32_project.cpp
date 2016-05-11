@@ -1574,6 +1574,28 @@ void win_project::popup_SetSelectedAtomsAsSpecial(HWND widget, void * data)
 	}
 }
 
+void win_project::popup_SmoothlyUnLockSelectedAtoms(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		static const char command[] = "unset_flag_on_sel_atoms 17";
+		new command_dialog(prj, gv, command);
+	}
+}
+
+void win_project::popup_SmoothlyLockSelectedAtoms(HWND widget, void * data)
+{
+	win_graphics_view * gv = win_graphics_view::GetGV(widget);
+	win_project * prj = dynamic_cast<win_project *>(gv->prj);
+	if (prj)
+	{
+		static const char command[] = "set_flag_on_sel_atoms 17";
+		new command_dialog(prj, gv, command);
+	}
+}
+
 void win_project::popup_UnLockSelectedAtoms(HWND widget, void * data)
 {
 	win_graphics_view * gv = win_graphics_view::GetGV(widget);

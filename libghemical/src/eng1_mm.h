@@ -120,7 +120,7 @@ class eng1_mm : virtual public engine
 	
 	f64 energy_nbt1a;	// dispersion
 	f64 energy_nbt1b;	// electrostatic
-	f64 energy_nbt1c;
+	f64 energy_nbt1c;	// smoothly locked
 	f64 energy_nbt1d;
 	
 	public:
@@ -179,6 +179,7 @@ class eng1_mm : virtual public engine
 	virtual void ComputeBT4(i32u) = 0;	// out of plane
 	
 	virtual void ComputeNBT1(i32u) = 0;	// nonbonded
+	virtual void ComputeNBT2(i32u) = 0;	// smoothly locked
 };
 
 /*################################################################################################*/

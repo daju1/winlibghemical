@@ -2078,10 +2078,69 @@ void eng1_mm_default_nbt_mim::UpdateTerms(void)
 	}
 }
 
+eng1_mm_default_nbt_sl::eng1_mm_default_nbt_sl(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2)
+{
+	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Å^2) = 5000 kJ/(mol*(nm)^2)
+	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Å^2) = 12500 kJ/(mol*(nm)^2)
+	fc_smoothly_locked = 12500.0;
+}
+
+eng1_mm_default_nbt_sl::~eng1_mm_default_nbt_sl(void)
+{
+}
+
+void eng1_mm_default_nbt_sl::ComputeNBT2(i32u p1)
+{
+	atom ** atmtab = GetSetup()->GetMMAtoms();
+
+	for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
+	{
+		if (!(atmtab[n1]->flags & ATOMFLAG_IS_SMOOTHLY_LOCKED))
+			continue;
+
+		f64 fc = fc_smoothly_locked;
+
+		f64 t1a[3]; f64 t1b = 0.0;
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			f64 t9a = locked_crd[l2g_mm[n1] * 3 + n2];
+			f64 t9b = crd[l2g_mm[n1] * 3 + n2];
+			
+			t1a[n2] = t9a - t9b;
+			t1b += t1a[n2] * t1a[n2];
+		}
+		
+		f64 t1c = sqrt(t1b);
+		
+		// f = a(x-b)^2
+		// df/dx = 2a(x-b)
+		
+		f64 t2a = t1c/* - radius*/;
+		f64 t2b = fc * t2a * t2a;
+		
+		energy_nbt1c += t2b;
+if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
+		
+		if (p1 > 0)
+		{
+			f64 t2c = 2.0 * fc * t2a;
+			
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				f64 t2d = (t1a[n2] / t1c) * t2c;
+				
+				d1[l2g_mm[n1] * 3 + n2] -= t2d;
+			}
+		}
+	}
+}
+
+
 /*################################################################################################*/
 
 eng1_mm_default_mbp::eng1_mm_default_mbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_mbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_mbp(p1, p2)
+	, eng1_mm_default_nbt_sl(p1, p2)
 {
 }
 
@@ -2093,6 +2152,7 @@ eng1_mm_default_mbp::~eng1_mm_default_mbp(void)
 
 eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_mim(p1, p2)
+	, eng1_mm_default_nbt_sl(p1, p2)
 {
 }
 
@@ -2104,6 +2164,7 @@ eng1_mm_default_mim::~eng1_mm_default_mim(void)
 
 eng1_mm_default_mim2::eng1_mm_default_mim2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_mim(p1, p2)
+	, eng1_mm_default_nbt_sl(p1, p2)
 {
 }
 
@@ -2115,6 +2176,7 @@ eng1_mm_default_mim2::~eng1_mm_default_mim2(void)
 /*################################################################################################*/
 eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
+	, eng1_mm_default_nbt_sl(p1, p2)
 {
 }
 
@@ -2124,6 +2186,7 @@ eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
 
 eng1_mm_default_wbp2::eng1_mm_default_wbp2(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
 	engine_wbp(p1, p2), eng1_mm_default_bt2(p1, p2), eng1_mm_default_nbt_wbp(p1, p2), engine_pbc(p1, p2)
+	, eng1_mm_default_nbt_sl(p1, p2)
 {
 }
 

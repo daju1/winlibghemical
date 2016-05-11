@@ -1699,6 +1699,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				break;		
 
+			case ID_SELECTEDATOMS_SMOOTHLYLOCK:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SmoothlyLockSelectedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
+			case ID_SELECTEDATOMS_SMOOTHLYUNLOCK:
+				{
+					//######################################################
+					win_ogl_view * wgrv = 
+						(win_ogl_view *)GetWindowLong(hWnd,GWL_USERDATA);
+					if (wgrv)
+					{
+						//wgrv->RealizeHandler(hWnd, NULL);
+						project * prj = wgrv->GetProject();
+						win_project * w_prj = dynamic_cast<win_project *>(prj);
+						if (w_prj)
+						{
+							w_prj->popup_SmoothlyUnLockSelectedAtoms(hWnd, NULL);
+						}
+					}
+					//######################################################
+				}
+				break;
+
 			case ID_SELECTEDATOMS_SETASSOLVENT:
 				{
 					//######################################################
@@ -2206,7 +2244,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					  if (w_prj)
 					  {
 						  w_prj->paned_widget = hWnd;
-						  printf("w_prj->paned_widget = 0x%08x\n", w_prj->paned_widget);
 					  }
 				  }
 				  //##################################################

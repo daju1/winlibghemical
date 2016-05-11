@@ -270,6 +270,7 @@ void eng1_mm::Compute(i32u p1)
 	ComputeBT4(p1);
 	
 	ComputeNBT1(p1);
+	ComputeNBT2(p1);
 	
 	energy = energy_bt1 + energy_bt2 + energy_bt3 + energy_bt4;
 	energy += energy_nbt1a + energy_nbt1b + energy_nbt1c + energy_nbt1d;
