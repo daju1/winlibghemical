@@ -158,6 +158,7 @@ class project : public model
 	i32s traj_num_atoms;
 	i32s total_traj_frames;
 	i32s current_traj_frame;
+	bool extended_trajectory;
 	
 	atom * mt_a1;	// measure_tool
 	atom * mt_a2;	// measure_tool

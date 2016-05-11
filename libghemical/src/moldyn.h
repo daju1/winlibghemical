@@ -158,6 +158,7 @@ class moldyn_tst_param
 	char filename_input_frame[1024];
 	char filename_output_frame[1024];
 	bool load_last_frame;
+	bool extended_trajectory;
 
 #if SNARJAD_TARGET_WORKING
 	// начальная скорость снаряда
@@ -201,6 +202,7 @@ class moldyn_tst_param
 class moldyn_tst  : public moldyn
 {
 	friend class moldyn_atomlist_dialog;
+	friend class model;
 	protected:
 	
 	engine * eng;
@@ -331,6 +333,8 @@ class moldyn_tst  : public moldyn
 	char worked_forces_fn[1024];
 #endif
 	void SaveLastFrame(char * fn);
+	void SaveLastFrame(ofstream& ofile);
+	void SaveTrajFrame(ofstream& ofile);
 	void SaveLastFrameTxt(char * fn);
 	void ReadLastFrame(char * fn);
 };

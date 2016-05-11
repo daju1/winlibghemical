@@ -1910,9 +1910,9 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 					//prj->ReadFrame();
 					//void project::ReadFrame(void)
 					{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -1928,6 +1928,15 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -2079,6 +2088,18 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 									//cdata[t4] = t1a;
 									//float t1a = cdata[t4];
 									ofile.write((char *) & t1a, sizeof(t1a));
+									if (prj->extended_trajectory)
+									{
+										prj->trajfile->read((char *) & t1a, sizeof(t1a));
+										//vdata[t4] = t1a;
+										ofile.write((char *) & t1a, sizeof(t1a));
+										prj->trajfile->read((char *) & t1a, sizeof(t1a));
+										//adata[t4] = t1a;
+										ofile.write((char *) & t1a, sizeof(t1a));
+										prj->trajfile->read((char *) & t1a, sizeof(t1a));
+										//fdata[t4] = t1a;
+										ofile.write((char *) & t1a, sizeof(t1a));
+									}
 								}
 							}
 						}

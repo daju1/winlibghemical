@@ -354,8 +354,14 @@ void project::OpenTrajectory(const char * fn)
 		}	*/
 		
 		trajfile = new ifstream(fn, ios::in | ios::binary);
-		trajfile->seekg(8, ios::beg);	// skip the file id...
-		
+		//trajfile->seekg(8, ios::beg);	// skip the file id...
+		char file_id[10];
+		trajfile->read((char *) file_id, 8);
+		if (0 == ::strncmp(file_id, "traj_v11", 8))
+			extended_trajectory = true;
+		else //"traj_v10"
+			extended_trajectory = false;
+
 		int natoms;
 		trajfile->read((char *) & natoms, sizeof(natoms));
 		
@@ -372,6 +378,14 @@ void project::OpenTrajectory(const char * fn)
 		char mbuff1[256]; strstream str1(mbuff1, sizeof(mbuff1));
 		str1 << "the trajectory file contains " << total_traj_frames << " frames." << endl << ends;
 		PrintToLog(mbuff1);
+
+		float tstep = 0.0;
+		if (extended_trajectory)
+		{
+			trajfile->read((char *) & tstep, sizeof(tstep));
+			str1 << "time step between frames " << tstep << "" << endl << ends;
+			PrintToLog(mbuff1);
+		}
 
 		current_traj_frame = 0;
 	}
@@ -391,6 +405,9 @@ void project::CloseTrajectory(void)
 
 size_t project::GetTrajectoryHeaderSize()
 {
+	if (extended_trajectory)
+		return (8 + 2 * sizeof(int) + sizeof(float));
+
 	return (8 + 2 * sizeof(int));
 }
 
@@ -401,6 +418,9 @@ size_t project::GetTrajectoryEnergySize()
 
 size_t project::GetTrajectoryFrameSize()
 {
+	if (extended_trajectory)
+		return (GetTrajectoryEnergySize() + 12 * traj_num_atoms * sizeof(float));
+
 	return (GetTrajectoryEnergySize() + 3 * traj_num_atoms * sizeof(float));
 }
 
@@ -417,10 +437,23 @@ void project::ReadFrame(void)
 	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
 		
 		fGL cdata[3];
+		fGL vdata[3];
+		fGL adata[3];
+		fGL fdata[3];
 		for (i32s t4 = 0;t4 < 3;t4++)
 		{
 			float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 			cdata[t4] = t1a;
+
+			if (extended_trajectory)
+			{
+				trajfile->read((char *) & t1a, sizeof(t1a));
+				vdata[t4] = t1a;
+				trajfile->read((char *) & t1a, sizeof(t1a));
+				adata[t4] = t1a;
+				trajfile->read((char *) & t1a, sizeof(t1a));
+				fdata[t4] = t1a;
+			}
 		}
 		
 		(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -4530,9 +4563,9 @@ void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
 					//this->ReadFrame();
 					//void project::ReadFrame(void)
 					//{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -4553,6 +4586,15 @@ void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -4652,9 +4694,9 @@ void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
 					//this->ReadFrame();
 					//void project::ReadFrame(void)
 					//{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -4675,6 +4717,15 @@ void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -4807,9 +4858,9 @@ void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
 				//this->ReadFrame();
 				//void project::ReadFrame(void)
 				//{
-					i32s place = 8 + 2 * sizeof(int);						// skip the header...
-					place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-					//place += 2 * sizeof(float);							// skip epot and ekin...
+					i32s place = GetTrajectoryHeaderSize();						// skip the header...
+					place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+					//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 					
 					trajfile->seekg(place, ios::beg);
 
@@ -4826,6 +4877,15 @@ void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
 						{
 							float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 							cdata[t4] = t1a;
+							if (extended_trajectory)
+							{
+								trajfile->read((char *) & t1a, sizeof(t1a));
+								//vdata[t4] = t1a;
+								trajfile->read((char *) & t1a, sizeof(t1a));
+								//adata[t4] = t1a;
+								trajfile->read((char *) & t1a, sizeof(t1a));
+								//fdata[t4] = t1a;
+							}
 						}
 
 						(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -5168,9 +5228,9 @@ void project::TrajView_NematicCoordinatePlot(i32s _type, i32s _dim)
 					//this->ReadFrame();
 					//void project::ReadFrame(void)
 					//{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -5197,6 +5257,15 @@ void project::TrajView_NematicCoordinatePlot(i32s _type, i32s _dim)
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -5413,9 +5482,9 @@ void project::TrajView_DistancePlot(i32s inda, i32s indb)
 					//this->ReadFrame();
 					//void project::ReadFrame(void)
 					//{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -5436,6 +5505,15 @@ void project::TrajView_DistancePlot(i32s inda, i32s indb)
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
@@ -5539,9 +5617,9 @@ void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
 					//this->ReadFrame();
 					//void project::ReadFrame(void)
 					//{
-						i32s place = 8 + 2 * sizeof(int);						// skip the header...
-						place += (2 + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
-						//place += 2 * sizeof(float);							// skip epot and ekin...
+						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
 						trajfile->seekg(place, ios::beg);
 
@@ -5562,6 +5640,15 @@ void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
 							{
 								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
+								if (extended_trajectory)
+								{
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//vdata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//adata[t4] = t1a;
+									trajfile->read((char *) & t1a, sizeof(t1a));
+									//fdata[t4] = t1a;
+								}
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);

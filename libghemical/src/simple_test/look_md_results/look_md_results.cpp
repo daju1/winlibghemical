@@ -294,6 +294,26 @@ int Look_txt()
 }
 
 
+size_t GetTrajectoryHeaderSize(bool extended_trajectory)
+{
+	if (extended_trajectory)
+		return (8 + 2 * sizeof(int) + sizeof(f64));
+
+	return (8 + 2 * sizeof(int));
+}
+
+size_t GetTrajectoryEnergySize()
+{
+	return (2 * sizeof(float));
+}
+
+size_t GetTrajectoryFrameSize(bool extended_trajectory, int natoms)
+{
+	if (extended_trajectory)
+		return (GetTrajectoryEnergySize() + 12 * natoms * sizeof(float));
+
+	return (GetTrajectoryEnergySize() + 3 * natoms * sizeof(float));
+}
 
 void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 {
@@ -394,8 +414,13 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 			*/
 			
 			trajfile = new ifstream(fn, ios::in | ios::binary);
-			trajfile->seekg(8, ios::beg);	// skip the file id...
-			
+			//trajfile->seekg(8, ios::beg);	// skip the file id...
+			char file_id[10];
+			trajfile->read((char *) file_id, 8);
+			bool extended_trajectory = false;
+			if (0 == ::strncmp(file_id, "traj_v11", 8))
+				extended_trajectory = true;
+
 			int natoms;
 			trajfile->read((char *) & natoms, sizeof(natoms));
 			
@@ -409,6 +434,12 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 
 			i32s total_traj_frames;			
 			trajfile->read((char *) & total_traj_frames, sizeof(total_traj_frames));
+
+			float tstep = 0.0;
+			if (extended_trajectory)
+				trajfile->read((char *) & tstep, sizeof(tstep));
+
+
 			
 			//char mbuff1[256]; strstream str1(mbuff1, sizeof(mbuff1));
 			//str1 << "the trajectory file contains " << total_traj_frames << " frames." << endl << ends;
@@ -433,9 +464,9 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 			//this->ReadFrame();
 			//void project::ReadFrame(void)
 			//{
-				i32s place = 8 + 2 * sizeof(int);						// skip the header...
-				place += (2 + 3 * traj_num_atoms) * sizeof(float) * loop;		// get the correct frame...
-				//place += 2 * sizeof(float);							// skip epot and ekin...
+				i32s place = GetTrajectoryHeaderSize(extended_trajectory);						// skip the header...
+				place += GetTrajectoryFrameSize(extended_trajectory, natoms) * loop;		// get the correct frame...
+				//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 				
 				trajfile->seekg(place, ios::beg);
 
@@ -456,6 +487,15 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 					{
 						float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
 						cdata[t4] = t1a;
+						if (extended_trajectory)
+						{
+							trajfile->read((char *) & t1a, sizeof(t1a));
+							//vdata[t4] = t1a;
+							trajfile->read((char *) & t1a, sizeof(t1a));
+							//adata[t4] = t1a;
+							trajfile->read((char *) & t1a, sizeof(t1a));
+							//fdata[t4] = t1a;
+						}
 					}
 					
 					(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);

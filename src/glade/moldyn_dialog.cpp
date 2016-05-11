@@ -310,6 +310,12 @@ BOOL CALLBACK DlgProcMolDyn_tst(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 					moldyn_tst_dlg->handler_CheckLoadLastFrame(NULL, moldyn_tst_dlg);
 			}
 			break;
+		case IDC_CHECK_EXTENDED_TRAJECTORY:
+			{
+				if (moldyn_tst_dlg) 
+					moldyn_tst_dlg->handler_CheckExtendedTrajectory(NULL, moldyn_tst_dlg);
+			}
+			break;
 		case IDOK: 
 			{
 				if (moldyn_tst_dlg)
@@ -459,6 +465,8 @@ void moldyn_tst_dialog::OnInitDialog()
 
 	CheckDlgButton( hDlg, IDC_CHECK_LOAD_LAST_FRAME,
 		param->load_last_frame ? BST_CHECKED : BST_UNCHECKED );
+	CheckDlgButton( hDlg, IDC_CHECK_EXTENDED_TRAJECTORY,
+		param->extended_trajectory ? BST_CHECKED : BST_UNCHECKED );
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	// gtk_entry_set_text(GTK_ENTRY(entry_trajfile), param->filename);
@@ -560,6 +568,8 @@ void moldyn_tst_dialog::handler_ButtonOK(HWND, void * data)
 
 	ref->param->load_last_frame = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_LOAD_LAST_FRAME) 
 				== BST_CHECKED;
+	ref->param->extended_trajectory = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_EXTENDED_TRAJECTORY) 
+				== BST_CHECKED;
 
 	
 	ref->param->confirm = true;
@@ -570,6 +580,13 @@ void moldyn_tst_dialog::handler_CheckLoadLastFrame(HWND, void * data)
 	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;
 	//cout << "handler_ButtonOK() : ref = " << ref << endl;
 	ref->param->load_last_frame = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_LOAD_LAST_FRAME) 
+				== BST_CHECKED;	
+}
+
+void moldyn_tst_dialog::handler_CheckExtendedTrajectory(HWND, void * data)
+{
+	moldyn_tst_dialog * ref = (moldyn_tst_dialog *) data;
+	ref->param->extended_trajectory = IsDlgButtonChecked( ref->hDlg, IDC_CHECK_EXTENDED_TRAJECTORY) 
 				== BST_CHECKED;	
 }
 

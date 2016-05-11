@@ -3520,7 +3520,11 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 // MOVE THIS INTO PROJECT::WRITETRAJECTORY!!!!!!!!!!!!!!
 
 	const int number_of_atoms = GetAtomCount();
-	const char file_id[10] = "traj_v10";
+	char file_id[10];
+	sprintf(file_id, "%s",
+		param.extended_trajectory
+		? "traj_v11"
+		: "traj_v10");
 	
 	const int frame_save_frq = 10;
 	const int total_frames = param.nsteps_s / frame_save_frq;
@@ -3528,7 +3532,13 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	ofile_traj.write((char *) file_id, 8);					// file id, 8 chars.
 	ofile_traj.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
 	ofile_traj.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
-	
+
+	if (param.extended_trajectory)
+	{
+		float tstep = dyn->tstep1 * frame_save_frq;
+		ofile_traj.write((char *) & tstep, sizeof(tstep));	// step_counter, int.
+	}
+
 	ThreadUnlock();
 	
 	ostrstream str2b(mbuff1, sizeof(mbuff1));
@@ -3697,21 +3707,28 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		
 		if (!(n1 <= param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
 		{
-			CopyCRD(eng, this, 0);
-			
-			const float ekin = dyn->GetEKin();
-			const float epot = dyn->GetEPot();
-			
-			ofile_traj.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
-			ofile_traj.write((char *) & epot, sizeof(epot));	// potential energy, float.
-			
-			for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+			if (param.extended_trajectory)
 			{
-				const fGL * cdata = (* itx).GetCRD(0);
-				for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
+				dyn->SaveTrajFrame(ofile_traj);
+			}
+			else
+			{
+				CopyCRD(eng, this, 0);
+
+				const float ekin = dyn->GetEKin();
+				const float epot = dyn->GetEPot();
+
+				ofile_traj.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+				ofile_traj.write((char *) & epot, sizeof(epot));	// potential energy, float.
+
+				for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
 				{
-					float t1a = cdata[t4];
-					ofile_traj.write((char *) & t1a, sizeof(t1a));
+					const fGL * cdata = (* itx).GetCRD(0);
+					for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
+					{
+						float t1a = cdata[t4];
+						ofile_traj.write((char *) & t1a, sizeof(t1a));
+					}
 				}
 			}
 

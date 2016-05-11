@@ -94,6 +94,7 @@ class moldyn_tst_dialog : public glade_dialog
 	static void handler_ButtonBrowseOutputFrame(HWND, void *);
 	static void handler_FileChooser(HWND, void *);
 	static void handler_CheckLoadLastFrame(HWND, void * data);
+	static void handler_CheckExtendedTrajectory(HWND, void * data);
 
 };
 
