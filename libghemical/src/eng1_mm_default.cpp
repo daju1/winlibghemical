@@ -648,19 +648,20 @@ void eng1_mm_default_bt::ComputeBT1(i32u p1)
 			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
 			
 			t1a[n2] = t9a - t9b;
-			/*
-			use_periodic_boundary_conditions = false;
-			//######################################################################
-			if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+			
+			if (GetSetup()->GetModel()->use_periodic_boundary_conditions)
 			{
-				t1a[n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+				//######################################################################
+				if (t1a[n2] < -GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					t1a[n2] += 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+				}
+				else if (t1a[n2] > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
+				{
+					t1a[n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
+				}
+				//######################################################################
 			}
-			else if (t1a[n2] > +GetSetup()->GetModel()->periodic_box_HALFdim[n2])
-			{
-				t1a[n2] -= 2.0 * GetSetup()->GetModel()->periodic_box_HALFdim[n2];
-			}
-			//######################################################################
-			*/
 			t1b += t1a[n2] * t1a[n2];
 		}
 		

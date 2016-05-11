@@ -310,6 +310,7 @@ engine * setup::CreateEngineByIDNumber(i32u id)
 	
 	if (index < GetEngineCount())
 	{
+		SetCurrentEngIndex(index);
 		return CreateEngineByIndex(index);
 	}
 	else

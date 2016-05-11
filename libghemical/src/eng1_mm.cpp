@@ -26,6 +26,7 @@ const i32u setup1_mm::eng_id_tab[] =
 	
 	ENG1_MM_DEFAULT,
 	ENG1_MM_PERIODIC,
+	ENG1_MM_PERIODIC_WBP,
 	
 	ENG1_MM_EXPERIMENTAL,
 	
@@ -38,6 +39,7 @@ const char * setup1_mm::eng_name_tab[] =
 	
 	"the default engine (under construction) ; default_mbp",
 	"the periodic engine (minimum image model) ; default_mbp",
+	"the periodic engine (wall boundary potential) ; default_wbp",
 	
 	"experimental ; eng1_prmfit",
 	
