@@ -1,6 +1,7 @@
 // look_md_results.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
+#include "..\..\long_stream.h"
 
 #include "../example2.h"
 
@@ -481,18 +482,24 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 				for (iter_al it1 = mdl->GetAtomsBegin(); it1 != mdl->GetAtomsEnd(); it1++)
 				{
 				//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-					
+					float t1a;
 					fGL cdata[3];
 					for (i32s t4 = 0;t4 < 3;t4++)
 					{
-						float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+						trajfile->read((char *) & t1a, sizeof(t1a));
 						cdata[t4] = t1a;
-						if (extended_trajectory)
-						{
+					}
+					if (extended_trajectory)
+					{
+						for (i32s t4 = 0;t4 < 3;t4++){
 							trajfile->read((char *) & t1a, sizeof(t1a));
 							//vdata[t4] = t1a;
+						}
+						for (i32s t4 = 0;t4 < 3;t4++){
 							trajfile->read((char *) & t1a, sizeof(t1a));
 							//adata[t4] = t1a;
+						}
+						for (i32s t4 = 0;t4 < 3;t4++){
 							trajfile->read((char *) & t1a, sizeof(t1a));
 							//fdata[t4] = t1a;
 						}

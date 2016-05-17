@@ -38,6 +38,10 @@ class light;			// camera.h
 
 class transformer;		// camera.h
 
+#include <vector>
+#include "../libghemical/src/long_stream.h"
+using namespace std;
+
 #include "../libghemical/src/model.h"
 #include "../libghemical/src/geomopt.h"
 #include "../libghemical/src/moldyn.h"
@@ -53,8 +57,6 @@ class transformer;		// camera.h
 // do not include any gtk/etc stuff here ; this is platform-independent, OpenGL only!!!
 // do not include any gtk/etc stuff here ; this is platform-independent, OpenGL only!!!
 
-#include <vector>
-using namespace std;
 
 #define FILENAME_FILTER	"*.gpr"
 
@@ -154,7 +156,8 @@ class project : public model
 // this could be always open?!?!? is it needed??? improve MDI first...
 	project_view * pv;
 	
-	ifstream * trajfile;
+
+	long_ifstream * trajfile;
 	i32s traj_num_atoms;
 	i32s total_traj_frames;
 	i32s current_traj_frame;
@@ -253,7 +256,7 @@ class project : public model
 	void EvaluateDiffConst(double);
 	
 	i32s GetTotalFrames(void);
-	ifstream * GetTrajectoryFile(void);
+	long_ifstream * GetTrajectoryFile(void);
 	
 	i32s GetCurrentFrame(void);
 	void SetCurrentFrame(i32s);

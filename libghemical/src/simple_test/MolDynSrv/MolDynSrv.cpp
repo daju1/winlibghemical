@@ -5,6 +5,8 @@
 #include "resource.h"
 #include "MolDynSrv_i.h"
 
+#include "..\..\long_stream.h"
+
 #include <stdio.h>
 #include <conio.h>
 

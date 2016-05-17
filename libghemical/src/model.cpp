@@ -22,7 +22,6 @@
 
 #include "boundary_opt.h"
 #include "geomopt.h"
-#include "moldyn.h"
 #include "search.h"
 
 #include "../../../consol/filedlg.h"
@@ -33,6 +32,9 @@
 #include <sstream>
 #include <strstream>//fixme
 using namespace std;
+
+#include "long_stream.h"
+#include "moldyn.h"
 
 bool ReadGPR(model &, istream &, bool, bool);			// see fileio.cpp!!!
 void WriteGPR_v100(model &, ostream &);
@@ -3497,7 +3499,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 	printf("outfilename_traj = %s\n", outfilename_traj);
 	/////////////////////////////////////////////////////
-	ofstream ofile_traj;
+	long_ofstream ofile_traj;
 	//ofile.open(param.filename, ios::out | ios::binary);
 	ofile_traj.open(outfilename_traj, ios_base::out | ios_base::trunc | ios_base::binary);
 	

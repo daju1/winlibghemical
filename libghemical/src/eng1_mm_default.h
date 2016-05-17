@@ -298,6 +298,7 @@ class eng1_mm_default_nbt_sl : virtual public eng1_mm
 	protected:
 	
 	f64 fc_smoothly_locked;
+	f64 radius;
 	
 	public:
 	

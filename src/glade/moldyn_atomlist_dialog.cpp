@@ -8,6 +8,7 @@
 /*################################################################################################*/
 #include "../stdafx.h"
 
+#include "../../libghemical/src/long_stream.h"
 #include "moldyn_atomlist_dialog.h"
 #include "../../consol/filedlg.h"
 #include "../../consol/resource.h"

@@ -1657,6 +1657,7 @@ eng1_mm_default_nbt_sl::eng1_mm_default_nbt_sl(setup * p1, i32u p2) : engine(p1,
 	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Å^2) = 5000 kJ/(mol*(nm)^2)
 	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Å^2) = 12500 kJ/(mol*(nm)^2)
 	fc_smoothly_locked = 12500.0;
+	radius = 0.01;
 }
 
 eng1_mm_default_nbt_sl::~eng1_mm_default_nbt_sl(void)
@@ -1686,16 +1687,18 @@ void eng1_mm_default_nbt_sl::ComputeNBT2(i32u p1)
 		
 		f64 t1c = sqrt(t1b);
 		
+		if (t1c < radius) continue;
+		
 		// f = a(x-b)^2
 		// df/dx = 2a(x-b)
 		
-		f64 t2a = t1c/* - radius*/;
+		f64 t2a = t1c - radius;
 		f64 t2b = fc * t2a * t2a;
 		
 		energy_nbt1c += t2b;
 if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
 		
-		if (p1 > 0)
+		if (p1 > 0 && t1c)
 		{
 			f64 t2c = 2.0 * fc * t2a;
 			

@@ -491,6 +491,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\long_stream.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\model.h"
 				>
 			</File>

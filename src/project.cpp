@@ -353,7 +353,7 @@ void project::OpenTrajectory(const char * fn)
 			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
 		}	*/
 		
-		trajfile = new ifstream(fn, ios::in | ios::binary);
+		trajfile = new long_ifstream(fn, ios::in | ios::binary);
 		//trajfile->seekg(8, ios::beg);	// skip the file id...
 		char file_id[10];
 		trajfile->read((char *) file_id, 8);
@@ -435,22 +435,27 @@ void project::ReadFrame(void)
 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 	{
 	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-		
+		float t1a;
 		fGL cdata[3];
 		fGL vdata[3];
 		fGL adata[3];
 		fGL fdata[3];
 		for (i32s t4 = 0;t4 < 3;t4++)
 		{
-			float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+			trajfile->read((char *) & t1a, sizeof(t1a));
 			cdata[t4] = t1a;
-
-			if (extended_trajectory)
-			{
+		}
+		if (extended_trajectory)
+		{
+			for (i32s t4 = 0;t4 < 3;t4++){
 				trajfile->read((char *) & t1a, sizeof(t1a));
 				vdata[t4] = t1a;
+			}
+			for (i32s t4 = 0;t4 < 3;t4++){
 				trajfile->read((char *) & t1a, sizeof(t1a));
 				adata[t4] = t1a;
+			}
+			for (i32s t4 = 0;t4 < 3;t4++){
 				trajfile->read((char *) & t1a, sizeof(t1a));
 				fdata[t4] = t1a;
 			}
@@ -480,7 +485,7 @@ std::streampos fileSize( const char* filePath )
 	return fsize;
 }*/
 
-ifstream * project::GetTrajectoryFile(void)
+long_ifstream * project::GetTrajectoryFile(void)
 {
 	return trajfile;
 }
@@ -1522,6 +1527,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		
 		PrintToLog("> evaluate_Bfact -- evaluate B-factors for selected atoms (a trajectory file must be open).\n");
 		PrintToLog("> evaluate_diffconst <dt> -- evaluate diffusion constants for selected atoms (a trajectory file must be open, dt = time difference between frames [fs]).\n");
+		PrintToLog("> traj_set_total_frames <total_frames>\n");
 		
 		return;
 	}
@@ -4580,18 +4586,24 @@ void project::TrajView_CoordinatePlot(i32s ind_, i32s dim)
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}
@@ -4711,23 +4723,29 @@ void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}
 							}
-							
+
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
 
 							if (ind == ind1)
@@ -4871,18 +4889,24 @@ void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
 					xyz mean_shift = xyz();
 					for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 					{
-						
+						float t1a;
 						fGL cdata[3];
 						for (i32s t4 = 0;t4 < 3;t4++)
 						{
-							float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+							trajfile->read((char *) & t1a, sizeof(t1a));
 							cdata[t4] = t1a;
-							if (extended_trajectory)
-							{
+						}
+						if (extended_trajectory)
+						{
+							for (i32s t4 = 0;t4 < 3;t4++){
 								trajfile->read((char *) & t1a, sizeof(t1a));
 								//vdata[t4] = t1a;
+							}
+							for (i32s t4 = 0;t4 < 3;t4++){
 								trajfile->read((char *) & t1a, sizeof(t1a));
 								//adata[t4] = t1a;
+							}
+							for (i32s t4 = 0;t4 < 3;t4++){
 								trajfile->read((char *) & t1a, sizeof(t1a));
 								//fdata[t4] = t1a;
 							}
@@ -5251,18 +5275,24 @@ void project::TrajView_NematicCoordinatePlot(i32s _type, i32s _dim)
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}
@@ -5499,18 +5529,24 @@ void project::TrajView_DistancePlot(i32s inda, i32s indb)
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}
@@ -5634,18 +5670,24 @@ void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}

@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "..\libghemical\src\libconfig.h"
+#include "..\libghemical\src\long_stream.h"
 
 #ifndef EXAMPLE2_H
 #define EXAMPLE2_H

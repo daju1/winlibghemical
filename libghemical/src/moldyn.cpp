@@ -8,6 +8,10 @@
 /*################################################################################################*/
 #include "stdafx.h"
 
+#include <strstream>
+using namespace std;
+
+#include "long_stream.h"
 #include "moldyn.h"
 
 #include "atom.h"
@@ -15,8 +19,6 @@
 
 #include "eng1_sf.h"	// the langevin stuff needs this...
 
-#include <strstream>
-using namespace std;
 
 #define T_BUFF_SIZE	500
 #define PI		3.14159265358979323846
@@ -1263,7 +1265,7 @@ void moldyn_tst::SaveLastFrame(ofstream& ofile)
 	}
 }
 
-void moldyn_tst::SaveTrajFrame(ofstream& ofile)
+void moldyn_tst::SaveTrajFrame(long_ofstream& ofile)
 {
 	const float fekin = ekin;
 	const float fepot = epot;
@@ -1276,20 +1278,24 @@ void moldyn_tst::SaveTrajFrame(ofstream& ofile)
 	{
 		for (i32s tt2 = 0;tt2 < 3;tt2++)
 		{
-			/*eng->crd[tt1 * 3 + tt2];
-			vel[tt1 * 3 + tt2];
-			eng->d1[tt1 * 3 + tt2];
-			acc[tt1 * 3 + tt2];*/
-
 			t1a = eng->crd[tt1 * 3 + tt2];
 			ofile.write((char *) & t1a, sizeof(t1a));
+		}
 
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
 			t1a = vel[tt1 * 3 + tt2];
 			ofile.write((char *) & t1a, sizeof(t1a));
+		}
 
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
 			t1a = acc[tt1 * 3 + tt2];
 			ofile.write((char *) & t1a, sizeof(t1a));
+		}
 
+		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		{
 			t1a = eng->d1[tt1 * 3 + tt2];
 			ofile.write((char *) & t1a, sizeof(t1a));
 		}

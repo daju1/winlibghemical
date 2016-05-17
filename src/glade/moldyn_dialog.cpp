@@ -7,6 +7,7 @@
 
 /*################################################################################################*/
 #include "../stdafx.h"
+#include "../../libghemical/src/long_stream.h"
 
 #include "moldyn_dialog.h"
 #include "../../consol/filedlg.h"

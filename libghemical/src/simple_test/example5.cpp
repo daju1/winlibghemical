@@ -8,6 +8,8 @@
 /*################################################################################################*/
 
 #include "example2.h"
+#include "..\long_stream.h"
+
 #include "../libconfig.h"
 
 #include "..\notice.h"

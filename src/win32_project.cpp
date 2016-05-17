@@ -1910,11 +1910,11 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 					//prj->ReadFrame();
 					//void project::ReadFrame(void)
 					{
-						i32s place = GetTrajectoryHeaderSize();						// skip the header...
+						unsigned __int64 place = GetTrajectoryHeaderSize();						// skip the header...
 						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
 						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
 						
-						trajfile->seekg(place, ios::beg);
+						//trajfile->seekg(place, ios::beg);
 
 						trajfile->read((char *) & ekin, sizeof(ekin));
 						trajfile->read((char *) & epot, sizeof(epot));
@@ -1922,21 +1922,31 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-							
+							float t1a;
 							fGL cdata[3];
 							for (i32s t4 = 0;t4 < 3;t4++)
 							{
-								float t1a; trajfile->read((char *) & t1a, sizeof(t1a));
+								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
-								if (extended_trajectory)
-								{
+							}
+							if (extended_trajectory)
+							{
+#if 1
+								trajfile->seekg(9*sizeof(t1a), ios::cur);
+#else
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//vdata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//adata[t4] = t1a;
+								}
+								for (i32s t4 = 0;t4 < 3;t4++){
 									trajfile->read((char *) & t1a, sizeof(t1a));
 									//fdata[t4] = t1a;
 								}
+#endif
 							}
 							
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);

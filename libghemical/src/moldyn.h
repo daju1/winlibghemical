@@ -334,7 +334,7 @@ class moldyn_tst  : public moldyn
 #endif
 	void SaveLastFrame(char * fn);
 	void SaveLastFrame(ofstream& ofile);
-	void SaveTrajFrame(ofstream& ofile);
+	void SaveTrajFrame(long_ofstream& ofile);
 	void SaveLastFrameTxt(char * fn);
 	void ReadLastFrame(char * fn);
 };
