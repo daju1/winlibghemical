@@ -340,6 +340,10 @@ void project::TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames)
 	WriteFile(hFile, (void *) & _total_traj_frames, sizeof(_total_traj_frames), &dwNumberOfBytesWritten, NULL);
 	SetFilePointer(hFile, 0, 0, FILE_END);
 	CloseHandle(hFile);
+
+	char mbuff1[256]; strstream str1(mbuff1, sizeof(mbuff1));
+	str1 << "the trajectory file contains " << _total_traj_frames << " frames." << endl << ends;
+	PrintToLog(mbuff1);
 }
 
 
@@ -558,6 +562,24 @@ void project::SelectAtomsWithTheFlag(i32u flag_number)
 		}
 	}
 }
+
+void project::MoveSelectedAtoms(const f64 shift[3])
+{
+	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+	{
+		if (!((* it1).flags & ATOMFLAG_SELECTED))
+			continue;
+
+		const fGL * crd = (* it1).GetCRD(0);
+
+		fGL x = crd[0] + shift[0];
+		fGL y = crd[1] + shift[1];
+		fGL z = crd[2] + shift[2];
+
+		(* it1).SetCRD(0, x, y, z);
+	}
+}
+
 // todo : move all these trajectory-related things into a separate class? 20040610 TH
 
 void project::EvaluateBFact(void)
@@ -1488,46 +1510,72 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		PrintToLog(">          <solid> = 0 or 1 telling if the object is solid\n");
 		PrintToLog(">          <tp> = 0 or 1 telling if the object is transparent\n");
 		PrintToLog(">          <alpha> = transparency alpha value\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> help -- print all available commands in command strings.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> energy -- calculate a single-point energy.\n");
+		PrintToLog("> test -- my test.\n");
 		PrintToLog("> geom_opt -- do a geometry optimization run using default options.\n");
 		PrintToLog("> mol_dyn -- do a molecular dynamics run using default options.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> random_search <cycles> <optsteps> -- perform a random conformational search.\n");
 		PrintToLog("> systematic_search <divisions> <optsteps> -- perform a systematic conformational search.\n");
 		PrintToLog("> montecarlo_search <init_cycles> <simul_cycles> <optsteps> -- perform a MonteCarlo search.\n");
+		PrintToLog("> \n");
 		
-		PrintToLog("> unset_flag_on_sel_atoms FLAG_NUM -- unset to all selected atoms any flag\n");
-		PrintToLog("> set_flag_on_sel_atoms FLAG_NUM -- set to all selected atoms any flag\n");
 		PrintToLog("> sel_atoms_with_flag FLAG_NUM -- selected atoms with any flag\n");
+		PrintToLog("> set_flag_on_sel_atoms FLAG_NUM -- set to all selected atoms any flag\n");
+		PrintToLog("> unset_flag_on_sel_atoms FLAG_NUM -- unset to all selected atoms any flag\n");
+		PrintToLog("> move_sel_atoms DX DY DZ -- Move Selected Atoms\n");
+		PrintToLog("> \n");
+
 		PrintToLog("> traj_set_total_frames nframes -- correct total frames in traj file.\n");
+		PrintToLog("> \n");
+
 		PrintToLog("> make_plot_crd IND DIM -- create a 1D coordinate vs. step plot on traj file.\n");
+		PrintToLog("> make_plot_crd_diff IND1 IND2 DIM -- create a 1D coordinate difference plot on traj file.\n");
+		PrintToLog("> make_nematic_plot IA IB -- create a 1D Nematic Coordinate vs. step plot on traj file.\n");
+		PrintToLog("> make_plot_dist A B -- create a 1D distance vs. step plot on traj file.\n");
 		PrintToLog("> make_plot_dist A B -- create a 1D distance vs. step plot on traj file.\n");
 		PrintToLog("> make_plot_ang A B C -- create a 1D angle vs. step plot on traj file.\n");
+		PrintToLog("> vel_dist_2d divx divy dt -- create a VeloncityDistribution2D plot on traj file.\n");
 		PrintToLog("> make_plot_a A B C <div> <start_ang> <end_ang> <optsteps> -- create a 1D energy vs. angle plot.\n");
 		PrintToLog("> make_plot1 A B C D <div> <start_ang> <end_ang> <optsteps> -- create a 1D energy vs. torsion plot.\n");
 		PrintToLog("> make_plot2 A B C D <div> <start_ang> <end_ang> I J K L <div> <start_ang> <end_ang> <optsteps> -- create a 2D energy vs. torsions plot.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> population_analysis_ESP -- determine atomic charges using an ESP fit (for QM methods only).\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> transition_state_search <delta_e> <initial_fc> -- perform a transition state search (for QM methods only).\n");
 		PrintToLog("> stationary_state_search <steps> -- perform a search for a structure with no forces.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> set_current_orbital <orbital_index> -- set the current orbtal index for plotting the orbitals.\n");
+		PrintToLog("> \n");
 
 		PrintToLog("> build_amino <sequence> (helix/strand) -- amino acid sequence builder.\n");
 		PrintToLog("> build_nucleic <sequence> -- nucleic acid sequence builder.\n");
+		PrintToLog("> \n");
 		
+		PrintToLog("> box (<x-dim> <y-dim> <z-dim>) -- set or get box size.\n");
+		PrintToLog("> boxdim (<dim> <val>) -- set or get one box dimention size.\n");
+		PrintToLog("> \n");
+		
+		PrintToLog("> nematic_box <x-dim> <y-dim> <z-dim> (<filename>) -- setup a nematic box ; UNDER_CONSTRUCTION.\n");
 		PrintToLog("> solvate_box <x-dim> <y-dim> <z-dim> (<density> <filename> (export)) -- setup a solvation box ; UNDER_CONSTRUCTION.\n");
 		PrintToLog("> solvate_sphere <rad_solute> <rad_solvent> (<density> <filename>) -- setup a solvation sphere.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> set_formal_charge <index> <charge> -- set formal charges to atoms.\n");
+		PrintToLog("> \n");
 		
 		PrintToLog("> evaluate_Bfact -- evaluate B-factors for selected atoms (a trajectory file must be open).\n");
 		PrintToLog("> evaluate_diffconst <dt> -- evaluate diffusion constants for selected atoms (a trajectory file must be open, dt = time difference between frames [fs]).\n");
-		PrintToLog("> traj_set_total_frames <total_frames>\n");
+		PrintToLog("> \n");
 		
 		return;
 	}
@@ -2083,6 +2131,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	
 	if (!strcmp("make_plot_ang", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -2134,7 +2183,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 	{
 		char kw2[32]; istr >> kw2;	// ind1
 		char kw3[32]; istr >> kw3;	// ind2
-		char kw4[32]; istr >> kw4;	// B
+		char kw4[32]; istr >> kw4;	// dim
 
 		char ** endptr = NULL;
 		
@@ -2174,6 +2223,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	
 	if (!strcmp("sel_atoms_with_flag", kw1))
 	{
 		char kw2[32]; istr >> kw2;	
@@ -2201,6 +2251,20 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	if (!strcmp("move_sel_atoms", kw1))
+	{
+		char kw2[32]; istr >> kw2;//dx
+		char kw3[32]; istr >> kw3;//dy
+		char kw4[32]; istr >> kw4;//dz
+		char ** endptr = NULL;
+		f64 dx = strtod(kw2, endptr);
+		f64 dy = strtod(kw3, endptr);
+		f64 dz = strtod(kw4, endptr);
+		const f64 shift[3] = {dx, dy, dz};
+		MoveSelectedAtoms(shift);
+		return;
+	}
+	
 	if (!strcmp("traj_set_total_frames", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -2221,6 +2285,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 	}
 
 
+	
 	if (!strcmp("make_plot_a", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -2247,7 +2312,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		DoEnergyPlot1D(ia, ib, ic, div1, start1, end1, optsteps, kwA);
 		return;
 	}
-	
 	if (!strcmp("make_plot1", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -2273,7 +2337,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		DoEnergyPlot1D(ia, ib, ic, id, div1, start1, end1, optsteps);
 		return;
 	}
-	
 	if (!strcmp("make_plot2", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -2342,7 +2405,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		DoTransitionStateSearch(deltae, initfc);
 		return;
 	}
-	
 	if (!strcmp("stationary_state_search", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// the 2nd keyword; steps.
@@ -2386,7 +2448,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		PrintToLog(mbuff1);
 		return;
 	}
-	
 	if (!strcmp("build_nucleic", kw1))
 	{
 		char kw2[4096]; istr >> kw2;	// sequence
@@ -2407,6 +2468,7 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	
 	if (!strcmp("box", kw1))
 	{
 		char kw2[32]; istr >> kw2;		// xdim
@@ -2548,7 +2610,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		UpdateAllGraphicsViews();
 		return;
 	}
-	
 	if (!strcmp("solvate_sphere", kw1))
 	{
 		char kw2[32]; istr >> kw2;		// rad_solute
@@ -2621,7 +2682,6 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		EvaluateBFact();
 		return;
 	}
-	
 	if (!strcmp("evaluate_diffconst", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// the 2nd keyword; dt.

@@ -280,8 +280,11 @@ void eng1_mm::Compute(i32u p1)
 	energy = energy_bt1 + energy_bt2 + energy_bt3 + energy_bt4;
 	energy += energy_nbt1a + energy_nbt1b + energy_nbt1c + energy_nbt1d;
 	
-//cout << "energy-b = " << energy_bt1 << " " << energy_bt2 << " " << energy_bt3 << " " << energy_bt4 << " " << endl;
-//cout << "energy-nb = " << energy_nbt1a << " " << energy_nbt1b << " " << energy_nbt1c << " " << energy_nbt1d << " " << endl;
+	if (!p1)
+	{
+cout << "energy-b = " << energy_bt1 << " " << energy_bt2 << " " << energy_bt3 << " " << energy_bt4 << " " << endl;
+cout << "energy-nb = " << energy_nbt1a << " " << energy_nbt1b << " " << energy_nbt1c << " " << energy_nbt1d << " " << endl;
+	}
 }
 
 void eng1_mm::SearchCR1a(atom * atm1)

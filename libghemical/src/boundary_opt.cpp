@@ -28,8 +28,8 @@ boundary_opt::boundary_opt(geomopt_param::box_optimization_type box_opt,
 	case geomopt_param::box_optimization_type::xyz:
 		{
 			MessageBox(0, "xyz","b_opt",0);
-            d1 = new f64[3];	
-            for (i32s n2 = 0;n2 < 3;n2++)
+			d1 = new f64[3];
+			for (i32s n2 = 0;n2 < 3;n2++)
 			{
 				AddVar(& mdl->periodic_box_HALFdim[n2], & d1[n2]);
 			}
@@ -38,23 +38,23 @@ boundary_opt::boundary_opt(geomopt_param::box_optimization_type box_opt,
 	case geomopt_param::box_optimization_type::xy:
 		{
 			MessageBox(0, "xy","b_opt",0);
-            d1 = new f64[2];	
-            for (i32s n2 = 0;n2 < 2;n2++)
+			d1 = new f64[2];
+			for (i32s n2 = 0;n2 < 2;n2++)
 			{
 				AddVar(& mdl->periodic_box_HALFdim[n2], & d1[n2]);
 			}
 		}
-		break;	
+		break;
 	case geomopt_param::box_optimization_type::z:
 		{
 			MessageBox(0, "z","b_opt",0);
-            d1 = new f64[1];	
-            i32s n2 = 2;
+			d1 = new f64[1];	
+			i32s n2 = 2;
 			{
 				AddVar(& mdl->periodic_box_HALFdim[n2], & d1[0]);
 			}
 		}
-		break;	
+		break;
 	}
 }
 

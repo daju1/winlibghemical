@@ -17,6 +17,18 @@
 #include <strstream>
 using namespace std;
 
+bool custom_isnan(double var)
+{
+	volatile double d = var;
+	return d != d;
+}
+
+bool custom_isnan(float var)
+{
+	volatile float d = var;
+	return d != d;
+}
+
 /*################################################################################################*/
 eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_wbp(p1, p2), engine_pbc(p1, p2)
 {
@@ -63,7 +75,7 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 #if SEVERAL_WBP
 	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
 	mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
-	mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
+	//mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
 #else
 	N2 = 2;//индекс стенки = 2 for Z!!!
 	N2 = 1;//индекс стенки = 1 for Y!!!

@@ -3739,7 +3739,7 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			dyn->SaveLastFrame(param.filename_output_frame);
 			sprintf(mbuff1, "%s.txt", param.filename_output_frame);
 			dyn->SaveLastFrameTxt(mbuff1);
-		}	
+		}
 
 		if (!(n1 % 100))
 			logfile.flush();

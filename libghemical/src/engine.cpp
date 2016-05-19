@@ -451,8 +451,8 @@ void CalcMaxMinCoordinates(model * p1, engine * p2, i32u p3)
 			if (p1->minCRD[1] > cdata[1]) p1->minCRD[1] = cdata[1];
 			if (p1->maxCRD[2] < cdata[2]) p1->maxCRD[2] = cdata[2];
 			if (p1->minCRD[2] > cdata[2]) p1->minCRD[2] = cdata[2];
-		}		
-	}	
+		}
+	}
 	if (p1->m_bMaxMinCoordCalculed)
 		return;
 

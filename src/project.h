@@ -450,6 +450,7 @@ class project : public model
 	void SetTheFlagOnSelectedAtoms(i32u flag_number);
 	void UnSetTheFlagOnSelectedAtoms(i32u flag_number);
 	void SelectAtomsWithTheFlag(i32u flag_number);
+	void MoveSelectedAtoms(const f64 shift[3]);
 
 	void SelectMolecularAxises();
 
