@@ -1,0 +1,123 @@
+diff -Nur ./origin/openbabel-2.0.0/src/data.h ./openbabel-2.0.0/src/data.h
+--- ./origin/openbabel-2.0.0/src/data.h	2005-11-27 00:19:45.000000000 +0200
++++ ./openbabel-2.0.0/src/data.h	2019-09-30 12:44:00.080608143 +0300
+@@ -38,6 +38,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <string.h>
+ 
+ namespace OpenBabel
+ {
+diff -Nur ./origin/openbabel-2.0.0/src/dlhandler_unix.cpp ./openbabel-2.0.0/src/dlhandler_unix.cpp
+--- ./origin/openbabel-2.0.0/src/dlhandler_unix.cpp	2005-11-27 00:19:45.000000000 +0200
++++ ./openbabel-2.0.0/src/dlhandler_unix.cpp	2019-09-30 12:44:06.165114026 +0300
+@@ -26,6 +26,8 @@
+ #include <dlfcn.h>
+ 
+ #include <iostream>
++#include <string.h>
++#include <stdlib.h>
+ 
+ using namespace std;
+ 
+diff -Nur ./origin/openbabel-2.0.0/src/fingerprint.cpp ./openbabel-2.0.0/src/fingerprint.cpp
+--- ./origin/openbabel-2.0.0/src/fingerprint.cpp	2005-11-27 00:19:45.000000000 +0200
++++ ./openbabel-2.0.0/src/fingerprint.cpp	2019-09-30 12:44:12.037597954 +0300
+@@ -35,6 +35,7 @@
+ 
+ #include "fingerprint.h"
+ #include "oberror.h"
++#include <string.h>
+ 
+ using namespace std;
+ namespace OpenBabel {
+diff -Nur ./origin/openbabel-2.0.0/src/formats/rxnformat.cpp ./openbabel-2.0.0/src/formats/rxnformat.cpp
+--- ./origin/openbabel-2.0.0/src/formats/rxnformat.cpp	2005-11-27 00:19:53.000000000 +0200
++++ ./openbabel-2.0.0/src/formats/rxnformat.cpp	2019-09-30 12:43:39.994904977 +0300
+@@ -20,6 +20,7 @@
+ #include "mol.h"
+ #include "obconversion.h"
+ #include "reaction.h"
++#include <typeinfo>
+ 
+ namespace OpenBabel
+ {
+diff -Nur ./origin/openbabel-2.0.0/src/formats/xml/xml.h ./openbabel-2.0.0/src/formats/xml/xml.h
+--- ./origin/openbabel-2.0.0/src/formats/xml/xml.h	2005-11-27 00:19:57.000000000 +0200
++++ ./openbabel-2.0.0/src/formats/xml/xml.h	2019-09-30 12:42:28.781803191 +0300
+@@ -17,6 +17,7 @@
+ #include "obconversion.h"
+ #include "libxml/xmlreader.h"
+ #include "libxml/xmlwriter.h"
++#include <typeinfo>
+ 
+ namespace OpenBabel
+ {
+diff -Nur ./origin/openbabel-2.0.0/src/formats/yasaraformat.cpp ./openbabel-2.0.0/src/formats/yasaraformat.cpp
+--- ./origin/openbabel-2.0.0/src/formats/yasaraformat.cpp	2005-11-27 00:19:54.000000000 +0200
++++ ./openbabel-2.0.0/src/formats/yasaraformat.cpp	2019-09-30 12:43:46.131430789 +0300
+@@ -33,6 +33,7 @@
+ #include "mol.h"
+ #include "obconversion.h"
+ #include "obmolecformat.h"
++#include <bits/stdc++.h> 
+ 
+ #define mem_alloc malloc
+ #define mem_free free
+diff -Nur ./origin/openbabel-2.0.0/src/main.cpp ./openbabel-2.0.0/src/main.cpp
+--- ./origin/openbabel-2.0.0/src/main.cpp	2005-11-27 00:19:46.000000000 +0200
++++ ./openbabel-2.0.0/src/main.cpp	2019-09-30 14:18:52.963370547 +0300
+@@ -19,6 +19,7 @@
+ ***********************************************************************/
+ 
+ #include "babelconfig.h"
++#include <stdlib.h>
+ #if HAVE_IOSTREAM
+ 	#include <iostream>
+ #elif HAVE_IOSTREAM_H
+diff -Nur ./origin/openbabel-2.0.0/src/obconversion.cpp ./openbabel-2.0.0/src/obconversion.cpp
+--- ./origin/openbabel-2.0.0/src/obconversion.cpp	2005-11-27 00:19:46.000000000 +0200
++++ ./openbabel-2.0.0/src/obconversion.cpp	2019-09-30 12:44:17.910077660 +0300
+@@ -51,6 +51,8 @@
+ #define BUFF_SIZE 32768
+ #endif
+ 
++#include <typeinfo>
++
+ using namespace std;
+ namespace OpenBabel {
+ 
+diff -Nur ./origin/openbabel-2.0.0/src/obconversion.h ./openbabel-2.0.0/src/obconversion.h
+--- ./origin/openbabel-2.0.0/src/obconversion.h	2005-11-27 00:19:46.000000000 +0200
++++ ./openbabel-2.0.0/src/obconversion.h	2019-09-30 12:44:23.054494476 +0300
+@@ -43,6 +43,7 @@
+ #include <map>
+ 
+ #include "dlhandler.h"
++#include <string.h>
+ 
+ // These macros are used in DLL builds. If they have not
+ // been set in babelconfig.h, define them as nothing.
+diff -Nur ./origin/openbabel-2.0.0/src/obmolecformat.h ./openbabel-2.0.0/src/obmolecformat.h
+--- ./origin/openbabel-2.0.0/src/obmolecformat.h	2005-11-27 00:19:46.000000000 +0200
++++ ./openbabel-2.0.0/src/obmolecformat.h	2019-09-30 12:44:28.062897227 +0300
+@@ -21,6 +21,7 @@
+ 
+ #include "mol.h"
+ #include "obconversion.h"
++#include <typeinfo>
+ 
+ namespace OpenBabel {
+ 
+diff -Nur ./origin/openbabel-2.0.0/src/tokenst.cpp ./openbabel-2.0.0/src/tokenst.cpp
+--- ./origin/openbabel-2.0.0/src/tokenst.cpp	2005-11-27 00:19:48.000000000 +0200
++++ ./openbabel-2.0.0/src/tokenst.cpp	2019-09-30 12:44:33.615340250 +0300
+@@ -24,6 +24,7 @@
+ #include <algorithm>
+ #include <vector>
+ #include <string>
++#include <string.h>
+ 
+ #include "babelconfig.h"
+ 

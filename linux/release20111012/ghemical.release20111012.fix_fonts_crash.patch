@@ -1,0 +1,141 @@
+diff -Nur ./origin/ghemical-3.0.0/src/eldview_wcl.cpp ./ghemical-3.0.0/src/eldview_wcl.cpp
+--- ./ghemical-3.0.0/src/eldview_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/eldview_wcl.cpp	2019-10-01 10:17:39.762934531 +0300
+@@ -132,7 +132,7 @@
+ 	// all classes that inherit pangofont_wcl must call ogl_InitPangoFont()!!!
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+-	ogl_InitPangoFont("courier 12");
++	ogl_InitPangoFonts();
+ }
+ 
+ void eldview_wcl::RenderGL(rmode)
+diff -Nur ./origin/ghemical-3.0.0/src/gpcview_wcl.cpp ./ghemical-3.0.0/src/gpcview_wcl.cpp
+--- ./ghemical-3.0.0/src/gpcview_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/gpcview_wcl.cpp	2019-10-01 10:17:45.770969719 +0300
+@@ -58,7 +58,7 @@
+ 	// all classes that inherit pangofont_wcl must call ogl_InitPangoFont()!!!
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+-	ogl_InitPangoFont("courier 12");
++	ogl_InitPangoFonts();
+ }
+ 
+ void gpcview_wcl::RenderGL(rmode)
+diff -Nur ./origin/ghemical-3.0.0/src/oglview_wcl.cpp ./ghemical-3.0.0/src/oglview_wcl.cpp
+--- ./ghemical-3.0.0/src/oglview_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/oglview_wcl.cpp	2019-10-01 10:17:54.275019928 +0300
+@@ -926,7 +926,7 @@
+ 	// all classes that inherit pangofont_wcl must call ogl_InitPangoFont()!!!
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+-	ogl_InitPangoFont("courier 12");
++	ogl_InitPangoFonts();
+ }
+ 
+ void oglview_wcl::RenderGL(rmode rm)
+diff -Nur ./origin/ghemical-3.0.0/src/p1dview_wcl.cpp ./ghemical-3.0.0/src/p1dview_wcl.cpp
+--- ./ghemical-3.0.0/src/p1dview_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/p1dview_wcl.cpp	2019-10-01 10:18:01.539063177 +0300
+@@ -168,7 +168,7 @@
+ 	// all classes that inherit pangofont_wcl must call ogl_InitPangoFont()!!!
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+-	ogl_InitPangoFont("courier 12");
++	ogl_InitPangoFonts();
+ }
+ 
+ void p1dview_wcl::RenderGL(rmode)
+diff -Nur ./origin/ghemical-3.0.0/src/p2dview_wcl.cpp ./ghemical-3.0.0/src/p2dview_wcl.cpp
+--- ./ghemical-3.0.0/src/p2dview_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/p2dview_wcl.cpp	2019-10-01 10:18:07.075096354 +0300
+@@ -204,7 +204,7 @@
+ 	// all classes that inherit pangofont_wcl must call ogl_InitPangoFont()!!!
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+-	ogl_InitPangoFont("courier 12");
++	ogl_InitPangoFonts();
+ }
+ 
+ void p2dview_wcl::RenderGL(rmode)
+diff -Nur ./origin/ghemical-3.0.0/src/pangofont_wcl.cpp ./ghemical-3.0.0/src/pangofont_wcl.cpp
+--- ./ghemical-3.0.0/src/pangofont_wcl.cpp	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/pangofont_wcl.cpp	2019-10-01 10:18:34.803265216 +0300
+@@ -49,7 +49,7 @@
+ 	}
+ }
+ 
+-void pangofont_wcl::ogl_InitPangoFont(const gchar * fs)
++bool pangofont_wcl::ogl_InitPangoFont(const gchar * fs)
+ {
+ 	if (!fs)
+ 	{
+@@ -59,21 +59,19 @@
+ 	if (font_string != NULL)
+ 	{
+ 		cout << "WARNING : pangofont_wcl::ogl_InitPangoFont() is already called." << endl;
+-		return;
++		return true;
+ 	}
+ 	
+ 	font_string = g_strdup(fs);
+ 	
+-	// generate font display lists.
+-	
+-	font_list_base = glGenLists(128);
+-	
+ 	PangoFontDescription * font_desc = pango_font_description_from_string(font_string);
+ 	PangoFont * font = gdk_gl_font_use_pango_font(font_desc, 0, 128, font_list_base);
+ 	if (font == NULL)
+ 	{
+ 		g_print(_("*** ERROR : Can't load font '%s'\n"), font_string);
+-		exit(EXIT_FAILURE);
++		g_free(font_string);
++		font_string = NULL;
++		return false;
+ 	}
+ 	
+ 	PangoFontMetrics * font_metrics = pango_font_get_metrics(font, NULL);
+@@ -83,6 +81,29 @@
+ 	
+ 	pango_font_description_free(font_desc);
+ 	pango_font_metrics_unref(font_metrics);
++
++	g_print(_("font '%s' loaded\n"), font_string);
++	return true;
++}
++
++void pangofont_wcl::ogl_InitPangoFonts()
++{
++	// generate font display lists.
++	
++	font_list_base = glGenLists(128);
++	
++	const char * font_names[] = {"courier 12", "Courier 10 Pitch", "Bitstream Charter", "Verdana 12", "Arial 12", "Cantarell 12", "Sans 12", };
++	int n = sizeof (font_names) / sizeof (font_names[0]);
++	g_print(_("n = %d\n"), n);
++	for (int i = 0; i < n; ++i)
++	{
++		if (ogl_InitPangoFont(font_names[i]))
++		{
++			return;
++		}
++	}
++	g_print(_("*** ERROR : Can't load any predefined font\n"));
++	exit(EXIT_FAILURE);
+ }
+ 
+ int pangofont_wcl::ogl_GetStringWidth(const char * str)
+diff -Nur ./origin/ghemical-3.0.0/src/pangofont_wcl.h ./ghemical-3.0.0/src/pangofont_wcl.h
+--- ./ghemical-3.0.0/src/pangofont_wcl.h	2011-09-14 20:10:38.000000000 +0300
++++ ./ghemical-3.0.0/src/pangofont_wcl.h	2019-10-01 10:18:44.323324169 +0300
+@@ -48,7 +48,8 @@
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ // the implementation is taken from gtkglext-1.2/examples/font.c by Naosumi Yasufuku.
+ 	
+-	void ogl_InitPangoFont(const gchar *);
++	bool ogl_InitPangoFont(const gchar *);
++	void ogl_InitPangoFonts();
+ 	
+ 	int ogl_GetStringWidth(const char *);
+ 	void ogl_WriteString2D(const char *, GLfloat, GLfloat);

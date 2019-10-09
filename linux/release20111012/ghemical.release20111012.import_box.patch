@@ -1,0 +1,123 @@
+diff -Nur ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp
+--- ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp	2019-10-01 16:45:30.544597399 +0300
++++ ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp	2019-10-01 16:33:31.697735335 +0300
+@@ -51,7 +51,8 @@
+ 	{ "FileExtraMenu", NULL, N_("Extra Tools") },
+ 	// ^^^^^^^^^^^^^
+ 	{ "FileExtra1", NULL, N_("Import PDB"), NULL, N_("Import a PDB file"), (GCallback) gtk_project::popup_FileExtra1 },
+-//	{ "FileExtra2", NULL, N_("Import ???"), NULL, N_("Import a ??? file"), (GCallback) gtk_project::popup_FileExtra2 },
++	{ "FileExtra2", NULL, N_("Import Box"), NULL, N_("Import a Box file"), (GCallback) gtk_project::popup_FileExtra2 },
++//	{ "FileExtra3", NULL, N_("Import ???"), NULL, N_("Import a ??? file"), (GCallback) gtk_project::popup_FileExtra3 },
+ 	
+ 	{ "SelectMenu", NULL, N_("Select") },
+ 	// ^^^^^^^^^^
+@@ -212,7 +213,8 @@
+ "      <separator/>"
+ "      <menu action='FileExtraMenu'>"
+ "        <menuitem action='FileExtra1'/>"
+-//"        <menuitem action='FileExtra2'/>"
++"        <menuitem action='FileExtra2'/>"
++//"        <menuitem action='FileExtra3'/>"
+ "      </menu>"
+ "      <separator/>"
+ "      <menuitem action='Close'/>"
+diff -Nur ./ghemical-3.0.0/src/gtk_project.cpp ./ghemical-3.0.0/src/gtk_project.cpp
+--- ./ghemical-3.0.0/src/gtk_project.cpp	2019-10-01 16:45:30.540597335 +0300
++++ ./ghemical-3.0.0/src/gtk_project.cpp	2019-10-01 14:58:28.932890030 +0300
+@@ -498,6 +498,14 @@
+ {
+ 	gtk_project * prj = gtk_app::GetPrjX();
+ 	
++	// will call delete itself...
++	if (prj) new gtk_importbox_dialog(prj);
++}
++
++void gtk_project::popup_FileExtra3(GtkWidget *, gpointer data)
++{
++	gtk_project * prj = gtk_app::GetPrjX();
++	
+ // this is just a stub for a new "extra"-item...
+ // this is just a stub for a new "extra"-item...
+ // this is just a stub for a new "extra"-item...
+diff -Nur ./ghemical-3.0.0/src/gtk_project.h ./ghemical-3.0.0/src/gtk_project.h
+--- ./ghemical-3.0.0/src/gtk_project.h	2019-10-01 16:45:30.548597464 +0300
++++ ./ghemical-3.0.0/src/gtk_project.h	2019-10-01 14:57:42.416086005 +0300
+@@ -132,7 +132,8 @@
+ 	static void popup_FileExport(GtkWidget *, gpointer);
+ 	static void popup_FileExportGraphics(GtkWidget *, gpointer);
+ 	static void popup_FileExtra1(GtkWidget *, gpointer);
+-	static void popup_FileExtra2(GtkWidget *, gpointer);	// this is just a stub for a new "extra"-item...
++	static void popup_FileExtra2(GtkWidget *, gpointer);
++	static void popup_FileExtra3(GtkWidget *, gpointer);	// this is just a stub for a new "extra"-item...
+ 	
+ 	static void popup_SelectAll(GtkWidget *, gpointer);
+ 	static void popup_SelectNone(GtkWidget *, gpointer);
+diff -Nur ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp
+--- ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2019-10-01 16:45:30.544597399 +0300
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2019-10-01 16:30:36.660725326 +0300
+@@ -466,6 +466,38 @@
+ 
+ /*################################################################################################*/
+ 
++const char gtk_importbox_dialog::title[] = "Import File - Brookhaven PDB/ENT";
++gtk_project * gtk_importbox_dialog::prj = NULL;
++
++gtk_importbox_dialog::gtk_importbox_dialog(gtk_project * p1) :
++	gtk_file_dialog(title, NULL, NULL)
++{
++	prj = p1;
++}
++
++gtk_importbox_dialog::~gtk_importbox_dialog(void)
++{
++}
++
++bool gtk_importbox_dialog::OkEvent(const char * filename)
++{
++	if (prj != NULL)
++	{
++		prj->LoadBox(filename);
++		
++		prj->UpdateAllGraphicsViews();
++		custom_app::GetAppC()->UpdateAllWindowTitles();
++	}
++	
++	return true;
++}
++
++void gtk_importbox_dialog::CancelEvent(void)
++{
++}
++
++/*################################################################################################*/
++
+ gtk_project * gtk_command_dialog::prj;
+ oglview_wcl * gtk_command_dialog::wcl;
+ 
+diff -Nur ./ghemical-3.0.0/src/gtk_simple_dialogs.h ./ghemical-3.0.0/src/gtk_simple_dialogs.h
+--- ./ghemical-3.0.0/src/gtk_simple_dialogs.h	2019-10-01 16:45:30.544597399 +0300
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.h	2019-10-01 16:15:32.015446714 +0300
+@@ -186,6 +186,23 @@
+ 	bool OkEvent(const char *);	// virtual
+ 	void CancelEvent(void);		// virtual
+ };
++/*################################################################################################*/
++
++class gtk_importbox_dialog : public gtk_file_dialog
++{
++	private:
++	
++	static const char title[];
++	static gtk_project * prj;
++	
++	public:
++	
++	gtk_importbox_dialog(gtk_project *);
++	~gtk_importbox_dialog(void);
++	
++	bool OkEvent(const char *);	// virtual
++	void CancelEvent(void);		// virtual
++};
+ 
+ /*################################################################################################*/
+ 
