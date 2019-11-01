@@ -1,3 +1,5 @@
+# steps for environment setting
+
 # sudo apt-get install intltool
 # configure: error: Package requirements (gtk+-2.0 >= 2.6.0 gtkglext-1.0 >= 1.0.5 libglade-2.0 >= 2.4.0) were not met:
 # sudo apt-get install libgtkglextmm-x11-1.2-dev
@@ -20,6 +22,13 @@
 
 # (ghemical:28809): Gtk-CRITICAL **: IA__gtk_text_buffer_get_iter_at_mark: assertion '!gtk_text_mark_get_deleted (mark)' failed
 
+
+# steps for building
+
+# make download
+# make getcodes
+# make all
+
 current_dir = $(shell pwd)
 install_dir=${current_dir}/local
 
@@ -31,6 +40,13 @@ libghemical_lib_path=$(install_dir)/lib
 
 MOPAC7_INCDIR=$(install_dir)/include
 mopac7_lib_path=$(install_dir)/lib
+
+download:
+	wget https://www.bioinformatics.org/ghemical/download/release20111012/ghemical-3.0.0.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20111012/libghemical-3.0.0.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20111012/liboglappth-1.0.0.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20111012/mopac7-1.15.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/archive/openbabel-2.0.0.tar.gz
 
 all: mopac7 liboglappth libghemical ghemical openbabel
 clean: mopac7_clean liboglappth_clean libghemical_clean ghemical_clean openbabel_clean
