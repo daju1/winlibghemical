@@ -70,6 +70,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.fix_fonts_crash.patch
 	patch -p1 < ./ghemical.release20111012.apply_periodic_bond.patch
 	patch -p1 < ./ghemical.release20111012.import_box.patch
+	patch -p1 < ./ghemical.release20111012.traj_plots.patch
 
 prepare_originals_for_patch:
 	make clean
@@ -157,13 +158,13 @@ clean_before_patch:
 	$(call clear_before_patch, mopac7-1.15)
 
 do_patch1:
-	diff -Nur ghemical-3.0.0.original    ghemical-3.0.0
+	diff -Nur ./ghemical-3.0.0.original    ./ghemical-3.0.0
 
 do_patch2:
-	diff -Nur libghemical-3.0.0.original libghemical-3.0.0 > file.patch
-	diff -Nur liboglappth-1.0.0.original liboglappth-1.0.0
-	diff -Nur mopac7-1.15.original       mopac7-1.15
-	diff -Nur openbabel-2.0.0.original   openbabel-2.0.0
+	diff -Nur ./libghemical-3.0.0.original ./libghemical-3.0.0 > file.patch
+	diff -Nur ./liboglappth-1.0.0.original ./liboglappth-1.0.0
+	diff -Nur ./mopac7-1.15.original       ./mopac7-1.15
+	diff -Nur ./openbabel-2.0.0.original   ./openbabel-2.0.0
 
 remove_originals:
 	rm -f -r ghemical-3.0.0.original

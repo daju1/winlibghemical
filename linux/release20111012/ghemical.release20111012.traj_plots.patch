@@ -1,0 +1,943 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2019-11-03 11:02:04.441859273 +0200
++++ ././ghemical-3.0.0/src/project.cpp	2019-11-03 11:52:50.385894276 +0200
+@@ -388,6 +388,67 @@
+ 
+ #endif	// ENABLE_OPENBABEL
+ 
++void project::UnSetTheFlagOnSelectedAtoms(i32u flag_number)
++{
++	i32u flag = (1 << flag_number);
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		if ((* it1).flags & ATOMFLAG_USER_SELECTED)
++		{
++			(* it1).flags &= (~flag);
++		}
++	}
++}
++
++void project::SetTheFlagOnSelectedAtoms(i32u flag_number)
++{
++	i32u flag = (1 << flag_number);
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		if ((* it1).flags & ATOMFLAG_USER_SELECTED)
++		{
++			(* it1).flags |= flag;
++		}
++	}
++}
++
++void project::SelectAtomsWithTheFlag(i32u flag_number)
++{
++	// select none
++	iter_al it1 = atom_list.begin();
++	while (it1 != atom_list.end()) (* it1++).flags &= (~ATOMFLAG_USER_SELECTED);
++	
++	i32u flag = (1 << flag_number);
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		if ((* it1).flags & flag)
++		{
++			(* it1).flags |= ATOMFLAG_USER_SELECTED;
++		}
++	}
++}
++
++void project::MoveSelectedAtoms(const f64 shift[3])
++{
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		if (!((* it1).flags & ATOMFLAG_USER_SELECTED))
++			continue;
++
++		const fGL * crd = (* it1).GetCRD(0);
++
++		fGL x = crd[0] + shift[0];
++		fGL y = crd[1] + shift[1];
++		fGL z = crd[2] + shift[2];
++
++		(* it1).SetCRD(0, x, y, z);
++	}
++}
++
++
+ /*##############################################*/
+ /*##############################################*/
+ 
+@@ -1501,7 +1562,124 @@
+ 		DoMonteCarloSearch(n_init_steps, n_simul_steps, optsteps, true);
+ 		return;
+ 	}
++	if (!strcmp("make_plot_ang", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// A
++		char kw3[32]; istr >> kw3;	// B
++		char kw4[32]; istr >> kw4;	// C
++
++		char ** endptr = NULL;
++		
++		i32s ia = strtol(kw2, endptr, 10);
++		i32s ib = strtol(kw3, endptr, 10);
++		i32s ic = strtol(kw4, endptr, 10);
++		
++		TrajView_AnglePlot(ia, ib, ic);
++		return;
++	}
++
++
++	if (!strcmp("make_plot_dist", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// A
++		char kw3[32]; istr >> kw3;	// B
++
++		char ** endptr = NULL;
++		
++		i32s ia = strtol(kw2, endptr, 10);
++		i32s ib = strtol(kw3, endptr, 10);
++		
++		TrajView_DistancePlot(ia, ib);
++		return;
++	}
++
++	if (!strcmp("vel_dist_2d", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// divx
++		char kw3[32]; istr >> kw3;	// divy
++		char kw4[32]; istr >> kw4;	// dt
++
++		char ** endptr = NULL;
++		
++		i32s divx = strtol(kw2, endptr, 10);
++		i32s divy = strtol(kw3, endptr, 10);
++		f64 dt = strtod(kw4, endptr);
++		
++		TrajView_VeloncityDistribution2D(divx, divy, dt);
++		return;
++	}
++
++	if (!strcmp("make_plot_crd_diff", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// ind1
++		char kw3[32]; istr >> kw3;	// ind2
++		char kw4[32]; istr >> kw4;	// dim
++
++		char ** endptr = NULL;
++		
++		i32s ind1 = strtol(kw2, endptr, 10);
++		i32s ind2 = strtol(kw3, endptr, 10);
++		i32s dim = strtol(kw4, endptr, 10);
++		
++		TrajView_CoordinateDifferencePlot(ind1, ind2, dim);
++		return;
++	}
++
++	if (!strcmp("make_plot_crd", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// A
++		char kw3[32]; istr >> kw3;	// B
++
++		char ** endptr = NULL;
++		
++		i32s inda = strtol(kw2, endptr, 10);
++		i32s dim = strtol(kw3, endptr, 10);
++		
++		TrajView_CoordinatePlot(inda, dim);
++		return;
++	}
+ 	
++	if (!strcmp("sel_atoms_with_flag", kw1))
++	{
++		char kw2[32]; istr >> kw2;	
++		char ** endptr = NULL;		
++		i32u flag_num = strtoul(kw2, endptr, 10);		
++		SelectAtomsWithTheFlag(flag_num);
++		return;
++	}
++
++	if (!strcmp("set_flag_on_sel_atoms", kw1))
++	{
++		char kw2[32]; istr >> kw2;	
++		char ** endptr = NULL;		
++		i32u flag_num = strtoul(kw2, endptr, 10);		
++		SetTheFlagOnSelectedAtoms(flag_num);
++		return;
++	}
++
++	if (!strcmp("unset_flag_on_sel_atoms", kw1))
++	{
++		char kw2[32]; istr >> kw2;	
++		char ** endptr = NULL;		
++		i32u flag_num = strtoul(kw2, endptr, 10);		
++		UnSetTheFlagOnSelectedAtoms(flag_num);
++		return;
++	}
++
++	if (!strcmp("move_sel_atoms", kw1))
++	{
++		char kw2[32]; istr >> kw2;//dx
++		char kw3[32]; istr >> kw3;//dy
++		char kw4[32]; istr >> kw4;//dz
++		char ** endptr = NULL;
++		f64 dx = strtod(kw2, endptr);
++		f64 dy = strtod(kw3, endptr);
++		f64 dz = strtod(kw4, endptr);
++		const f64 shift[3] = {dx, dy, dz};
++		MoveSelectedAtoms(shift);
++		return;
++	}
++
+ 	if (!strcmp("make_plot1", kw1))
+ 	{
+ 		char kw2[32]; istr >> kw2;	// A
+@@ -3442,7 +3620,7 @@
+ 	UpdateAllGraphicsViews();
+ }
+ 
+-void project::DoFormula(void)
++double project::DoFormula(void)
+ {
+ 	int i;
+ 	double molweight = 0.0;
+@@ -3494,7 +3672,662 @@
+ 	str << _("MW: ") << molweight << ends;
+ 	
+ 	Message(str.str().c_str());
++
++	return molweight;
++}
++void project::DoDensity(void)
++{
++	double molweight = this->DoFormula();
++	double V = 
++		this->saved_periodic_box_HALFdim[0] * 
++		this->saved_periodic_box_HALFdim[1] * 
++		this->saved_periodic_box_HALFdim[2] * 
++		8.0;// nm^3
++
++	double Na = 6.0221367e+23;
++	double m = molweight / Na;
++	double density = 1.0e+21 * m / V;
++
++	ostringstream str;
++	str << endl;
++	str << "density: " << density << " g/sm^3" << ends;
++
++	Message(str.str().c_str());
++}
++
++void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));	
++		return;
++	}
++		
++	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++
++	float ekin;
++	float epot;
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0;loop < max_frames;loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++		
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		i32s ind = 0;
++		mt_a1 = mt_a2 = mt_a3 = NULL;		
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++			}
++			#if 0
++			if (extended_trajectory)
++			{
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//vdata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//adata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//fdata[t4] = t1a;
++				}  
++			}
++			#endif
++			
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			if (ind == inda)
++			{
++				mt_a1 = &(* it1);
++			}
++
++			/*if (ind == indb)
++			{
++				mt_a2 = &(* it1);
++			}
++
++			if (ind == indc)
++			{
++				mt_a3 = &(* it1);
++			}*/
++
++			ind++;
++		}
++
++		fGL coordinate;
++
++		if (mt_a1 && dim >=0 && dim < 3)
++		{
++			const fGL * p1 = mt_a1->GetCRD(0);
++			coordinate = p1[dim];
++		}
++		else
++			coordinate = 0;
++
++		f64 value = coordinate;
++		plot->AddData(loop, value);
++
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++	}
++
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
++}
++
++void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));	
++		return;
++	}
++		
++	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++
++	float ekin;
++	float epot;
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0;loop < max_frames;loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++		
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		i32s ind = 0;
++		mt_a1 = mt_a2 = mt_a3 = NULL;		
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++			}
++			#if 0
++			if (extended_trajectory)
++			{
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//vdata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//adata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//fdata[t4] = t1a;
++				}
++			}
++			#endif
++
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			if (ind == ind1)
++			{
++				mt_a1 = &(* it1);
++			}
++
++			if (ind == ind2)
++			{
++				mt_a2 = &(* it1);
++			}
++
++			/*if (ind == indc)
++			{
++				mt_a3 = &(* it1);
++			}*/
++
++			ind++;
++		}
++
++		fGL coordinate;
++
++		if (mt_a1 && mt_a2 && dim >=0 && dim < 3)
++		{
++			const fGL * p1 = mt_a1->GetCRD(0);
++			const fGL * p2 = mt_a2->GetCRD(0);
++// my measure
++//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
++			coordinate = p1[dim]-p2[dim];
++		}
++		else
++			coordinate = 0;
++
++		f64 value = coordinate;
++		plot->AddData(loop, value);
++
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++	}
++
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
+ }
++struct xyz
++{
++	f64 x,y,z;
++	xyz()
++	{
++		x = y = z = 0.0;
++	}
++	xyz(f64 _x, f64 _y, f64 _z)
++	{
++		x = _x;
++		y = _y;
++		z = _z;
++	}
++};
++void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
++{
++	dt *= 100 * 1e-15;
++				
++	const char * s1 = "tor1(deg)"; const char * s2 = "tor2(deg)"; const char * sv = "E(kJ/mol)";
++	p2dview_wcl * plot = AddPlot2DClient(s1, s2, sv, true);
++	
++	//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++	//plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
++	//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++
++	p1dview_wcl * plot1 = AddPlot1DClient(s1, sv, true);
++	p1dview_wcl * plot11 = AddPlot1DClient(s1, sv, true);
++
++
++	float ekin;
++	float epot;
++
++	vector<xyz> coordinates_xyz;
++
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		if (!((* it1).flags & ATOMFLAG_USER_SELECTED)) continue;	
++		coordinates_xyz.push_back(xyz());
++	}
++
++	vector<xyz> veloncities_xyz;
++
++	xyz mean_traj_coordinate = xyz();
++
++	xyz minvel, maxvel;
++
++	f64 sum_mom_xy = 0.0;
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0;loop < max_frames;loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++		
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		i32s ind = 0;
++		xyz mean_shift = xyz();
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++			}
++			#if 0
++			if (extended_trajectory)
++			{
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//vdata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//adata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//fdata[t4] = t1a;
++				}
++			}
++			#endif
++
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			if (!((* it1).flags & ATOMFLAG_USER_SELECTED)) continue;	
++
++			if (loop)
++			{
++				xyz dist;
++
++				dist.x = cdata[0] - coordinates_xyz[ind].x;
++				dist.y = cdata[1] - coordinates_xyz[ind].y;
++				dist.z = cdata[2] - coordinates_xyz[ind].z;
++
++				i32s n1 = 0;
++				{
++					if (dist.x < -this->saved_periodic_box_HALFdim[n1])
++					{
++						dist.x += 2.0*this->saved_periodic_box_HALFdim[n1];
++					}
++					else if (dist.x > this->saved_periodic_box_HALFdim[n1])
++					{
++						dist.x -= 2.0*this->saved_periodic_box_HALFdim[n1];
++					}
++				}
++
++
++				f64 vx = dist.x / dt;
++				f64 vy = dist.y / dt;
++				f64 vz = dist.z / dt;
++
++				veloncities_xyz.push_back(xyz(vx,vy,vz));
++
++				if (minvel.x > vx) minvel.x = vx;
++				if (minvel.y > vy) minvel.y = vy;
++				if (minvel.z > vz) minvel.z = vz;
++
++				if (maxvel.x < vx) maxvel.x = vx;
++				if (maxvel.y < vy) maxvel.y = vy;
++				if (maxvel.z < vz) maxvel.z = vz;
++
++				mean_shift.x += dist.x;
++				mean_shift.y += dist.y;
++				mean_shift.z += dist.z;
++			}
++
++			coordinates_xyz[ind].x = cdata[0];
++			coordinates_xyz[ind].y = cdata[1];
++			coordinates_xyz[ind].z = cdata[2];
++
++
++			ind++;
++		}
++
++		mean_shift.x /= ind;
++		mean_shift.y /= ind;
++		mean_shift.z /= ind;
++
++		mean_traj_coordinate.x += mean_shift.x;
++		mean_traj_coordinate.y += mean_shift.y;
++		mean_traj_coordinate.z += mean_shift.z;
++
++		// x*vy-y*vx
++		sum_mom_xy +=  
++			(mean_traj_coordinate.x * mean_shift.y - 
++			mean_traj_coordinate.y * mean_shift.x);
++
++		plot1->AddData(mean_traj_coordinate.x, mean_traj_coordinate.y);
++		plot11->AddData(loop, sum_mom_xy);
++	}
++
++	f64 range_x[2];
++	range_x[0] = minvel.x;
++	range_x[1] = maxvel.x;
++
++	f64 range_y[2];
++	range_y[0] = minvel.y;
++	range_y[1] = maxvel.y;
++
++	vector<vector<f64> > m;
++	m.resize(divx);
++
++	for (i32s sx = 0; sx < divx; sx++)
++	{
++		m[sx].resize(divy, 0.0);
++	}
++
++
++	for (vector<xyz>::iterator it_vel = veloncities_xyz.begin();
++		it_vel != veloncities_xyz.end(); it_vel++)
++	{
++		i32s sx = i32s((((*it_vel).x - minvel.x) / (maxvel.x - minvel.x)) * f64(divx));
++		if (sx == divx) sx--;
++
++		i32s sy = i32s((((*it_vel).y - minvel.y) / (maxvel.y - minvel.y)) * f64(divy));
++		if (sy == divy) sy--;
++
++		m[sx][sy] += 1.0;			
++	}
++
++
++	f64 vx = range_x[0];
++
++	for (i32s sx = 0; sx < divx; sx++)
++	{
++		f64 vy = range_y[0];
++		for (i32s sy = 0; sy < divy; sy++)
++		{
++			// ...and add it to the plot.			
++			plot->AddData(vx, vy, m[sx][sy]);
++			vy += (range_y[1] - range_y[0]) / (f64) divy;
++		}
++		
++		vx += (range_x[1] - range_x[0]) / (f64) divx;
++	}
++	
++	// the "eng" object is the setup->current_eng object, so there's no need to delete it...
++	plot1->Finalize();
++	plot1->GetWnd()->RequestUpdate(false);
++
++	plot11->Finalize();
++	plot11->GetWnd()->RequestUpdate(false);
++	
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
++}
++
++void project::TrajView_DistancePlot(i32s inda, i32s indb)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));	
++		return;
++	}
++		
++	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++
++	float ekin;
++	float epot;
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0;loop < max_frames;loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++		
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		i32s ind = 0;
++		mt_a1 = mt_a2 = mt_a3 = NULL;		
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++			}
++			#if 0
++			if (extended_trajectory)
++			{
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//vdata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//adata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//fdata[t4] = t1a;
++				}
++			}
++			#endif
++			
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			if (ind == inda)
++			{
++				mt_a1 = &(* it1);
++			}
++
++			if (ind == indb)
++			{
++				mt_a2 = &(* it1);
++			}
++
++			/*if (ind == indc)
++			{
++				mt_a3 = &(* it1);
++			}*/
++
++
++			ind++;
++		}
++
++		fGL dist;
++
++		if (mt_a1 && mt_a2)
++		{
++			const fGL * p1 = mt_a1->GetCRD(0);
++			const fGL * p2 = mt_a2->GetCRD(0);
++// my measure
++cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
++cout  << "el = " << mt_a2->el.GetSymbol() << " " << mt_a2->el.GetAtomicNumber() << " x = " << p2[0] << " y = " << p2[1] << " z = " << p2[2] << endl;
++			v3d<fGL> v1(p2, p1);
++			dist = v1.len();
++		}
++		else
++			dist = 0;
++
++		f64 value = dist;
++		plot->AddData(loop, value);
++
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++	}
++
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
++}
++
++
++
++void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));	
++		return;
++	}	
++		
++	const char * s1 = "frame(num)"; const char * sv = "angle (degree)";
++	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++
++	float ekin;
++	float epot;
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0;loop < max_frames;loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++		
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		i32s ind = 0;
++		mt_a1 = mt_a2 = mt_a3 = NULL;		
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++			}
++			#if 0
++			if (extended_trajectory)
++			{
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//vdata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//adata[t4] = t1a;
++				}
++				for (i32s t4 = 0;t4 < 3;t4++){
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					//fdata[t4] = t1a;
++				}
++			}
++			#endif
++			
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			if (ind == inda)
++			{
++				mt_a1 = &(* it1);
++			}
++
++			if (ind == indb)
++			{
++				mt_a2 = &(* it1);
++			}
++
++			if (ind == indc)
++			{
++				mt_a3 = &(* it1);
++			}
++
++			ind++;
++		}
++
++		fGL ang;
++
++		if (mt_a1 && mt_a2 && mt_a3)
++		{
++			const fGL * p1 = mt_a1->GetCRD(0);
++			const fGL * p2 = mt_a2->GetCRD(0);
++			const fGL * p3 = mt_a3->GetCRD(0);			
++// my measure
++cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
++cout  << "el = " << mt_a2->el.GetSymbol() << " " << mt_a2->el.GetAtomicNumber() << " x = " << p2[0] << " y = " << p2[1] << " z = " << p2[2] << endl;
++cout  << "el = " << mt_a3->el.GetSymbol() << " " << mt_a3->el.GetAtomicNumber() << " x = " << p3[0] << " y = " << p3[1] << " z = " << p3[2] << endl;
++			v3d<fGL> v1(p2, p1);
++			v3d<fGL> v2(p2, p3);
++			ang = v1.ang(v2) * 180.0 / M_PI;
++		}
++		else
++			ang = 0;
++
++		f64 value = ang;
++		plot->AddData(loop, value);
++
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++	}
++
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
++}
++
++
++
+ 
+ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s indd, i32s div1, fGL start1, fGL end1, i32s optsteps)
+ {
+diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
+--- ./ghemical-3.0.0.original/src/project.h	2019-11-03 11:02:04.437859478 +0200
++++ ./ghemical-3.0.0/src/project.h	2019-11-03 11:50:37.396049038 +0200
+@@ -365,8 +365,20 @@
+ // however, the classes here are "interactive" and are directly dependent on graphics.
+ // so you don't want to use any of these classes in the console version...
+ 
+-	void DoFormula(void);
+-	
++	double DoFormula(void);
++	void DoDensity(void);
++
++	void SetTheFlagOnSelectedAtoms(i32u flag_number);
++	void UnSetTheFlagOnSelectedAtoms(i32u flag_number);
++	void SelectAtomsWithTheFlag(i32u flag_number);
++	void MoveSelectedAtoms(const f64 shift[3]);
++
++	void TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt);
++	void TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim);
++	void TrajView_CoordinatePlot(i32s ind, i32s dim);
++	void TrajView_DistancePlot(i32s inda, i32s indb);
++	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
++
+ 	void DoEnergyPlot1D(i32s, i32s, i32s, i32s, i32s, fGL, fGL, i32s);
+ 	void DoEnergyPlot2D(i32s, i32s, i32s, i32s, i32s, fGL, fGL, i32s, i32s, i32s, i32s, i32s, fGL, fGL, i32s);
+ 	
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2019-11-03 11:02:04.805840726 +0200
++++ ./libghemical-3.0.0/src/model.cpp	2019-11-03 11:55:42.021626412 +0200
+@@ -4364,6 +4364,29 @@
+ 	}
+ }
+ 
++size_t model::GetTrajectoryHeaderSize()
++{
++	//if (extended_trajectory)
++	//	return (8 + 2 * sizeof(int) + sizeof(float));
++
++	return (8 + 2 * sizeof(int));
++}
++
++size_t model::GetTrajectoryEnergySize()
++{
++	return (2 * sizeof(float));
++}
++
++size_t model::GetTrajectoryFrameSize()
++{
++	//if (extended_trajectory)
++	//	return (GetTrajectoryEnergySize() + 12 * traj_num_atoms * sizeof(float));
++
++	return (GetTrajectoryEnergySize()
++		+ 3 * sizeof(float) // boundary
++		+ 3 * traj_num_atoms * sizeof(float));
++}
++
+ i32s model::GetTotalFrames(void)
+ {
+ 	return total_traj_frames;
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2019-11-03 11:02:04.805840726 +0200
++++ ./libghemical-3.0.0/src/model.h	2019-11-02 09:23:15.910077055 +0200
+@@ -421,7 +421,11 @@
+ 	void OpenTrajectory(const char *);
+ 	void ReadTrajectoryFrame(void);
+ 	void CloseTrajectory(void);
+-	
++
++	size_t GetTrajectoryHeaderSize();
++	size_t GetTrajectoryEnergySize();
++	size_t GetTrajectoryFrameSize();
++
+ 	i32s GetTotalFrames(void);
+ 	ifstream * GetTrajectoryFile(void);
+ 	
