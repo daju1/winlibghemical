@@ -1,0 +1,30 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2019-11-15 17:37:26.182336477 +0200
++++ ./libghemical-3.0.0/src/model.cpp	2019-11-15 14:15:06.360277209 +0200
+@@ -4307,6 +4307,25 @@
+ 		PrintToLog(str.str().c_str());
+ 		
+ 		current_traj_frame = 0;
++
++		// CalcTotalFrames
++		size_t start_pos = trajfile->tellg();
++		trajfile->seekg(0, std::ios::end);
++		size_t end_pos = trajfile->tellg();
++		trajfile->seekg(start_pos, ios::beg);
++		size_t traj_body_size = end_pos - start_pos;
++
++		i32s max_frames = GetTotalFrames();
++		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
++
++		if (total_traj_frames != real_frames)
++		{
++			stringstream str;
++			str << _("the trajectory real_frames ") << real_frames << _(" does not correspond to ") <<  total_traj_frames <<_("frames. Wil be reset") << endl << ends;
++			total_traj_frames = real_frames;
++
++			PrintToLog(str.str().c_str());
++		}
+ 	}
+ 	else PrintToLog(_("trajectory file is already open!\n"));
+ }
+

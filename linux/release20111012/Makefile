@@ -71,6 +71,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.apply_periodic_bond.patch
 	patch -p1 < ./ghemical.release20111012.import_box.patch
 	patch -p1 < ./ghemical.release20111012.traj_plots.patch
+	patch -p1 < ./ghemical.release20111012.calc_real_traj_frames.patch
 
 prepare_originals_for_patch:
 	make clean
