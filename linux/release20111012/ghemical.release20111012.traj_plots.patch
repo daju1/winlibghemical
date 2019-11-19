@@ -1,6 +1,6 @@
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
 --- ./ghemical-3.0.0.original/src/project.cpp	2019-11-03 11:02:04.441859273 +0200
-+++ ././ghemical-3.0.0/src/project.cpp	2019-11-03 11:52:50.385894276 +0200
++++ ./ghemical-3.0.0/src/project.cpp	2019-11-03 11:52:50.385894276 +0200
 @@ -388,6 +388,67 @@
  
  #endif	// ENABLE_OPENBABEL
