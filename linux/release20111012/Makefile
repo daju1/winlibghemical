@@ -73,6 +73,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.traj_plots.patch
 	patch -p1 < ./ghemical.release20111012.calc_real_traj_frames.patch
 	patch -p1 < ./ghemical.release20111012.frame_save_frq_increasing.patch
+	patch -p1 < ./ghemical.release20111012.HAVE_FIX_OF_GTK_IS_TEXT_MARK_FAIL.patch
 
 prepare_originals_for_patch:
 	make clean

@@ -1,0 +1,23 @@
+diff -Nur ./ghemical-3.0.0.original/src/gtk_app.cpp ./ghemical-3.0.0/src/gtk_app.cpp
+--- ./ghemical-3.0.0.original/src/gtk_app.cpp	2019-12-16 15:16:08.850260651 +0200
++++ ./ghemical-3.0.0/src/gtk_app.cpp	2019-12-16 15:10:12.703544984 +0200
+@@ -834,6 +834,10 @@
+ 
+ void gtk_app::sPrintToLog(const char * msg)
+ {
++#ifdef HAVE_FIX_OF_GTK_IS_TEXT_MARK_FAIL
++// (ghemical:7478): Gtk-CRITICAL **: IA__gtk_text_mark_get_deleted: assertion 'GTK_IS_TEXT_MARK (mark)' failed
++// (ghemical:7478): Gtk-CRITICAL **: _gtk_text_btree_get_iter_at_mark: assertion 'GTK_IS_TEXT_MARK (mark)' failed
++// Thread 1 "ghemical" received signal SIGSEGV, Segmentation fault.
+ 	if (strlen(msg) > MSG_BUFF_SZ)
+ 	{
+ 		cout << _("gtk_app::sPrintToLog() : message is too long!") << endl;
+@@ -849,7 +853,7 @@
+ 	gtk_text_buffer_insert(txt_buffer, & txt_iter, msgbuff, -1);
+ 	
+ 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(txt_widget), end_mark);
+-	
++#endif
+ 	cout << "PrintToLog : " << msg;
+ }
+ 
