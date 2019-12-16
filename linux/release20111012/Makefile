@@ -72,6 +72,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.import_box.patch
 	patch -p1 < ./ghemical.release20111012.traj_plots.patch
 	patch -p1 < ./ghemical.release20111012.calc_real_traj_frames.patch
+	patch -p1 < ./ghemical.release20111012.frame_save_frq_increasing.patch
 
 prepare_originals_for_patch:
 	make clean

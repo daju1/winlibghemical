@@ -1,0 +1,12 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2019-12-16 13:03:10.380132972 +0200
++++ ./libghemical-3.0.0/src/model.cpp	2019-12-16 11:16:50.696287416 +0200
+@@ -2968,7 +2968,7 @@
+ 	ofstream ofile;		// the trajectory file...
+ 	ofile.open(param.filename, ios::out | ios::binary);
+ 	
+-	const int frame_save_frq = 100;
++	const int frame_save_frq = 10000;
+ 	const int total_frames = param.nsteps_s / frame_save_frq;
+ 	
+ 	WriteTrajectoryHeader(ofile, total_frames);
