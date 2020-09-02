@@ -1,0 +1,12 @@
+diff -Nur ./openbabel-2.0.0.original/src/obconversion.cpp   ./openbabel-2.0.0/src/obconversion.cpp 
+--- ./openbabel-2.0.0.original/src/obconversion.cpp	2020-09-02 06:09:57.989494293 +0000
++++ ./openbabel-2.0.0/src/obconversion.cpp	2020-09-02 06:18:30.269483662 +0000
+@@ -37,6 +37,8 @@
+ #include <map>
+ //#include <dlfcn.h>
+ 
++#include <stdlib.h>
++
+ #include "obconversion.h"
+ 
+ #ifdef HAVE_LIBZ
