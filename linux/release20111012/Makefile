@@ -76,6 +76,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.HAVE_FIX_OF_GTK_IS_TEXT_MARK_FAIL.patch
 	patch -p1 < ./ghemical.release20111012.reopen_traj_file_on_every_frame_save.patch
 	patch -p1 < ./ghemical.release20111012.fix_openbabel_atoi_declaration.patch
+	patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
 
 prepare_originals_for_patch:
 	make clean
