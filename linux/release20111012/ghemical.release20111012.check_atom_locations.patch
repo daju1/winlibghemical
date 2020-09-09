@@ -1,0 +1,273 @@
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2020-09-09 15:45:14.742655492 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2020-09-09 14:20:09.358789497 +0000
+@@ -323,6 +323,106 @@
+ 	do_virial = false;
+ }
+ 
++bool eng1_mm::CheckTerms(engine_pbc * eng_pbc)
++{
++	if (NULL == eng_pbc)
++	return true;
++
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++//	bond ** bndtab = GetSetup()->GetMMBonds();
++	
++	ostream * ostr = NULL;		// do not print output.
++//	ostream * ostr = & cout;	// print output to cout.
++	
++	if (ostr != NULL) (* ostr) << _("checking nbt1-terms: ");
++	i32s nbt1_err = 0;
++	
++	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
++	{
++		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
++		{
++			i32s test = range_cr1[ind1];
++			while (test < range_cr1[ind1 + 1])
++			{
++				if (cr1[test] == atmtab[ind2]) break;
++				else test++;
++			}
++			
++			// if this is true, then the atoms are not 1-2 or 1-3 related.
++			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++			if (test == range_cr1[ind1 + 1])
++			{
++				f64 t1a; f64 t1b = 0.0;
++				for (i32s n1 = 0;n1 < 3;n1++)
++				{
++					f64 t2a = crd[l2g_mm[ind1] * 3 + n1];
++					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
++					if (t2a < -eng_pbc->get_box_HALFdim(n1))
++					{
++						t2a += 2.0 * eng_pbc->get_box_HALFdim(n1);
++						if (t2a < -eng_pbc->get_box_HALFdim(n1)) 
++						{
++							ostringstream str;
++							str << _("WARNING : t2a ") << t2a << _(" -box_HALFdim[" ) << n1 << _("] ") << -eng_pbc->get_box_HALFdim(n1) << endl << ends;
++							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
++
++							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; a-");
++							return false;
++						}
++					}
++					else if (t2a > +eng_pbc->get_box_HALFdim(n1))
++					{
++						t2a -= 2.0 * eng_pbc->get_box_HALFdim(n1);
++						if (t2a > +eng_pbc->get_box_HALFdim(n1))
++						{
++							ostringstream str;
++							str << _("WARNING : t2a ") << t2a << _(" +box_HALFdim[" ) << n1 << _("] ") << +eng_pbc->get_box_HALFdim(n1) << endl << ends;
++							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
++
++							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; a+");
++							return false;
++						}
++					}
++					
++					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
++					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
++					if (t2b < -eng_pbc->get_box_HALFdim(n1))
++					{
++						t2b += 2.0 * eng_pbc->get_box_HALFdim(n1);
++						if (t2b < -eng_pbc->get_box_HALFdim(n1))
++						{
++							ostringstream str;
++							str << _("WARNING : t2b ") << t2b << _(" -box_HALFdim[" ) << n1 << _("] ") << -eng_pbc->get_box_HALFdim(n1) << endl << ends;
++							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
++
++							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; b-");
++							return false;
++						}
++					}
++					else if (t2b > +eng_pbc->get_box_HALFdim(n1))
++					{
++						t2b -= 2.0 * eng_pbc->get_box_HALFdim(n1);
++						if (t2b > +eng_pbc->get_box_HALFdim(n1))
++						{
++							ostringstream str;
++							str << _("WARNING : t2b ") << t2b << _(" +box_HALFdim[" ) << n1 << _("] ") << +eng_pbc->get_box_HALFdim(n1) << endl << ends;
++							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
++
++							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; b+");
++							return false;
++						}
++					}
++				}
++
++
++			}
++		}
++	}
++	
++	return true;
++}
++
++
+ void eng1_mm::SearchCR1a(atom * atm1)
+ {
+ 	for (iter_cl itc = atm1->GetConnRecsBegin();itc != atm1->GetConnRecsEnd();itc++)
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2020-09-09 15:45:14.738655492 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.h	2020-09-09 14:04:35.782814001 +0000
+@@ -154,6 +154,9 @@
+ 	virtual ~eng1_mm(void);
+ 	
+ 	void Compute(i32u, bool = false);	// virtual
++
++
++	bool CheckTerms(engine_pbc * eng_pbc);
+ 	
+ 	virtual i32s GetOrbitalCount(void) { return 0; }	// virtual
+ 	virtual f64 GetOrbitalEnergy(i32s) { return 0.0; }	// virtual
+diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
+--- ./libghemical-3.0.0.original/src/engine.cpp	2020-09-09 15:45:15.110655482 +0000
++++ ./libghemical-3.0.0/src/engine.cpp	2020-09-09 15:02:13.014723257 +0000
+@@ -871,7 +871,7 @@
+ 	delete[] mrange;
+ }
+ 
+-void engine_pbc::CheckLocations(void)
++void engine_pbc::CheckMolLocations(void)
+ {
+ 	atom ** atmtab = GetSetup()->GetAtoms();
+ 	for (i32s n1 = 0;n1 < num_mol;n1++)
+@@ -908,6 +908,29 @@
+ 				}
+ 			}
+ 		}
++	}
++}
++
++void engine_pbc::CheckAtomLocations(void)
++{
++	atom ** atmtab = GetSetup()->GetAtoms();
++	for (i32s n1 = 0;n1 < num_mol;n1++)
++	{
++		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++		{
++			i32u index = atmtab[n2]->varind;
++			for (i32s n3 = 0;n3 < 3;n3++)
++			{
++				if (crd[index * 3 + n3] < -box_HALFdim[n3])
++				{
++					crd[index * 3 + n3] += 2.0 * box_HALFdim[n3];
++				}
++				else if (crd[index * 3 + n3] > +box_HALFdim[n3])
++				{
++					crd[index * 3 + n3] -= 2.0 * box_HALFdim[n3];
++				}
++			}
++		}
+ 	}
+ }
+ 
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2020-09-09 15:45:15.110655482 +0000
++++ ./libghemical-3.0.0/src/engine.h	2020-09-09 14:41:45.738755470 +0000
+@@ -366,12 +366,16 @@
+ 	
+ 	engine_pbc(setup *, i32u);
+ 	virtual ~engine_pbc(void);
+-	
++
+ /**	This will check that molecules have not escaped from the periodic box. 
+ 	If we doing geometry optimization or molecular dynamics for periodic models, 
+ 	we should remember to call this at suitable intervals...
+ */
+-	void CheckLocations(void);
++	void CheckMolLocations(void);
++
++	void CheckAtomLocations(void);
++
++	f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
+ };
+ 
+ /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2020-09-09 15:45:15.118655482 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2020-09-09 15:28:38.906681631 +0000
+@@ -2773,7 +2773,7 @@
+ 	while (!cancel)
+ 	{
+ 		if (!(n1 % 10)) eng->RequestNeighborListUpdate();
+-		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
++		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckAtomLocations();
+ 		
+ 		opt->TakeCGStep(conjugate_gradient::Newton2An);
+ #if USE_BOUNDARY_OPT_ON_GEOMOPT
+@@ -2781,6 +2781,10 @@
+ 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 			if (eng_pbc != NULL)
+ 			{
++				cout << _("saved_periodic_box_HALFdim[0]") << saved_periodic_box_HALFdim[0] << _("eng_pbc->box_HALFdim[0]") << eng_pbc->box_HALFdim[0] << endl;
++				cout << _("saved_periodic_box_HALFdim[1]") << saved_periodic_box_HALFdim[1] << _("eng_pbc->box_HALFdim[1]") << eng_pbc->box_HALFdim[1] << endl;
++				cout << _("saved_periodic_box_HALFdim[2]") << saved_periodic_box_HALFdim[2] << _("eng_pbc->box_HALFdim[2]") << eng_pbc->box_HALFdim[2] << endl;
++
+ 				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+ 				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+ 				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
+@@ -2944,6 +2948,8 @@
+ 	
+ // eng_pbc != NULL if we will use a system with periodic boundary conditions...
+ 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++
++	eng1_mm * eng_mm = dynamic_cast<eng1_mm *>(eng);
+ 	
+ // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
+ //if (eng_bp != NULL) eng_bp->nd_eval = new number_density_evaluator(eng_bp, false, 20);
+@@ -3020,9 +3026,13 @@
+ 	
+ 	for (i32s n1 = 0;n1 < tot_nsteps;n1++)
+ 	{
+-		if (!(n1 % 10))
++		bool checked_terms = true;
++		if (NULL != eng_mm)
++			checked_terms = eng_mm->CheckTerms(eng_pbc);
++
++		if (!(n1 % 10) || !checked_terms)
+ 		{
+-			if (eng_pbc != NULL) eng_pbc->CheckLocations();
++			if (eng_pbc != NULL) eng_pbc->CheckAtomLocations();
+ 			eng->RequestNeighborListUpdate();
+ 		}
+ 		
+@@ -3079,6 +3089,10 @@
+ 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 			if (eng_pbc != NULL)
+ 			{
++				cout << _("saved_periodic_box_HALFdim[0]") << saved_periodic_box_HALFdim[0] << _("eng_pbc->box_HALFdim[0]") << eng_pbc->box_HALFdim[0] << endl;
++				cout << _("saved_periodic_box_HALFdim[1]") << saved_periodic_box_HALFdim[1] << _("eng_pbc->box_HALFdim[1]") << eng_pbc->box_HALFdim[1] << endl;
++				cout << _("saved_periodic_box_HALFdim[2]") << saved_periodic_box_HALFdim[2] << _("eng_pbc->box_HALFdim[2]") << eng_pbc->box_HALFdim[2] << endl;
++
+ 				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+ 				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+ 				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
+diff -Nur ./libghemical-3.0.0.original/src/notice.cpp ./libghemical-3.0.0/src/notice.cpp
+--- ./libghemical-3.0.0.original/src/notice.cpp	2020-09-09 15:45:14.742655492 +0000
++++ ./libghemical-3.0.0/src/notice.cpp	2020-09-09 13:51:31.022834599 +0000
+@@ -112,6 +112,12 @@
+ 	exit(EXIT_FAILURE);
+ }
+ 
++void assertion_warning(const char * fn, int ln, const char * description)
++{
++	cout << _("FATAL ERROR : file ") << fn << _(" line ") << ln << _(" assertion failed : ");
++	cout << (description != NULL ? description : _("<no description>")) << endl;
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/notice.h ./libghemical-3.0.0/src/notice.h
+--- ./libghemical-3.0.0.original/src/notice.h	2020-09-09 15:45:14.738655492 +0000
++++ ./libghemical-3.0.0/src/notice.h	2020-09-09 13:38:59.222854332 +0000
+@@ -44,6 +44,7 @@
+ /*################################################################################################*/
+ 
+ void assertion_failed(const char *, int, const char *);
++void assertion_warning(const char *, int, const char *);
+ 
+ /*################################################################################################*/
+ 
