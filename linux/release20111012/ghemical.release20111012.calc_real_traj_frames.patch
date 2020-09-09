@@ -1,7 +1,7 @@
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2019-11-15 17:37:26.182336477 +0200
 +++ ./libghemical-3.0.0/src/model.cpp	2019-11-15 14:15:06.360277209 +0200
-@@ -4307,6 +4307,25 @@
+@@ -4280,6 +4280,25 @@
  		PrintToLog(str.str().c_str());
  		
  		current_traj_frame = 0;

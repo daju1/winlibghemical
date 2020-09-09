@@ -1,7 +1,7 @@
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2020-09-04 07:18:08.499183792 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2020-09-04 07:08:50.507195372 +0000
-@@ -1455,25 +1455,53 @@
+@@ -1454,25 +1454,53 @@
  	if (t2a < -box_HALFdim[n2])
  	{
  		t2a += 2.0 * box_HALFdim[n2];
@@ -12,7 +12,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2a ") << t2a << _(" -box_HALFdim[" ) << n2 << _("] ") << -box_HALFdim[n2] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; a-");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::ComputeNBT1 PBC failed ; a-");
 +		}
  	}
  	else if (t2a > +box_HALFdim[n2])
@@ -25,7 +25,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2a ") << t2a << _(" +box_HALFdim[" ) << n2 << _("] ") << +box_HALFdim[n2] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; a+");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::ComputeNBT1 PBC failed ; a+");
 +		}
  	}
 -			
@@ -42,7 +42,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2b ") << t2b << _(" -box_HALFdim[" ) << n2 << _("] ") << -box_HALFdim[n2] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; b-");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::ComputeNBT1 PBC failed ; b-");
 +		}
  	}
  	else if (t2b > +box_HALFdim[n2])
@@ -55,12 +55,12 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2b ") << t2b << _(" +box_HALFdim[" ) << n2 << _("] ") << +box_HALFdim[n2] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; b+");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::ComputeNBT1 PBC failed ; b+");
 +		}
  	}
  			
  			t1a[n2] = t2a - t2b;
-@@ -1639,12 +1667,26 @@
+@@ -1638,12 +1666,26 @@
  	if (t2a < -box_HALFdim[n1])
  	{
  		t2a += 2.0 * box_HALFdim[n1];
@@ -71,7 +71,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2a ") << t2a << _(" -box_HALFdim[" ) << n1 << _("] ") << -box_HALFdim[n1] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; a-");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::UpdateTerms PBC failed ; a-");
 +		}
  	}
  	else if (t2a > +box_HALFdim[n1])
@@ -84,12 +84,12 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2a ") << t2a << _(" +box_HALFdim[" ) << n1 << _("] ") << +box_HALFdim[n1] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; a+");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::UpdateTerms PBC failed ; a+");
 +		}
  	}
  					
  					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
-@@ -1652,12 +1694,26 @@
+@@ -1651,12 +1693,26 @@
  	if (t2b < -box_HALFdim[n1])
  	{
  		t2b += 2.0 * box_HALFdim[n1];
@@ -100,7 +100,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2b ") << t2b << _(" -box_HALFdim[" ) << n1 << _("] ") << -box_HALFdim[n1] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; b-");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::UpdateTerms PBC failed ; b-");
 +		}
  	}
  	else if (t2b > +box_HALFdim[n1])
@@ -113,7 +113,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +			str << _("FATAL : t2b ") << t2b << _(" +box_HALFdim[" ) << n1 << _("] ") << +box_HALFdim[n1] << endl << ends;
 +			GetSetup()->GetModel()->PrintToLog(str.str().c_str());
 +
-+			assertion_failed(__FILE__, __LINE__, "PBC failed ; b+");
++			assertion_failed(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::UpdateTerms PBC failed ; b+");
 +		}
  	}
  					

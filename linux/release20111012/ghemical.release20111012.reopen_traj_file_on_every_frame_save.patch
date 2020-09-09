@@ -1,7 +1,7 @@
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2020-01-13 11:18:41.611097330 +0200
 +++ ./libghemical-3.0.0/src/model.cpp	2020-01-13 10:45:13.113113066 +0200
-@@ -2972,6 +2972,7 @@
+@@ -2945,6 +2945,7 @@
  	const int total_frames = param.nsteps_s / frame_save_frq;
  	
  	WriteTrajectoryHeader(ofile, total_frames);
@@ -9,7 +9,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	
  	ThreadUnlock();
  	
-@@ -3137,7 +3138,9 @@
+@@ -3110,7 +3111,9 @@
  		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
  		{
  			CopyCRD(eng, this, 0);
@@ -19,7 +19,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		}
  		
  	// check if graphics update should be made.
-@@ -3155,7 +3158,6 @@
+@@ -3128,7 +3131,6 @@
  		}
  	}
  	

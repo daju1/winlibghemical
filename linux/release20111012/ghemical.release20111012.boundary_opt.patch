@@ -1,0 +1,540 @@
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.am ./libghemical-3.0.0/src/Makefile.am
+--- ./libghemical-3.0.0.original/src/Makefile.am	2020-09-09 02:03:15.275950017 +0000
++++ ./libghemical-3.0.0/src/Makefile.am	2020-09-08 17:05:31.355095414 +0000
+@@ -46,6 +46,7 @@
+ 	conjgrad.cpp \
+ 	intcrd.cpp \
+ 	search.cpp \
++	boundary_opt.cpp \
+ 	geomopt.cpp \
+ 	moldyn.cpp \
+ 	pop_ana.cpp \
+@@ -88,6 +89,7 @@
+ 	conjgrad.h \
+ 	intcrd.h \
+ 	search.h \
++	boundary_opt.h \
+ 	geomopt.h \
+ 	moldyn.h \
+ 	pop_ana.h \
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
+--- ./libghemical-3.0.0.original/src/Makefile.in	2020-09-09 02:03:15.271950017 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2020-09-09 03:26:51.023818365 +0000
+@@ -80,7 +80,7 @@
+ 	eng1_mm_default.lo tab_mm_default.lo eng1_mm_prmfit.lo \
+ 	tab_mm_prmfit.lo eng1_sf.lo eng1_sf_ua.lo eng1_sf_cg.lo \
+ 	eng2_qm_mm.lo notice.lo conjgrad.lo intcrd.lo search.lo \
+-	geomopt.lo moldyn.lo pop_ana.lo sasaeval.lo resonance.lo
++	boundary_opt.lo geomopt.lo moldyn.lo pop_ana.lo sasaeval.lo resonance.lo
+ libghemical_la_OBJECTS = $(am_libghemical_la_OBJECTS)
+ libghemical_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+@@ -289,6 +289,7 @@
+ 	conjgrad.cpp \
+ 	intcrd.cpp \
+ 	search.cpp \
++	boundary_opt.cpp \
+ 	geomopt.cpp \
+ 	moldyn.cpp \
+ 	pop_ana.cpp \
+@@ -330,6 +331,7 @@
+ 	conjgrad.h \
+ 	intcrd.h \
+ 	search.h \
++	boundary_opt.h \
+ 	geomopt.h \
+ 	moldyn.h \
+ 	pop_ana.h \
+@@ -457,6 +459,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_sf_ua.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng2_qm_mm.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/engine.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boundary_opt.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/geomopt.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intcrd.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfinder.Plo@am__quote@
+diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/src/boundary_opt.cpp
+--- ./libghemical-3.0.0.original/src/boundary_opt.cpp	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/boundary_opt.cpp	2020-09-08 17:02:33.683100078 +0000
+@@ -0,0 +1,82 @@
++// BOUNDARY_OPT.CPP
++
++// Copyright (C) 1998 Tommi Hassinen.
++
++// This program is free software; you can redistribute it and/or modify it
++// under the terms of the license (GNU GPL) which comes with this package.
++
++/*################################################################################################*/
++
++#include "boundary_opt.h"
++
++/*################################################################################################*/
++
++boundary_opt::boundary_opt(geomopt_param::box_optimization_type box_opt, 
++						   model* m, engine * p1, i32s p2, f64 p3, f64 p4) : conjugate_gradient(p2, p3, p4)
++{
++	eng = p1;
++// eng_pbc != NULL if we will use a system with periodic boundary conditions...
++	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++
++	mdl = m;
++
++	SetNGDelta(1.0e-4);
++
++	d1 = NULL;
++
++	switch(box_opt)
++	{
++	case geomopt_param::box_optimization_type_xyz:
++		{
++			d1 = new f64[3];
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				if (eng_pbc)
++					AddVar(& eng_pbc->box_HALFdim[n2], & d1[n2]);
++			}
++		}
++		break;
++	case geomopt_param::box_optimization_type_xy:
++		{
++			d1 = new f64[2];
++			for (i32s n2 = 0;n2 < 2;n2++)
++			{
++				if (eng_pbc)
++					AddVar(& eng_pbc->box_HALFdim[n2], & d1[n2]);
++			}
++		}
++		break;
++	case geomopt_param::box_optimization_type_z:
++		{
++			d1 = new f64[1];	
++			i32s n2 = 2;
++			{
++				if (eng_pbc)
++					AddVar(& eng_pbc->box_HALFdim[n2], & d1[0]);
++			}
++		}
++		break;
++	}
++}
++
++boundary_opt::~boundary_opt(void)
++{
++	if (d1) delete[] d1;
++}
++
++f64 boundary_opt::GetValue(void)
++{
++	eng->Compute(0);	// request energy
++	return eng->energy;
++}
++
++/*
++f64 boundary_opt::GetGradient(void)
++{
++	eng->Compute(1);	// request energy and gradient
++	return eng->energy;
++}
++*/
++/*################################################################################################*/
++
++// eof
+diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.h ./libghemical-3.0.0/src/boundary_opt.h
+--- ./libghemical-3.0.0.original/src/boundary_opt.h	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/boundary_opt.h	2020-09-08 12:44:21.243506719 +0000
+@@ -0,0 +1,100 @@
++// BOUNDARY_OPT.H : geometry optimization classes.
++
++// Copyright (C) 1998 Tommi Hassinen.
++
++// This program is free software; you can redistribute it and/or modify it
++// under the terms of the license (GNU GPL) which comes with this package.
++
++/*################################################################################################*/
++
++#ifndef BOUNDARY_OPT_H
++#define BOUNDARY_OPT_H
++
++#include "libghemicalconfig.h"
++
++class boundary_opt_param;
++
++class boundary_opt;
++
++/*################################################################################################*/
++
++#include "engine.h"
++#include "eng1_qm.h"
++
++#include "conjgrad.h"
++
++#include "geomopt.h"
++
++/*################################################################################################*/
++
++class boundary_opt_param
++{
++	protected:
++	
++	bool confirm;
++	
++	friend class model;
++	friend class boundary_opt_dialog;
++	friend class win_project; //temporary
++	
++	public:
++	
++	bool show_dialog;
++	
++	bool enable_nsteps;
++	i32s treshold_nsteps;
++	
++	bool enable_grad;
++	f64  treshold_grad;
++	
++	bool enable_delta_e;
++	f64  treshold_delta_e;
++	
++	public:
++	
++	boundary_opt_param(setup * su)
++	{
++		confirm = false;
++		show_dialog = true;
++		
++		treshold_nsteps = 2500;
++		treshold_grad = 1.0e-3;
++		treshold_delta_e = 1.0e-7;
++		
++		setup1_qm * suqm = dynamic_cast<setup1_qm *>(su);
++		if (suqm != NULL) treshold_nsteps = 500;		// override...
++
++		// my correct
++		treshold_nsteps = 100;
++	}
++	
++	~boundary_opt_param(void) { }
++};
++
++/*################################################################################################*/
++
++/// A geometry optimization class.
++
++class boundary_opt : public conjugate_gradient
++{
++	protected:
++	
++	engine * eng;
++	model * mdl;
++
++	f64 * d1;
++	
++	public:
++	
++	boundary_opt(geomopt_param::box_optimization_type box_opt, model* , engine *, i32s, f64, f64);
++	~boundary_opt(void);
++	
++	f64 GetValue(void);		// virtual
++	//f64 GetGradient(void);		// virtual
++};
++
++/*################################################################################################*/
++
++#endif	// GEOMOPT_H
++
++// eof
+diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
+--- ./libghemical-3.0.0.original/src/engine.cpp	2020-09-09 02:03:15.275950017 +0000
++++ ./libghemical-3.0.0/src/engine.cpp	2020-09-09 02:40:28.311891405 +0000
+@@ -32,6 +32,46 @@
+ using namespace std;
+ 
+ /*################################################################################################*/
++void CalcMaxMinCoordinates(model * p1, engine * p2, i32u p3)
++{
++	atom ** glob_atmtab = p2->GetSetup()->GetAtoms();
++	if (p1->maxMinCRDCalculed)
++		return;
++
++	for (i32s n1 = 0;n1 < p2->GetSetup()->GetAtomCount();n1++)
++	{
++		const fGL * cdata = glob_atmtab[n1]->GetCRD(p3);
++		if ( n1 == 0)
++		{
++			p1->maxCRD[0] = cdata[0];
++			p1->minCRD[0] = cdata[0];
++			p1->maxCRD[1] = cdata[1];
++			p1->minCRD[1] = cdata[1];
++			p1->maxCRD[2] = cdata[2];
++			p1->minCRD[2] = cdata[2];
++		}
++		else
++		{
++			if (p1->maxCRD[0] < cdata[0]) p1->maxCRD[0] = cdata[0];
++			if (p1->minCRD[0] > cdata[0]) p1->minCRD[0] = cdata[0];
++			if (p1->maxCRD[1] < cdata[1]) p1->maxCRD[1] = cdata[1];
++			if (p1->minCRD[1] > cdata[1]) p1->minCRD[1] = cdata[1];
++			if (p1->maxCRD[2] < cdata[2]) p1->maxCRD[2] = cdata[2];
++			if (p1->minCRD[2] > cdata[2]) p1->minCRD[2] = cdata[2];
++		}
++	}
++
++	p1->saved_periodic_box_HALFdim[0] = (p1->maxCRD[0] - p1->minCRD[0]) / 2. + 0.075;
++	p1->saved_periodic_box_HALFdim[1] = (p1->maxCRD[1] - p1->minCRD[1]) / 2. + 0.075;
++	p1->saved_periodic_box_HALFdim[2] = (p1->maxCRD[2] - p1->minCRD[2]) / 2. + 0.075;
++
++	p1->maxMinCRDCalculed = true;
++
++	printf("saved_periodic_box_HALFdim[0] = %f\n", p1->saved_periodic_box_HALFdim[0]);
++	printf("saved_periodic_box_HALFdim[1] = %f\n", p1->saved_periodic_box_HALFdim[1]);
++	printf("saved_periodic_box_HALFdim[2] = %f\n", p1->saved_periodic_box_HALFdim[2]);
++}
++
+ 
+ setup::setup(model * p1)
+ {
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2020-09-09 02:03:15.275950017 +0000
++++ ./libghemical-3.0.0/src/engine.h	2020-09-08 17:02:53.243099564 +0000
+@@ -224,6 +224,7 @@
+ 	friend class model;
+ 	
+ 	friend class geomopt;
++	friend class boundary_opt;
+ 	
+ 	friend class moldyn;
+ 	friend class moldyn_langevin;
+@@ -359,6 +360,7 @@
+ 	
+ 	friend class model;
+ 	friend class moldyn;
++	friend class boundary_opt;
+ 	
+ 	public:
+ 	
+diff -Nur ./libghemical-3.0.0.original/src/geomopt.h ./libghemical-3.0.0/src/geomopt.h
+--- ./libghemical-3.0.0.original/src/geomopt.h	2020-09-09 02:03:15.275950017 +0000
++++ ./libghemical-3.0.0/src/geomopt.h	2020-09-09 02:58:09.959863539 +0000
+@@ -51,7 +51,19 @@
+ 	bool enable_delta_e;
+ 	f64 treshold_delta_e;
+ 	
++
++	bool recalc_box, box_optimization;
++
++	enum box_optimization_type
++	{
++		box_optimization_type_no = 0,
++		box_optimization_type_xyz,
++		box_optimization_type_xy,
++		box_optimization_type_z
++	};
+ 	public:
++
++	box_optimization_type box_opt;
+ 	
+ 	geomopt_param(setup * su)
+ 	{
+@@ -70,6 +82,9 @@
+ 		
+ 		enable_delta_e = false;
+ 		treshold_delta_e = 1.0e-7;
++
++		recalc_box = false;
++		box_optimization = true;
+ 	}
+ 	
+ 	~geomopt_param(void) { }
+diff -Nur ./libghemical-3.0.0.original/src/libghemicalconfig.h.in ./libghemical-3.0.0/src/libghemicalconfig.h.in
+--- ./libghemical-3.0.0.original/src/libghemicalconfig.h.in	2020-09-09 02:03:15.267950017 +0000
++++ ./libghemical-3.0.0/src/libghemicalconfig.h.in	2020-09-08 11:54:21.875585446 +0000
+@@ -134,3 +134,6 @@
+ 
+ /* Don't include libghemical-features.h, it's a subset of libghemicalconfig.h. */
+ #define LIBGHEMICAL_FEATURES_H
++
++#define USE_BOUNDARY_OPT_ON_GEOMOPT 1
++#define USE_BOUNDARY_OPT_ON_MOLDYN 1
+\ No newline at end of file
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2020-09-09 02:03:15.419950013 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2020-09-09 02:45:29.891883489 +0000
+@@ -34,6 +34,7 @@
+ 
+ #include "eng2_qm_mm.h"
+ 
++#include "boundary_opt.h"
+ #include "geomopt.h"
+ #include "moldyn.h"
+ #include "search.h"
+@@ -165,6 +166,7 @@
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+ 	ecomp_enabled = false;
++	maxMinCRDCalculed = false;
+ 	
+ 	const int defind = ecomp_AddGroup("default");
+ 	if (defind != 0) assertion_failed(__FILE__, __LINE__, "failed to initialize ecomp_grp_names.");
+@@ -2725,8 +2727,18 @@
+ 	
+ 	CopyCRD(this, eng, 0);
+ 	
++	if (param.recalc_box && !maxMinCRDCalculed)
++		CalcMaxMinCoordinates(this, eng, 0);
++
+ 	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);		// optimal settings?!?!?
+-	
++#if USE_BOUNDARY_OPT_ON_GEOMOPT
++	boundary_opt * b_opt = NULL;
++	//printf("param.box_opt = %d\n", param.box_opt);
++	if(param.box_optimization && param.box_opt != geomopt_param::box_optimization_type_no)
++	{
++		b_opt = new boundary_opt(param.box_opt, this, eng, 100, 0.025, 10.0);
++	}
++#endif
+ 	f64  last_energy = 0.0;		// this is for output and delta_e test...
+ 	
+ 	ostringstream str2;
+@@ -2744,7 +2756,17 @@
+ 		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckLocations();
+ 		
+ 		opt->TakeCGStep(conjugate_gradient::Newton2An);
+-		
++#if USE_BOUNDARY_OPT_ON_GEOMOPT
++		if (param.box_optimization && b_opt){
++			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
++			if (eng_pbc != NULL)
++			{
++				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
++				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
++				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++			}
++		}
++#endif
+ // problem: the gradient information is in fact not precise in this stage. the current gradient
+ // is the one that was last calculated in the search, and it is not necessarily the best one.
+ // to update the gradient, we need to Compute(1) here. JUST SLOWS GEOMOPT DOWN -> DISABLE!
+@@ -2861,7 +2883,10 @@
+ 	}
+ 	
+ 	delete opt;
+-	
++#if USE_BOUNDARY_OPT_ON_GEOMOPT
++	if (b_opt)
++		delete b_opt;
++#endif
+ // we will not delete current_eng here, so that we can draw plots using it...
+ // we will not delete current_eng here, so that we can draw plots using it...
+ // we will not delete current_eng here, so that we can draw plots using it...
+@@ -2921,9 +2946,21 @@
+ 	PrintToLog(str1.str().c_str());
+ 	
+ 	CopyCRD(this, eng, 0);
++
++	if (param.recalc_box && !maxMinCRDCalculed)
++		CalcMaxMinCoordinates(this, eng, 0);	
+ 	
+ 	moldyn * dyn = new moldyn(eng, param.timestep);
+-	
++#if USE_BOUNDARY_OPT_ON_MOLDYN
++	boundary_opt * b_opt = NULL;
++	if (param.box_optimization)
++	{
++		b_opt = new boundary_opt(
++			geomopt_param::box_optimization_type_xyz,
++			this, eng, 100, 0.025, 10.0);
++	}
++#endif
++
+ 	char logfilename[256];
+ 	strcpy(logfilename, param.filename);
+ 	i32s last_dot = NOT_DEFINED;
+@@ -3016,7 +3053,19 @@
+ 		bool enable_Pc = param.constant_P;
+ 		if (n1 < param.nsteps_h) enable_Pc = false;					// heating
+ 		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
+-		
++
++#if USE_BOUNDARY_OPT_ON_MOLDYN
++		if (b_opt && param.box_optimization && 1 == (n1 % 10)){
++			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
++			if (eng_pbc != NULL)
++			{
++				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
++				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
++				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++			}
++		}
++#endif
++
+ 		dyn->TakeMDStep(enable_Tc, enable_Pc);
+ 		
+ 		if (enable_Pc)
+@@ -3044,7 +3093,7 @@
+ 				sum_counter = 0;
+ 			}
+ 		}
+-		
++
+ 	// check if log/progressbar output should be made.
+ 		if (!(n1 % 100))
+ 		{
+@@ -3134,7 +3183,10 @@
+ 	logfile.close();
+ 	
+ 	delete dyn;
+-	
++#if USE_BOUNDARY_OPT_ON_MOLDYN
++	if (b_opt) 
++		delete b_opt;
++#endif
+ // we will not delete current_eng here, so that we can draw plots using it...
+ // we will not delete current_eng here, so that we can draw plots using it...
+ // we will not delete current_eng here, so that we can draw plots using it...
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2020-09-09 02:03:15.411950013 +0000
++++ ./libghemical-3.0.0/src/model.h	2020-09-09 02:38:14.551894915 +0000
+@@ -98,7 +98,9 @@
+ 	
+ 	bool use_periodic_boundary_conditions;
+ 	f64 saved_periodic_box_HALFdim[3];
+-	
++	f64 maxCRD[3], minCRD[3];
++	bool maxMinCRDCalculed;
++
+ 	i32s nmol;
+ 	vector<chn_info> * ref_civ;	// vector<chn_info *> ?!?!?!
+ 	
+@@ -183,7 +185,9 @@
+ 	friend class setup1_sf;
+ 	
+ 	friend class moldyn;
+-	
++
++	friend void CalcMaxMinCoordinates(model *, engine *, i32u);
++
+ 	public:
+ 	
+ 	model(void);
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2020-09-09 02:03:15.275950017 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2020-09-08 12:40:16.563513142 +0000
+@@ -61,6 +61,8 @@
+ 	bool constant_P;
+ 	
+ 	char filename[256];
++
++	bool recalc_box, box_optimization;
+ 	
+ 	public:
+ 	
+@@ -90,6 +92,9 @@
+ 		
+ 		constant_T = true;
+ 		constant_P = false;
++
++		recalc_box = false;
++		box_optimization = true;
+ 		
+ 		std::strcpy(filename, "untitled.traj");
+ 	}

@@ -1,49 +1,3 @@
-diff -Nur ./libghemical-3.0.0/src/eng1_mm_default.cpp ./libghemical-3.0.0.apply_bond/src/eng1_mm_default.cpp
---- ./libghemical-3.0.0/src/eng1_mm_default.cpp	2019-10-01 14:23:39.000000000 +0300
-+++ ./libghemical-3.0.0.apply_bond/src/eng1_mm_default.cpp	2019-10-01 14:00:45.000000000 +0300
-@@ -664,6 +664,7 @@
- 			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
- 			
- 			t1a[n2] = t9a - t9b;
-+			GetSetup()->GetModel()->apply_periodic_bond(t1a[n2], n2);
- 			t1b += t1a[n2] * t1a[n2];
- 		}
- 		
- 					
-diff -Nur ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp ./libghemical-3.0.0.apply_bond/src/eng1_mm_prmfit.cpp
---- ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2019-10-01 14:23:39.000000000 +0300
-+++ ./libghemical-3.0.0.apply_bond/src/eng1_mm_prmfit.cpp	2019-10-01 14:00:57.000000000 +0300
-@@ -702,6 +702,7 @@
- 			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
- 			
- 			t1a[n2] = t9a - t9b;
-+			GetSetup()->GetModel()->apply_periodic_bond(t1a[n2], n2);
- 			t1b += t1a[n2] * t1a[n2];
- 		}
- 		
-diff -Nur ./libghemical-3.0.0/src/eng1_mm_tripos52.cpp ./libghemical-3.0.0.apply_bond/src/eng1_mm_tripos52.cpp
---- ./libghemical-3.0.0/src/eng1_mm_tripos52.cpp	2019-10-01 14:23:39.000000000 +0300
-+++ ./libghemical-3.0.0.apply_bond/src/eng1_mm_tripos52.cpp	2019-10-01 14:01:30.000000000 +0300
-@@ -466,6 +466,7 @@
- 			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
- 			
- 			t1a[n2] = t9a - t9b;
-+			GetSetup()->GetModel()->apply_periodic_bond(t1a[n2], n2);
- 			t1b += t1a[n2] * t1a[n2];
- 		}
- 		
-diff -Nur ./libghemical-3.0.0/src/eng1_sf.cpp ./libghemical-3.0.0.apply_bond/src/eng1_sf.cpp
---- ./libghemical-3.0.0/src/eng1_sf.cpp	2019-10-01 14:23:39.000000000 +0300
-+++ ./libghemical-3.0.0.apply_bond/src/eng1_sf.cpp	2019-10-01 14:01:33.000000000 +0300
-@@ -3129,6 +3129,7 @@
- 			f64 t9b = crd[l2g_sf[atmi[1]] * 3 + n2];
- 			
- 			t1a[n2] = t9a - t9b;
-+			GetSetup()->GetModel()->apply_periodic_bond(t1a[n2], n2);
- 			t1b += t1a[n2] * t1a[n2];
- 		}
- 		
-
 diff -Nur ./libghemical-3.0.0/src/model.cpp ./libghemical-3.0.0.apply_bond/src/model.cpp
 --- ./libghemical-3.0.0/src/model.cpp	2019-10-01 14:23:39.000000000 +0300
 +++ ./libghemical-3.0.0.apply_bond/src/model.cpp	2019-10-01 13:59:36.000000000 +0300
@@ -55,7 +9,7 @@ diff -Nur ./libghemical-3.0.0/src/model.cpp ./libghemical-3.0.0.apply_bond/src/m
  using namespace std;
  
  #ifdef WIN32
-@@ -290,6 +291,82 @@
+@@ -290,6 +291,55 @@
  	exit(EXIT_FAILURE);
  }
  
@@ -108,40 +62,13 @@ diff -Nur ./libghemical-3.0.0/src/model.cpp ./libghemical-3.0.0.apply_bond/src/m
 +	return result;
 +}
 +
-+bool model::get_use_periodic_boundary_conditions() const
-+{
-+
-+}
-+
-+f64 model::get_saved_periodic_box_HALFdim(i32s n2) const
-+{
-+
-+}
-+
-+void model::apply_periodic_bond(f64 & t1a_n2, i32s n2) const
-+{
-+	if (use_periodic_boundary_conditions)
-+	{
-+		//######################################################################
-+		if (t1a_n2 < -saved_periodic_box_HALFdim[n2])
-+		{
-+			t1a_n2 += 2.0 * saved_periodic_box_HALFdim[n2];
-+		}
-+		else if (t1a_n2 > +saved_periodic_box_HALFdim[n2])
-+		{
-+			t1a_n2 -= 2.0 * saved_periodic_box_HALFdim[n2];
-+		}
-+		//######################################################################
-+	}
-+}
-+
  void model::DiscardCurrEng(void)
  {
  //	cout << "discard!!!" << endl;
 diff -Nur ./libghemical-3.0.0/src/model.h ./libghemical-3.0.0.apply_bond/src/model.h
 --- ./libghemical-3.0.0/src/model.h	2019-10-01 14:23:39.000000000 +0300
 +++ ./libghemical-3.0.0.apply_bond/src/model.h	2019-10-01 13:59:26.000000000 +0300
-@@ -209,7 +209,15 @@
+@@ -209,7 +209,10 @@
  	void DestroyRS(void);
  	
  	static void OpenLibDataFile(ifstream &, bool, const char *);
@@ -149,11 +76,6 @@ diff -Nur ./libghemical-3.0.0/src/model.h ./libghemical-3.0.0.apply_bond/src/mod
 +    void SaveBox(const char * boxfilename);
 +    bool LoadBox(const char * boxfilename);
  	
-+    bool get_use_periodic_boundary_conditions() const;
-+    f64 get_saved_periodic_box_HALFdim(i32s n2) const;
-+
-+    void apply_periodic_bond(f64 & t1a_n2, i32s n2) const;
-+
  // what to do for this one???
  // what to do for this one???
  // what to do for this one???

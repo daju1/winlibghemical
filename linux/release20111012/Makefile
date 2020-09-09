@@ -77,6 +77,15 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.reopen_traj_file_on_every_frame_save.patch
 	patch -p1 < ./ghemical.release20111012.fix_openbabel_atoi_declaration.patch
 	patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
+	patch -p1 < ./ghemical.release20111012.boundary_opt.patch
+	patch -p1 < ./ghemical.release20111012.apply_periodic_cond.patch
+
+cash:
+	mv ghemical-3.0.0    ghemical-3.0.0.cashed
+	mv libghemical-3.0.0 libghemical-3.0.0.cashed
+	mv liboglappth-1.0.0 liboglappth-1.0.0.cashed
+	mv mopac7-1.15       mopac7-1.15.cashed
+	mv openbabel-2.0.0   openbabel-2.0.0.cashed
 
 prepare_originals_for_patch:
 	make clean
