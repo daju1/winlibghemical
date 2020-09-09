@@ -68,7 +68,7 @@ untar: untar_ghemical untar_libghemical untar_liboglappth untar_mopac7 untar_ope
 getcodes: untar
 	patch -p1 < ./ghemical.release20111012.fix_build.patch
 	patch -p1 < ./ghemical.release20111012.fix_fonts_crash.patch
-	patch -p1 < ./ghemical.release20111012.apply_periodic_bond.patch
+	patch -p1 < ./ghemical.release20111012.load_periodic_box.patch
 	patch -p1 < ./ghemical.release20111012.import_box.patch
 	patch -p1 < ./ghemical.release20111012.traj_plots.patch
 	patch -p1 < ./ghemical.release20111012.calc_real_traj_frames.patch
@@ -79,6 +79,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
 	patch -p1 < ./ghemical.release20111012.boundary_opt.patch
 	patch -p1 < ./ghemical.release20111012.apply_periodic_cond.patch
+	patch -p1 < ./ghemical.release20111012.check_atom_locations.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -187,6 +188,13 @@ remove_originals:
 	rm -f -r liboglappth-1.0.0.original
 	rm -f -r mopac7-1.15.original
 	rm -f -r openbabel-2.0.0.original
+
+remove_cashed:
+	rm -f -r ghemical-3.0.0.cashed
+	rm -f -r libghemical-3.0.0.cashed
+	rm -f -r liboglappth-1.0.0.cashed
+	rm -f -r mopac7-1.15.cashed
+	rm -f -r openbabel-2.0.0.cashed
 
 untar_ghemical: ghemical-3.0.0.tar.gz
 	tar -xzmf $?
