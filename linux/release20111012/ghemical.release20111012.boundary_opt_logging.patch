@@ -1,0 +1,89 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2020-09-10 15:04:23.351102914 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2020-09-10 13:27:45.447255095 +0000
+@@ -2758,6 +2758,10 @@
+ 	{
+ 		b_opt = new boundary_opt(param.box_opt, this, eng, 100, 0.025, 10.0);
+ 	}
++	else
++	{
++		printf ("box_optimization is disabled\n");
++	}	
+ #endif
+ 	f64  last_energy = 0.0;		// this is for output and delta_e test...
+ 	
+@@ -2781,15 +2785,22 @@
+ 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 			if (eng_pbc != NULL)
+ 			{
+-				cout << _("saved_periodic_box_HALFdim[0]") << saved_periodic_box_HALFdim[0] << _("eng_pbc->box_HALFdim[0]") << eng_pbc->box_HALFdim[0] << endl;
+-				cout << _("saved_periodic_box_HALFdim[1]") << saved_periodic_box_HALFdim[1] << _("eng_pbc->box_HALFdim[1]") << eng_pbc->box_HALFdim[1] << endl;
+-				cout << _("saved_periodic_box_HALFdim[2]") << saved_periodic_box_HALFdim[2] << _("eng_pbc->box_HALFdim[2]") << eng_pbc->box_HALFdim[2] << endl;
++				cout << "box_optimization " << b_opt << " [" << eng_pbc->box_HALFdim[0] << " " << eng_pbc->box_HALFdim[1] << " " << eng_pbc->box_HALFdim[2] << "]" << endl;
+ 
+ 				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+ 				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+ 				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
+ 			}
++			else
++			{
++				printf ("box_optimization is disabled eng_pbc = %d\n", eng_pbc);
++			}
++			
+ 		}
++		else
++		{
++			printf ("box_optimization is disabled b_opt = %d param.box_optimization = %d\n", b_opt, param.box_optimization);
++		}	
+ #endif
+ // problem: the gradient information is in fact not precise in this stage. the current gradient
+ // is the one that was last calculated in the search, and it is not necessarily the best one.
+@@ -2985,6 +2996,10 @@
+ 			geomopt_param::box_optimization_type_xyz,
+ 			this, eng, 100, 0.025, 10.0);
+ 	}
++	else
++	{
++		printf ("box_optimization is disabled\n");
++	}
+ #endif
+ 
+ 	char logfilename[256];
+@@ -3085,18 +3100,27 @@
+ 		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
+ 
+ #if USE_BOUNDARY_OPT_ON_MOLDYN
+-		if (b_opt && param.box_optimization && 0 == (n1 % 10)){
+-			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+-			if (eng_pbc != NULL)
++		if (0 == (n1 % 10)){
++			if (b_opt && param.box_optimization){
++				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
++				if (eng_pbc != NULL)
++				{
++					cout << "box_optimization " << b_opt << " [" << eng_pbc->box_HALFdim[0] << " " << eng_pbc->box_HALFdim[1] << " " << eng_pbc->box_HALFdim[2] << "]" << endl;
++
++					saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
++					saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
++					saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++				}
++				else
++				{
++					printf ("box_optimization is disabled eng_pbc = %d\n", eng_pbc);
++				}
++			}
++			else
+ 			{
+-				cout << _("saved_periodic_box_HALFdim[0]") << saved_periodic_box_HALFdim[0] << _("eng_pbc->box_HALFdim[0]") << eng_pbc->box_HALFdim[0] << endl;
+-				cout << _("saved_periodic_box_HALFdim[1]") << saved_periodic_box_HALFdim[1] << _("eng_pbc->box_HALFdim[1]") << eng_pbc->box_HALFdim[1] << endl;
+-				cout << _("saved_periodic_box_HALFdim[2]") << saved_periodic_box_HALFdim[2] << _("eng_pbc->box_HALFdim[2]") << eng_pbc->box_HALFdim[2] << endl;
+-
+-				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+-				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+-				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++				printf ("box_optimization is disabled b_opt = %d param.box_optimization = %d\n", b_opt, param.box_optimization);
+ 			}
++			
+ 		}
+ #endif
+ 

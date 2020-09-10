@@ -341,7 +341,7 @@ diff -Nur ./libghemical-3.0.0.original/src/geomopt.h ./libghemical-3.0.0/src/geo
  		treshold_delta_e = 1.0e-7;
 +
 +		recalc_box = false;
-+		box_optimization = true;
++		box_optimization = true; box_opt = box_optimization_type_xyz;
  	}
  	
  	~geomopt_param(void) { }
