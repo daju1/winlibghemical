@@ -81,6 +81,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.apply_periodic_cond.patch
 	patch -p1 < ./ghemical.release20111012.check_atom_locations.patch
 	patch -p1 < ./ghemical.release20111012.boundary_opt_logging.patch
+	patch -p1 < ./ghemical.release20111012.make_const_inpuls_while_set_ekin.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

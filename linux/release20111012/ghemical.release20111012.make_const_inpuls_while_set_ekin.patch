@@ -1,0 +1,74 @@
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2020-10-06 12:39:21.510211992 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2020-10-06 12:36:47.830215181 +0000
+@@ -294,6 +294,11 @@
+ 
+ void moldyn::SetEKin(f64 p1)
+ {
++	f64 sum_p1[3];
++	SumModelImpuls(sum_p1);
++	f64 ekin_1 = KineticEnergy();
++
++
+ 	f64 tmp1 = p1 / KineticEnergy();
+ 	f64 tmp2 = (tmp1 < 0.0 ? 0.0 : sqrt(tmp1));
+ 	
+@@ -312,6 +317,47 @@
+ 			vel[n1 * 3 + 2] *= tmp2;
+ 		}
+ 	}
++
++	f64 sum_p2[3];
++	SumModelImpuls(sum_p2);
++	f64 ekin_2 = KineticEnergy();
++
++	f64 dp[3];
++	for (i32s n2 = 0;n2 < 3;n2++)
++		dp[n2] = (sum_p1[n2] - sum_p2[n2]) / (eng->GetAtomCount() - num_locked);
++
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		if (!locked[n1])
++		{
++			for (i32s n2 = 0; n2 < 3; n2++)
++			{
++				vel[n1 * 3 + n2] += dp[n2] / mass[n1];
++			}
++		}
++	}
++
++	f64 sum_p3[3];
++	SumModelImpuls(sum_p3);
++	f64 ekin_3 = KineticEnergy();
++
++	for (i32s n2 = 0; n2 < 3; n2++)
++		printf ("sum_p[%d]\t%e\t%e\t%e\t\t%e\n", n2,  sum_p1[n2], sum_p2[n2], sum_p3[n2], sum_p3[n2]-sum_p1[n2]);
++
++	printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
++}
++
++void moldyn::SumModelImpuls(f64 * sum_p)
++{
++	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			sum_p[n2] += mass[n1] * vel[n1 * 3 + n2];
++		}
++	}
+ }
+ 
+ /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2020-10-06 12:39:21.758211987 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2020-10-06 11:48:15.390275622 +0000
+@@ -172,6 +172,7 @@
+ 	f64 ConvEKinTemp(f64);
+ 	
+ 	void SetEKin(f64);
++	void SumModelImpuls(f64 * sum_p);
+ };
+ 
+ /*################################################################################################*/
