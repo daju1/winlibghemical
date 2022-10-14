@@ -7,6 +7,7 @@ DISPLAY=$(env | grep DISPLAY= | sed 's/DISPLAY=//')
 export DISPLAY=$DISPLAY
 PROJECT_ROOT=${PWD}
 workspace_dir=$(dirname $(dirname "$(pwd)"))/workspace
+workspace_dir2=$(dirname $(dirname $(dirname "$(pwd)")))/moldyn
 
 DOCKER_IMAGE=ubuntu_ghemical_build:16.04
 
@@ -14,6 +15,7 @@ docker run -it --rm --name ghemical_build_container --cap-add=NET_ADMIN --device
     --workdir=${PWD} \
     -v ${PROJECT_ROOT}:${PROJECT_ROOT} \
     -v ${workspace_dir}:${workspace_dir} \
+    -v ${workspace_dir2}:${workspace_dir2} \
     -v /home/${USER}/.ssh/id_rsa:/home/${USER}/.ssh/id_rsa \
     -v /home/${USER}/.ssh/id_rsa.pub:/home/${USER}/.ssh/id_rsa.pub \
     -v /home/${USER}/.ssh/known_hosts:/home/${USER}/.ssh/known_hosts \
