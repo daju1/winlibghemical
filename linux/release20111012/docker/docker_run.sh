@@ -5,9 +5,9 @@ set -x
 
 DISPLAY=$(env | grep DISPLAY= | sed 's/DISPLAY=//')
 export DISPLAY=$DISPLAY
-PROJECT_ROOT=${PWD}
-workspace_dir=$(dirname $(dirname "$(pwd)"))/workspace
-workspace_dir2=$(dirname $(dirname $(dirname "$(pwd)")))/moldyn
+PROJECT_ROOT=$(dirname ${PWD})
+workspace_dir=$(dirname $(dirname $(dirname "$(pwd)")))/workspace
+workspace_dir2=$(dirname $(dirname $(dirname $(dirname "$(pwd)"))))/moldyn
 
 DOCKER_IMAGE=ubuntu_ghemical_build:16.04
 
