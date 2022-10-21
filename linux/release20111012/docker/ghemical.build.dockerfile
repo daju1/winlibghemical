@@ -33,6 +33,8 @@ RUN apt-get -y install intltool mesa-common-dev libglu1-mesa-dev freeglut3-dev
 
 RUN apt-get -y install wget gfortran pkg-config libglib2.0-dev libgtk2.0-dev libgtkglext1-dev libglade2-dev
 
+RUN apt-get -y install git
+
 USER ${USER_NAME}
 
 # CMD ["/bin/bash"]

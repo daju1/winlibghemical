@@ -5,7 +5,7 @@ set -x
 
 DISPLAY=$(env | grep DISPLAY= | sed 's/DISPLAY=//')
 export DISPLAY=$DISPLAY
-PROJECT_ROOT=$(dirname ${PWD})
+PROJECT_ROOT=$(dirname $(dirname $(dirname ${PWD})))
 workspace_dir=$(dirname $(dirname $(dirname "$(pwd)")))/workspace
 workspace_dir2=$(dirname $(dirname $(dirname $(dirname "$(pwd)"))))/moldyn
 
