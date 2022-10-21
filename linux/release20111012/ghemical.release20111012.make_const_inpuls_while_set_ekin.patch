@@ -7,7 +7,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  {
 +	f64 sum_p1[3];
 +	SumModelImpuls(sum_p1);
-+	f64 ekin_1 = KineticEnergy();
++	//f64 ekin_1 = KineticEnergy();
 +
 +
  	f64 tmp1 = p1 / KineticEnergy();
@@ -20,11 +20,11 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +
 +	f64 sum_p2[3];
 +	SumModelImpuls(sum_p2);
-+	f64 ekin_2 = KineticEnergy();
++	//f64 ekin_2 = KineticEnergy();
 +
 +	f64 dp[3];
 +	for (i32s n2 = 0;n2 < 3;n2++)
-+		dp[n2] = (sum_p1[n2] - sum_p2[n2]) / (eng->GetAtomCount() - num_locked);
++		dp[n2] = (/*sum_p1[n2]*/ - sum_p2[n2]) / (eng->GetAtomCount() - num_locked);
 +
 +	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 +	{
@@ -37,14 +37,14 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +		}
 +	}
 +
-+	f64 sum_p3[3];
-+	SumModelImpuls(sum_p3);
-+	f64 ekin_3 = KineticEnergy();
++	//f64 sum_p3[3];
++	//SumModelImpuls(sum_p3);
++	//f64 ekin_3 = KineticEnergy();
 +
-+	for (i32s n2 = 0; n2 < 3; n2++)
-+		printf ("sum_p[%d]\t%e\t%e\t%e\t\t%e\n", n2,  sum_p1[n2], sum_p2[n2], sum_p3[n2], sum_p3[n2]-sum_p1[n2]);
++	//for (i32s n2 = 0; n2 < 3; n2++)
++	//	printf ("sum_p[%d]\t%e\t%e\t%e\t\t%e\n", n2,  sum_p1[n2], sum_p2[n2], sum_p3[n2], sum_p3[n2]-sum_p1[n2]);
 +
-+	printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
++	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
 +}
 +
 +void moldyn::SumModelImpuls(f64 * sum_p)
