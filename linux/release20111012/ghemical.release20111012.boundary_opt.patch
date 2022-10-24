@@ -354,7 +354,7 @@ diff -Nur ./libghemical-3.0.0.original/src/libghemicalconfig.h.in ./libghemical-
  #define LIBGHEMICAL_FEATURES_H
 +
 +#define USE_BOUNDARY_OPT_ON_GEOMOPT 1
-+#define USE_BOUNDARY_OPT_ON_MOLDYN 0
++#define USE_BOUNDARY_OPT_ON_MOLDYN 1
 \ No newline at end of file
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2020-09-09 02:03:15.419950013 +0000

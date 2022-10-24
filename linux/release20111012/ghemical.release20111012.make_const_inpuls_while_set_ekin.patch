@@ -5,8 +5,8 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  
  void moldyn::SetEKin(f64 p1)
  {
-+	f64 sum_p1[3];
-+	SumModelImpuls(sum_p1);
++	//f64 sum_p1[3];
++	//SumModelImpuls(sum_p1);
 +	//f64 ekin_1 = KineticEnergy();
 +
 +
