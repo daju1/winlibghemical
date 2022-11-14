@@ -1,0 +1,209 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2022-11-14 11:46:41.676492866 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2022-11-11 02:38:24.000000000 +0000
+@@ -3011,6 +3011,7 @@
+ 		printf("ekin = %f\n", ekin);
+ 
+ 		dyn->ForceModelMomentumToZero();
++		dyn->ForceMoleculesMomentumToZero();
+ 
+ 		f64 sum_p[3];
+ 		dyn->SumModelImpuls(sum_p);
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2022-11-14 11:46:41.676492866 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2022-11-11 09:37:33.000000000 +0000
+@@ -24,6 +24,7 @@
+ #include "atom.h"
+ #include "model.h"
+ 
++#include <map>
+ #include <sstream>
+ using namespace std;
+ 
+@@ -367,6 +368,128 @@
+ 	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
+ }
+ 
++molgroup::molgroup(enum molgrouptype _molgrouptype)
++{
++	molgrouptype = _molgrouptype;
++	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++}
++
++molgroup::molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms)
++{
++	molgrouptype = _molgrouptype;
++	for (std::list<i32s>::iterator it = _natoms.begin(); it != _natoms.end(); ++it)
++	{
++		natoms.push_back(*it);
++	}
++	
++	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++}
++
++void molgroup::ForceMoleculesMomentumToZero(moldyn * mld)
++{
++	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++
++	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
++	{
++		i32s n1 = *it;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
++		}
++	}
++
++	f64 dp[3];
++	for (i32s n2 = 0;n2 < 3;n2++)
++		dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size()/* - num_locked*/);
++
++	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
++	{
++		i32s n1 = *it;
++		//if (!mld->locked[n1])
++		{
++			for (i32s n2 = 0; n2 < 3; n2++)
++			{
++				mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
++			}
++		}
++	}
++
++	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++
++	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
++	{
++		i32s n1 = *it;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
++		}
++	}
++
++	for (i32s n2 = 0; n2 < 3; n2++)
++		printf ("sum_p[%d] %e\n", n2,  sum_p[n2]);
++}
++
++void moldyn::ForceMoleculesMomentumToZero()
++{
++	model * mdl = eng->GetSetup()->GetModel();
++
++	iter_al it1;
++	iter_al range1[2];
++	iter_al range2[2];
++	i32s n1, nmol;
++	bool iscarbon;
++
++
++
++	std::map<i32s, molecule> molecules;
++	std::map<i32s, molecule>::iterator itmol;
++	for (n1 = 0, it1 = mdl->GetAtomsBegin();
++		 n1 < eng->GetAtomCount() && it1 != mdl->GetAtomsEnd();
++		 n1++, it1++)
++	{
++		nmol = (* it1).id[0];
++		iscarbon = 6 == (* it1).el.GetAtomicNumber();
++		itmol = molecules.find(nmol);
++		if (itmol == molecules.end())
++		{
++			molecules.insert(std::pair<i32s, molecule>((* it1).id[0], molecule(iscarbon ? 1 : 0, n1)));
++		}
++		else
++		{
++			(* itmol).second.ncarbons += iscarbon ? 1 : 0;
++			(* itmol).second.natoms.push_back(n1);
++		}
++	}
++
++
++	std::list<struct molgroup> molgroups;
++	molgroups.push_back(molgroup(GAS));
++	for (itmol = molecules.begin(); itmol != molecules.end(); itmol++)
++	{
++		if ((*itmol).second.ncarbons > 2)
++		{
++			molgroups.push_back(molgroup(MEMBRANE_OR_GLOBULE, (*itmol).second.natoms));
++		}
++		else
++		{
++			std::list<i32s>::iterator it = (*itmol).second.natoms.begin();
++			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
++			for(; it != end; ++it)
++			{
++				molgroups.front().natoms.push_back(*it);
++			}
++		}
++	}
++
++	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++		it_mlgr != molgroups.end(); ++it_mlgr)
++	{
++		it_mlgr->ForceMoleculesMomentumToZero(this);
++	}
++}
++
++
++
+ void moldyn::SumModelImpuls(f64 * sum_p)
+ {
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2022-11-14 11:46:41.676492866 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2022-11-11 08:19:13.000000000 +0000
+@@ -109,6 +109,38 @@
+ 	void Confirm(void) { confirm = true; }
+ };
+ 
++
++struct molecule
++{
++	i32s ncarbons;
++	std::list<i32s> natoms;
++
++	molecule(i32s _ncarbons, i32s natom)
++	{
++		ncarbons = _ncarbons;
++		natoms.push_back(natom);
++	}
++};
++
++enum molgrouptype
++{
++	GAS,
++	MEMBRANE_OR_GLOBULE
++};
++
++struct molgroup
++{
++	enum molgrouptype molgrouptype;
++	std::list<i32s> natoms;
++	f64 sum_p[3];
++
++	molgroup(enum molgrouptype _molgrouptype);
++
++	molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms);
++
++	void ForceMoleculesMomentumToZero(moldyn * mld);
++};
++
+ /*################################################################################################*/
+ 
+ /**	A molecular dynamics class.
+@@ -147,6 +179,7 @@
+ 	f64 sum_of_masses;	// this is for density...
+ 	
+ 	friend void model::WriteTrajectoryFrame(ofstream &, moldyn *);
++	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+ 	
+ 	public:
+ 	
+@@ -180,6 +213,7 @@
+ 	void SetEKin(f64);
+ 	void SumModelImpuls(f64 * sum_p);
+ 	void ForceModelMomentumToZero();
++	void ForceMoleculesMomentumToZero();
+ };
+ 
+ /*################################################################################################*/

@@ -83,6 +83,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.boundary_opt_logging.patch
 	patch -p1 < ./ghemical.release20111012.make_const_inpuls_while_set_ekin.patch
 	patch -p1 < ./ghemical.release20111012.maxwell_distribution_init.patch
+	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
