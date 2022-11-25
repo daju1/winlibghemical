@@ -441,7 +441,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	if (param.box_optimization)
 +	{
 +		b_opt = new boundary_opt(
-+			geomopt_param::box_optimization_type_xyz,
++			geomopt_param::box_optimization_type_xy,
 +			this, eng, 100, 0.025, 10.0);
 +	}
 +#endif
