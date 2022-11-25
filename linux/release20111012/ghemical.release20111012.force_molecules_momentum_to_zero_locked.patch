@@ -1,0 +1,90 @@
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2022-11-25 03:10:27.512474642 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2022-11-25 03:21:41.276460660 +0000
+@@ -104,6 +104,8 @@
+ {
+ 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+ 	{
++		if (locked[n1]) continue;
++
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+ 		{
+ 			i32u rnum = rand();
+@@ -372,11 +374,13 @@
+ {
+ 	molgrouptype = _molgrouptype;
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++	num_locked = 0;
+ }
+ 
+ molgroup::molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms)
+ {
+ 	molgrouptype = _molgrouptype;
++	num_locked = 0;
+ 	for (std::list<i32s>::iterator it = _natoms.begin(); it != _natoms.end(); ++it)
+ 	{
+ 		natoms.push_back(*it);
+@@ -388,10 +392,18 @@
+ void molgroup::ForceMoleculesMomentumToZero(moldyn * mld)
+ {
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++	num_locked = 0;
+ 
+ 	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+ 	{
+ 		i32s n1 = *it;
++
++		if (mld->locked[n1])
++		{
++			num_locked++;
++			continue;
++		}
++
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+ 		{
+ 			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
+@@ -400,17 +412,17 @@
+ 
+ 	f64 dp[3];
+ 	for (i32s n2 = 0;n2 < 3;n2++)
+-		dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size()/* - num_locked*/);
++		dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size() - num_locked);
+ 
+ 	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+ 	{
+ 		i32s n1 = *it;
+-		//if (!mld->locked[n1])
++
++		if (mld->locked[n1]) continue;
++
++		for (i32s n2 = 0; n2 < 3; n2++)
+ 		{
+-			for (i32s n2 = 0; n2 < 3; n2++)
+-			{
+-				mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
+-			}
++			mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
+ 		}
+ 	}
+ 
+@@ -419,6 +431,9 @@
+ 	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+ 	{
+ 		i32s n1 = *it;
++
++		if (mld->locked[n1]) continue;
++
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+ 		{
+ 			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2022-11-25 03:10:27.516474642 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2022-11-25 03:21:10.560461297 +0000
+@@ -133,6 +133,7 @@
+ 	enum molgrouptype molgrouptype;
+ 	std::list<i32s> natoms;
+ 	f64 sum_p[3];
++	int num_locked;
+ 
+ 	molgroup(enum molgrouptype _molgrouptype);
+ 
