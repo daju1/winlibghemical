@@ -1,0 +1,1 @@
+docker exec -it --workdir=${PWD} ghemical_build_container  /bin/bash
