@@ -48,7 +48,7 @@ download:
 	wget https://www.bioinformatics.org/ghemical/download/release20111012/mopac7-1.15.tar.gz
 	wget https://www.bioinformatics.org/ghemical/download/archive/openbabel-2.0.0.tar.gz
 
-all: mopac7 liboglappth libghemical ghemical openbabel
+all: mopac7 liboglappth libghemical ghemical openbabel ghemical_examples
 all_configure: mopac7_configure liboglappth_configure libghemical_configure ghemical_configure openbabel_configure
 clean: mopac7_clean liboglappth_clean libghemical_clean ghemical_clean openbabel_clean
 remove:
@@ -76,7 +76,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.HAVE_FIX_OF_GTK_IS_TEXT_MARK_FAIL.patch
 	patch -p1 < ./ghemical.release20111012.reopen_traj_file_on_every_frame_save.patch
 	patch -p1 < ./ghemical.release20111012.fix_openbabel_atoi_declaration.patch
-	patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
+	#patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
 	patch -p1 < ./ghemical.release20111012.boundary_opt.patch
 	patch -p1 < ./ghemical.release20111012.apply_periodic_cond.patch
 	patch -p1 < ./ghemical.release20111012.check_atom_locations.patch
@@ -85,6 +85,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.maxwell_distribution_init.patch
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero.patch
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero_locked.patch
+	patch -p1 < ./ghemical.release20111012.eng1_mm_default_nbt_mim_hex.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -238,6 +239,9 @@ ghemical_clean:
 libghemical_configure:
 	#(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 --enable-mpqc)
 	(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 MOPAC7_CFLAGS="-I${MOPAC7_INCDIR}" MOPAC7_LIBS="-L${mopac7_lib_path} -lmopac7")
+
+ghemical_examples: mopac7 liboglappth libghemical openbabel
+	(cd examples && make all)
 
 libghemical: mopac7
 	make libghemical_configure && (cd libghemical-3.0.0 && make && make install)
