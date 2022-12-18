@@ -1,39 +1,3 @@
-diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
---- ./libghemical-3.0.0.original/src/Makefile.in	2022-12-17 22:25:09.682522248 +0000
-+++ ./libghemical-3.0.0/src/Makefile.in	2022-12-17 23:22:30.598450840 +0000
-@@ -77,7 +77,7 @@
- 	engine.lo typerule.lo utility.lo chn_info.lo seqbuild.lo \
- 	mfinder.lo eng1_qm.lo eng1_qm_mpqc.lo eng1_qm_mopac.lo \
- 	eng1_mm.lo eng1_mm_tripos52.lo tab_mm_tripos52.lo \
--	eng1_mm_default.lo tab_mm_default.lo eng1_mm_prmfit.lo \
-+	eng1_mm_default.lo eng1_mm_default_nbt_mim_hex.lo tab_mm_default.lo eng1_mm_prmfit.lo \
- 	tab_mm_prmfit.lo eng1_sf.lo eng1_sf_ua.lo eng1_sf_cg.lo \
- 	eng2_qm_mm.lo notice.lo conjgrad.lo intcrd.lo search.lo \
- 	boundary_opt.lo geomopt.lo moldyn.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
-@@ -278,6 +278,7 @@
- 	eng1_mm_tripos52.cpp \
- 	tab_mm_tripos52.cpp \
- 	eng1_mm_default.cpp \
-+	eng1_mm_default_nbt_mim_hex.cpp \
- 	tab_mm_default.cpp \
- 	eng1_mm_prmfit.cpp \
- 	tab_mm_prmfit.cpp \
-@@ -321,6 +322,7 @@
- 	eng1_mm_tripos52.h \
- 	tab_mm_tripos52.h \
- 	eng1_mm_default.h \
-+	eng1_mm_default_nbt_mim_hex.h \
- 	tab_mm_default.h \
- 	eng1_mm_prmfit.h \
- 	tab_mm_prmfit.h \
-@@ -451,6 +453,7 @@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constraint.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_default.Plo@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_default_nbt_mim_hex.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_prmfit.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_tripos52.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_qm.Plo@am__quote@
 diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/src/boundary_opt.cpp
 --- ./libghemical-3.0.0.original/src/boundary_opt.cpp	2022-12-17 22:25:09.662522248 +0000
 +++ ./libghemical-3.0.0/src/boundary_opt.cpp	2022-12-17 23:22:30.598450840 +0000
@@ -116,15 +80,7 @@ diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2022-12-17 22:25:09.674522248 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm.cpp	2022-12-17 23:22:30.598450840 +0000
-@@ -23,6 +23,7 @@
- 
- #include "eng1_mm_tripos52.h"
- #include "eng1_mm_default.h"
-+#include "eng1_mm_default_nbt_mim_hex.h"
- #include "eng1_mm_prmfit.h"
- 
- #include "local_i18n.h"
-@@ -41,6 +42,7 @@
+@@ -41,6 +41,7 @@
  	
  	ENG1_MM_DEFAULT,
  	ENG1_MM_PERIODIC,
@@ -132,7 +88,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  	
  	ENG1_MM_EXPERIMENTAL,
  	
-@@ -53,6 +55,7 @@
+@@ -53,6 +54,7 @@
  	
  	_("eng1_mm_default_bp : The default engine (under construction)"),
  	_("eng1_mm_default_mim : The periodic engine (minimum image model)"),
@@ -140,7 +96,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  	
  	_("eng1_mm_prmfit : Experimental"),
  	
-@@ -165,7 +168,13 @@
+@@ -165,7 +167,13 @@
  	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
  	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
  		return new eng1_mm_default_mim(this, 1);
@@ -155,7 +111,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  		case ENG1_MM_EXPERIMENTAL:
  		GetModel()->use_periodic_boundary_conditions = false;
  	tab = new prmfit_tables(forcefield_path);	// experimental!!! for debugging only!!!
-@@ -353,68 +362,18 @@
+@@ -353,68 +361,18 @@
  			if (test == range_cr1[ind1 + 1])
  			{
  				f64 t1a; f64 t1b = 0.0;
@@ -276,18 +232,43 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			f64 t1c = sqrt(t1b);
  			
  			if (nd_eval != NULL && (atmtab[n1]->flags & ATOMFLAG_MEASURE_ND_RDF)) nd_eval->AddValue(t1c);
-@@ -1396,8 +1406,9 @@
+@@ -1396,33 +1406,9 @@
  
  eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
-+	engine_pbc(p1, p2),
- 	eng1_mm(p1, p2),
+-	eng1_mm(p1, p2),
 -	engine_pbc(p1, p2)
-+	engine_pbc_cartesian(p1, p2)
++	engine_pbc_base(p1, p2),
++	eng1_mm(p1, p2)
  {
- 	fGL mindim = box_HALFdim[0];
- 	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
-@@ -1449,45 +1460,28 @@
+-	fGL mindim = box_HALFdim[0];
+-	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
+-	if (box_HALFdim[2] < mindim) mindim = box_HALFdim[2];
+-	
+-	sw1 = 0.6; if (sw1 < (mindim - 0.4)) sw1 = mindim - 0.4;	// will trigger if boxdim < 2.0 nm!!!
+-	sw2 = shft1 = mindim - 0.2;
+-	
+-	limit = mindim;
+-	
+-	// calculate the actual values...
+-	
+-	sw1 = sw1 * sw1;
+-	sw2 = sw2 * sw2;
+-	
+-	swA = 3.0 * sw1;
+-	swB = pow(sw2 - sw1, 3.0);
+-	
+-	shft3 = pow(shft1, 3.0);
+-	
+-	limit = limit * limit;
+-	
+-	nbt1_vector.reserve(250000);
+-	
+-	RequestNeighborListUpdate();
+ }
+ 
+ eng1_mm_default_nbt_mim::~eng1_mm_default_nbt_mim(void)
+@@ -1449,45 +1435,28 @@
  		i32s * atmi = nbt1_vector[n1].atmi;
  		
  		f64 t1a[3]; f64 t1b = 0.0;
@@ -351,7 +332,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			t1b += t1a[n2] * t1a[n2];
  		}
  		
-@@ -1632,47 +1626,30 @@
+@@ -1632,47 +1601,30 @@
  			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  			if (test == range_cr1[ind1 + 1])
  			{
@@ -418,57 +399,57 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  				}
  				
  				if (t1b > limit) continue;
-@@ -1776,6 +1753,7 @@
+@@ -1757,6 +1709,101 @@
+ 	}
+ }
  
- eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) :
- 	engine(p1, p2),
++
++/*################################################################################################*/
++
++eng1_mm_default_nbt_mim_cartesian::eng1_mm_default_nbt_mim_cartesian(setup * p1, i32u p2) :
++	engine(p1, p2),
++	engine_pbc_base(p1, p2),
 +	engine_pbc(p1, p2),
- 	eng1_mm(p1, p2),
- 	eng1_mm_default_bt(p1, p2),
- 	eng1_mm_default_nbt_mim(p1, p2)
-@@ -1788,4 +1766,4 @@
- 
- /*################################################################################################*/
- 
--// eof
-+// eof
-\ No newline at end of file
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
---- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2022-12-17 22:25:08.738522267 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default.h	2022-12-17 23:22:30.598450840 +0000
-@@ -228,7 +228,7 @@
- // TODO : how to calculate pressure in periodic boxes???
- // TODO : how to calculate pressure in periodic boxes???
- 
--class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc
-+class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc_cartesian
- {
- 	protected:
- 	
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp	1970-01-01 00:00:00.000000000 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.cpp	2022-12-17 23:22:30.602450840 +0000
-@@ -0,0 +1,359 @@
++	eng1_mm(p1, p2),
++	eng1_mm_default_nbt_mim(p1, p2),
++	engine_pbc_cartesian(p1, p2)
++{
++	fGL mindim = box_HALFdim[0];
++	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
++	if (box_HALFdim[2] < mindim) mindim = box_HALFdim[2];
++	
++	sw1 = 0.6; if (sw1 < (mindim - 0.4)) sw1 = mindim - 0.4;	// will trigger if boxdim < 2.0 nm!!!
++	sw2 = shft1 = mindim - 0.2;
++	
++	limit = mindim;
++	
++	// calculate the actual values...
++	
++	sw1 = sw1 * sw1;
++	sw2 = sw2 * sw2;
++	
++	swA = 3.0 * sw1;
++	swB = pow(sw2 - sw1, 3.0);
++	
++	shft3 = pow(shft1, 3.0);
++	
++	limit = limit * limit;
++	
++	nbt1_vector.reserve(250000);
++	
++	RequestNeighborListUpdate();
++}
 +
-+#include "libghemicalconfig2.h"
-+#include "eng1_mm_default_nbt_mim_hex.h"
-+
-+#include "v3d.h"
-+
-+#include "eng1_mm.h"
-+#include "tab_mm_default.h"
-+
-+#include "local_i18n.h"
-+#include "notice.h"
-+
-+#include <algorithm>
-+#include <sstream>
-+using namespace std;
++eng1_mm_default_nbt_mim_cartesian::~eng1_mm_default_nbt_mim_cartesian(void)
++{
++}
 +
 +eng1_mm_default_nbt_mim_hex::eng1_mm_default_nbt_mim_hex(setup * p1, i32u p2) :
 +	engine(p1, p2),
++	engine_pbc_base(p1, p2),
 +	engine_pbc(p1, p2),
 +	eng1_mm(p1, p2),
++	eng1_mm_default_nbt_mim(p1, p2),
 +	engine_pbc_hexagonal(p1, p2)
 +{
 +	fGL mindim = box_HALFdim[0];
@@ -499,307 +480,15 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./lib
 +eng1_mm_default_nbt_mim_hex::~eng1_mm_default_nbt_mim_hex(void)
 +{
 +}
-+
-+void eng1_mm_default_nbt_mim_hex::ComputeNBT1(i32u p1)
-+{
-+	energy_nbt1a = 0.0;
-+	energy_nbt1b = 0.0;
-+	energy_nbt1c = 0.0;
-+	energy_nbt1d = 0.0;
-+	
-+	atom ** atmtab = GetSetup()->GetMMAtoms();
-+	
-+	if (update_neighbor_list) UpdateTerms();
-+	
-+	// the nonbonded terms begin...
-+	// the nonbonded terms begin...
-+	// the nonbonded terms begin...
-+	
-+	for (i32s n1 = 0;n1 < (i32s) nbt1_vector.size();n1++)
-+	{
-+		i32s * atmi = nbt1_vector[n1].atmi;
-+		
-+		f64 t1a[3]; f64 t1b = 0.0;
-+		f64 t2a[3]; f64 t2b[3];
-+		for (i32s n2 = 0;n2 < 3;n2++)
-+		{
-+			t2a[n2] = crd[l2g_mm[atmi[0]] * 3 + n2];
-+			// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
-+	
-+			t2b[n2] = crd[l2g_mm[atmi[1]] * 3 + n2];
-+			// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
-+		}
-+
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
-+
-+		for (i32s n2 = 0;n2 < 3;n2++)
-+		{
-+			t1a[n2] = t2a[n2] - t2b[n2];
-+		}
-+
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
-+
-+		for (i32s n2 = 0;n2 < 3;n2++)			
-+		{
-+			t1b += t1a[n2] * t1a[n2];
-+		}
-+		
-+		f64 t1c = sqrt(t1b);
-+		
-+		// f1 = (r/a)^-12 - (r/b)^-6
-+		// df1/dr = -12/a(r/a)^-13 + 6/b(r/b)^-7
-+		
-+		f64 t3a = t1c / nbt1_vector[n1].kr;
-+		f64 t3b = t1c / nbt1_vector[n1].kd;
-+		
-+		f64 t4a = t3a * t3a * t3a; f64 t4b = t4a * t4a; f64 t4c = t4b * t4b;	// ^3 ^6 ^12
-+		f64 t5a = t3b * t3b * t3b; f64 t5b = t5a * t5a;				// ^3 ^6
-+		
-+		f64 t6a = 1.0 / (t4c) - 1.0 / (t5b);
-+		
-+		// s1 = (rE^2 - r^2)^2 * (rE^2 + 2r^2 - 3rB^2) / (rE^2 - rB^2)^3
-+		// ds1/dr = [this will yield 2 terms quite easily...]
-+		
-+		f64 t3x;		// value
-+		f64 t3y; f64 t3z;	// derivative
-+		if (t1b < sw1)
-+		{
-+			t3x = 1.0;
-+			t3y = t3z = 0.0;
-+		}
-+		else if (t1b > sw2)
-+		{
-+			t3x = 0.0;
-+			t3y = t3z = 0.0;
-+		}
-+		else
-+		{
-+			f64 t3c = sw2 - t1b; f64 t3d = t3c * t3c;
-+			f64 t3e = sw2 + 2.0 * t1b - swA;
-+			
-+			t3x = t3d * t3e / swB;
-+			t3y = 4.0 * t1c * t3d / swB;
-+			t3z = 4.0 * t1c * t3c * t3e / swB;
-+		}
-+		
-+		energy_nbt1a += t6a * t3x;
-+		
-+		// f2 = Q/r
-+		// df2/dr = -Q/r^2
-+		
-+		f64 t6b = nbt1_vector[n1].qq / t1c;
-+		
-+		// s2 = (1 - (r/rE)^3)^2
-+		// ds2/dr = -6r^2 * (1 - (r/rE)^3) / rE^3
-+		
-+		f64 t4x;		// value
-+		f64 t4y;		// derivative
-+		if (t1c > shft1)
-+		{
-+			t4x = 0.0;
-+			t4y = 0.0;
-+		}
-+		else
-+		{
-+			f64 t4d = t1b * t1c / shft3;
-+			f64 t4e = 1.0 - t4d;
-+			
-+			t4x = t4e * t4e;
-+			t4y = 6.0 * t1b * t4e / shft3;
-+		}
-+		
-+		energy_nbt1b += t6b * t4x;
-+		
-+	//	f64 tote = t6a * t3x + t6b * t4x;
-+		
-+		if (ECOMPstore != NULL)
-+		{
-+			const int iA = atmtab[atmi[0]]->ecomp_grp_i;
-+			const int iB = atmtab[atmi[1]]->ecomp_grp_i;
-+			
-+			ecomp_AddStore2(iA, iB, ECOMP_DATA_IND_NB_lj, (t6a * t3x));
-+			ecomp_AddStore2(iA, iB, ECOMP_DATA_IND_NB_es, (t6b * t4x));
-+		}
-+		
-+		if (p1 > 0)
-+		{
-+			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
-+			f64 t7b = 6.0 / (nbt1_vector[n1].kd * t5b * t3b);
-+			
-+			f64 t8a = nbt1_vector[n1].qq / t1b;
-+			
-+			f64 t9a = (t7b - t7a) * t3x + t6a * (t3y - t3z);
-+			f64 t9b = t8a * t4x + t6b * t4y;
-+			
-+			f64 t9c = t9a - t9b;
-+			
-+			for (i32s n2 = 0;n2 < 3;n2++)
-+			{
-+				f64 t9d = (t1a[n2] / t1c) * t9c;
-+				
-+				d1[l2g_mm[atmi[0]] * 3 + n2] += t9d;
-+				d1[l2g_mm[atmi[1]] * 3 + n2] -= t9d;
-+				
-+				if (do_virial)
-+				{
-+				//f64 crdA = crd[l2g_mm[atmi[0]] * 3 + n2];	eik�y...
-+				//f64 crdB = crd[l2g_mm[atmi[1]] * 3 + n2];	eik�y...
-+				//f64 rAB = crdA - crdB;			eik�y...
-+				//////////////////////////////////////////////////////////
-+					f64 rAB = t1a[n2];
-+					
-+					virial[n2] -= rAB * t9d;	// F = -dE/dr
-+				}
-+			}
-+		}
-+	}
-+}
-+
-+void eng1_mm_default_nbt_mim_hex::UpdateTerms(void)
-+{
-+	update_neighbor_list = false;	// processed...
-+	
-+	atom ** atmtab = GetSetup()->GetMMAtoms();
-+//	bond ** bndtab = GetSetup()->GetMMBonds();
-+	
-+	ostream * ostr = NULL;		// do not print output.
-+//	ostream * ostr = & cout;	// print output to cout.
-+	
-+	nbt1_vector.resize(0);
-+	
-+	if (ostr != NULL) (* ostr) << _("creating nbt1-terms: ");
-+	i32s nbt1_err = 0;
-+	
-+	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
-+	{
-+		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
-+		{
-+			i32s test = range_cr1[ind1];
-+			while (test < range_cr1[ind1 + 1])
-+			{
-+				if (cr1[test] == atmtab[ind2]) break;
-+				else test++;
-+			}
-+			
-+			// if this is true, then the atoms are not 1-2 or 1-3 related.
-+			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+			if (test == range_cr1[ind1 + 1])
-+			{
-+				f64 t1a[3]; f64 t1b = 0.0;
-+				f64 t2a[3]; f64 t2b[3];
-+				for (i32s n1 = 0;n1 < 3;n1++)
-+				{
-+					t2a[n1] = crd[l2g_mm[ind1] * 3 + n1];
-+					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
-+					
-+					t2b[n1] = crd[l2g_mm[ind2] * 3 + n1];
-+					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
-+				}	
-+
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
-+
-+				for (i32s n1 = 0;n1 < 3;n1++)
-+				{
-+					t1a[n1] = t2a[n1] - t2b[n1];
-+				}
-+
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
-+
-+				for (i32s n1 = 0;n1 < 3;n1++)
-+				{
-+					t1b += t1a[n1] * t1a[n1];
-+				}
-+				
-+				if (t1b > limit) continue;
-+				
-+				test = range_cr2[ind1];
-+				while (test < range_cr2[ind1 + 1])
-+				{
-+					if (cr2[test] == atmtab[ind2]) break;
-+					else test++;
-+				}
-+				
-+				// if this is true, then the atoms are 1-4 related.
-+				// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+				const bool is14 = (test != range_cr2[ind1 + 1]);
-+//	if (is14) cout << "DEBUG ; is 1-4 : " << ind1 << " " << ind2 << endl;
-+				
-+				mm_default_nbt1 newnbt1;
-+				newnbt1.atmi[0] = ind1;
-+				newnbt1.atmi[1] = ind2;
-+				
-+				bool success = false;
-+				if (dynamic_cast<setup1_mm *>(GetSetup())->GetExceptions())
-+				{
-+					success = default_tables::GetInstance()->e_Init(this, & newnbt1, is14);
-+				}
-+				
-+				if (success != true)
-+				{
-+					
-+			// see also eng1_mm_default_nbt_bp ctor ; should be the same!!!
-+			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+					
-+					bool errors = false;
-+					const default_at * at;
-+					
-+					f64 r1 = 0.150; f64 e1 = 0.175;			// default...
-+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind1]->atmtp);
-+					if (at != NULL) { r1 = at->vdw_R; e1 = at->vdw_E; }
-+					else errors = true;
-+					
-+					f64 r2 = 0.150; f64 e2 = 0.175;			// default...
-+					at = default_tables::GetInstance()->GetAtomType(atmtab[ind2]->atmtp);
-+					if (at != NULL) { r2 = at->vdw_R; e2 = at->vdw_E; }
-+					else errors = true;
-+					
-+					f64 optdist = r1 + r2;
-+					f64 energy = sqrt(e1 * e2);
-+					
-+					f64 charge1 = atmtab[ind1]->charge;
-+					f64 charge2 = atmtab[ind2]->charge;
-+					newnbt1.qq = 138.9354518 * charge1 * charge2;
-+					
-+					if (is14)
-+					{
-+						energy *= 0.5;
-+						newnbt1.qq *= 0.75;
-+					}
-+					
-+					f64 tmp1 = optdist * pow(1.0 * energy, 1.0 / 12.0);
-+					f64 tmp2 = optdist * pow(2.0 * energy, 1.0 / 6.0);
-+					
-+					newnbt1.kr = tmp1;
-+					newnbt1.kd = tmp2;
-+					
-+					if (!errors) success = true;
-+				}
-+				
-+				nbt1_err += !success;
-+				nbt1_vector.push_back(newnbt1);
-+			}
-+		}
-+	}
-+	
-+	// report possible errors...
-+	
-+	i32s total_err = nbt1_err;
-+	if (total_err && GetSetup()->GetModel()->verbosity >= 2)
-+	{
-+		ostringstream str;
-+		str << _("WARNING : there were ") << total_err << _(" missing parameters in the nonbonded terms.") << endl << ends;
-+		GetSetup()->GetModel()->PrintToLog(str.str().c_str());
-+	}
-+}
 +/*################################################################################################*/
 +
 +eng1_mm_default_mim_hex::eng1_mm_default_mim_hex(setup * p1, i32u p2) :
 +	engine(p1, p2),
++	engine_pbc_base(p1, p2),
 +	engine_pbc(p1, p2),
 +	eng1_mm(p1, p2),
 +	eng1_mm_default_bt(p1, p2),
++	eng1_mm_default_nbt_mim(p1, p2),
 +	eng1_mm_default_nbt_mim_hex(p1, p2)
 +{
 +}
@@ -808,50 +497,62 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./lib
 +{
 +}
 +/*################################################################################################*/
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.h
---- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h	1970-01-01 00:00:00.000000000 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.h	2022-12-17 23:22:30.602450840 +0000
-@@ -0,0 +1,50 @@
-+#include "eng1_mm_default.h"
 +
-+/// molecular mechanics; nonbonded part, minimum image model.
+ /*################################################################################################*/
+ 
+ eng1_mm_default_bp::eng1_mm_default_bp(setup * p1, i32u p2) :
+@@ -1776,9 +1823,12 @@
+ 
+ eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) :
+ 	engine(p1, p2),
++	engine_pbc_base(p1, p2),
++	engine_pbc(p1, p2),
+ 	eng1_mm(p1, p2),
+ 	eng1_mm_default_bt(p1, p2),
+-	eng1_mm_default_nbt_mim(p1, p2)
++	eng1_mm_default_nbt_mim(p1, p2),
++	eng1_mm_default_nbt_mim_cartesian(p1, p2)
+ {
+ }
+ 
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2022-12-17 22:25:08.000000000 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.h	2022-12-18 01:58:39.654256408 +0000
+@@ -228,7 +228,7 @@
+ // TODO : how to calculate pressure in periodic boxes???
+ // TODO : how to calculate pressure in periodic boxes???
+ 
+-class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc
++class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc_base
+ {
+ 	protected:
+ 	
+@@ -251,9 +251,35 @@
+ 	
+ 	protected:
+ 	
+-	void UpdateTerms(void);
++	virtual void UpdateTerms(void);
+ 	
+-	void ComputeNBT1(i32u);		// virtual
++	virtual void ComputeNBT1(i32u);		// virtual
++};
 +
-+// what is the most reasonable objective or strategy here???
-+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+// there are some very advanced programs (gromacs at least, and possibly others) to run
-+// the simulations efficiently. only make simple implementations of these techniques here???
-+// keep the focus in boundary potential methods since those can be applied with SF...
 +
-+// TODO : how to calculate pressure in periodic boxes???
-+// TODO : how to calculate pressure in periodic boxes???
-+// TODO : how to calculate pressure in periodic boxes???
 +
-+class eng1_mm_default_nbt_mim_hex : virtual public eng1_mm, public engine_pbc_hexagonal
++class eng1_mm_default_nbt_mim_cartesian : virtual public eng1_mm_default_nbt_mim, public engine_pbc_cartesian
 +{
-+	protected:
-+	
-+	vector<mm_default_nbt1> nbt1_vector;
-+	
-+	f64 sw1; f64 sw2;
-+	f64 swA; f64 swB;
-+	
-+	f64 shft1;
-+	f64 shft3;
-+	
-+	public:		// why public!?!?!?!?
-+	
-+	f64 limit;
-+	
 +	public:
-+	
++	eng1_mm_default_nbt_mim_cartesian(setup *, i32u);
++	virtual ~eng1_mm_default_nbt_mim_cartesian(void);
++};
++
++
++class eng1_mm_default_nbt_mim_hex : virtual public eng1_mm_default_nbt_mim, public engine_pbc_hexagonal
++{
++	public:
 +	eng1_mm_default_nbt_mim_hex(setup *, i32u);
 +	virtual ~eng1_mm_default_nbt_mim_hex(void);
-+	
-+	protected:
-+	
-+	void UpdateTerms(void);
-+	
-+	void ComputeNBT1(i32u);		// virtual
 +};
 +
 +
@@ -861,10 +562,21 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h ./libgh
 +	
 +	eng1_mm_default_mim_hex(setup *, i32u);
 +	~eng1_mm_default_mim_hex(void);
-+};
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp	2022-12-17 22:25:09.666522248 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2022-12-17 23:22:30.602450840 +0000
+ };
+ 
+ /*################################################################################################*/
+@@ -266,7 +292,7 @@
+ 	~eng1_mm_default_bp(void);
+ };
+ 
+-class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim
++class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim_cartesian
+ {
+ 	public:
+ 	
+diff -Nur ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp
+--- ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp	2022-12-17 22:25:09.000000000 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2022-12-18 01:25:13.502298041 +0000
 @@ -702,10 +702,15 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
@@ -932,20 +644,22 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.
  				t1b += t1a[n2] * t1a[n2];
  			}
  			
-@@ -1098,7 +1112,8 @@
+@@ -1098,7 +1112,9 @@
  eng1_mm_tripos52_nbt_mim::eng1_mm_tripos52_nbt_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
  	eng1_mm(p1, p2),
 -	engine_pbc(p1, p2)
++	engine_pbc_base(p1, p2),
 +	engine_pbc(p1, p2),
 +	engine_pbc_cartesian(p1, p2)
  {
  	fGL mindim = box_HALFdim[0];
  	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
-@@ -1392,6 +1407,7 @@
+@@ -1392,6 +1408,8 @@
  eng1_mm_tripos52_mim::eng1_mm_tripos52_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
  	eng1_mm(p1, p2),
++	engine_pbc_base(p1, p2),
 +	engine_pbc(p1, p2),
  	eng1_mm_tripos52_bt(p1, p2),
  	eng1_mm_tripos52_nbt_mim(p1, p2)
@@ -1000,21 +714,20 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_sf.cpp ./libghemical-3.0.0/src/e
 diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
 --- ./libghemical-3.0.0.original/src/engine.cpp	2022-12-17 22:25:09.674522248 +0000
 +++ ./libghemical-3.0.0/src/engine.cpp	2022-12-17 23:22:30.602450840 +0000
-@@ -817,8 +817,73 @@
+@@ -817,8 +817,84 @@
  }
  
  /*################################################################################################*/
-+engine_pbc::engine_pbc(setup * p1, i32u p2)
++engine_pbc_base::engine_pbc_base(setup * p1, i32u p2)
 +	: engine(p1, p2)
 +{
 +}
- 
--engine_pbc::engine_pbc(setup * p1, i32u p2) : engine(p1, p2)
-+engine_pbc::~engine_pbc()
++
++engine_pbc_base::~engine_pbc_base()
 +{
 +}
 +
-+void engine_pbc::CheckMolLocations(void)
++void engine_pbc_base::CheckMolLocations(void)
 +{
 +	atom ** atmtab = GetSetup()->GetAtoms();
 +	for (i32s n1 = 0;n1 < num_mol;n1++)
@@ -1049,8 +762,9 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +		}
 +	}
 +}
-+
-+void engine_pbc::CheckAtomLocations(void)
+ 
+-engine_pbc::engine_pbc(setup * p1, i32u p2) : engine(p1, p2)
++void engine_pbc_base::CheckAtomLocations(void)
 +{
 +	atom ** atmtab = GetSetup()->GetAtoms();
 +	for (i32s n1 = 0;n1 < num_mol;n1++)
@@ -1063,6 +777,15 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +	}
 +}
 +
++engine_pbc::engine_pbc(setup * p1, i32u p2)
++	: engine(p1, p2), engine_pbc_base(p1, p2)
++{
++}
++
++engine_pbc::~engine_pbc()
++{
++}
++
 +// TODO :
 +// GetVDWSurf() for engine_pbc???
 +// GetESP() for engine_pbc???
@@ -1071,11 +794,13 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +
 +
 +engine_pbc_cartesian::engine_pbc_cartesian(setup * p1, i32u p2)
-+	: engine(p1, p2), engine_pbc(p1, p2)
++	: engine(p1, p2)
++	, engine_pbc_base(p1, p2)
++	, engine_pbc(p1, p2)
  {
  	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
  	
-@@ -866,77 +931,79 @@
+@@ -866,77 +942,81 @@
  	}
  }
  
@@ -1096,12 +821,14 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +/*################################################################################################*/
 +
 +engine_pbc_hexagonal::engine_pbc_hexagonal(setup * p1, i32u p2)
-+	: engine(p1, p2), engine_pbc(p1, p2)
++	: engine(p1, p2)
++	, engine_pbc_base(p1, p2)
++	, engine_pbc(p1, p2)
  {
 +	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
 +	
-+	box_HALFdim[0] = tmp[0];
-+	box_HALFdim[1] = tmp[1];
++	box_HALFdim[0] = tmp[1];
++	box_HALFdim[1] = tmp[2];
 +	
 +	tmp = NULL;
 +	
@@ -1203,7 +930,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 -// GetESP() for engine_pbc???
 +void engine_pbc_hexagonal::set_saved_periodic_box(model * mdl)
 +{
-+	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0];
++	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0] * 2/3 * sqrt(3.0);
 +	mdl->saved_periodic_box_HALFdim[1] = box_HALFdim[0];
 +	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[1];
 +}
@@ -1213,17 +940,16 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
 --- ./libghemical-3.0.0.original/src/engine.h	2022-12-17 22:25:09.674522248 +0000
 +++ ./libghemical-3.0.0/src/engine.h	2022-12-17 23:22:30.602450840 +0000
-@@ -346,15 +346,103 @@
+@@ -346,15 +346,113 @@
  /*################################################################################################*/
  
  /// A base engine class for systems with periodic boundary conditions.
--
- class engine_pbc : virtual public engine
- {
++class engine_pbc_base : virtual public engine
++{
 +	public:
 +
-+	engine_pbc(setup *, i32u);
-+	virtual ~engine_pbc(void);
++	engine_pbc_base(setup *, i32u);
++	virtual ~engine_pbc_base(void);
 +
 +	protected:
 +
@@ -1239,6 +965,11 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 +	virtual void CheckMolLocations(void);
 +
 +	virtual void CheckAtomLocations(void);
++};
++
++class engine_pbc : virtual public engine_pbc_base
++{
++	public:
 +
 +	virtual f64 get_box_HALFdim(i32s n1) = 0;
 +
@@ -1251,10 +982,16 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 +	virtual void scaleBox(f64 delta) = 0;
 +
 +	virtual void setTrajBoundary(float * boundary) = 0;
-+};
 +
++	public:
++
++	engine_pbc(setup *, i32u);
++	virtual ~engine_pbc(void);
++};
+ 
+-class engine_pbc : virtual public engine
 +class engine_pbc_cartesian : virtual public engine_pbc
-+{
+ {
  	protected:
  	
  	f64 box_HALFdim[3];
@@ -1320,7 +1057,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
  	
  // TODO : how to use RDF-evaluator also here???
  	
-@@ -364,18 +452,42 @@
+@@ -364,18 +462,42 @@
  	
  	public:
  	
@@ -1361,7 +1098,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 +
 +	virtual void setTrajBoundary(float * boundary)
 +	{
-+		boundary[0] = box_HALFdim[0];
++		boundary[0] = box_HALFdim[0] * 2/3 * sqrt(3.0);
 +		boundary[1] = box_HALFdim[0];
 +		boundary[2] = box_HALFdim[1];
 +	}
