@@ -76,7 +76,6 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.HAVE_FIX_OF_GTK_IS_TEXT_MARK_FAIL.patch
 	patch -p1 < ./ghemical.release20111012.reopen_traj_file_on_every_frame_save.patch
 	patch -p1 < ./ghemical.release20111012.fix_openbabel_atoi_declaration.patch
-	#patch -p1 < ./ghemical.release20111012.extend_logging_while_fail_in_eng1_mm_default_nbt_mim.patch
 	patch -p1 < ./ghemical.release20111012.boundary_opt.patch
 	patch -p1 < ./ghemical.release20111012.apply_periodic_cond.patch
 	patch -p1 < ./ghemical.release20111012.check_atom_locations.patch
@@ -85,7 +84,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.maxwell_distribution_init.patch
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero.patch
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero_locked.patch
-	patch -p1 < ./ghemical.release20111012.eng1_mm_default_nbt_mim_hex.patch
+	patch -p1 < ./ghemical.release20111012.engine_pbc_hex.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

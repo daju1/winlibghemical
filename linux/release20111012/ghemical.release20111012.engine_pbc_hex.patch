@@ -1,6 +1,6 @@
 diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
---- ./libghemical-3.0.0.original/src/Makefile.in	2022-12-17 09:38:44.039476566 +0000
-+++ ./libghemical-3.0.0/src/Makefile.in	2022-12-17 09:41:44.459472822 +0000
+--- ./libghemical-3.0.0.original/src/Makefile.in	2022-12-17 22:25:09.682522248 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2022-12-17 23:22:30.598450840 +0000
 @@ -77,7 +77,7 @@
  	engine.lo typerule.lo utility.lo chn_info.lo seqbuild.lo \
  	mfinder.lo eng1_qm.lo eng1_qm_mpqc.lo eng1_qm_mopac.lo \
@@ -34,9 +34,88 @@ diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/M
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_prmfit.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_tripos52.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_qm.Plo@am__quote@
+diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/src/boundary_opt.cpp
+--- ./libghemical-3.0.0.original/src/boundary_opt.cpp	2022-12-17 22:25:09.662522248 +0000
++++ ./libghemical-3.0.0/src/boundary_opt.cpp	2022-12-17 23:22:30.598450840 +0000
+@@ -16,7 +16,8 @@
+ {
+ 	eng = p1;
+ // eng_pbc != NULL if we will use a system with periodic boundary conditions...
+-	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++	engine_pbc_cartesian * eng_pbc = dynamic_cast<engine_pbc_cartesian *>(eng);
++	engine_pbc_hexagonal * eng_pbc_hex = dynamic_cast<engine_pbc_hexagonal *>(eng);
+ 
+ 	mdl = m;
+ 
+@@ -28,31 +29,55 @@
+ 	{
+ 	case geomopt_param::box_optimization_type_xyz:
+ 		{
+-			d1 = new f64[3];
+-			for (i32s n2 = 0;n2 < 3;n2++)
++			if (eng_pbc)
+ 			{
+-				if (eng_pbc)
++				d1 = new f64[3];
++				for (i32s n2 = 0;n2 < 3;n2++)
++				{
+ 					AddVar(& eng_pbc->box_HALFdim[n2], & d1[n2]);
++				}
++			}
++			if (eng_pbc_hex)
++			{
++				d1 = new f64[2];
++				for (i32s n2 = 0;n2 < 2;n2++)
++				{
++					AddVar(& eng_pbc_hex->box_HALFdim[n2], & d1[n2]);
++				}
+ 			}
+ 		}
+ 		break;
+ 	case geomopt_param::box_optimization_type_xy:
+ 		{
+-			d1 = new f64[2];
+-			for (i32s n2 = 0;n2 < 2;n2++)
++			if (eng_pbc)
+ 			{
+-				if (eng_pbc)
++				d1 = new f64[2];
++				for (i32s n2 = 0;n2 < 2;n2++)
++				{
+ 					AddVar(& eng_pbc->box_HALFdim[n2], & d1[n2]);
++				}
++			}
++			if (eng_pbc_hex)
++			{
++				d1 = new f64[1];
++				i32s n2 = 0;
++				AddVar(& eng_pbc_hex->box_HALFdim[n2], & d1[n2]);
+ 			}
+ 		}
+ 		break;
+ 	case geomopt_param::box_optimization_type_z:
+ 		{
+-			d1 = new f64[1];	
+-			i32s n2 = 2;
++			if (eng_pbc)
++			{
++				d1 = new f64[1];
++				i32s n2 = 2;
++				AddVar(& eng_pbc->box_HALFdim[n2], & d1[0]);
++			}
++			if (eng_pbc_hex)
+ 			{
+-				if (eng_pbc)
+-					AddVar(& eng_pbc->box_HALFdim[n2], & d1[0]);
++				d1 = new f64[1];
++				i32s n2 = 1;
++				AddVar(& eng_pbc_hex->box_HALFdim[n2], & d1[0]);
+ 			}
+ 		}
+ 		break;
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2022-12-17 05:50:29.371760765 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm.cpp	2022-12-17 05:35:05.495779938 +0000
+--- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2022-12-17 22:25:09.674522248 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2022-12-17 23:22:30.598450840 +0000
 @@ -23,6 +23,7 @@
  
  #include "eng1_mm_tripos52.h"
@@ -76,9 +155,84 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  		case ENG1_MM_EXPERIMENTAL:
  		GetModel()->use_periodic_boundary_conditions = false;
  	tab = new prmfit_tables(forcefield_path);	// experimental!!! for debugging only!!!
+@@ -353,68 +362,18 @@
+ 			if (test == range_cr1[ind1 + 1])
+ 			{
+ 				f64 t1a; f64 t1b = 0.0;
++				f64 t2a[3]; f64 t2b[3];
+ 				for (i32s n1 = 0;n1 < 3;n1++)
+ 				{
+-					f64 t2a = crd[l2g_mm[ind1] * 3 + n1];
++					t2a[n1] = crd[l2g_mm[ind1] * 3 + n1];
+ 					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-					if (t2a < -eng_pbc->get_box_HALFdim(n1))
+-					{
+-						t2a += 2.0 * eng_pbc->get_box_HALFdim(n1);
+-						if (t2a < -eng_pbc->get_box_HALFdim(n1)) 
+-						{
+-							ostringstream str;
+-							str << _("WARNING : t2a ") << t2a << _(" -box_HALFdim[" ) << n1 << _("] ") << -eng_pbc->get_box_HALFdim(n1) << endl << ends;
+-							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
+-
+-							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; a-");
+-							return false;
+-						}
+-					}
+-					else if (t2a > +eng_pbc->get_box_HALFdim(n1))
+-					{
+-						t2a -= 2.0 * eng_pbc->get_box_HALFdim(n1);
+-						if (t2a > +eng_pbc->get_box_HALFdim(n1))
+-						{
+-							ostringstream str;
+-							str << _("WARNING : t2a ") << t2a << _(" +box_HALFdim[" ) << n1 << _("] ") << +eng_pbc->get_box_HALFdim(n1) << endl << ends;
+-							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
+-
+-							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; a+");
+-							return false;
+-						}
+-					}
+-					
+-					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
++
++					t2b[n1] = crd[l2g_mm[ind2] * 3 + n1];
+ 					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-					if (t2b < -eng_pbc->get_box_HALFdim(n1))
+-					{
+-						t2b += 2.0 * eng_pbc->get_box_HALFdim(n1);
+-						if (t2b < -eng_pbc->get_box_HALFdim(n1))
+-						{
+-							ostringstream str;
+-							str << _("WARNING : t2b ") << t2b << _(" -box_HALFdim[" ) << n1 << _("] ") << -eng_pbc->get_box_HALFdim(n1) << endl << ends;
+-							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
+-
+-							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; b-");
+-							return false;
+-						}
+-					}
+-					else if (t2b > +eng_pbc->get_box_HALFdim(n1))
+-					{
+-						t2b -= 2.0 * eng_pbc->get_box_HALFdim(n1);
+-						if (t2b > +eng_pbc->get_box_HALFdim(n1))
+-						{
+-							ostringstream str;
+-							str << _("WARNING : t2b ") << t2b << _(" +box_HALFdim[" ) << n1 << _("] ") << +eng_pbc->get_box_HALFdim(n1) << endl << ends;
+-							GetSetup()->GetModel()->PrintToLog(str.str().c_str());
+-
+-							assertion_warning(__FILE__, __LINE__, "eng1_mm_default_nbt_mim::CheckTerms PBC failed ; b+");
+-							return false;
+-						}
+-					}
+ 				}
+ 
+-
++				GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2a);
++				GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2b);
+ 			}
+ 		}
+ 	}
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
---- ./libghemical-3.0.0.original/src/eng1_mm.h	2022-12-17 05:50:29.371760765 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm.h	2022-12-17 05:33:20.335782121 +0000
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2022-12-17 22:25:09.674522248 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.h	2022-12-17 23:22:30.598450840 +0000
 @@ -50,6 +50,7 @@
  #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
  #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
@@ -88,8 +242,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng
  #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
  
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2022-12-17 05:50:29.363760766 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2022-12-17 04:07:34.423888911 +0000
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2022-12-17 22:25:09.666522248 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2022-12-17 23:22:30.598450840 +0000
 @@ -664,7 +664,12 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
@@ -122,10 +276,179 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			f64 t1c = sqrt(t1b);
  			
  			if (nd_eval != NULL && (atmtab[n1]->flags & ATOMFLAG_MEASURE_ND_RDF)) nd_eval->AddValue(t1c);
+@@ -1396,8 +1406,9 @@
+ 
+ eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2) :
+ 	engine(p1, p2),
++	engine_pbc(p1, p2),
+ 	eng1_mm(p1, p2),
+-	engine_pbc(p1, p2)
++	engine_pbc_cartesian(p1, p2)
+ {
+ 	fGL mindim = box_HALFdim[0];
+ 	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
+@@ -1449,45 +1460,28 @@
+ 		i32s * atmi = nbt1_vector[n1].atmi;
+ 		
+ 		f64 t1a[3]; f64 t1b = 0.0;
++		f64 t2a[3]; f64 t2b[3];
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+ 		{
+-			f64 t2a = crd[l2g_mm[atmi[0]] * 3 + n2];
++			t2a[n2] = crd[l2g_mm[atmi[0]] * 3 + n2];
+ 			// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-	if (t2a < -box_HALFdim[n2])
+-	{
+-		t2a += 2.0 * box_HALFdim[n2];
+-		if (t2a < -box_HALFdim[n2]) assertion_failed(__FILE__, __LINE__, "PBC failed ; a-");
+-	}
+-	else if (t2a > +box_HALFdim[n2])
+-	{
+-		t2a -= 2.0 * box_HALFdim[n2];
+-		if (t2a > +box_HALFdim[n2]) assertion_failed(__FILE__, __LINE__, "PBC failed ; a+");
+-	}
+-			
+-			f64 t2b = crd[l2g_mm[atmi[1]] * 3 + n2];
++	
++			t2b[n2] = crd[l2g_mm[atmi[1]] * 3 + n2];
+ 			// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-	if (t2b < -box_HALFdim[n2])
+-	{
+-		t2b += 2.0 * box_HALFdim[n2];
+-		if (t2b < -box_HALFdim[n2]) assertion_failed(__FILE__, __LINE__, "PBC failed ; b-");
+-	}
+-	else if (t2b > +box_HALFdim[n2])
+-	{
+-		t2b -= 2.0 * box_HALFdim[n2];
+-		if (t2b > +box_HALFdim[n2]) assertion_failed(__FILE__, __LINE__, "PBC failed ; b+");
+-	}
+-			
+-			t1a[n2] = t2a - t2b;
+-			
+-			if (t1a[n2] < -box_HALFdim[n2])
+-			{
+-				t1a[n2] += 2.0 * box_HALFdim[n2];
+-			}
+-			else if (t1a[n2] > +box_HALFdim[n2])
+-			{
+-				t1a[n2] -= 2.0 * box_HALFdim[n2];
+-			}
+-			
++		}
++
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
++
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			t1a[n2] = t2a[n2] - t2b[n2];
++		}
++
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++
++		for (i32s n2 = 0;n2 < 3;n2++)			
++		{
+ 			t1b += t1a[n2] * t1a[n2];
+ 		}
+ 		
+@@ -1632,47 +1626,30 @@
+ 			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 			if (test == range_cr1[ind1 + 1])
+ 			{
+-				f64 t1a; f64 t1b = 0.0;
++				f64 t1a[3]; f64 t1b = 0.0;
++				f64 t2a[3]; f64 t2b[3];
+ 				for (i32s n1 = 0;n1 < 3;n1++)
+ 				{
+-					f64 t2a = crd[l2g_mm[ind1] * 3 + n1];
++					t2a[n1] = crd[l2g_mm[ind1] * 3 + n1];
+ 					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-	if (t2a < -box_HALFdim[n1])
+-	{
+-		t2a += 2.0 * box_HALFdim[n1];
+-		if (t2a < -box_HALFdim[n1]) assertion_failed(__FILE__, __LINE__, "PBC failed ; a-");
+-	}
+-	else if (t2a > +box_HALFdim[n1])
+-	{
+-		t2a -= 2.0 * box_HALFdim[n1];
+-		if (t2a > +box_HALFdim[n1]) assertion_failed(__FILE__, __LINE__, "PBC failed ; a+");
+-	}
+ 					
+-					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
++					t2b[n1] = crd[l2g_mm[ind2] * 3 + n1];
+ 					// ^^^^^ either at primary cell OR at 1st neighbor cell (1 of 26).
+-	if (t2b < -box_HALFdim[n1])
+-	{
+-		t2b += 2.0 * box_HALFdim[n1];
+-		if (t2b < -box_HALFdim[n1]) assertion_failed(__FILE__, __LINE__, "PBC failed ; b-");
+-	}
+-	else if (t2b > +box_HALFdim[n1])
+-	{
+-		t2b -= 2.0 * box_HALFdim[n1];
+-		if (t2b > +box_HALFdim[n1]) assertion_failed(__FILE__, __LINE__, "PBC failed ; b+");
+-	}
+-					
+-					t1a = t2a - t2b;
+-					
+-					if (t1a < -box_HALFdim[n1])
+-					{
+-						t1a += 2.0 * box_HALFdim[n1];
+-					}
+-					else if (t1a > +box_HALFdim[n1])
+-					{
+-						t1a -= 2.0 * box_HALFdim[n1];
+-					}
+-					
+-					t1b += t1a * t1a;
++				}	
++
++				GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
++				GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
++
++				for (i32s n1 = 0;n1 < 3;n1++)
++				{
++					t1a[n1] = t2a[n1] - t2b[n1];
++				}
++
++				GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++
++				for (i32s n1 = 0;n1 < 3;n1++)
++				{
++					t1b += t1a[n1] * t1a[n1];
+ 				}
+ 				
+ 				if (t1b > limit) continue;
+@@ -1776,6 +1753,7 @@
+ 
+ eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) :
+ 	engine(p1, p2),
++	engine_pbc(p1, p2),
+ 	eng1_mm(p1, p2),
+ 	eng1_mm_default_bt(p1, p2),
+ 	eng1_mm_default_nbt_mim(p1, p2)
+@@ -1788,4 +1766,4 @@
+ 
+ /*################################################################################################*/
+ 
+-// eof
++// eof
+\ No newline at end of file
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2022-12-17 22:25:08.738522267 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.h	2022-12-17 23:22:30.598450840 +0000
+@@ -228,7 +228,7 @@
+ // TODO : how to calculate pressure in periodic boxes???
+ // TODO : how to calculate pressure in periodic boxes???
+ 
+-class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc
++class eng1_mm_default_nbt_mim : virtual public eng1_mm, public engine_pbc_cartesian
+ {
+ 	protected:
+ 	
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp	1970-01-01 00:00:00.000000000 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.cpp	2022-12-17 05:18:56.175800054 +0000
-@@ -0,0 +1,358 @@
++++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.cpp	2022-12-17 23:22:30.602450840 +0000
+@@ -0,0 +1,359 @@
 +
 +#include "libghemicalconfig2.h"
 +#include "eng1_mm_default_nbt_mim_hex.h"
@@ -144,12 +467,12 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./lib
 +
 +eng1_mm_default_nbt_mim_hex::eng1_mm_default_nbt_mim_hex(setup * p1, i32u p2) :
 +	engine(p1, p2),
++	engine_pbc(p1, p2),
 +	eng1_mm(p1, p2),
-+	engine_pbc_hex(p1, p2)
++	engine_pbc_hexagonal(p1, p2)
 +{
 +	fGL mindim = box_HALFdim[0];
 +	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
-+	if (box_HALFdim[2] < mindim) mindim = box_HALFdim[2];
 +	
 +	sw1 = 0.6; if (sw1 < (mindim - 0.4)) sw1 = mindim - 0.4;	// will trigger if boxdim < 2.0 nm!!!
 +	sw2 = shft1 = mindim - 0.2;
@@ -474,6 +797,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./lib
 +
 +eng1_mm_default_mim_hex::eng1_mm_default_mim_hex(setup * p1, i32u p2) :
 +	engine(p1, p2),
++	engine_pbc(p1, p2),
 +	eng1_mm(p1, p2),
 +	eng1_mm_default_bt(p1, p2),
 +	eng1_mm_default_nbt_mim_hex(p1, p2)
@@ -486,7 +810,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.cpp ./lib
 +/*################################################################################################*/
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.h
 --- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h	1970-01-01 00:00:00.000000000 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.h	2022-12-17 04:05:54.155890992 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_mim_hex.h	2022-12-17 23:22:30.602450840 +0000
 @@ -0,0 +1,50 @@
 +#include "eng1_mm_default.h"
 +
@@ -502,7 +826,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h ./libgh
 +// TODO : how to calculate pressure in periodic boxes???
 +// TODO : how to calculate pressure in periodic boxes???
 +
-+class eng1_mm_default_nbt_mim_hex : virtual public eng1_mm, public engine_pbc_hex
++class eng1_mm_default_nbt_mim_hex : virtual public eng1_mm, public engine_pbc_hexagonal
 +{
 +	protected:
 +	
@@ -539,8 +863,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_mim_hex.h ./libgh
 +	~eng1_mm_default_mim_hex(void);
 +};
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp	2022-12-17 05:50:29.363760766 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2022-12-17 02:19:07.532023946 +0000
+--- ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp	2022-12-17 22:25:09.666522248 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2022-12-17 23:22:30.602450840 +0000
 @@ -702,10 +702,15 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
@@ -560,8 +884,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_prmfit.cpp ./libghemical-3.0.
  		bt1data[n1].len = t1c;
  		for (i32s n2 = 0;n2 < 3;n2++)
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.0.0/src/eng1_mm_tripos52.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp	2022-12-17 05:50:29.363760766 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_tripos52.cpp	2022-12-17 02:23:27.716018546 +0000
+--- ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp	2022-12-17 22:25:09.670522248 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_tripos52.cpp	2022-12-17 23:25:26.810447183 +0000
 @@ -466,10 +466,15 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
@@ -608,9 +932,39 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.
  				t1b += t1a[n2] * t1a[n2];
  			}
  			
+@@ -1098,7 +1112,8 @@
+ eng1_mm_tripos52_nbt_mim::eng1_mm_tripos52_nbt_mim(setup * p1, i32u p2) :
+ 	engine(p1, p2),
+ 	eng1_mm(p1, p2),
+-	engine_pbc(p1, p2)
++	engine_pbc(p1, p2),
++	engine_pbc_cartesian(p1, p2)
+ {
+ 	fGL mindim = box_HALFdim[0];
+ 	if (box_HALFdim[1] < mindim) mindim = box_HALFdim[1];
+@@ -1392,6 +1407,7 @@
+ eng1_mm_tripos52_mim::eng1_mm_tripos52_mim(setup * p1, i32u p2) :
+ 	engine(p1, p2),
+ 	eng1_mm(p1, p2),
++	engine_pbc(p1, p2),
+ 	eng1_mm_tripos52_bt(p1, p2),
+ 	eng1_mm_tripos52_nbt_mim(p1, p2)
+ {
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.h ./libghemical-3.0.0/src/eng1_mm_tripos52.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_tripos52.h	2022-12-17 22:25:08.770522267 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_tripos52.h	2022-12-17 23:25:26.750447184 +0000
+@@ -202,7 +202,7 @@
+ // the simulations efficiently. only make simple implementations of these techniques here???
+ // keep the focus in boundary potential methods since those can be applied with SF...
+ 
+-class eng1_mm_tripos52_nbt_mim : virtual public eng1_mm, public engine_pbc
++class eng1_mm_tripos52_nbt_mim : virtual public eng1_mm, public engine_pbc_cartesian
+ {
+ 	protected:
+ 	
 diff -Nur ./libghemical-3.0.0.original/src/eng1_sf.cpp ./libghemical-3.0.0/src/eng1_sf.cpp
---- ./libghemical-3.0.0.original/src/eng1_sf.cpp	2022-12-17 05:50:29.363760766 +0000
-+++ ./libghemical-3.0.0/src/eng1_sf.cpp	2022-12-17 02:25:42.084015758 +0000
+--- ./libghemical-3.0.0.original/src/eng1_sf.cpp	2022-12-17 22:25:09.670522248 +0000
++++ ./libghemical-3.0.0/src/eng1_sf.cpp	2022-12-17 23:22:30.602450840 +0000
 @@ -3129,7 +3129,12 @@
  			f64 t9b = crd[l2g_sf[atmi[1]] * 3 + n2];
  			
@@ -644,17 +998,106 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_sf.cpp ./libghemical-3.0.0/src/e
  			
  			if (nd_eval != NULL && (atmtab[n1]->flags & ATOMFLAG_MEASURE_ND_RDF)) nd_eval->AddValue(t1c);
 diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
---- ./libghemical-3.0.0.original/src/engine.cpp	2022-12-17 05:50:29.371760765 +0000
-+++ ./libghemical-3.0.0/src/engine.cpp	2022-12-17 05:24:51.627792678 +0000
-@@ -940,6 +940,136 @@
+--- ./libghemical-3.0.0.original/src/engine.cpp	2022-12-17 22:25:09.674522248 +0000
++++ ./libghemical-3.0.0/src/engine.cpp	2022-12-17 23:22:30.602450840 +0000
+@@ -817,8 +817,73 @@
+ }
  
  /*################################################################################################*/
++engine_pbc::engine_pbc(setup * p1, i32u p2)
++	: engine(p1, p2)
++{
++}
  
+-engine_pbc::engine_pbc(setup * p1, i32u p2) : engine(p1, p2)
++engine_pbc::~engine_pbc()
++{
++}
++
++void engine_pbc::CheckMolLocations(void)
++{
++	atom ** atmtab = GetSetup()->GetAtoms();
++	for (i32s n1 = 0;n1 < num_mol;n1++)
++	{
++		f64 sum[3] = { 0.0, 0.0, 0.0 };
++		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
++		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++		{
++			i32u index = atmtab[n2]->varind;
++			for (i32s n3 = 0;n3 < 3;n3++)
++			{
++				sum[n3] += crd[index * 3 + n3];
++			}
++		}
++
++		f64 test1[3], test2[3];
++		for (i32s n3 = 0;n3 < 3;n3++)
++		{
++			test1[n3] = sum[n3] / ac;
++			test2[n3] = test1[n3];
++		}
++			
++		GetSetup()->GetModel()->apply_periodic_cond(this, test2);
++
++		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++		{
++			for (i32s n3 = 0;n3 < 3;n3++)
++			{
++				i32u index = atmtab[n2]->varind;
++				crd[index * 3 + n3] += test2[n3] - test1[n3];
++			}
++		}
++	}
++}
++
++void engine_pbc::CheckAtomLocations(void)
++{
++	atom ** atmtab = GetSetup()->GetAtoms();
++	for (i32s n1 = 0;n1 < num_mol;n1++)
++	{
++		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++		{
++			i32u index = atmtab[n2]->varind;
++			GetSetup()->GetModel()->apply_periodic_cond(this, crd + index * 3);
++		}
++	}
++}
++
++// TODO :
++// GetVDWSurf() for engine_pbc???
++// GetESP() for engine_pbc???
 +
 +/*################################################################################################*/
 +
-+engine_pbc_hex::engine_pbc_hex(setup * p1, i32u p2) : engine(p1, p2)
++
++engine_pbc_cartesian::engine_pbc_cartesian(setup * p1, i32u p2)
++	: engine(p1, p2), engine_pbc(p1, p2)
+ {
+ 	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
+ 	
+@@ -866,77 +931,79 @@
+ 	}
+ }
+ 
+-engine_pbc::~engine_pbc(void)
++engine_pbc_cartesian::~engine_pbc_cartesian(void)
+ {
+ 	delete[] mrange;
+ }
+ 
+-void engine_pbc::CheckMolLocations(void)
++void engine_pbc_cartesian::set_saved_periodic_box(model * mdl)
 +{
++	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0];
++	mdl->saved_periodic_box_HALFdim[1] = box_HALFdim[1];
++	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[2];
++}
++
++/*################################################################################################*/
++
++engine_pbc_hexagonal::engine_pbc_hexagonal(setup * p1, i32u p2)
++	: engine(p1, p2), engine_pbc(p1, p2)
+ {
 +	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
 +	
 +	box_HALFdim[0] = tmp[0];
@@ -674,14 +1117,23 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +	
 +	i32s previous = -123;	// what is the safest setting here??? NOT_DEFINED might be used there???
 +	
-+	atom ** atmtab = GetSetup()->GetAtoms();
+ 	atom ** atmtab = GetSetup()->GetAtoms();
+-	for (i32s n1 = 0;n1 < num_mol;n1++)
 +	for (i32s index = 0;index < GetSetup()->GetAtomCount();index++)
-+	{
+ 	{
+-		f64 sum[3] = { 0.0, 0.0, 0.0 };
+-		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
+-		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
 +		if (atmtab[index]->id[0] != previous)
-+		{
+ 		{
+-			i32u index = atmtab[n2]->varind;
+-			for (i32s n3 = 0;n3 < 3;n3++)
+-			{
+-				sum[n3] += crd[index * 3 + n3];
+-			}
 +			num_mol++;
 +			previous = atmtab[index]->id[0];
-+		}
+ 		}
 +	}
 +	
 +	mrange = new i32s[num_mol + 1];
@@ -690,120 +1142,125 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +	for (i32s n1 = 0;n1 < num_mol;n1++)
 +	{
 +		i32s m_index = atmtab[a_index]->id[0];
-+		
+ 		
+-		for (i32s n2 = 0;n2 < 3;n2++)
+-		{
+-			f64 test = sum[n2] / ac;
+-			
+-			if (test < -box_HALFdim[n2])
+-			{
+-				for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+-				{
+-					i32u index = atmtab[n3]->varind;
+-					crd[index * 3 + n2] += 2.0 * box_HALFdim[n2];
+-				}
+-			}
+-			else if (test > +box_HALFdim[n2])
+-			{
+-				for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
+-				{
+-					i32u index = atmtab[n3]->varind;
+-					crd[index * 3 + n2] -= 2.0 * box_HALFdim[n2];
+-				}
+-			}
+-		}
 +		// m_index counts atom::id[0] molecule numbers.
 +		// m_index MAY APPEAR DISCONTINUOUS IF eng1_sf!
 +		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 +		
 +		while (a_index < GetSetup()->GetAtomCount() && atmtab[a_index]->id[0] == m_index) a_index++;
 +		mrange[n1 + 1] = a_index;
-+	}
-+}
-+
-+engine_pbc_hex::~engine_pbc_hex(void)
-+{
-+	delete[] mrange;
-+}
-+
-+void engine_pbc_hex::CheckMolLocations(void)
-+{
-+	atom ** atmtab = GetSetup()->GetAtoms();
-+	for (i32s n1 = 0;n1 < num_mol;n1++)
-+	{
-+		f64 sum[3] = { 0.0, 0.0, 0.0 };
-+		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
-+		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
-+		{
-+			i32u index = atmtab[n2]->varind;
-+			for (i32s n3 = 0;n3 < 3;n3++)
-+			{
-+				sum[n3] += crd[index * 3 + n3];
-+			}
-+		}
-+		
-+		for (i32s n2 = 0;n2 < 3;n2++)
-+		{
-+			f64 test = sum[n2] / ac;
-+			#if 0
-+			if (test < -box_HALFdim[n2])
-+			{
-+				for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
-+				{
-+					i32u index = atmtab[n3]->varind;
-+					crd[index * 3 + n2] += 2.0 * box_HALFdim[n2];
-+				}
-+			}
-+			else if (test > +box_HALFdim[n2])
-+			{
-+				for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
-+				{
-+					i32u index = atmtab[n3]->varind;
-+					crd[index * 3 + n2] -= 2.0 * box_HALFdim[n2];
-+				}
-+			}
-+			#endif
-+		}
-+	}
-+}
-+
-+void engine_pbc_hex::CheckAtomLocations(void)
-+{
-+	atom ** atmtab = GetSetup()->GetAtoms();
-+	for (i32s n1 = 0;n1 < num_mol;n1++)
-+	{
-+		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
-+		{
-+			i32u index = atmtab[n2]->varind;
-+			for (i32s n3 = 0;n3 < 3;n3++)
-+			{
-+				#if 0
-+				if (crd[index * 3 + n3] < -box_HALFdim[n3])
-+				{
-+					crd[index * 3 + n3] += 2.0 * box_HALFdim[n3];
-+				}
-+				else if (crd[index * 3 + n3] > +box_HALFdim[n3])
-+				{
-+					crd[index * 3 + n3] -= 2.0 * box_HALFdim[n3];
-+				}
-+				#endif
-+			}
-+		}
-+	}
-+}
-+
-+// TODO :
-+// GetVDWSurf() for engine_pbc???
-+// GetESP() for engine_pbc???
-+
-+/*################################################################################################*/
-+
-+
-+
-+
- number_density_evaluator::number_density_evaluator(engine_bp * p1, bool p2, i32s p3)
- {
- 	eng = p1;
-diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
---- ./libghemical-3.0.0.original/src/engine.h	2022-12-17 05:50:29.371760765 +0000
-+++ ./libghemical-3.0.0/src/engine.h	2022-12-17 04:00:16.347898002 +0000
-@@ -378,6 +378,42 @@
- 	f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
- };
+ 	}
+ }
  
-+
-+/*################################################################################################*/
-+
-+/// A base engine class for systems with hexagonal periodic boundary conditions.
-+
-+class engine_pbc_hex : virtual public engine
+-void engine_pbc::CheckAtomLocations(void)
++engine_pbc_hexagonal::~engine_pbc_hexagonal(void)
+ {
+-	atom ** atmtab = GetSetup()->GetAtoms();
+-	for (i32s n1 = 0;n1 < num_mol;n1++)
+-	{
+-		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
+-		{
+-			i32u index = atmtab[n2]->varind;
+-			for (i32s n3 = 0;n3 < 3;n3++)
+-			{
+-				if (crd[index * 3 + n3] < -box_HALFdim[n3])
+-				{
+-					crd[index * 3 + n3] += 2.0 * box_HALFdim[n3];
+-				}
+-				else if (crd[index * 3 + n3] > +box_HALFdim[n3])
+-				{
+-					crd[index * 3 + n3] -= 2.0 * box_HALFdim[n3];
+-				}
+-			}
+-		}
+-	}
++	delete[] mrange;
+ }
+ 
+-// TODO :
+-// GetVDWSurf() for engine_pbc???
+-// GetESP() for engine_pbc???
++void engine_pbc_hexagonal::set_saved_periodic_box(model * mdl)
 +{
++	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0];
++	mdl->saved_periodic_box_HALFdim[1] = box_HALFdim[0];
++	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[1];
++}
+ 
+ /*################################################################################################*/
+ 
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2022-12-17 22:25:09.674522248 +0000
++++ ./libghemical-3.0.0/src/engine.h	2022-12-17 23:22:30.602450840 +0000
+@@ -346,15 +346,103 @@
+ /*################################################################################################*/
+ 
+ /// A base engine class for systems with periodic boundary conditions.
+-
+ class engine_pbc : virtual public engine
+ {
++	public:
++
++	engine_pbc(setup *, i32u);
++	virtual ~engine_pbc(void);
++
 +	protected:
-+	
-+	f64 box_HALFdim[2];
-+	
++
 +	i32s num_mol;
 +	i32s * mrange;
-+	
++
++	public:
++
++/**	This will check that molecules have not escaped from the periodic box. 
++	If we doing geometry optimization or molecular dynamics for periodic models, 
++	we should remember to call this at suitable intervals...
++*/
++	virtual void CheckMolLocations(void);
++
++	virtual void CheckAtomLocations(void);
++
++	virtual f64 get_box_HALFdim(i32s n1) = 0;
++
++	virtual void log_box_optimization() = 0;
++
++	virtual void set_saved_periodic_box(model * mdl) = 0;
++
++	virtual f64 cellVolume() = 0;
++
++	virtual void scaleBox(f64 delta) = 0;
++
++	virtual void setTrajBoundary(float * boundary) = 0;
++};
++
++class engine_pbc_cartesian : virtual public engine_pbc
++{
+ 	protected:
+ 	
+ 	f64 box_HALFdim[3];
+ 	
+-	i32s num_mol;
+-	i32s * mrange;
 +// TODO : how to use RDF-evaluator also here???
 +	
 +	friend class model;
@@ -812,27 +1269,109 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 +	
 +	public:
 +	
-+	engine_pbc_hex(setup *, i32u);
-+	virtual ~engine_pbc_hex(void);
++	engine_pbc_cartesian(setup *, i32u);
++	virtual ~engine_pbc_cartesian(void);
 +
 +/**	This will check that molecules have not escaped from the periodic box. 
 +	If we doing geometry optimization or molecular dynamics for periodic models, 
 +	we should remember to call this at suitable intervals...
 +*/
-+	void CheckMolLocations(void);
 +
-+	void CheckAtomLocations(void);
++	virtual f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
 +
-+	f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
++	virtual void log_box_optimization()
++	{
++		cout << "box_optimization  [" << box_HALFdim[0] << " " << box_HALFdim[1] << " " << box_HALFdim[2] << "]" << endl;
++	}
++
++	virtual void set_saved_periodic_box(model * mdl);
++
++	virtual f64 cellVolume()
++	{
++		f64 tmpVOL = box_HALFdim[0] * box_HALFdim[1] * box_HALFdim[2];
++		return tmpVOL;
++	}
++
++	virtual void scaleBox(f64 delta)
++	{
++		box_HALFdim[0] *= delta;
++		box_HALFdim[1] *= delta;
++		box_HALFdim[2] *= delta;
++	}
++
++	virtual void setTrajBoundary(float * boundary)
++	{
++		boundary[0] = box_HALFdim[0];
++		boundary[1] = box_HALFdim[1];
++		boundary[2] = box_HALFdim[2];
++	}	
 +};
 +
- /*################################################################################################*/
++
++/*################################################################################################*/
++
++/// A base engine class for systems with hexagonal periodic boundary conditions.
++
++class engine_pbc_hexagonal : virtual public engine_pbc
++{
++	protected:
++	
++	f64 box_HALFdim[2];
+ 	
+ // TODO : how to use RDF-evaluator also here???
+ 	
+@@ -364,18 +452,42 @@
+ 	
+ 	public:
+ 	
+-	engine_pbc(setup *, i32u);
+-	virtual ~engine_pbc(void);
++	engine_pbc_hexagonal(setup *, i32u);
++	virtual ~engine_pbc_hexagonal(void);
  
- /// Calculates "number density" of solvent molecules -> engine::bp_center.
+ /**	This will check that molecules have not escaped from the periodic box. 
+ 	If we doing geometry optimization or molecular dynamics for periodic models, 
+ 	we should remember to call this at suitable intervals...
+ */
+-	void CheckMolLocations(void);
+ 
+-	void CheckAtomLocations(void);
++	virtual f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
+ 
+-	f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
++	virtual void log_box_optimization()
++	{
++		cout << "box_optimization [" << box_HALFdim[0] << " " << box_HALFdim[1] << "]" << endl;
++	}
++
++	virtual void set_saved_periodic_box(model * mdl);
++
++	virtual f64 cellVolume()
++	{
++		f64 tmpVOL = 2 * sqrt(3) * box_HALFdim[0] * box_HALFdim[0] * box_HALFdim[1];
++		return tmpVOL;
++	}
++
++	virtual void scaleBox(f64 delta)
++	{
++		box_HALFdim[0] *= delta;
++		box_HALFdim[0] *= delta;
++		box_HALFdim[1] *= delta;
++	}
++
++	virtual void setTrajBoundary(float * boundary)
++	{
++		boundary[0] = box_HALFdim[0];
++		boundary[1] = box_HALFdim[0];
++		boundary[2] = box_HALFdim[1];
++	}
+ };
+ 
+ /*################################################################################################*/
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2022-12-17 05:50:29.439760764 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2022-12-17 04:00:11.031898113 +0000
-@@ -342,23 +342,136 @@
+--- ./libghemical-3.0.0.original/src/model.cpp	2022-12-17 22:25:09.718522247 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2022-12-17 23:22:30.602450840 +0000
+@@ -342,23 +342,152 @@
  	return result;
  }
  
@@ -847,7 +1386,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 -		//######################################################################
 -		if (t1a_n2 < -eng_pbc->box_HALFdim[n2])
 +		// eng_pbc != NULL if we will use a system with periodic boundary conditions...
-+		engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++		engine_pbc_cartesian * eng_pbc = dynamic_cast<engine_pbc_cartesian *>(eng);
 +
 +		if (use_periodic_boundary_conditions && NULL != eng_pbc)
  		{
@@ -886,18 +1425,18 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	}
 +
 +	{
-+		// eng_pbc6 != NULL if we will use a system with hexagonal periodic boundary conditions...
-+		engine_pbc_hex * eng_pbc6 = dynamic_cast<engine_pbc_hex *>(eng);
++		// eng_pbc_hex != NULL if we will use a system with hexagonal periodic boundary conditions...
++		engine_pbc_hexagonal * eng_pbc_hex = dynamic_cast<engine_pbc_hexagonal *>(eng);
 +
-+		if (use_periodic_boundary_conditions && NULL != eng_pbc6)
++		if (use_periodic_boundary_conditions && NULL != eng_pbc_hex)
  		{
 -			t1a_n2 -= 2.0 * eng_pbc->box_HALFdim[n2];
 +			f64 x = t1a[0];
 +			f64 y = t1a[1];
 +			f64 z = t1a[2];
 +
-+			f64 box_HALF_R = eng_pbc6->box_HALFdim[0];
-+			f64 box_HALF_z = eng_pbc6->box_HALFdim[1];
++			f64 box_HALF_R = eng_pbc_hex->box_HALFdim[0];
++			f64 box_HALF_z = eng_pbc_hex->box_HALFdim[1];
 +
 +			// switch to polar coordinates
 +			f64 r = sqrt(x*x+y*y);
@@ -968,10 +1507,26 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				if (t1a[n2] < -box_HALF_z)
 +				{
 +					t1a[n2] += 2.0 * box_HALF_z;
++					if (t1a[n2] < -box_HALF_z)
++					{
++						ostringstream str;
++						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -box_HALF_z << endl << ends;
++						this->PrintToLog(str.str().c_str());
++
++						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++					}					
 +				}
 +				else if (t1a[n2] > +box_HALF_z)
 +				{
 +					t1a[n2] -= 2.0 * box_HALF_z;
++					if (t1a[n2] > +box_HALF_z)
++					{
++						ostringstream str;
++						str << _("FATAL : t1a ") << t1a[n2] << _(" +box_HALFdim[" ) << n2 << _("] ") << +box_HALF_z << endl << ends;
++						this->PrintToLog(str.str().c_str());
++
++						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++					}						
 +				}
 +				//######################################################################
 +			}
@@ -980,14 +1535,55 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
+@@ -2785,11 +2914,8 @@
+ 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 			if (eng_pbc != NULL)
+ 			{
+-				cout << "box_optimization " << b_opt << " [" << eng_pbc->box_HALFdim[0] << " " << eng_pbc->box_HALFdim[1] << " " << eng_pbc->box_HALFdim[2] << "]" << endl;
+-
+-				saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+-				saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+-				saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++				eng_pbc->log_box_optimization();
++				eng_pbc->set_saved_periodic_box(this);
+ 			}
+ 			else
+ 			{
+@@ -3127,11 +3253,8 @@
+ 				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 				if (eng_pbc != NULL)
+ 				{
+-					cout << "box_optimization " << b_opt << " [" << eng_pbc->box_HALFdim[0] << " " << eng_pbc->box_HALFdim[1] << " " << eng_pbc->box_HALFdim[2] << "]" << endl;
+-
+-					saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+-					saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+-					saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++					eng_pbc->log_box_optimization();
++					eng_pbc->set_saved_periodic_box(this);
+ 				}
+ 				else
+ 				{
+@@ -4561,9 +4684,7 @@
+ 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
+ 	if (eng_pbc != NULL)
+ 	{
+-		boundary[0] = eng_pbc->box_HALFdim[0];
+-		boundary[1] = eng_pbc->box_HALFdim[1];
+-		boundary[2] = eng_pbc->box_HALFdim[2];
++		eng_pbc->setTrajBoundary(boundary);
+ 	}
+ 	
+ 	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
---- ./libghemical-3.0.0.original/src/model.h	2022-12-17 05:50:29.363760766 +0000
-+++ ./libghemical-3.0.0/src/model.h	2022-12-17 04:00:09.515898144 +0000
-@@ -168,6 +168,7 @@
+--- ./libghemical-3.0.0.original/src/model.h	2022-12-17 22:25:09.670522248 +0000
++++ ./libghemical-3.0.0/src/model.h	2022-12-17 23:22:30.606450840 +0000
+@@ -167,7 +167,8 @@
+ 	
  	friend class engine;
  	friend class engine_bp;
- 	friend class engine_pbc;
-+	friend class engine_pbc_hex;
+-	friend class engine_pbc;
++	friend class engine_pbc_cartesian;
++	friend class engine_pbc_hexagonal;
  
  	friend class setup1_qm;
  	friend class eng1_qm_mopac;
@@ -1009,3 +1605,32 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	
  /// This will return the number of coordinate sets.
  /** It is supposed that at least one coordinate set exists all the time!!! */
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2022-12-17 22:25:09.722522247 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2022-12-17 23:22:30.606450840 +0000
+@@ -208,7 +208,7 @@
+ 		engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
+ 		if (eng_pbc != NULL)
+ 		{
+-			f64 tmpVOL = eng_pbc->box_HALFdim[0] * eng_pbc->box_HALFdim[1] * eng_pbc->box_HALFdim[2];
++			f64 tmpVOL = eng_pbc->cellVolume();
+ 			
+ 			// exponent = 23 - 9 - 9 - 9 = -4
+ 			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+@@ -245,14 +245,10 @@
+ 		
+ 		if (eng_pbc != NULL)
+ 		{
+-			eng_pbc->box_HALFdim[0] *= delta;
+-			eng_pbc->box_HALFdim[1] *= delta;
+-			eng_pbc->box_HALFdim[2] *= delta;
++			eng_pbc->scaleBox( delta);
+ 			
+ 			model * mdl = eng->GetSetup()->GetModel();
+-			mdl->saved_periodic_box_HALFdim[0] = eng_pbc->box_HALFdim[0];
+-			mdl->saved_periodic_box_HALFdim[1] = eng_pbc->box_HALFdim[1];
+-			mdl->saved_periodic_box_HALFdim[2] = eng_pbc->box_HALFdim[2];
++			eng_pbc->set_saved_periodic_box(mdl);
+ 		}
+ 		
+ 		saved_pressure = tot_P;
