@@ -812,7 +812,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
  
 -void engine_pbc::CheckMolLocations(void)
 +void engine_pbc_cartesian::set_saved_periodic_box(model * mdl)
-+{
+ {
 +	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0];
 +	mdl->saved_periodic_box_HALFdim[1] = box_HALFdim[1];
 +	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[2];
@@ -824,7 +824,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +	: engine(p1, p2)
 +	, engine_pbc_base(p1, p2)
 +	, engine_pbc(p1, p2)
- {
++{
 +	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
 +	
 +	box_HALFdim[0] = tmp[1];
@@ -1078,7 +1078,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 -	f64 get_box_HALFdim(i32s n1){ return box_HALFdim[n1]; }
 +	virtual void log_box_optimization()
 +	{
-+		cout << "box_optimization [" << box_HALFdim[0] << " " << box_HALFdim[1] << "]" << endl;
++		cout << "box_optimization [" << box_HALFdim[0] * 2/3 * sqrt(3.0) << " " << box_HALFdim[0] << " " << box_HALFdim[1] << "]" << endl;
 +	}
 +
 +	virtual void set_saved_periodic_box(model * mdl);
@@ -1108,7 +1108,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2022-12-17 22:25:09.718522247 +0000
 +++ ./libghemical-3.0.0/src/model.cpp	2022-12-17 23:22:30.602450840 +0000
-@@ -342,23 +342,152 @@
+@@ -342,23 +342,156 @@
  	return result;
  }
  
@@ -1178,6 +1178,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			// switch to polar coordinates
 +			f64 r = sqrt(x*x+y*y);
 +			f64 phi = atan2(y, x);
++			if (phi < 0)
++			{
++				phi += 2 * M_PI;
++			}
 +
 +			// determine to which from six sectors phi angle belongs
 +			int N = int(3*phi/M_PI);
@@ -1192,42 +1196,39 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			// condition of entering of the atom out of the cell
 +			bool out = l > box_HALF_R;
 +
-+			// reduce sectors' number from 6 to 3
-+			int i = N % 3; // index of hexagonal bisector
-+			if (N > 2)
-+			{
-+				l *= -1;
-+				p *= -1;
-+			}
-+
-+			//######################################################################
-+			if (l < -box_HALF_R)
-+			{
-+				l += 2.0 * box_HALF_R;
-+			}
-+			else if (l > +box_HALF_R)
-+			{
-+				l -= 2.0 * box_HALF_R;
-+			}
-+			//######################################################################
-+
 +			if (out)
 +			{
-+				if (l < 0)
++				//######################################################################
++				if (l > box_HALF_R && l < 2*box_HALF_R)
 +				{
-+					N = i + 3;
-+					l *= -1;
-+					p *= -1;
++					l -= 2.0 * box_HALF_R;
 +				}
++				else if (l > 2*box_HALF_R && l < 3*box_HALF_R)
++				{
++					/* max_p = (4*box_HALF_R - l) * sin(pi/6) */
++					f64 max_p = (4*box_HALF_R - l)/2;
++					if (fabs(p) < max_p)
++					{
++						l -= 2.0 * box_HALF_R;
++					}
++					else
++					{
++						ostringstream str;
++						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << "p " << p << "max_p" << max_p << endl << ends;
++						this->PrintToLog(str.str().c_str());
 +
-+				if (l > box_HALF_R)
++						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++					}
++				}
++				else if (l > 3*box_HALF_R)
 +				{
 +					ostringstream str;
-+					str << _("FATAL : l ") << l << _(" box_HALF_R") << box_HALF_R << endl << ends;
++					str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
 +					this->PrintToLog(str.str().c_str());
 +
 +					assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
 +				}
++				//######################################################################
 +
 +
 +				alpha = atan2(p, l);
@@ -1236,6 +1237,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +				x = r * cos (phi);
 +				y = r * sin (phi);
++
++				t1a[0] = x;
++				t1a[1] = y;
 +			}
 +
 +			i32s n2 = 2;
@@ -1272,7 +1276,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
-@@ -2785,11 +2914,8 @@
+@@ -2785,11 +2918,8 @@
  			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  			if (eng_pbc != NULL)
  			{
@@ -1286,7 +1290,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			}
  			else
  			{
-@@ -3127,11 +3253,8 @@
+@@ -3127,11 +3257,8 @@
  				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  				if (eng_pbc != NULL)
  				{
@@ -1300,7 +1304,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				}
  				else
  				{
-@@ -4561,9 +4684,7 @@
+@@ -4561,9 +4688,7 @@
  	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
  	if (eng_pbc != NULL)
  	{
