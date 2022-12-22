@@ -1108,7 +1108,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2022-12-17 22:25:09.718522247 +0000
 +++ ./libghemical-3.0.0/src/model.cpp	2022-12-17 23:22:30.602450840 +0000
-@@ -342,23 +342,156 @@
+@@ -342,23 +342,161 @@
  	return result;
  }
  
@@ -1175,71 +1175,76 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			f64 box_HALF_R = eng_pbc_hex->box_HALFdim[0];
 +			f64 box_HALF_z = eng_pbc_hex->box_HALFdim[1];
 +
-+			// switch to polar coordinates
-+			f64 r = sqrt(x*x+y*y);
-+			f64 phi = atan2(y, x);
-+			if (phi < 0)
++			if (! (x > -box_HALF_R && x < box_HALF_R &&
++				y > -box_HALF_R && y < box_HALF_R) )
 +			{
-+				phi += 2 * M_PI;
-+			}
 +
-+			// determine to which from six sectors phi angle belongs
-+			int N = int(3*phi/M_PI);
-+
-+			// determine alpha angle between phi and the sector's bissectrice
-+			f64 alpha = (phi - N*M_PI/3) - M_PI/6;
-+
-+			// hexagonal coordinates, based on the sector's bissectrece
-+			f64 l = r * cos (alpha); // distance from the cell's center to point's projection on the bissectrice
-+			f64 p = r * sin (alpha); // distance from the point to the bissectrice
-+
-+			// condition of entering of the atom out of the cell
-+			bool out = l > box_HALF_R;
-+
-+			if (out)
-+			{
-+				//######################################################################
-+				if (l > box_HALF_R && l < 2*box_HALF_R)
++				// switch to polar coordinates
++				f64 r = sqrt(x*x+y*y);
++				f64 phi = atan2(y, x);
++				if (phi < 0)
 +				{
-+					l -= 2.0 * box_HALF_R;
++					phi += 2 * M_PI;
 +				}
-+				else if (l > 2*box_HALF_R && l < 3*box_HALF_R)
++
++				// determine to which from six sectors phi angle belongs
++				int N = int(3*phi/M_PI);
++
++				// determine alpha angle between phi and the sector's bissectrice
++				f64 alpha = (phi - N*M_PI/3) - M_PI/6;
++
++				// hexagonal coordinates, based on the sector's bissectrece
++				f64 l = r * cos (alpha); // distance from the cell's center to point's projection on the bissectrice
++				f64 p = r * sin (alpha); // distance from the point to the bissectrice
++
++				// condition of entering of the atom out of the cell
++				bool out = l > box_HALF_R;
++
++				if (out)
 +				{
-+					/* max_p = (4*box_HALF_R - l) * sin(pi/6) */
-+					f64 max_p = (4*box_HALF_R - l)/2;
-+					if (fabs(p) < max_p)
++					//######################################################################
++					if (l > box_HALF_R && l < 2*box_HALF_R)
 +					{
 +						l -= 2.0 * box_HALF_R;
 +					}
-+					else
++					else if (l > 2*box_HALF_R && l < 3*box_HALF_R)
++					{
++						/* max_p = (4*box_HALF_R - l) * sin(pi/6) */
++						f64 max_p = (4*box_HALF_R - l)/2;
++						if (fabs(p) < max_p)
++						{
++							l -= 2.0 * box_HALF_R;
++						}
++						else
++						{
++							ostringstream str;
++							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << "p " << p << "max_p" << max_p << endl << ends;
++							this->PrintToLog(str.str().c_str());
++
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++						}
++					}
++					else if (l > 3*box_HALF_R)
 +					{
 +						ostringstream str;
-+						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << "p " << p << "max_p" << max_p << endl << ends;
++						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +
 +						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
 +					}
++					//######################################################################
++
++
++					alpha = atan2(p, l);
++					phi = alpha + M_PI/6 + N * M_PI/3;
++					r = sqrt(l*l + p*p);
++
++					x = r * cos (phi);
++					y = r * sin (phi);
++
++					t1a[0] = x;
++					t1a[1] = y;
 +				}
-+				else if (l > 3*box_HALF_R)
-+				{
-+					ostringstream str;
-+					str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
-+					this->PrintToLog(str.str().c_str());
-+
-+					assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
-+				}
-+				//######################################################################
-+
-+
-+				alpha = atan2(p, l);
-+				phi = alpha + M_PI/6 + N * M_PI/3;
-+				r = sqrt(l*l + p*p);
-+
-+				x = r * cos (phi);
-+				y = r * sin (phi);
-+
-+				t1a[0] = x;
-+				t1a[1] = y;
 +			}
 +
 +			i32s n2 = 2;
@@ -1276,7 +1281,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
-@@ -2785,11 +2918,8 @@
+@@ -2785,11 +2923,8 @@
  			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  			if (eng_pbc != NULL)
  			{
@@ -1290,7 +1295,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			}
  			else
  			{
-@@ -3127,11 +3257,8 @@
+@@ -3127,11 +3262,8 @@
  				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  				if (eng_pbc != NULL)
  				{
@@ -1304,7 +1309,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				}
  				else
  				{
-@@ -4561,9 +4688,7 @@
+@@ -4561,9 +4693,7 @@
  	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
  	if (eng_pbc != NULL)
  	{
