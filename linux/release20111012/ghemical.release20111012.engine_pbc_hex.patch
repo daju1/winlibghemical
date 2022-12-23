@@ -590,7 +590,7 @@ diff -Nur ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp ./libghemical-3.0
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, "eng1_mm_prmfit::ComputeBT1 t1a");
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_prmfit::ComputeBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
