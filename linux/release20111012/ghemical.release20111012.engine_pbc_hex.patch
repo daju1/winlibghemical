@@ -111,7 +111,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  		case ENG1_MM_EXPERIMENTAL:
  		GetModel()->use_periodic_boundary_conditions = false;
  	tab = new prmfit_tables(forcefield_path);	// experimental!!! for debugging only!!!
-@@ -353,68 +361,18 @@
+@@ -353,68 +361,24 @@
  			if (test == range_cr1[ind1 + 1])
  			{
  				f64 t1a; f64 t1b = 0.0;
@@ -181,8 +181,14 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  				}
  
 -
-+				GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2a);
-+				GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2b);
++				if (!GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2a, true, false, "eng1_mm::CheckTerms"))
++				{
++					return false;
++				}
++				if (!GetSetup()->GetModel()->apply_periodic_cond(eng_pbc, t2b, true, false, "eng1_mm::CheckTerms"))
++				{
++					return false;
++				}
  			}
  		}
  	}
@@ -207,7 +213,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_default_bt::ComputeBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -221,7 +227,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -				GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +			}
 +
-+			GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++			GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_default_nbt_bp::ComputeNBT1 t1a");
 +
 +			for (i32s n2 = 0;n2 < 3;n2++)
 +			{
@@ -317,15 +323,15 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -			
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2a");
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2b");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
 +			t1a[n2] = t2a[n2] - t2b[n2];
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_default_nbt_mim::ComputeNBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)			
 +		{
@@ -383,15 +389,15 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -					t1b += t1a * t1a;
 +				}	
 +
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t2a);
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t2b);
++				GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, "eng1_mm_default_nbt_mim::UpdateTerms t2a");
++				GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, "eng1_mm_default_nbt_mim::UpdateTerms t2b");
 +
 +				for (i32s n1 = 0;n1 < 3;n1++)
 +				{
 +					t1a[n1] = t2a[n1] - t2b[n1];
 +				}
 +
-+				GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++				GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_default_nbt_mim::UpdateTerms t1a");
 +
 +				for (i32s n1 = 0;n1 < 3;n1++)
 +				{
@@ -584,7 +590,7 @@ diff -Nur ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp ./libghemical-3.0
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, "eng1_mm_prmfit::ComputeBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -605,7 +611,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_tripos52_bt::ComputeBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -623,7 +629,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_tripos52_bt::ComputeBT1 t1a");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -637,7 +643,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_tripos52.cpp ./libghemical-3.
 -				GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +			}
 +
-+			GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++			GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_mm_tripos52_nbt_bp::ComputeNBT1");
  
 +			for (i32s n2 = 0;n2 < 3;n2++)
 +			{
@@ -1108,12 +1114,12 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2022-12-17 22:25:09.718522247 +0000
 +++ ./libghemical-3.0.0/src/model.cpp	2022-12-17 23:22:30.602450840 +0000
-@@ -342,23 +342,161 @@
+@@ -342,24 +342,243 @@
  	return result;
  }
  
 -void model::apply_periodic_cond(engine * eng, f64 & t1a_n2, i32s n2) const
-+void model::apply_periodic_cond(engine * eng, f64 * t1a) const
++bool model::apply_periodic_cond(engine * eng, f64 * t1a, bool check, bool fail, const char * desr) const
  {
 -	// eng_pbc != NULL if we will use a system with periodic boundary conditions...
 -	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
@@ -1130,32 +1136,60 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 -			t1a_n2 += 2.0 * eng_pbc->box_HALFdim[n2];
 +			for (i32s n2 = 0; n2 < 3; n2++)
 +			{
++				f64 xyz = t1a[n2];
++
 +				//######################################################################
-+				if (t1a[n2] < -eng_pbc->box_HALFdim[n2])
++				if (xyz < -eng_pbc->box_HALFdim[n2])
 +				{
-+					t1a[n2] += 2.0 * eng_pbc->box_HALFdim[n2];
-+					if (t1a[n2] < -eng_pbc->box_HALFdim[n2]) 
++					xyz += 2.0 * eng_pbc->box_HALFdim[n2];
++					if (xyz < -eng_pbc->box_HALFdim[n2])
 +					{
 +						ostringstream str;
++						str << desr << endl << ends;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
-+
-+						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
-+					}					
++						if (fail)
++						{
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++						}
++						else
++						{
++							assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++						}
++						if (check)
++						{
++							return false;
++						}
++					}
 +				}
-+				else if (t1a[n2] > +eng_pbc->box_HALFdim[n2])
++				else if (xyz > +eng_pbc->box_HALFdim[n2])
 +				{
-+					t1a[n2] -= 2.0 * eng_pbc->box_HALFdim[n2];
-+					if (t1a[n2] > eng_pbc->box_HALFdim[n2]) 
++					xyz -= 2.0 * eng_pbc->box_HALFdim[n2];
++					if (xyz > eng_pbc->box_HALFdim[n2])
 +					{
 +						ostringstream str;
++						str << desr << endl << ends;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" box_HALFdim[" ) << n2 << _("] ") << eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
-+
-+						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						if (fail)
++						{
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						}
++						else
++						{
++							assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						}
++						if (check)
++						{
++							return false;
++						}
 +					}
 +				}
 +				//######################################################################
++				if (!check)
++				{
++					t1a[n2] = xyz;
++				}
 +			}
  		}
 -		else if (t1a_n2 > +eng_pbc->box_HALFdim[n2])
@@ -1218,22 +1252,45 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +						else
 +						{
 +							ostringstream str;
-+							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << "p " << p << "max_p" << max_p << endl << ends;
++							str << desr << endl << ends;
++							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << " p " << p << " max_p " << max_p << endl << ends;
++							str << _(" x ") << x << _(" y ") << y << " r " << r << " phi " << phi << endl << ends;
++							str << _(" N ") << N << _(" alpha ") << alpha << " l " << l << " p " << p << endl << ends;
 +							this->PrintToLog(str.str().c_str());
-+
-+							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++							if (fail)
++							{
++								assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++							}
++							else
++							{
++								assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++							}
++							if (check)
++							{
++								return false;
++							}
 +						}
 +					}
 +					else if (l > 3*box_HALF_R)
 +					{
 +						ostringstream str;
++						str << desr << endl << ends;
 +						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
 +						this->PrintToLog(str.str().c_str());
-+
-+						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++						if (fail)
++						{
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++						}
++						else
++						{
++							assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; l+");
++						}
++						if (check)
++						{
++							return false;
++						}
 +					}
 +					//######################################################################
-+
 +
 +					alpha = atan2(p, l);
 +					phi = alpha + M_PI/6 + N * M_PI/3;
@@ -1242,46 +1299,77 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					x = r * cos (phi);
 +					y = r * sin (phi);
 +
-+					t1a[0] = x;
-+					t1a[1] = y;
++					if (!check)
++					{
++						t1a[0] = x;
++						t1a[1] = y;
++					}
 +				}
 +			}
 +
-+			i32s n2 = 2;
 +			{
++				f64 z = t1a[2];
 +				//######################################################################
-+				if (t1a[n2] < -box_HALF_z)
++				if (z < -box_HALF_z)
 +				{
-+					t1a[n2] += 2.0 * box_HALF_z;
-+					if (t1a[n2] < -box_HALF_z)
++					z += 2.0 * box_HALF_z;
++					if (z < -box_HALF_z)
 +					{
 +						ostringstream str;
++						str << desr << endl << ends;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
-+
-+						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++						if (fail)
++						{
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++						}
++						else
++						{
++							assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++						}
++						if (check)
++						{
++							return false;
++						}
 +					}					
 +				}
-+				else if (t1a[n2] > +box_HALF_z)
++				else if (z > +box_HALF_z)
 +				{
-+					t1a[n2] -= 2.0 * box_HALF_z;
-+					if (t1a[n2] > +box_HALF_z)
++					z -= 2.0 * box_HALF_z;
++					if (z > +box_HALF_z)
 +					{
 +						ostringstream str;
++						str << desr << endl << ends;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" +box_HALFdim[" ) << n2 << _("] ") << +box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
-+
-+						assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						if (fail)
++						{
++							assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						}
++						else
++						{
++							assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++						}
++						if (check)
++						{
++							return false;
++						}
 +					}						
 +				}
 +				//######################################################################
++				if (!check)
++				{
++					t1a[2] = z;
++				}
 +			}
  		}
 -		//######################################################################
  	}
++	return true;
  }
  
-@@ -2785,11 +2923,8 @@
+ void model::DiscardCurrEng(void)
+@@ -2785,11 +3004,8 @@
  			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  			if (eng_pbc != NULL)
  			{
@@ -1295,7 +1383,13 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			}
  			else
  			{
-@@ -3127,11 +3262,8 @@
+@@ -3122,27 +3338,23 @@
+ 		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
+ 
+ #if USE_BOUNDARY_OPT_ON_MOLDYN
+-		if (0 == (n1 % 10)){
++		if (!(n1 % 10) || !checked_terms){
+ 			if (b_opt && param.box_optimization){
  				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
  				if (eng_pbc != NULL)
  				{
@@ -1309,7 +1403,20 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				}
  				else
  				{
-@@ -4561,9 +4693,7 @@
+-					printf ("box_optimization is disabled eng_pbc = %d\n", eng_pbc);
++					//printf ("box_optimization is disabled eng_pbc = %d\n", eng_pbc);
+ 				}
+ 			}
+ 			else
+ 			{
+-				printf ("box_optimization is disabled b_opt = %d param.box_optimization = %d\n", b_opt, param.box_optimization);
++				//printf ("box_optimization is disabled b_opt = %d param.box_optimization = %d\n", b_opt, param.box_optimization);
+ 			}
+-			
+ 		}
+ #endif
+ 
+@@ -4561,9 +4773,7 @@
  	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
  	if (eng_pbc != NULL)
  	{
@@ -1338,7 +1445,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
      bool LoadBox(const char * boxfilename);
  
 -    void apply_periodic_cond(engine * eng, f64 & t1a_n2, i32s n2) const;
-+    void apply_periodic_cond(engine * eng, f64 * t1a) const;
++    bool apply_periodic_cond(engine * eng, f64 * t1a, bool check, bool fail, const char * desc) const;
  
  // what to do for this one???
  // what to do for this one???
