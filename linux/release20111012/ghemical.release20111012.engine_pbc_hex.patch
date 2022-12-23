@@ -692,7 +692,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_sf.cpp ./libghemical-3.0.0/src/e
 -			GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++		GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_sf::ComputeBT1");
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -706,7 +706,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_sf.cpp ./libghemical-3.0.0/src/e
 -				GetSetup()->GetModel()->apply_periodic_cond(this, t1a[n2], n2);
 +			}
 +
-+			GetSetup()->GetModel()->apply_periodic_cond(this, t1a);
++			GetSetup()->GetModel()->apply_periodic_cond(this, t1a, false, false, "eng1_sf::ComputeNBT1");
 +
 +			for (i32s n2 = 0;n2 < 3;n2++)
 +			{
@@ -756,7 +756,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +			test2[n3] = test1[n3];
 +		}
 +			
-+		GetSetup()->GetModel()->apply_periodic_cond(this, test2);
++		GetSetup()->GetModel()->apply_periodic_cond(this, test2, false, true, "engine_pbc_base::CheckMolLocations");
 +
 +		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
 +		{
@@ -778,7 +778,7 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/en
 +		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
 +		{
 +			i32u index = atmtab[n2]->varind;
-+			GetSetup()->GetModel()->apply_periodic_cond(this, crd + index * 3);
++			GetSetup()->GetModel()->apply_periodic_cond(this, crd + index * 3, false, true, "engine_pbc_base::CheckAtomLocations");
 +		}
 +	}
 +}
