@@ -1317,7 +1317,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl << ends;
-+						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -box_HALF_z << endl << ends;
++						str << _("FATAL : t1a ") << z << _(" -box_HALF_z ") << -box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
@@ -1340,7 +1340,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl << ends;
-+						str << _("FATAL : t1a ") << t1a[n2] << _(" +box_HALFdim[" ) << n2 << _("] ") << +box_HALF_z << endl << ends;
++						str << _("FATAL : z ") << z << _(" +box_HALF_z ") << +box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
