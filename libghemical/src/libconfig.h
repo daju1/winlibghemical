@@ -104,7 +104,8 @@
 
 /* Where the data files are ; set in the configure.ac */
 //#define LIBDATA_PATH "/usr/local/share/libghemical"
-#define LIBDATA_PATH "e://winlibghemical/work/libghemical"
+//#define LIBDATA_PATH "e://winlibghemical/work/libghemical"
+#define LIBDATA_PATH "d://winlibghemical/consol/libghemical"
 //#define LIBDATA_PATH "libghemical"
 //#define LIBDATA_PATH __FILE__
 //#define LIBDATA_PATH __PATH__

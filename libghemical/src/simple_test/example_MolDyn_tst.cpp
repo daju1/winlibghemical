@@ -14,6 +14,7 @@
 #include "..\eng1_mm_tripos52.h"
 #include "..\eng1_mm_default.h"
 
+#include "..\long_stream.h"
 #include "..\geomopt.h"
 #include "..\moldyn.h"
 

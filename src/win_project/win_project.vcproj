@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				AdditionalIncludeDirectories="&quot;../../mpqc-2.3.0\src\lib&quot;;&quot;../../winopenbabel-1.100.2\src&quot;;&quot;../../glut37/glut-3.7/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -112,7 +112,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				AdditionalIncludeDirectories="&quot;../../mpqc-2.3.0\src\lib&quot;;&quot;../../winopenbabel-1.100.2\src&quot;;&quot;../../glut37/glut-3.7/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				AdditionalIncludeDirectories="&quot;../../mpqc-2.3.0\src\lib&quot;;&quot;../../winopenbabel-1.100.2\src&quot;;&quot;../../glut37/glut-3.7/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="true"
@@ -241,7 +241,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../mpqc-2.3.0\src\lib; ../../winopenbabel-1.100.2\src"
+				AdditionalIncludeDirectories="&quot;../../mpqc-2.3.0\src\lib&quot;;&quot;../../winopenbabel-1.100.2\src&quot;;&quot;../../glut37/glut-3.7/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="true"
