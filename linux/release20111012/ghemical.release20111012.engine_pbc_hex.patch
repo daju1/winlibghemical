@@ -1145,7 +1145,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					if (xyz < -eng_pbc->box_HALFdim[n2])
 +					{
 +						ostringstream str;
-+						str << desr << endl << ends;
++						str << desr << endl;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
@@ -1168,7 +1168,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					if (xyz > eng_pbc->box_HALFdim[n2])
 +					{
 +						ostringstream str;
-+						str << desr << endl << ends;
++						str << desr << endl;
 +						str << _("FATAL : t1a ") << t1a[n2] << _(" box_HALFdim[" ) << n2 << _("] ") << eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
@@ -1252,9 +1252,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +						else
 +						{
 +							ostringstream str;
-+							str << desr << endl << ends;
-+							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << " p " << p << " max_p " << max_p << endl << ends;
-+							str << _(" x ") << x << _(" y ") << y << " r " << r << " phi " << phi << endl << ends;
++							str << desr << endl;
++							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << " p " << p << " max_p " << max_p << endl;
++							str << _(" x ") << x << _(" y ") << y << " r " << r << " phi " << phi << endl;
 +							str << _(" N ") << N << _(" alpha ") << alpha << " l " << l << " p " << p << endl << ends;
 +							this->PrintToLog(str.str().c_str());
 +							if (fail)
@@ -1274,7 +1274,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					else if (l > 3*box_HALF_R)
 +					{
 +						ostringstream str;
-+						str << desr << endl << ends;
++						str << desr << endl;
 +						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
@@ -1316,7 +1316,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					if (z < -box_HALF_z)
 +					{
 +						ostringstream str;
-+						str << desr << endl << ends;
++						str << desr << endl;
 +						str << _("FATAL : t1a ") << z << _(" -box_HALF_z ") << -box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
@@ -1339,7 +1339,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					if (z > +box_HALF_z)
 +					{
 +						ostringstream str;
-+						str << desr << endl << ends;
++						str << desr << endl;
 +						str << _("FATAL : z ") << z << _(" +box_HALF_z ") << +box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
