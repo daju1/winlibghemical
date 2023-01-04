@@ -192,6 +192,19 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  			}
  		}
  	}
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2022-12-18 00:25:09.000000000 +0200
++++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2023-01-05 00:13:24.290262544 +0200
+@@ -31,6 +31,9 @@
+ 
+ #include <algorithm>
+ #include <sstream>
++
++#include <iostream>
++#include <string>
+ using namespace std;
+ 
+ /*################################################################################################*/
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
 --- ./libghemical-3.0.0.original/src/eng1_mm.h	2022-12-17 22:25:09.674522248 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm.h	2022-12-17 23:22:30.598450840 +0000
@@ -206,7 +219,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2022-12-17 22:25:09.666522248 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2022-12-17 23:22:30.598450840 +0000
-@@ -664,7 +664,12 @@
+@@ -664,7 +667,12 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
  			t1a[n2] = t9a - t9b;
@@ -220,7 +233,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			t1b += t1a[n2] * t1a[n2];
  		}
  		
-@@ -1265,10 +1270,15 @@
+@@ -1265,10 +1273,15 @@
  				f64 t9b = crd[l2g_mm[n1] * 3 + n2];
  				
  				t1a[n2] = t9a - t9b;
@@ -238,7 +251,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			f64 t1c = sqrt(t1b);
  			
  			if (nd_eval != NULL && (atmtab[n1]->flags & ATOMFLAG_MEASURE_ND_RDF)) nd_eval->AddValue(t1c);
-@@ -1396,33 +1406,9 @@
+@@ -1396,33 +1409,9 @@
  
  eng1_mm_default_nbt_mim::eng1_mm_default_nbt_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
@@ -274,7 +287,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  }
  
  eng1_mm_default_nbt_mim::~eng1_mm_default_nbt_mim(void)
-@@ -1449,45 +1435,28 @@
+@@ -1449,45 +1438,28 @@
  		i32s * atmi = nbt1_vector[n1].atmi;
  		
  		f64 t1a[3]; f64 t1b = 0.0;
@@ -338,7 +351,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			t1b += t1a[n2] * t1a[n2];
  		}
  		
-@@ -1632,47 +1601,30 @@
+@@ -1632,47 +1604,30 @@
  			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  			if (test == range_cr1[ind1 + 1])
  			{
@@ -405,7 +418,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  				}
  				
  				if (t1b > limit) continue;
-@@ -1757,6 +1709,101 @@
+@@ -1757,6 +1712,101 @@
  	}
  }
  
@@ -507,7 +520,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  /*################################################################################################*/
  
  eng1_mm_default_bp::eng1_mm_default_bp(setup * p1, i32u p2) :
-@@ -1776,9 +1823,12 @@
+@@ -1776,9 +1826,12 @@
  
  eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
