@@ -323,8 +323,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -			
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2a");
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2b");
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2a p1=") + std::to_string(p1)).c_str());
++		GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2b p1=") + std::to_string(p1)).c_str());
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -1146,7 +1146,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl;
-+						str << _("FATAL : t1a ") << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -eng_pbc->box_HALFdim[n2] << endl << ends;
++						str << (fail ? _("FATAL :") : _("Warning :")) << " t1a " << t1a[n2] << _(" -box_HALFdim[" ) << n2 << _("] ") << -eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
@@ -1169,7 +1169,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl;
-+						str << _("FATAL : t1a ") << t1a[n2] << _(" box_HALFdim[" ) << n2 << _("] ") << eng_pbc->box_HALFdim[n2] << endl << ends;
++						str << (fail ? _("FATAL :") : _("Warning :")) << " t1a " << t1a[n2] << _(" box_HALFdim[" ) << n2 << _("] ") << eng_pbc->box_HALFdim[n2] << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
@@ -1253,7 +1253,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +						{
 +							ostringstream str;
 +							str << desr << endl;
-+							str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << " p " << p << " max_p " << max_p << endl;
++							str << (fail ? _("FATAL :") : _("Warning :")) << " l " << l << _(" box_HALF_R ") << box_HALF_R << " p " << p << " max_p " << max_p << endl;
 +							str << _(" x ") << x << _(" y ") << y << " r " << r << " phi " << phi << endl;
 +							str << _(" N ") << N << _(" alpha ") << alpha << " l " << l << " p " << p << endl << ends;
 +							this->PrintToLog(str.str().c_str());
@@ -1275,7 +1275,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl;
-+						str << _("FATAL : l ") << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
++						str << (fail ? _("FATAL :") : _("Warning :")) << " l " << l << _(" box_HALF_R ") << box_HALF_R << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
@@ -1317,7 +1317,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl;
-+						str << _("FATAL : t1a ") << z << _(" -box_HALF_z ") << -box_HALF_z << endl << ends;
++						str << (fail ? _("FATAL :") : _("Warning :")) << " t1a " << z << _(" -box_HALF_z ") << -box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
@@ -1340,7 +1340,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					{
 +						ostringstream str;
 +						str << desr << endl;
-+						str << _("FATAL : z ") << z << _(" +box_HALF_z ") << +box_HALF_z << endl << ends;
++						str << (fail ? _("FATAL :") : _("Warning :")) << " z " << z << _(" +box_HALF_z ") << +box_HALF_z << endl << ends;
 +						this->PrintToLog(str.str().c_str());
 +						if (fail)
 +						{
