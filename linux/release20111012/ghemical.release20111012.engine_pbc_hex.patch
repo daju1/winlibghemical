@@ -287,7 +287,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  }
  
  eng1_mm_default_nbt_mim::~eng1_mm_default_nbt_mim(void)
-@@ -1449,45 +1438,28 @@
+@@ -1449,45 +1438,31 @@
  		i32s * atmi = nbt1_vector[n1].atmi;
  		
  		f64 t1a[3]; f64 t1b = 0.0;
@@ -336,8 +336,11 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 -			
 +		}
 +
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2a p1=") + std::to_string(p1)).c_str());
-+		GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2b p1=") + std::to_string(p1)).c_str());
++		if (p1 > 0)
++		{
++			GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2a p1=") + std::to_string(p1)).c_str());
++			GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2b p1=") + std::to_string(p1)).c_str());
++		}
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
@@ -351,7 +354,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  			t1b += t1a[n2] * t1a[n2];
  		}
  		
-@@ -1632,47 +1604,30 @@
+@@ -1632,47 +1607,30 @@
  			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  			if (test == range_cr1[ind1 + 1])
  			{
@@ -418,7 +421,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  				}
  				
  				if (t1b > limit) continue;
-@@ -1757,6 +1712,101 @@
+@@ -1757,6 +1715,101 @@
  	}
  }
  
@@ -520,7 +523,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  /*################################################################################################*/
  
  eng1_mm_default_bp::eng1_mm_default_bp(setup * p1, i32u p2) :
-@@ -1776,9 +1826,12 @@
+@@ -1776,9 +1829,12 @@
  
  eng1_mm_default_mim::eng1_mm_default_mim(setup * p1, i32u p2) :
  	engine(p1, p2),
