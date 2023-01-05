@@ -205,20 +205,6 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
  using namespace std;
  
  /*################################################################################################*/
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
---- ./libghemical-3.0.0.original/src/eng1_mm.h	2022-12-17 22:25:09.674522248 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm.h	2022-12-17 23:22:30.598450840 +0000
-@@ -50,6 +50,7 @@
- #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
- #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
- #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
-+#define ENG1_MM_PERIODIC_HEX	0x0111		// eng1_mm_default_mim
- 
- #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
- 
-diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
---- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2022-12-17 22:25:09.666522248 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2022-12-17 23:22:30.598450840 +0000
 @@ -664,7 +667,12 @@
  			f64 t9b = crd[l2g_mm[atmi[1]] * 3 + n2];
  			
@@ -596,6 +582,17 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0
  {
  	public:
  	
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2022-12-18 00:25:09.000000000 +0200
++++ ./libghemical-3.0.0/src/eng1_mm.h	2022-12-23 13:03:35.612612789 +0200
+@@ -50,6 +50,7 @@
+ #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
+ #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
+ #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
++#define ENG1_MM_PERIODIC_HEX	0x0111		// eng1_mm_default_mim
+ 
+ #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
+ 
 diff -Nur ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp
 --- ./libghemical-3.0.0.original_/src/eng1_mm_prmfit.cpp	2022-12-17 22:25:09.000000000 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm_prmfit.cpp	2022-12-18 01:25:13.502298041 +0000
@@ -1503,3 +1500,15 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  		}
  		
  		saved_pressure = tot_P;
+diff -Nur ./libghemical-3.0.0.original/src/notice.cpp ./libghemical-3.0.0/src/notice.cpp
+--- ./libghemical-3.0.0.original/src/notice.cpp	2022-12-18 00:25:09.000000000 +0200
++++ ./libghemical-3.0.0/src/notice.cpp	2023-01-05 10:58:26.957459366 +0200
+@@ -114,7 +114,7 @@
+ 
+ void assertion_warning(const char * fn, int ln, const char * description)
+ {
+-	cout << _("FATAL ERROR : file ") << fn << _(" line ") << ln << _(" assertion failed : ");
++	cout << _("Warning : file ") << fn << _(" line ") << ln << _(" assertion failed : ");
+ 	cout << (description != NULL ? description : _("<no description>")) << endl;
+ }
+ 
