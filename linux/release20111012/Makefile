@@ -240,7 +240,7 @@ libghemical_configure:
 	(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 MOPAC7_CFLAGS="-I${MOPAC7_INCDIR}" MOPAC7_LIBS="-L${mopac7_lib_path} -lmopac7" CXXFLAGS='-std=c++11')
 
 ghemical_examples: mopac7 liboglappth libghemical openbabel
-	(cd examples && make all)
+	(cd examples && make clean && make all)
 
 libghemical: mopac7
 	make libghemical_configure && (cd libghemical-3.0.0 && make && make install)

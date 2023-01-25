@@ -18,8 +18,8 @@ CC = g++
 
 BASEFLAGS = -g -c -O1 -Wall
 CFLAGS    = -I../ -I../local/include -I../local/include/ghemical -I../libghemical-3.0.0/src/
-LDFLAGS   = -L$(dirname ${PWD})/local/lib/
-
+LDFLAGS   = -L../local/lib/
+PKG_CONFIG_PATH=$(dirname $(pwd))/local/lib/pkgconfig
 
 EX1 =		example1
 EX2 =		example2
