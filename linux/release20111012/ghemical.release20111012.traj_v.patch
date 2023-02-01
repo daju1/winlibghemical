@@ -1,0 +1,750 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-02-01 08:25:31.682984995 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-02-01 02:20:32.987559786 +0000
+@@ -3708,6 +3708,7 @@
+ 
+ 	float ekin;
+ 	float epot;
++	float tmp;
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+@@ -3723,6 +3724,14 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		if (trajectory_version > 10)
++		{
++			float boundary[3];
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
+ 		i32s ind = 0;
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;		
+ 
+@@ -3736,23 +3745,36 @@
+ 				trajfile->read((char *) & t1a, sizeof(t1a));
+ 				cdata[t4] = t1a;
+ 			}
+-			#if 0
+-			if (extended_trajectory)
++
++			if (trajectory_version > 12)
++			{
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
++				}
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
++				}
++			}
++
++			if (trajectory_version > 11)
+ 			{
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//vdata[t4] = t1a;
+-				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//adata[t4] = t1a;
+-				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//fdata[t4] = t1a;
+-				}  
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
++				}
+ 			}
+-			#endif
+ 			
+ 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
+@@ -3807,6 +3829,7 @@
+ 
+ 	float ekin;
+ 	float epot;
++	float tmp;
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+@@ -3822,6 +3845,14 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		if (trajectory_version > 10)
++		{
++			float boundary[3];
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
+ 		i32s ind = 0;
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;		
+ 
+@@ -3835,23 +3866,36 @@
+ 				trajfile->read((char *) & t1a, sizeof(t1a));
+ 				cdata[t4] = t1a;
+ 			}
+-			#if 0
+-			if (extended_trajectory)
++
++			if (trajectory_version > 12)
+ 			{
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//vdata[t4] = t1a;
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//adata[t4] = t1a;
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//fdata[t4] = t1a;
++			}
++
++			if (trajectory_version > 11)
++			{
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
+ 				}
+ 			}
+-			#endif
+ 
+ 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
+@@ -3926,6 +3970,7 @@
+ 
+ 	float ekin;
+ 	float epot;
++	float tmp;
+ 
+ 	vector<xyz> coordinates_xyz;
+ 
+@@ -3958,6 +4003,14 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		if (trajectory_version > 10)
++		{
++			float boundary[3];
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
+ 		i32s ind = 0;
+ 		xyz mean_shift = xyz();
+ 		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+@@ -3969,23 +4022,36 @@
+ 				trajfile->read((char *) & t1a, sizeof(t1a));
+ 				cdata[t4] = t1a;
+ 			}
+-			#if 0
+-			if (extended_trajectory)
++
++			if (trajectory_version > 12)
+ 			{
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//vdata[t4] = t1a;
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//adata[t4] = t1a;
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//fdata[t4] = t1a;
++			}
++
++			if (trajectory_version > 11)
++			{
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
+ 				}
+ 			}
+-			#endif
+ 
+ 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
+@@ -4125,6 +4191,7 @@
+ 
+ 	float ekin;
+ 	float epot;
++	float tmp;
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+@@ -4140,6 +4207,14 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		if (trajectory_version > 10)
++		{
++			float boundary[3];
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
+ 		i32s ind = 0;
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;		
+ 
+@@ -4153,23 +4228,37 @@
+ 				trajfile->read((char *) & t1a, sizeof(t1a));
+ 				cdata[t4] = t1a;
+ 			}
+-			#if 0
+-			if (extended_trajectory)
++
++			if (trajectory_version > 12)
+ 			{
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//vdata[t4] = t1a;
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//adata[t4] = t1a;
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//fdata[t4] = t1a;
++			}
++
++			if (trajectory_version > 11)
++			{
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
+ 				}
+ 			}
+-			#endif
++
+ 			
+ 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
+@@ -4232,6 +4321,7 @@
+ 
+ 	float ekin;
+ 	float epot;
++	float tmp;
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+@@ -4247,6 +4337,14 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		if (trajectory_version > 10)
++		{
++			float boundary[3];
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
+ 		i32s ind = 0;
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;		
+ 
+@@ -4260,24 +4358,37 @@
+ 				trajfile->read((char *) & t1a, sizeof(t1a));
+ 				cdata[t4] = t1a;
+ 			}
+-			#if 0
+-			if (extended_trajectory)
++
++			if (trajectory_version > 12)
+ 			{
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//vdata[t4] = t1a;
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//adata[t4] = t1a;
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
+ 				}
+-				for (i32s t4 = 0;t4 < 3;t4++){
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					//fdata[t4] = t1a;
++			}
++
++			if (trajectory_version > 11)
++			{
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
+ 				}
+ 			}
+-			#endif
+-			
++
+ 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
+ 			if (ind == inda)
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-01-31 17:44:00.000000000 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-02-01 01:54:10.363601327 +0000
+@@ -159,6 +159,7 @@
+ 	traj_num_atoms = NOT_DEFINED;
+ 	total_traj_frames = NOT_DEFINED;
+ 	current_traj_frame = NOT_DEFINED;
++	trajectory_version = 14;
+ 	
+ 	verbosity = 3;
+ 	
+@@ -3260,7 +3261,7 @@
+ 	const int frame_save_frq = 10000;
+ 	const int total_frames = param.nsteps_s / frame_save_frq;
+ 	
+-	WriteTrajectoryHeader(ofile, total_frames);
++	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
+ 	ofile.close();
+ 	
+ 	ThreadUnlock();
+@@ -4606,7 +4607,16 @@
+ 		}	*/
+ 		
+ 		trajfile = new ifstream(fn, ios::in | ios::binary);
+-		trajfile->seekg(8, ios::beg);	// skip the file id...
++		//trajfile->seekg(8, ios::beg);	// skip the file id...
++		char file_id[10];
++		trajfile->read((char *) & file_id, 8);
++		sscanf(file_id, "traj_v%02d", &trajectory_version);
++
++		{
++			stringstream str;
++			str << _("the trajectory file version ") << trajectory_version << endl << ends;
++			PrintToLog(str.str().c_str());
++		}
+ 		
+ 		int natoms;
+ 		trajfile->read((char *) & natoms, sizeof(natoms));
+@@ -4619,11 +4629,12 @@
+ 		}
+ 		
+ 		trajfile->read((char *) & total_traj_frames, sizeof(total_traj_frames));
+-		
+-		stringstream str;
+-		str << _("the trajectory file contains ") << total_traj_frames << _(" frames.") << endl << ends;
+-		
+-		PrintToLog(str.str().c_str());
++
++		{
++			stringstream str;
++			str << _("the trajectory file contains ") << total_traj_frames << _(" frames.") << endl << ends;
++			PrintToLog(str.str().c_str());
++		}
+ 		
+ 		current_traj_frame = 0;
+ 
+@@ -4640,40 +4651,53 @@
+ 		if (total_traj_frames != real_frames)
+ 		{
+ 			stringstream str;
+-			str << _("the trajectory real_frames ") << real_frames << _(" does not correspond to ") <<  total_traj_frames <<_("frames. Wil be reset") << endl << ends;
++			str << _("the trajectory real_frames ") << real_frames << _(" does not correspond to ") <<  total_traj_frames <<_(" frames. Will be reset") << endl << ends;
+ 			total_traj_frames = real_frames;
+ 
+ 			PrintToLog(str.str().c_str());
+ 		}
++
++		if (trajectory_version > 11)
++		{
++			float tstep;
++			trajfile->read((char *) & tstep, sizeof(tstep));
++			stringstream str;
++			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
++				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++			PrintToLog(str.str().c_str());
++		}
+ 	}
+ 	else PrintToLog(_("trajectory file is already open!\n"));
+ }
+ 
+ void model::ReadTrajectoryFrame(void)
+ {
+-	i32s place = 8 + 2 * sizeof(int);						// skip the header...
+-	place += ((2 + 3) + 3 * traj_num_atoms) * sizeof(float) * current_traj_frame;		// get the correct frame...
+-	place += 2 * sizeof(float);							// skip epot and ekin...
++	i32s place = GetTrajectoryHeaderSize();						// skip the header...
++	place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++	place += GetTrajectoryEnergySize();							// skip epot and ekin...
+ 	
+ 	trajfile->seekg(place, ios::beg);
+-	
++
+ 	float tmp;
+-	
+-	float boundary[3];
+-	trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+-	trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+-	trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+-	
+-	if (boundary[0] >= 0.0)
+-	{
+-		saved_periodic_box_HALFdim[0] = boundary[0];
+-		saved_periodic_box_HALFdim[1] = boundary[1];
+-		saved_periodic_box_HALFdim[2] = boundary[2];
+-	}
+-	else if (boundary[1] >= 0.0)
+-	{
+-		saved_boundary_potential_rad_solute = boundary[1];
+-		saved_boundary_potential_rad_solvent = boundary[2];
++
++	if (trajectory_version > 10) {
++
++		float boundary[3];
++		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++
++		if (boundary[0] >= 0.0)
++		{
++			saved_periodic_box_HALFdim[0] = boundary[0];
++			saved_periodic_box_HALFdim[1] = boundary[1];
++			saved_periodic_box_HALFdim[2] = boundary[2];
++		}
++		else if (boundary[1] >= 0.0)
++		{
++			saved_boundary_potential_rad_solute = boundary[1];
++			saved_boundary_potential_rad_solvent = boundary[2];
++		}
+ 	}
+ 	
+ 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+@@ -4681,13 +4705,44 @@
+ 	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+ 		
+ 		fGL cdata[3];
+-		for (i32s t4 = 0;t4 < 3;t4++)
++		for (i32s t4 = 0; t4 < 3; t4++)
+ 		{
+ 			trajfile->read((char *) & tmp, sizeof(tmp));
+ 			cdata[t4] = tmp;
+ 		}
+ 		
+ 		(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++
++		if (trajectory_version > 12)
++		{
++			fGL vdata[3];
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				vdata[t4] = tmp;
++			}
++		}
++
++		if (trajectory_version > 13)
++		{
++			fGL adata[3];
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				adata[t4] = tmp;
++			}
++		}
++
++		if (trajectory_version > 11)
++		{
++			fGL fdata[3];
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				fdata[t4] = tmp;
++			}
++		}
+ 	}
+ }
+ 
+@@ -4704,10 +4759,16 @@
+ 
+ size_t model::GetTrajectoryHeaderSize()
+ {
+-	//if (extended_trajectory)
+-	//	return (8 + 2 * sizeof(int) + sizeof(float));
++	if (trajectory_version <= 11) {
++		// file_id
++		// number_of_atoms,  total_frames
++		return (8 + 2 * sizeof(int));
++	}
+ 
+-	return (8 + 2 * sizeof(int));
++	// file_id
++	// number_of_atoms,  total_frames
++	// tstep
++	return (8 + 2 * sizeof(int) + sizeof(float));
+ }
+ 
+ size_t model::GetTrajectoryEnergySize()
+@@ -4717,12 +4778,36 @@
+ 
+ size_t model::GetTrajectoryFrameSize()
+ {
+-	//if (extended_trajectory)
+-	//	return (GetTrajectoryEnergySize() + 12 * traj_num_atoms * sizeof(float));
++	if (trajectory_version == 10) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * traj_num_atoms * sizeof(float)); // crd
++	}
++
++	if (trajectory_version == 11) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * sizeof(float) // boundary
++			+ 3 * traj_num_atoms * sizeof(float)); //crd
++	}
+ 
+-	return (GetTrajectoryEnergySize()
+-		+ 3 * sizeof(float) // boundary
+-		+ 3 * traj_num_atoms * sizeof(float));
++	if (trajectory_version == 12) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * sizeof(float) // boundary
++			+ 6 * traj_num_atoms * sizeof(float)); //crd + force
++	}
++
++	if (trajectory_version == 13) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * sizeof(float) // boundary
++			+ 9 * traj_num_atoms * sizeof(float)); //crd + force + vel
++	}
++
++	if (trajectory_version == 14) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * sizeof(float) // boundary
++			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
++	}
++
++	return -1;
+ }
+ 
+ i32s model::GetTotalFrames(void)
+@@ -4745,14 +4830,23 @@
+ 	current_traj_frame = p1;
+ }
+ 
+-void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames)
++void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
+ {
+-	const char file_id[10] = "traj_v11";
++	char file_id[10];
++	snprintf(file_id, 9, "traj_v%02d", trajectory_version);
++	cout << "file_id = \"" << file_id << "\"" << endl;
++
+ 	const int number_of_atoms = GetAtomCount();
+ 	
+ 	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+ 	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+ 	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
++
++	if (trajectory_version > 11)
++	{
++		float tstep = dyn->tstep1 * frame_save_freq;
++		ofile.write((char *) & tstep, sizeof(tstep));
++	}
+ }
+ 
+ void model::WriteTrajectoryFrame(ofstream & ofile, moldyn * dyn)
+@@ -4778,18 +4872,12 @@
+ 	
+ 	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+ 	ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+-	
+-	ofile.write((char *) boundary, sizeof(float) * 3);
+-	
+-	for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
+-	{
+-		const fGL * cdata = (* itx).GetCRD(0);
+-		for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
+-		{
+-			float t1a = cdata[t4];
+-			ofile.write((char *) & t1a, sizeof(t1a));
+-		}
++
++	if (trajectory_version > 10) {
++		ofile.write((char *) boundary, sizeof(float) * 3);
+ 	}
++
++	dyn->SaveTrajectoryFrame(ofile, trajectory_version);
+ }
+ 
+ void model::EvaluateBFact(void)
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-01-31 17:44:00.000000000 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-01-31 17:51:23.352361645 +0000
+@@ -108,6 +108,8 @@
+ 	i32s traj_num_atoms;		// trajectory files...
+ 	i32s total_traj_frames;		// trajectory files...
+ 	i32s current_traj_frame;	// trajectory files...
++
++	i32s trajectory_version;
+ 	
+ 	public:
+ 	
+@@ -434,7 +436,7 @@
+ 	i32s GetCurrentFrame(void);
+ 	void SetCurrentFrame(i32s);
+ 	
+-	void WriteTrajectoryHeader(ofstream &, int);
++	void WriteTrajectoryHeader(ofstream &, int, moldyn *, int);
+ 	void WriteTrajectoryFrame(ofstream &, moldyn *);
+ 	
+ 	void EvaluateBFact(void);
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-01-31 17:44:00.000000000 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2023-02-01 01:55:18.519599538 +0000
+@@ -514,6 +514,47 @@
+ 	}
+ }
+ 
++void moldyn::SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version)
++{
++	float t1a;
++	const int number_of_atoms = eng->GetAtomCount();
++	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
++	{
++		for (i32s tt2 = 0;tt2 < 3;tt2++)
++		{
++			t1a = eng->crd[tt1 * 3 + tt2];
++			ofile.write((char *) & t1a, sizeof(t1a));
++		}
++
++		if (trajectory_version > 12)
++		{
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = vel[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++		}
++
++		if (trajectory_version > 13)
++		{
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = acc[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++		}
++
++		if (trajectory_version > 11)
++		{
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = eng->d1[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++		}
++	}
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2023-01-31 17:44:00.000000000 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2023-01-31 23:25:58.539834717 +0000
+@@ -180,6 +180,7 @@
+ 	f64 sum_of_masses;	// this is for density...
+ 	
+ 	friend void model::WriteTrajectoryFrame(ofstream &, moldyn *);
++	friend void model::WriteTrajectoryHeader(ofstream & ofile, int, moldyn *, int);
+ 	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+ 	
+ 	public:
+@@ -215,6 +216,8 @@
+ 	void SumModelImpuls(f64 * sum_p);
+ 	void ForceModelMomentumToZero();
+ 	void ForceMoleculesMomentumToZero();
++
++	void SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version);
+ };
+ 
+ /*################################################################################################*/

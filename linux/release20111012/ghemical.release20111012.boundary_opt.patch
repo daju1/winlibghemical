@@ -54,7 +54,7 @@ diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/M
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/intcrd.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfinder.Plo@am__quote@
 diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/src/boundary_opt.cpp
---- ./libghemical-3.0.0.original/src/boundary_opt.cpp	1970-01-01 00:00:00.000000000 +0000
+--- /dev/null
 +++ ./libghemical-3.0.0/src/boundary_opt.cpp	2020-09-08 17:02:33.683100078 +0000
 @@ -0,0 +1,82 @@
 +// BOUNDARY_OPT.CPP
@@ -140,7 +140,7 @@ diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.cpp ./libghemical-3.0.0/
 +
 +// eof
 diff -Nur ./libghemical-3.0.0.original/src/boundary_opt.h ./libghemical-3.0.0/src/boundary_opt.h
---- ./libghemical-3.0.0.original/src/boundary_opt.h	1970-01-01 00:00:00.000000000 +0000
+--- /dev/null
 +++ ./libghemical-3.0.0/src/boundary_opt.h	2020-09-08 12:44:21.243506719 +0000
 @@ -0,0 +1,100 @@
 +// BOUNDARY_OPT.H : geometry optimization classes.

@@ -85,6 +85,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero.patch
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero_locked.patch
 	patch -p1 < ./ghemical.release20111012.engine_pbc_hex.patch
+	patch -p1 < ./ghemical.release20111012.traj_v.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -179,7 +180,7 @@ clean_before_patch:
 	$(call clear_before_patch, mopac7-1.15)
 
 do_patch1:
-	diff -Nur ./ghemical-3.0.0.original    ./ghemical-3.0.0
+	diff -Nur ./ghemical-3.0.0.original    ./ghemical-3.0.0 > file1.patch
 
 do_patch2:
 	diff -Nur ./libghemical-3.0.0.original ./libghemical-3.0.0 > file.patch
