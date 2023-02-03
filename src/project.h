@@ -155,26 +155,19 @@ class project : public model
 // at the moment, we have only a single project_view object.
 // this could be always open?!?!? is it needed??? improve MDI first...
 	project_view * pv;
-	
 
-	long_ifstream * trajfile;
-	i32s traj_num_atoms;
-	i32s total_traj_frames;
-	i32s current_traj_frame;
-	bool extended_trajectory;
-	
 	atom * mt_a1;	// measure_tool
 	atom * mt_a2;	// measure_tool
 	atom * mt_a3;	// measure_tool
-	
+
 	public:
-	
+
 	enum rmode { Normal = 0, Transform1 = 1, Transform2 = 2 };
-	
+
 	vector<light *> light_vector;
 	vector<smart_object *> object_vector;
 	dummy_object * selected_object;
-	
+
 	iGLu * select_buffer;
 
 	public:
@@ -241,26 +234,11 @@ class project : public model
 	bool ExportFile(const char * filename, int index = 0);
 	
 #endif	// ENABLE_OPENBABEL
-	
-	// methods related to MD trajectories...
-	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	size_t GetTrajectoryHeaderSize();
-	size_t GetTrajectoryEnergySize();
-	size_t GetTrajectoryFrameSize();
-	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
-	void OpenTrajectory(const char *);
-	void CloseTrajectory(void);
-	void ReadFrame(void);
+
 	// WriteFrame???
 	void EvaluateBFact(void);
 	void EvaluateDiffConst(double);
-	
-	i32s GetTotalFrames(void);
-	long_ifstream * GetTrajectoryFile(void);
-	
-	i32s GetCurrentFrame(void);
-	void SetCurrentFrame(i32s);
-	
+
 	// add or remove hydrogen atoms...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	

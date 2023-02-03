@@ -231,7 +231,7 @@ moldyn_tst_param::moldyn_tst_param(setup * su)
 	maxwell_distribution_init = false;
 
 	load_last_frame = false;
-	extended_trajectory = true;
+	//trajectory_version = 10;
 
 	g[0] = 0.0; //Gx
 	g[1] = 0.0; //Gy
@@ -1265,14 +1265,9 @@ void moldyn_tst::SaveLastFrame(ofstream& ofile)
 	}
 }
 
-void moldyn_tst::SaveTrajFrame(long_ofstream& ofile)
+void moldyn_tst::SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version)
 {
-	const float fekin = ekin;
-	const float fepot = epot;
-	ofile.write((char *) & fekin, sizeof(fekin));	// kinetic energy, float.
-	ofile.write((char *) & fepot, sizeof(fepot));	// potential energy, float.
-	
-	float t1a; 
+	float t1a;
 	const int number_of_atoms = eng->GetAtomCount();
 	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
 	{
@@ -1282,22 +1277,31 @@ void moldyn_tst::SaveTrajFrame(long_ofstream& ofile)
 			ofile.write((char *) & t1a, sizeof(t1a));
 		}
 
-		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		if (trajectory_version > 12)
 		{
-			t1a = vel[tt1 * 3 + tt2];
-			ofile.write((char *) & t1a, sizeof(t1a));
+			for (i32s tt2 = 0;tt2 < 3;tt2++)
+			{
+				t1a = vel[tt1 * 3 + tt2];
+				ofile.write((char *) & t1a, sizeof(t1a));
+			}
 		}
 
-		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		if (trajectory_version > 13)
 		{
-			t1a = acc[tt1 * 3 + tt2];
-			ofile.write((char *) & t1a, sizeof(t1a));
+			for (i32s tt2 = 0;tt2 < 3;tt2++)
+			{
+				t1a = acc[tt1 * 3 + tt2];
+				ofile.write((char *) & t1a, sizeof(t1a));
+			}
 		}
 
-		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		if (trajectory_version > 11)
 		{
-			t1a = eng->d1[tt1 * 3 + tt2];
-			ofile.write((char *) & t1a, sizeof(t1a));
+			for (i32s tt2 = 0;tt2 < 3;tt2++)
+			{
+				t1a = eng->d1[tt1 * 3 + tt2];
+				ofile.write((char *) & t1a, sizeof(t1a));
+			}
 		}
 	}
 }

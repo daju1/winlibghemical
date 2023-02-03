@@ -128,7 +128,7 @@ void trajview_dialog::handler_ButtonBegin(HWND, void * data)
 	
 	i32s frame = 0;
 	ref->prj->SetCurrentFrame(frame);
-	ref->prj->ReadFrame();
+	ref->prj->ReadTrajectoryFrame();
 	
 	char mbuff1[128]; ostrstream str1(mbuff1, sizeof(mbuff1));
 	str1 << "frame = " << ref->prj->GetCurrentFrame() << endl << ends;
@@ -148,7 +148,7 @@ void trajview_dialog::handler_ButtonPrev(HWND, void * data)
 	if (frame >= max) frame = max - 1;
 	
 	ref->prj->SetCurrentFrame(frame);
-	ref->prj->ReadFrame();
+	ref->prj->ReadTrajectoryFrame();
 	
 	char mbuff1[128]; ostrstream str1(mbuff1, sizeof(mbuff1));
 	str1 << "frame = " << ref->prj->GetCurrentFrame() << endl << ends;
@@ -165,7 +165,7 @@ DWORD WINAPI trajview_dialog::handler_ButtonPlay(void * data)
 	for (i32s loop = 0;loop < max_frames;loop++)
 	{
 		ref->prj->SetCurrentFrame(loop);
-		ref->prj->ReadFrame();
+		ref->prj->ReadTrajectoryFrame();
 		
 		ref->prj->UpdateAllGraphicsViews(true);
 		::Sleep(100);
@@ -184,7 +184,7 @@ void trajview_dialog::handler_ButtonNext(HWND, void * data)
 	if (frame >= max) frame = max - 1;
 	
 	ref->prj->SetCurrentFrame(frame);
-	ref->prj->ReadFrame();
+	ref->prj->ReadTrajectoryFrame();
 	
 	char mbuff1[128]; ostrstream str1(mbuff1, sizeof(mbuff1));
 	str1 << "frame = " << ref->prj->GetCurrentFrame() << endl << ends;
@@ -199,7 +199,7 @@ void trajview_dialog::handler_ButtonEnd(HWND, void * data)
 
 	i32s frame = ref->prj->GetTotalFrames() - 1;
 	ref->prj->SetCurrentFrame(frame);
-	ref->prj->ReadFrame();
+	ref->prj->ReadTrajectoryFrame();
 	
 	char mbuff1[128]; ostrstream str1(mbuff1, sizeof(mbuff1));
 	str1 << "frame = " << ref->prj->GetCurrentFrame() << endl << ends;

@@ -462,8 +462,8 @@ void Load_traj(int ind1, int ind2, int dim, vector<double> & X)
 		for (i32s loop = 0;loop < total_traj_frames; loop++)
 		{
 			//app->GetWinProject()->SetCurrentFrame(loop);
-			//this->ReadFrame();
-			//void project::ReadFrame(void)
+			//this->ReadTrajectoryFrame();
+			//void project::ReadTrajectoryFrame(void)
 			//{
 				i32s place = GetTrajectoryHeaderSize(extended_trajectory);						// skip the header...
 				place += GetTrajectoryFrameSize(extended_trajectory, natoms) * loop;		// get the correct frame...

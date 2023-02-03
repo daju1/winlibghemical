@@ -186,7 +186,9 @@ model::model(void)
 	periodic_box_HALFdim[0] = 1.0;
 	periodic_box_HALFdim[1] = 1.0;
 	periodic_box_HALFdim[2] = 1.0;
-	
+
+	trajectory_version = 14;
+
 	nmol = NOT_DEFINED;
 	ref_civ = NULL;
 }
@@ -3523,23 +3525,14 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 	const int number_of_atoms = GetAtomCount();
 	char file_id[10];
-	sprintf(file_id, "%s",
-		param.extended_trajectory
-		? "traj_v11"
-		: "traj_v10");
-	
+	sprintf_s(file_id, 9, "traj_v%02d\0", trajectory_version);
+
 	const int frame_save_frq = 10;
 	const int total_frames = param.nsteps_s / frame_save_frq;
-	
-	ofile_traj.write((char *) file_id, 8);					// file id, 8 chars.
-	ofile_traj.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
-	ofile_traj.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
 
-	if (param.extended_trajectory)
-	{
-		float tstep = dyn->tstep1 * frame_save_frq;
-		ofile_traj.write((char *) & tstep, sizeof(tstep));	// step_counter, int.
-	}
+	WriteTrajectoryHeader(ofile_traj, total_frames, dyn, frame_save_frq);
+
+	ofile_traj.close();
 
 	ThreadUnlock();
 	
@@ -3634,7 +3627,6 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			}
 		}
 
-		
 		bool enable_tc = false;
 		if (n1 <= param.nsteps_h + param.nsteps_e) enable_tc = true;
 
@@ -3709,32 +3701,10 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		
 		if (!(n1 <= param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
 		{
-			if (param.extended_trajectory)
-			{
-				dyn->SaveTrajFrame(ofile_traj);
-			}
-			else
-			{
-				CopyCRD(eng, this, 0);
-
-				const float ekin = dyn->GetEKin();
-				const float epot = dyn->GetEPot();
-
-				ofile_traj.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
-				ofile_traj.write((char *) & epot, sizeof(epot));	// potential energy, float.
-
-				for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
-				{
-					const fGL * cdata = (* itx).GetCRD(0);
-					for (i32s t4 = 0;t4 < 3;t4++)		// all coordinates, float.
-					{
-						float t1a = cdata[t4];
-						ofile_traj.write((char *) & t1a, sizeof(t1a));
-					}
-				}
-			}
-
-			ofile_traj.flush();
+			CopyCRD(eng, this, 0);
+			ofile_traj.open(param.filename_traj, ios::out | ios::binary | ios::app);
+			WriteTrajectoryFrame(ofile_traj, dyn);
+			ofile_traj.close();
 
 			dyn->SaveLastFrame(param.filename_output_frame);
 			sprintf(mbuff1, "%s.txt", param.filename_output_frame);
@@ -4855,6 +4825,324 @@ void model::ecomp_Register(void)
 	// laske montako
 	// kopioi/luo ryhmien nimet
 	// kopioi/luo muut taulukot
+}
+
+/*##############################################*/
+/*##############################################*/
+void model::TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames)
+{
+	HANDLE hFile = CreateFile(fn,GENERIC_WRITE,0,0,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	SetFilePointer(hFile, 8 + sizeof(int), 0, FILE_BEGIN);
+	DWORD dwNumberOfBytesWritten;
+	WriteFile(hFile, (void *) & _total_traj_frames, sizeof(_total_traj_frames), &dwNumberOfBytesWritten, NULL);
+	SetFilePointer(hFile, 0, 0, FILE_END);
+	CloseHandle(hFile);
+
+	char mbuff1[256]; strstream str1(mbuff1, sizeof(mbuff1));
+	str1 << "the trajectory file contains " << _total_traj_frames << " frames." << endl << ends;
+	PrintToLog(mbuff1);
+}
+
+void model::OpenTrajectory(const char * fn)
+{
+	if (!trajfile)
+	{
+		traj_num_atoms = GetAtomCount();
+	/*	for (iter_al it1 = GetAtomsBegin();it1 != GetAtomsEnd();it1++)
+		{
+			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
+		}*/
+		
+		trajfile = new long_ifstream(fn, ios::in | ios::binary);
+		//trajfile->seekg(8, ios::beg);	// skip the file id...
+		char file_id[10];
+		trajfile->read((char *) & file_id, 8);
+		sscanf(file_id, "traj_v%02d", &trajectory_version);
+
+		{
+			stringstream str;
+			str << ("the trajectory file version ") << trajectory_version << endl << ends;
+			PrintToLog(str.str().c_str());
+		}
+		
+		int natoms;
+		trajfile->read((char *) & natoms, sizeof(natoms));
+		
+		if (natoms != traj_num_atoms)
+		{
+			printf("natoms %d != traj_num_atoms %d\n", natoms, traj_num_atoms);
+			ErrorMessage("The trajectory is incompatible with the current structure/setup!!!");
+			PrintToLog("incompatible file : different number of atoms!\n");
+			CloseTrajectory(); return;
+		}
+
+		trajfile->read((char *) & total_traj_frames, sizeof(total_traj_frames));
+
+		{
+			stringstream str;
+			str << ("the trajectory file contains ") << total_traj_frames << (" frames.") << endl << ends;
+			PrintToLog(str.str().c_str());
+		}
+
+		current_traj_frame = 0;
+
+		// CalcTotalFrames
+		size_t start_pos = trajfile->tellg();
+		trajfile->seekg(0, std::ios::end);
+		size_t end_pos = trajfile->tellg();
+		trajfile->seekg(start_pos, ios::beg);
+		size_t traj_body_size = end_pos - start_pos;
+
+		i32s max_frames = GetTotalFrames();
+		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
+
+		if (total_traj_frames != real_frames)
+		{
+			stringstream str;
+			str << ("the trajectory real_frames ") << real_frames << (" does not correspond to ") <<  total_traj_frames << (" frames. Will be reset") << endl << ends;
+			total_traj_frames = real_frames;
+
+			PrintToLog(str.str().c_str());
+		}
+
+		if (trajectory_version > 11)
+		{
+			float tstep;
+			trajfile->read((char *) & tstep, sizeof(tstep));
+			stringstream str;
+			str << ("time step between traj records ") << (tstep / 1000) << (" * 1.0E-12 s") << endl
+				<< ("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
+			PrintToLog(str.str().c_str());
+		}
+	}
+	else PrintToLog(("trajectory file is already open!\n"));
+}
+
+void model::ReadTrajectoryFrame(void)
+{
+	i32s place = GetTrajectoryHeaderSize();						// skip the header...
+	place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+	place += GetTrajectoryEnergySize();							// skip epot and ekin...
+	
+	trajfile->seekg(place, ios::beg);
+
+	float tmp;
+
+	if (trajectory_version > 10) {
+
+		float boundary[3];
+		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+
+		if (boundary[0] >= 0.0)
+		{
+			periodic_box_HALFdim[0] = boundary[0];
+			periodic_box_HALFdim[1] = boundary[1];
+			periodic_box_HALFdim[2] = boundary[2];
+		}
+		else if (boundary[1] >= 0.0)
+		{
+			boundary_potential_radius1 = boundary[1];
+			boundary_potential_radius2 = boundary[2];
+		}
+	}
+	
+	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+	{
+	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+		
+		fGL cdata[3];
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			cdata[t4] = tmp;
+		}
+		
+		(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+		if (trajectory_version > 12)
+		{
+			fGL vdata[3];
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				vdata[t4] = tmp;
+			}
+		}
+
+		if (trajectory_version > 13)
+		{
+			fGL adata[3];
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				adata[t4] = tmp;
+			}
+		}
+
+		if (trajectory_version > 11)
+		{
+			fGL fdata[3];
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				fdata[t4] = tmp;
+			}
+		}
+	}
+	this->UpdateAllGraphicsViews();
+}
+
+void model::CloseTrajectory(void)
+{
+	if (trajfile != NULL)
+	{
+		trajfile->close();
+		delete trajfile;
+		
+		trajfile = NULL;
+	}
+}
+
+size_t model::GetTrajectoryHeaderSize()
+{
+	if (trajectory_version <= 11) {
+		// file_id
+		// number_of_atoms,  total_frames
+		return (8 + 2 * sizeof(int));
+	}
+
+	// file_id
+	// number_of_atoms,  total_frames
+	// tstep
+	return (8 + 2 * sizeof(int) + sizeof(float));
+}
+
+size_t model::GetTrajectoryEnergySize()
+{
+	return (2 * sizeof(float));
+}
+
+size_t model::GetTrajectoryFrameSize()
+{
+	if (trajectory_version == 10) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * traj_num_atoms * sizeof(float)); // crd
+	}
+
+	if (trajectory_version == 11) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 3 * traj_num_atoms * sizeof(float)); //crd
+	}
+
+	if (trajectory_version == 12) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 6 * traj_num_atoms * sizeof(float)); //crd + force
+	}
+
+	if (trajectory_version == 13) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 9 * traj_num_atoms * sizeof(float)); //crd + force + vel
+	}
+
+	if (trajectory_version == 14) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
+	}
+
+	return -1;
+}
+
+i32s model::GetTotalFrames(void)
+{
+	return total_traj_frames;
+}
+
+/*
+std::streampos fileSize( const char* filePath )
+{
+	std::streampos fsize = 0;
+	std::ifstream file( filePath, std::ios::binary );
+
+	fsize = file.tellg();
+	file.seekg( 0, std::ios::end );
+	fsize = file.tellg() - fsize;
+	file.close();
+
+	return fsize;
+}*/
+
+long_ifstream * model::GetTrajectoryFile(void)
+{
+	return trajfile;
+}
+
+i32s model::GetCurrentFrame(void)
+{
+	return current_traj_frame;
+}
+
+void model::SetCurrentFrame(i32s p1)
+{
+	current_traj_frame = p1;
+}
+
+void model::WriteTrajectoryHeader(long_ofstream & ofile, int total_frames, moldyn_tst * dyn, int frame_save_freq)
+{
+	char file_id[10];
+	sprintf_s(file_id, 9, "traj_v%02d\0", trajectory_version);
+	cout << "file_id = \"" << file_id << "\"" << endl;
+
+	const int number_of_atoms = GetAtomCount();
+
+	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+
+	if (trajectory_version > 11)
+	{
+		float tstep = dyn->tstep1 * frame_save_freq;
+		ofile.write((char *) & tstep, sizeof(tstep));
+	}
+}
+
+void model::WriteTrajectoryFrame(long_ofstream & ofile, moldyn_tst * dyn)
+{
+	const float ekin = dyn->GetEKin();
+	const float epot = dyn->GetEPot();
+
+	float boundary[3] = { -1.0, -1.0, -1.0 };
+
+	engine_mbp * eng_bp = dynamic_cast<engine_mbp *>(dyn->eng);
+	if (eng_bp != NULL)
+	{
+		// the 1st value is not modified...
+		boundary[1] = eng_bp->bp_radius_solute;
+		boundary[2] = eng_bp->bp_radius_solvent;
+	}
+
+	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
+	if (eng_pbc != NULL)
+	{
+		//eng_pbc->setTrajBoundary(boundary);
+		boundary[0] = periodic_box_HALFdim[0];
+		boundary[1] = periodic_box_HALFdim[1];
+		boundary[2] = periodic_box_HALFdim[2];
+	}
+
+	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+	ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+
+	if (trajectory_version > 10) {
+		ofile.write((char *) boundary, sizeof(float) * 3);
+	}
+
+	dyn->SaveTrajectoryFrame(ofile, trajectory_version);
 }
 
 #if DIFFUSE_WORKING || KLAPAN_DIFFUSE_WORKING

@@ -1898,17 +1898,18 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 					
 				const char * s1 = "frame(num)"; const char * sv = "E(kJ/mol)";
 				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
-			
+
 				float ekin;
 				float epot;
+				float tmp;
 
 
 				i32s max_frames = prj->GetTotalFrames();
 				for (i32s loop = 0;loop < max_frames;loop++)
 				{
 					prj->SetCurrentFrame(loop);
-					//prj->ReadFrame();
-					//void project::ReadFrame(void)
+					//prj->ReadTrajectoryFrame();
+					//void project::ReadTrajectoryFrame(void)
 					{
 						unsigned __int64 place = GetTrajectoryHeaderSize();						// skip the header...
 						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
@@ -1918,7 +1919,13 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 
 						trajfile->read((char *) & ekin, sizeof(ekin));
 						trajfile->read((char *) & epot, sizeof(epot));
-						
+		if (trajectory_version > 10)
+		{
+			float boundary[3];
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+		}
 						for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 						{
 						//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
@@ -1929,26 +1936,37 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 								trajfile->read((char *) & t1a, sizeof(t1a));
 								cdata[t4] = t1a;
 							}
-							if (extended_trajectory)
-							{
-#if 1
-								trajfile->seekg(9*sizeof(t1a), ios::cur);
-#else
-								for (i32s t4 = 0;t4 < 3;t4++){
-									trajfile->read((char *) & t1a, sizeof(t1a));
-									//vdata[t4] = t1a;
-								}
-								for (i32s t4 = 0;t4 < 3;t4++){
-									trajfile->read((char *) & t1a, sizeof(t1a));
-									//adata[t4] = t1a;
-								}
-								for (i32s t4 = 0;t4 < 3;t4++){
-									trajfile->read((char *) & t1a, sizeof(t1a));
-									//fdata[t4] = t1a;
-								}
-#endif
-							}
-							
+
+			if (trajectory_version > 12)
+			{
+				fGL vdata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					vdata[t4] = tmp;
+				}
+			}
+
+			if (trajectory_version > 13)
+			{
+				fGL adata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					adata[t4] = tmp;
+				}
+			}
+
+			if (trajectory_version > 11)
+			{
+				fGL fdata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					fdata[t4] = tmp;
+				}
+			}
+
 							(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
 						}
 						//this->UpdateAllGraphicsViews();
@@ -2049,7 +2067,7 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 				char filename[512];
 				DWORD nFilterIndex;
 				while (OpenFileDlg(widget, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
-				{			
+				{
 
 					cout << "trying to open \"" << filename << "\"." << endl;
 					prj->OpenTrajectory(filename);	
@@ -2068,13 +2086,14 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 
 					float ekin;
 					float epot;
+					float tmp;
 
 					total_frames += real_frames;
 					for (i32s loop = 0;loop < real_frames;loop++)
 					{
 						//prj->SetCurrentFrame(loop);//current_traj_frame = loop;
-						//prj->ReadFrame();
-						//void project::ReadFrame(void)
+						//prj->ReadTrajectoryFrame();
+						//void project::ReadTrajectoryFrame(void)
 						{
 							i32s place = prj->GetTrajectoryHeaderSize();						// skip the header...
 							place += prj->GetTrajectoryFrameSize() * loop;		// get the correct frame...
@@ -2084,12 +2103,27 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 
 							prj->trajfile->read((char *) & ekin, sizeof(ekin));
 							prj->trajfile->read((char *) & epot, sizeof(epot));
-							
+
+		float boundary[3];
+		if (prj->trajectory_version > 10)
+		{
+			prj->trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+			prj->trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+			prj->trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+		}
+
 							ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
 							ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
-							
+
+		if (prj->trajectory_version > 10)
+		{
+			tmp = boundary[0]; ofile.write((char *) & tmp, sizeof(tmp));
+			tmp = boundary[1]; ofile.write((char *) & tmp, sizeof(tmp));
+			tmp = boundary[2]; ofile.write((char *) & tmp, sizeof(tmp));
+		}
+
 							for (iter_al it1 = prj->atom_list.begin();it1 != prj->atom_list.end();it1++)
-							{								
+							{
 								//fGL cdata[3];
 								for (i32s t4 = 0;t4 < 3;t4++)
 								{
@@ -2098,22 +2132,45 @@ void win_project::popup_ConCatTrajFiles(HWND widget, void * data)
 									//cdata[t4] = t1a;
 									//float t1a = cdata[t4];
 									ofile.write((char *) & t1a, sizeof(t1a));
-									if (prj->extended_trajectory)
-									{
-										prj->trajfile->read((char *) & t1a, sizeof(t1a));
-										//vdata[t4] = t1a;
-										ofile.write((char *) & t1a, sizeof(t1a));
-										prj->trajfile->read((char *) & t1a, sizeof(t1a));
-										//adata[t4] = t1a;
-										ofile.write((char *) & t1a, sizeof(t1a));
-										prj->trajfile->read((char *) & t1a, sizeof(t1a));
-										//fdata[t4] = t1a;
-										ofile.write((char *) & t1a, sizeof(t1a));
-									}
+
+
+			if (prj->trajectory_version > 12)
+			{
+				fGL vdata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					prj->trajfile->read((char *) & tmp, sizeof(tmp));
+					vdata[t4] = tmp;
+					ofile.write((char *) & tmp, sizeof(tmp));
+				}
+			}
+
+			if (prj->trajectory_version > 13)
+			{
+				fGL adata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					prj->trajfile->read((char *) & tmp, sizeof(tmp));
+					adata[t4] = tmp;
+					ofile.write((char *) & tmp, sizeof(tmp));
+				}
+			}
+
+			if (prj->trajectory_version > 11)
+			{
+				fGL fdata[3];
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					prj->trajfile->read((char *) & tmp, sizeof(tmp));
+					fdata[t4] = tmp;
+					ofile.write((char *) & tmp, sizeof(tmp));
+				}
+			}
+
 								}
 							}
 						}
-					}	
+					}
 
 					prj->CloseTrajectory();
 				}

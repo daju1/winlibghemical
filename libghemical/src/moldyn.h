@@ -15,6 +15,7 @@
 class moldyn_param;
 
 class moldyn;
+class moldyn_tst;
 class moldyn_langevin;
 
 class temperature_meter;
@@ -98,6 +99,8 @@ class moldyn
 	
 	i32s step_counter;
 	
+	friend void model::WriteTrajectoryFrame(long_ofstream &, moldyn_tst *);
+	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn_tst *, int);
 	public:
 	
 	f64 temperature;
@@ -334,7 +337,7 @@ class moldyn_tst  : public moldyn
 #endif
 	void SaveLastFrame(char * fn);
 	void SaveLastFrame(ofstream& ofile);
-	void SaveTrajFrame(long_ofstream& ofile);
+	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
 	void SaveLastFrameTxt(char * fn);
 	void ReadLastFrame(char * fn);
 };

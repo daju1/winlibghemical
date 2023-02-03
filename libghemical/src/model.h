@@ -32,6 +32,8 @@ class resonance_structures;	// resonance.h
 
 class setup;			// engine.h
 class engine;			// engine.h
+class moldyn;
+class moldyn_tst;
 
 class geomopt_param;		// geomopt.h
 class moldyn_param;		// moldyn.h
@@ -45,6 +47,8 @@ class moldyn_tst_param;		// moldyn.h
 #include <iostream>
 #include <algorithm>
 using namespace std;
+
+#include "long_stream.h"
 
 #define NOT_FOUND 0x7fffffff   // numeric_limits<i32s>::max()?!?!?!
 
@@ -115,7 +119,13 @@ class model
 
 	i32s nmol;
 	vector<chn_info> * ref_civ;	// vector<chn_info *> ?!?!?!
-	
+
+	long_ifstream * trajfile;
+	i32s traj_num_atoms;
+	i32s total_traj_frames;
+	i32s current_traj_frame;
+	int trajectory_version;
+
 	vector<const char *> ecomp_grp_name_usr;
 	
 //	int ecomp_ngrps;
@@ -402,11 +412,27 @@ The readpdb functions do the import in two stages: in first stage read in the "m
 read in the data as correctly as possible. later, results from these two can be compared, for 
 example to evaluate quality of the data or to match the data with records in other databases. */
 	readpdb_mdata * readpdb_ReadMData(const char *);
-	
+
 	void readpdb_ReadData(const char *, readpdb_mdata *, i32s);
 	i32s readpdb_ReadData_sub1(vector<readpdb_data_atom> &, i32s *, const char *, bool);
 	void readpdb_ReadData_sub2(vector<readpdb_data_atom> &, i32s *, const char *, const char *, char);
-	
+
+	// methods related to MD trajectories...
+	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	size_t GetTrajectoryHeaderSize();
+	size_t GetTrajectoryEnergySize();
+	size_t GetTrajectoryFrameSize();
+	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
+	void OpenTrajectory(const char *);
+	void CloseTrajectory(void);
+	void ReadTrajectoryFrame(void);
+
+	i32s GetTotalFrames(void);
+	long_ifstream * GetTrajectoryFile(void);
+
+	i32s GetCurrentFrame(void);
+	void SetCurrentFrame(i32s);
+
 	void ecomp_AddGroupU(const char *);
 	bool ecomp_DeleteGroupU(int);
 	
@@ -416,8 +442,10 @@ example to evaluate quality of the data or to match the data with records in oth
 	void ecomp_RegisterWithAutoSolvChn1(void);
 	void ecomp_RegisterWithAutoSolvChn2(void);	*/
 	
+	void WriteTrajectoryHeader(long_ofstream &, int, moldyn_tst *, int);
+	void WriteTrajectoryFrame(long_ofstream &, moldyn_tst *);
 	private:
-	
+
 	void ecomp_Register(void);
 
 	//void Correct_periodic_box_HALFdim(engine * eng);
