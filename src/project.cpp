@@ -4425,52 +4425,57 @@ void project::DoDensity(void)
 
   Message(buffer);
 }
+
 void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
 {
-	//win_graphics_view * gv = win_graphics_view::GetGV(widget);
-	//win_project * prj = dynamic_cast<win_project *>(gv->prj);
-	//if (prj)// new trajfile_dialog(prj);	// will call delete itself...
-	//{
-		if (!this->GetTrajectoryFile())
-		{
+	if (this->GetTrajectoryFile())
+	{
+		this->ErrorMessage("Trajectory already open?!?!?!");
+		return;
+	}
 
-			char filename[512];
-			DWORD nFilterIndex;
-			if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) == S_OK)
-			{
-				cout << "trying to open \"" << filename << "\"." << endl;
-				this->OpenTrajectory(filename);
-				// check if there were problems with OpenTrajectory()?!?!?!
-				// check if there were problems with OpenTrajectory()?!?!?!
-				// check if there were problems with OpenTrajectory()?!?!?!
-					
-				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
-			
-				float ekin;
-				float epot;
-				float tmp;
+	char filename[512];
+	DWORD nFilterIndex;
+	if (OpenFileDlg(NULL, "Ghemical Trajectory File (*.traj)\0*.traj\0All files \0*.*\0", filename, nFilterIndex) != S_OK)
+	{
+		return;
+	}
 
+	cout << "trying to open \"" << filename << "\"." << endl;
+	this->OpenTrajectory(filename);
+	// check if there were problems with OpenTrajectory()?!?!?!
+	// check if there were problems with OpenTrajectory()?!?!?!
+	// check if there were problems with OpenTrajectory()?!?!?!
 
-				i32s max_frames = this->GetTotalFrames();
-				for (i32s loop = 0;loop < max_frames;loop++)
-				{
-					this->SetCurrentFrame(loop);
-					//this->ReadTrajectoryFrame();
-					//void project::ReadTrajectoryFrame(void)
-					//{
-						i32s place = GetTrajectoryHeaderSize();						// skip the header...
-						place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
-						//place += GetTrajectoryEnergySize();							// skip epot and ekin...
-						
-						trajfile->seekg(place, ios::beg);
+	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
 
-						trajfile->read((char *) & ekin, sizeof(ekin));
-						trajfile->read((char *) & epot, sizeof(epot));
+	float ekin;
+	float epot;
+	float tmp;
 
+	i32s shift = 0;
+	fGL previouse_coordinate = 0.0;
+
+	i32s max_frames = this->GetTotalFrames();
+	for (i32s loop = 0;loop < max_frames;loop++)
+	{
+		this->SetCurrentFrame(loop);
+		//this->ReadTrajectoryFrame();
+		//void project::ReadTrajectoryFrame(void)
+		//{
+		i32s place = GetTrajectoryHeaderSize();						// skip the header...
+		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
+		
+		trajfile->seekg(place, ios::beg);
+
+		trajfile->read((char *) & ekin, sizeof(ekin));
+		trajfile->read((char *) & epot, sizeof(epot));
+
+		float boundary[3];
 		if (trajectory_version > 10)
 		{
-			float boundary[3];
 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
@@ -4519,69 +4524,75 @@ void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
 					fdata[t4] = tmp;
 				}
 			}
-			
+
 			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
 
-							if (ind == inda)
-							{
-								mt_a1 = &(* it1);
-							}
+			if (ind == inda)
+			{
+				mt_a1 = &(* it1);
+			}
 
-							/*if (ind == indb)
-							{
-								mt_a2 = &(* it1);
-							}
+			/*if (ind == indb)
+			{
+				mt_a2 = &(* it1);
+			}
 
-							if (ind == indc)
-							{
-								mt_a3 = &(* it1);
-							}*/
+			if (ind == indc)
+			{
+				mt_a3 = &(* it1);
+			}*/
 
+			ind++;
+		}
+		//this->UpdateAllGraphicsViews();
 
-							ind++;
-						}
-						//this->UpdateAllGraphicsViews();
-					//}
+		fGL coordinate;
 
-						fGL coordinate;
+		if (mt_a1 && dim >=0 && dim < 3)
+		{
+			const fGL * p1 = mt_a1->GetCRD(0);
+			//const fGL * p2 = mt_a2->GetCRD(0);
+			// my measure
+			//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
+			coordinate = p1[dim];
+		}
+		else {
+			coordinate = 0;
+		}
 
-						if (mt_a1 && dim >=0 && dim < 3)
-						{
-							const fGL * p1 = mt_a1->GetCRD(0);
-							//const fGL * p2 = mt_a2->GetCRD(0);
-// my measure
-//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
-							coordinate = p1[dim];
-						}
-						else
-							coordinate = 0;
+		if (coordinate - previouse_coordinate > boundary[dim])
+		{
+			shift -= 1;
+			printf("coordinate %f- previouse_coordinate %f > boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+		}
+		if (coordinate - previouse_coordinate < -boundary[dim])
+		{
+			shift += 1;
+			printf("coordinate %f- previouse_coordinate %f < boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+		}
 
-					//ref->this->UpdateAllGraphicsViews(true);
-					//::Sleep(100);
-					void * udata = convert_cset_to_plotting_udata(this, 0);
-					f64 value = coordinate;
-					plot->AddData(loop, value, udata);
+		//ref->this->UpdateAllGraphicsViews(true);
+		//::Sleep(100);
+		void * udata = convert_cset_to_plotting_udata(this, 0);
+		f64 value = coordinate + 2*shift*boundary[dim];
+		plot->AddData(loop, value, udata);
 
-					mt_a1 = mt_a2 = mt_a3 = NULL;
-				}
-				
-				this->CloseTrajectory();
+		mt_a1 = mt_a2 = mt_a3 = NULL;
+		previouse_coordinate = coordinate;
+	}
+
+	this->CloseTrajectory();
 
 //				static trajview_dialog * tvd = NULL;
-				
+
 //				if (tvd != NULL) delete tvd;		// how to safely release the memory...
-				//tvd =
-				//	new trajview_dialog(this);		// ...right after the dialog is closed?
-				
-				// the dialog will call this->CloseTrajectory() itself when closed!!!
-				// the dialog will call this->CloseTrajectory() itself when closed!!!
-				// the dialog will call this->CloseTrajectory() itself when closed!!!
-				plot->SetCenterAndScale();
-				plot->Update();
-			}
-		}
-		else this->ErrorMessage("Trajectory already open?!?!?!");
-	//}
+	//tvd =
+	//	new trajview_dialog(this);		// ...right after the dialog is closed?
+	// the dialog will call this->CloseTrajectory() itself when closed!!!
+	// the dialog will call this->CloseTrajectory() itself when closed!!!
+	// the dialog will call this->CloseTrajectory() itself when closed!!!
+	plot->SetCenterAndScale();
+	plot->Update();
 }
 
 void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
