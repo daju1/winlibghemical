@@ -86,6 +86,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.force_molecules_momentum_to_zero_locked.patch
 	patch -p1 < ./ghemical.release20111012.engine_pbc_hex.patch
 	patch -p1 < ./ghemical.release20111012.traj_v.patch
+	patch -p1 < ./ghemical.release20111012.molgroups.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -93,6 +94,13 @@ cash:
 	mv liboglappth-1.0.0 liboglappth-1.0.0.cashed
 	mv mopac7-1.15       mopac7-1.15.cashed
 	mv openbabel-2.0.0   openbabel-2.0.0.cashed
+
+originals:
+	cp -r ghemical-3.0.0    ghemical-3.0.0.original
+	cp -r libghemical-3.0.0 libghemical-3.0.0.original
+	cp -r liboglappth-1.0.0 liboglappth-1.0.0.original
+	cp -r mopac7-1.15       mopac7-1.15.original
+	cp -r openbabel-2.0.0   openbabel-2.0.0.original
 
 prepare_originals_for_patch:
 	make clean

@@ -1,0 +1,633 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-02-07 11:21:33.857100933 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-02-07 18:16:34.080447359 +0000
+@@ -53,6 +53,7 @@
+ #include <iomanip>
+ #include <sstream>
+ #include <strstream>
++#include <map>
+ using namespace std;
+ 
+ #ifdef WIN32
+@@ -1151,6 +1152,252 @@
+ /*##############################################*/
+ /*##############################################*/
+ 
++void model::MakeMoleculesGroups(std::list<struct molgroup>& molgroups)
++{
++	iter_bl itb;
++
++	i32s n1, nmol;
++	bool iscarbon1;
++	bool iscarbon2;
++	i32s index1, index2;
++	std::map<i32s, molecule>::iterator itmol;
++	std::map<i32s, molecule>::iterator itmol1;
++	std::map<i32s, molecule>::iterator itmol2;
++
++	UpdateIndex();
++
++	std::map<i32s, molecule> mols;
++
++	for (itb = this->GetBondsBegin();
++		itb != this->GetBondsEnd();
++		++itb)
++	{
++		atom * at1 = (* itb).atmr[0];
++		atom * at2 = (* itb).atmr[1];
++
++		iscarbon1 = 6 == at1->el.GetAtomicNumber();
++		iscarbon2 = 6 == at2->el.GetAtomicNumber();
++
++		index1 = at1->index;
++		index2 = at2->index;
++
++		i32s found1 = NOT_DEFINED;
++		i32s found2 = NOT_DEFINED;
++
++		for (itmol = mols.begin();
++			itmol != mols.end();
++			itmol++)
++		{
++			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
++			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
++			for(; it != end; ++it)
++			{
++				if ((*it) == index1)
++				{
++					found1 = (*itmol).first;
++				}
++				if ((*it) == index2)
++				{
++					found2 = (*itmol).first;
++				}
++			}
++		}
++
++		if (NOT_DEFINED == found1 &&
++			NOT_DEFINED == found2)
++		{
++			i32s id = mols.size();
++			mols.insert(std::pair<i32s, molecule>(id,
++				molecule(iscarbon1 ? 1 : 0, index1)));
++			itmol = mols.find(id);
++			(* itmol).second.natoms.push_back(index2);
++			(* itmol).second.ncarbons += iscarbon2 ? 1 : 0;
++		}
++		else
++		{
++			if (NOT_DEFINED == found1)
++			{
++				i32s id = found2;
++				itmol = mols.find(id);
++				(* itmol).second.natoms.push_back(index1);
++				(* itmol).second.ncarbons += iscarbon1 ? 1 : 0;
++			}
++			if (NOT_DEFINED == found2)
++			{
++				i32s id = found1;
++				itmol = mols.find(id);
++				(* itmol).second.natoms.push_back(index2);
++				(* itmol).second.ncarbons += iscarbon2 ? 1 : 0;
++			}
++		}
++	}
++
++	for (itb = this->GetBondsBegin();
++		itb != this->GetBondsEnd();
++		++itb)
++	{
++		atom * at1 = (* itb).atmr[0];
++		atom * at2 = (* itb).atmr[1];
++
++		iscarbon1 = 6 == at1->el.GetAtomicNumber();
++		iscarbon2 = 6 == at2->el.GetAtomicNumber();
++
++		index1 = at1->index;
++		index2 = at2->index;
++
++		i32s found1 = NOT_DEFINED;
++		i32s found2 = NOT_DEFINED;
++
++		for (itmol = mols.begin();
++			itmol != mols.end();
++			itmol++)
++		{
++			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
++			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
++			for(; it != end; ++it)
++			{
++				if ((*it) == index1)
++				{
++					found1 = (*itmol).first;
++				}
++				if ((*it) == index2)
++				{
++					found2 = (*itmol).first;
++				}
++			}
++		}
++
++		if (! (NOT_DEFINED == found1 && NOT_DEFINED == found2))
++		{
++			if (found1 < found2 )
++			{
++				itmol2 = mols.find(found2);
++				itmol1 = mols.find(found1);
++
++				// 2 > 1
++				std::list<i32s>::iterator it  = (* itmol2).second.natoms.begin();
++				std::list<i32s>::iterator end = (* itmol2).second.natoms.end();
++				for(; it != end;++it)
++				{
++					(* itmol1).second.natoms.push_back(*it);
++				}
++				(* itmol1).second.ncarbons += (* itmol2).second.ncarbons;
++
++				mols.erase(itmol2);
++			}
++
++			if (found2 < found1 )
++			{
++				itmol2 = mols.find(found2);
++				itmol1 = mols.find(found1);
++
++				// 1 > 2
++				std::list<i32s>::iterator it  = (* itmol1).second.natoms.begin();
++				std::list<i32s>::iterator end = (* itmol1).second.natoms.end();
++				for(; it != end;++it)
++				{
++					(* itmol2).second.natoms.push_back(*it);
++				}
++				(* itmol2).second.ncarbons += (* itmol1).second.ncarbons;
++
++				mols.erase(itmol1);
++			}
++		}
++	}
++
++	for (itb = this->GetBondsBegin();
++		itb != this->GetBondsEnd();
++		++itb)
++	{
++		atom * at1 = (* itb).atmr[0];
++		atom * at2 = (* itb).atmr[1];
++
++		iscarbon1 = 6 == at1->el.GetAtomicNumber();
++		iscarbon2 = 6 == at2->el.GetAtomicNumber();
++
++		index1 = at1->index;
++		index2 = at2->index;
++
++		i32s found1 = NOT_DEFINED;
++		i32s found2 = NOT_DEFINED;
++
++		for (itmol = mols.begin();
++			itmol != mols.end();
++			itmol++)
++		{
++			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
++			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
++			for(; it != end; ++it)
++			{
++				if ((*it) == index1)
++				{
++					found1 = (*itmol).first;
++				}
++				if ((*it) == index2)
++				{
++					found2 = (*itmol).first;
++				}
++			}
++		}
++
++		if (! (NOT_DEFINED == found1 && NOT_DEFINED == found2))
++		{
++			at1->id[0] = found1;
++			at2->id[0] = found2;
++		}
++	}
++
++	iter_al it1;
++	bool iscarbon;
++
++	std::map<i32s, molecule> molecules;
++	for (n1 = 0, it1 = this->GetAtomsBegin();
++		 n1 < this->GetAtomCount() && it1 != this->GetAtomsEnd();
++		 n1++, it1++)
++	{
++		nmol = (* it1).id[0];
++		iscarbon = 6 == (* it1).el.GetAtomicNumber();
++		itmol = molecules.find(nmol);
++		if (itmol == molecules.end())
++		{
++			molecules.insert(std::pair<i32s, molecule>((* it1).id[0], molecule(iscarbon ? 1 : 0, n1)));
++		}
++		else
++		{
++			(* itmol).second.ncarbons += iscarbon ? 1 : 0;
++			(* itmol).second.natoms.push_back(n1);
++		}
++	}
++
++	molgroups.push_back(molgroup(GAS));
++	for (itmol = molecules.begin(); itmol != molecules.end(); itmol++)
++	{
++		if ((*itmol).second.ncarbons > 2)
++		{
++			molgroups.push_back(molgroup(MEMBRANE_OR_GLOBULE, (*itmol).second.natoms));
++		}
++		else
++		{
++			std::list<i32s>::iterator it = (*itmol).second.natoms.begin();
++			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
++			for(; it != end; ++it)
++			{
++				molgroups.front().natoms.push_back(*it);
++			}
++		}
++	}
++
++	printf("molgroups size = %d\n", molgroups.size());
++	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++		it_mlgr != molgroups.end(); ++it_mlgr)
++	{
++		printf("%s natoms size = %d\n", (GAS == (*it_mlgr).molgrouptype ? "gas" : "membrane or globule"), (*it_mlgr).natoms.size());
++	}
++}
++
++/*##############################################*/
++/*##############################################*/
++
+ void model::GetRange(i32s ind, i32s value, iter_al * result)
+ {
+ 	iter_al range[2] = { atom_list.begin(), atom_list.end() };
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-02-07 11:21:33.941100931 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-02-08 12:35:35.146716555 +0000
+@@ -320,6 +320,8 @@
+ 	iter_al FindAtomByIndex(i32s);
+ 	iter_CDl FindAtomConstraint(atom &);
+ 	
++	void MakeMoleculesGroups(std::list<struct molgroup>& molgroups);
++	
+ 	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
+ 	
+ /// GetRange is used to get a range of atoms that form molecules, residues etc...
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-02-07 11:21:33.929100931 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2023-02-08 12:11:21.442754711 +0000
+@@ -443,55 +443,8 @@
+ void moldyn::ForceMoleculesMomentumToZero()
+ {
+ 	model * mdl = eng->GetSetup()->GetModel();
+-
+-	iter_al it1;
+-	iter_al range1[2];
+-	iter_al range2[2];
+-	i32s n1, nmol;
+-	bool iscarbon;
+-
+-
+-
+-	std::map<i32s, molecule> molecules;
+-	std::map<i32s, molecule>::iterator itmol;
+-	for (n1 = 0, it1 = mdl->GetAtomsBegin();
+-		 n1 < eng->GetAtomCount() && it1 != mdl->GetAtomsEnd();
+-		 n1++, it1++)
+-	{
+-		nmol = (* it1).id[0];
+-		iscarbon = 6 == (* it1).el.GetAtomicNumber();
+-		itmol = molecules.find(nmol);
+-		if (itmol == molecules.end())
+-		{
+-			molecules.insert(std::pair<i32s, molecule>((* it1).id[0], molecule(iscarbon ? 1 : 0, n1)));
+-		}
+-		else
+-		{
+-			(* itmol).second.ncarbons += iscarbon ? 1 : 0;
+-			(* itmol).second.natoms.push_back(n1);
+-		}
+-	}
+-
+-
+ 	std::list<struct molgroup> molgroups;
+-	molgroups.push_back(molgroup(GAS));
+-	for (itmol = molecules.begin(); itmol != molecules.end(); itmol++)
+-	{
+-		if ((*itmol).second.ncarbons > 2)
+-		{
+-			molgroups.push_back(molgroup(MEMBRANE_OR_GLOBULE, (*itmol).second.natoms));
+-		}
+-		else
+-		{
+-			std::list<i32s>::iterator it = (*itmol).second.natoms.begin();
+-			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
+-			for(; it != end; ++it)
+-			{
+-				molgroups.front().natoms.push_back(*it);
+-			}
+-		}
+-	}
+-
++	mdl->MakeMoleculesGroups(molgroups);
+ 	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
+ 		it_mlgr != molgroups.end(); ++it_mlgr)
+ 	{
+@@ -499,8 +452,6 @@
+ 	}
+ }
+ 
+-
+-
+ void moldyn::SumModelImpuls(f64 * sum_p)
+ {
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-02-07 11:21:33.729100937 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-02-07 18:57:35.216382759 +0000
+@@ -1639,6 +1639,25 @@
+ 		return;
+ 	}
+ 	
++
++	if (!strcmp("make_plot_mol_crd", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// A
++		char kw3[32]; istr >> kw3;	// B
++		char kw4[32]; istr >> kw4;	// B
++		char kw5[32]; istr >> kw5;	// B
++
++		char ** endptr = NULL;
++
++		i32s molgrouptype = strtol(kw2, endptr, 10);
++		i32s ind_mol      = strtol(kw3, endptr, 10);
++		i32s dim          = strtol(kw4, endptr, 10);
++		i32s crd_type     = strtol(kw5, endptr, 10);
++
++		TrajView_MoleculeCoordinatePlot((enum molgrouptype)molgrouptype, ind_mol, dim, crd_type);
++		return;
++	}
++
+ 	if (!strcmp("sel_atoms_with_flag", kw1))
+ 	{
+ 		char kw2[32]; istr >> kw2;	
+@@ -3695,6 +3714,202 @@
+ 	Message(str.str().c_str());
+ }
+ 
++void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));
++		return;
++	}
++
++	const char * crd_name [] = {"coordinate", "velocity", "acceleration", "force"};
++
++	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
++	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++
++	float ekin;
++	float epot;
++	float tmp;
++
++	i32s shift = 0;
++	fGL first_coordinate = 0.0;
++	fGL previouse_coordinate = 0.0;
++	fGL sum_coordinate = 0.0;
++
++	std::list<struct molgroup> molgroups;
++	this->MakeMoleculesGroups(molgroups);
++
++	size_t natoms = atom_list.size();
++	std::vector<fGL> c_data; c_data.resize(natoms * 3);
++
++	i32s max_frames = this->GetTotalFrames();
++	for (i32s loop = 0; loop < max_frames; loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		i32s place = GetTrajectoryHeaderSize();						// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
++
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		float boundary[3];
++		if (trajectory_version > 10)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		}
++
++		i32s ind = 0;
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++
++		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			float t1a;
++			fGL cdata[3];
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				trajfile->read((char *) & t1a, sizeof(t1a));
++				cdata[t4] = t1a;
++				if (0 == crd_type) {
++					c_data[3 * ind + t4] = t1a;
++				}
++			}
++
++			if (trajectory_version > 12)
++			{
++				fGL vdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					vdata[t4] = tmp;
++					if (1 == crd_type) {
++						c_data[3 * ind + t4] = tmp;
++					}
++				}
++			}
++
++			if (trajectory_version > 13)
++			{
++				fGL adata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					adata[t4] = tmp;
++					if (2 == crd_type) {
++						c_data[3 * ind + t4] = tmp;
++					}
++				}
++			}
++
++			if (trajectory_version > 11)
++			{
++				fGL fdata[3];
++				for (i32s t4 = 0; t4 < 3; t4++)
++				{
++					trajfile->read((char *) & tmp, sizeof(tmp));
++					fdata[t4] = tmp;
++					if (3 == crd_type) {
++						c_data[3 * ind + t4] = tmp;
++					}
++				}
++			}
++
++			ind++;
++		}
++
++		fGL coordinate = 0;
++		i32s indmol=0;
++
++		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++			it_mlgr != molgroups.end(); ++it_mlgr)
++		{
++			if (molgrouptype != it_mlgr->molgrouptype)
++			{
++				continue;
++			}
++
++			if (ind_mol != indmol)
++			{
++				indmol++;
++				continue;
++			}
++
++			f64 crd, sum = 0.0, pre_crd = 0.0;
++			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
++				it != it_mlgr->natoms.end(); ++it)
++			{
++				ind = *it;
++				crd = c_data[3 * ind + dim];
++
++				if (0 == crd_type)
++				{
++					//this->apply_periodic_cond(eng, test2);
++					if (crd - pre_crd > boundary[dim])
++					{
++						crd -= 2 * boundary[dim];
++					}
++					if (crd - pre_crd < -boundary[dim])
++					{
++						crd += 2 * boundary[dim];
++					}
++				}
++
++				sum += crd;
++				pre_crd = crd;
++			}
++
++			if (crd_type < 3) // crd, vel and acc, but not force
++			{
++				sum /= it_mlgr->natoms.size();
++			}
++			indmol++;
++			coordinate = sum;
++		}
++
++		if (0 == crd_type)
++		{
++			if (coordinate - previouse_coordinate > boundary[dim])
++			{
++				shift -= 1;
++				printf("coordinate %f- previouse_coordinate %f > boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++			}
++			if (coordinate - previouse_coordinate < -boundary[dim])
++			{
++				shift += 1;
++				printf("coordinate %f- previouse_coordinate %f < boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++			}
++			sum_coordinate = coordinate - first_coordinate;
++		}
++		else
++		{
++			sum_coordinate += coordinate;
++		}
++
++		f64 value = coordinate + 2 * shift * boundary[dim];
++		plot->AddData(loop, value);
++
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++		previouse_coordinate = coordinate;
++		if (0 == loop)
++		{
++			first_coordinate = coordinate;
++		}
++	}
++
++	fGL mean_coordinate = sum_coordinate / max_frames;
++	printf("sum_%s %f\n", crd_name[crd_type], sum_coordinate);
++	printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
++
++	plot->Finalize();
++	plot->GetWnd()->RequestUpdate(false);
++}
++
+ void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
+ {
+ 	if (!this->GetTrajectoryFile())
+@@ -3710,6 +3925,9 @@
+ 	float epot;
+ 	float tmp;
+ 
++	i32s shift = 0;
++	fGL previouse_coordinate = 0.0;
++
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+ 	{
+@@ -3724,9 +3942,9 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		float boundary[3];
+ 		if (trajectory_version > 10)
+ 		{
+-			float boundary[3];
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+@@ -3806,10 +4024,22 @@
+ 		else
+ 			coordinate = 0;
+ 
+-		f64 value = coordinate;
++		if (coordinate - previouse_coordinate > boundary[dim])
++		{
++			shift -= 1;
++			printf("coordinate %f- previouse_coordinate %f > boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++		}
++		if (coordinate - previouse_coordinate < -boundary[dim])
++		{
++			shift += 1;
++			printf("coordinate %f- previouse_coordinate %f < boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++		}
++
++		f64 value = coordinate + 2*shift*boundary[dim];
+ 		plot->AddData(loop, value);
+ 
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;
++		previouse_coordinate = coordinate;
+ 	}
+ 
+ 	plot->Finalize();
+diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
+--- ./ghemical-3.0.0.original/src/project.h	2023-02-07 11:21:33.665100938 +0000
++++ ./ghemical-3.0.0/src/project.h	2023-02-07 16:25:52.680621680 +0000
+@@ -376,6 +376,7 @@
+ 	void TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt);
+ 	void TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim);
+ 	void TrajView_CoordinatePlot(i32s ind, i32s dim);
++	void TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type);
+ 	void TrajView_DistancePlot(i32s inda, i32s indb);
+ 	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
+ 
