@@ -23,7 +23,7 @@
 static void help(int argc, char ** argv)
 {
 	fprintf(stderr,
-		"Usage: %s [-T target_T] [-t timestep] [-N nsteps_s] [-v traj_version] [-E] [-P] infile.gpr infile.box outfile.traj [outfile.gpr outfile.box]\n",
+		"Usage: %s [-T target_T] [-t timestep] [-N nsteps_s] [-v traj_version]  [-f frame_save_frq] [-E] [-P] infile.gpr infile.box outfile.traj [outfile.gpr outfile.box]\n",
 		argv[0]);
 }
 
@@ -52,6 +52,7 @@ int main(int argc, char ** argv)
 	f64 timestep = 0.5;
 	int N = 18000;
 	int traj_version = 15;
+	int frame_save_frq = 10000;
 	bool const_E = false;
 	bool const_P = false;
 
@@ -74,6 +75,16 @@ int main(int argc, char ** argv)
 			traj_version = strtol(argv[2+flags], &end, 0);
 			if (*end) {
 				fprintf(stderr, "Error: v argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
+		case 'f':
+			frame_save_frq = strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: f argment not a "
 					"number!\n");
 				help(argc, argv);
 				exit(1);
@@ -148,6 +159,7 @@ int main(int argc, char ** argv)
 	mdl->LoadBox(infile_box);
 
 	mdl->SetTrajectoryVersionBeforeMoldyn(traj_version);
+	mdl->SetTrajectoryFrameSaveFrq(frame_save_frq);
 
 	//mdl->DoMolDyn()
 	{

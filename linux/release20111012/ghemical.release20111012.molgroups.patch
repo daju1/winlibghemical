@@ -9,16 +9,17 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  using namespace std;
  
  #ifdef WIN32
-@@ -159,7 +160,7 @@
+@@ -159,7 +160,8 @@
  	traj_num_atoms = NOT_DEFINED;
  	total_traj_frames = NOT_DEFINED;
  	current_traj_frame = NOT_DEFINED;
 -	trajectory_version = 14;
 +	trajectory_version = 15;
++	frame_save_frq = 10000;
  	
  	verbosity = 3;
  	
-@@ -1151,6 +1152,252 @@
+@@ -1151,6 +1153,252 @@
  /*##############################################*/
  /*##############################################*/
  
@@ -271,16 +272,30 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::GetRange(i32s ind, i32s value, iter_al * result)
  {
  	iter_al range[2] = { atom_list.begin(), atom_list.end() };
-@@ -3450,7 +3697,7 @@
- 		}
- 		
- 	// check if trajectory output should be made.
--		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
-+		if (!(n1 < param.nsteps_h + param.nsteps_e))// && !(n1 % frame_save_frq))
+@@ -3258,7 +3506,6 @@
+ 	ofstream ofile;		// the trajectory file...
+ 	ofile.open(param.filename, ios::out | ios::binary);
+ 	
+-	const int frame_save_frq = 10000;
+ 	const int total_frames = param.nsteps_s / frame_save_frq;
+ 	
+ 	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
+@@ -4659,11 +4906,10 @@
+ 
+ 		if (trajectory_version > 11)
  		{
- 			CopyCRD(eng, this, 0);
- 			ofile.open(param.filename, ios::out | ios::binary | ios::app);
-@@ -4678,11 +4925,10 @@
+-			float tstep;
+-			trajfile->read((char *) & tstep, sizeof(tstep));
++			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
+ 			stringstream str;
+-			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
+-				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++			str << _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
++				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
+ 			PrintToLog(str.str().c_str());
+ 		}
+ 	}
+@@ -4678,11 +4924,10 @@
  	
  	trajfile->seekg(place, ios::beg);
  
@@ -293,7 +308,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -4699,10 +4945,52 @@
+@@ -4699,10 +4944,52 @@
  			saved_boundary_potential_rad_solvent = boundary[2];
  		}
  	}
@@ -347,7 +362,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		
  		fGL cdata[3];
  		for (i32s t4 = 0; t4 < 3; t4++)
-@@ -4807,6 +5095,12 @@
+@@ -4807,6 +5094,12 @@
  			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
  	}
  
@@ -360,7 +375,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	return -1;
  }
  
-@@ -4830,6 +5124,11 @@
+@@ -4830,6 +5123,16 @@
  	current_traj_frame = p1;
  }
  
@@ -369,13 +384,28 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	trajectory_version = version;
 +}
 +
++void model::SetTrajectoryFrameSaveFrq(int frq)
++{
++	frame_save_frq = frq;
++}
++
  void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
  {
  	char file_id[10];
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
---- ./libghemical-3.0.0.original/src/model.h	2023-02-07 11:21:33.941100931 +0000
-+++ ./libghemical-3.0.0/src/model.h	2023-02-08 12:35:35.146716555 +0000
-@@ -320,6 +320,8 @@
+--- ./libghemical-3.0.0.original/src/model.h	2023-02-11 20:23:48.869682815 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-02-11 20:37:37.005665629 +0000
+@@ -109,6 +109,9 @@
+ 	i32s total_traj_frames;		// trajectory files...
+ 	i32s current_traj_frame;	// trajectory files...
+ 
++	float time_step_between_traj_records;
++	int frame_save_frq;
++
+ 	i32s trajectory_version;
+ 	
+ 	public:
+@@ -320,6 +323,8 @@
  	iter_al FindAtomByIndex(i32s);
  	iter_CDl FindAtomConstraint(atom &);
  	
@@ -384,13 +414,14 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
  	
  /// GetRange is used to get a range of atoms that form molecules, residues etc...
-@@ -435,7 +437,8 @@
+@@ -435,7 +440,9 @@
  	
  	i32s GetCurrentFrame(void);
  	void SetCurrentFrame(i32s);
 -	
 +
 +	void SetTrajectoryVersionBeforeMoldyn(i32s version);
++	void SetTrajectoryFrameSaveFrq(int frq);
  	void WriteTrajectoryHeader(ofstream &, int, moldyn *, int);
  	void WriteTrajectoryFrame(ofstream &, moldyn *);
  	
@@ -577,7 +608,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	if (!strcmp("sel_atoms_with_flag", kw1))
  	{
  		char kw2[32]; istr >> kw2;	
-@@ -3695,6 +3714,404 @@
+@@ -3695,6 +3714,407 @@
  	Message(str.str().c_str());
  }
  
@@ -948,6 +979,8 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	f64 mean_acceleration = sum_acceleration / max_frames;
 +	f64 mean_force        = sum_force        / max_frames;
 +
++	f64 mean_coordinate_per_time = mean_coordinate / this->time_step_between_traj_records;
++
 +	f64 mean_d_coordinate_error = sum_d_coordinate_error / max_frames;
 +	f64 mean_d_velocity_error   = sum_d_velocity_error   / max_frames;
 +
@@ -962,6 +995,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +	printf("sum_velocity  %f\n",  sum_velocity);
 +	printf("mean_velocity %e\n", mean_velocity);
++	printf("mean_coordinate_per_time %e\n", mean_coordinate_per_time);
 +
 +	printf("sum_d_velocity_error  %f\n",  sum_d_velocity_error);
 +	printf("mean_d_velocity_error %e\n", mean_d_velocity_error);
@@ -982,7 +1016,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
  {
  	if (!this->GetTrajectoryFile())
-@@ -3710,6 +4127,9 @@
+@@ -3710,6 +4130,9 @@
  	float epot;
  	float tmp;
  
@@ -992,7 +1026,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	i32s max_frames = this->GetTotalFrames();
  	for (i32s loop = 0;loop < max_frames;loop++)
  	{
-@@ -3724,9 +4144,9 @@
+@@ -3724,9 +4147,9 @@
  		trajfile->read((char *) & ekin, sizeof(ekin));
  		trajfile->read((char *) & epot, sizeof(epot));
  
@@ -1003,7 +1037,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -3806,10 +4226,22 @@
+@@ -3806,10 +4229,22 @@
  		else
  			coordinate = 0;
  
