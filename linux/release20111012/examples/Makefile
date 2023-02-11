@@ -16,10 +16,12 @@
 
 CC = g++
 
+LOCAL=local
+
 BASEFLAGS = -g -c -O1 -Wall
-CFLAGS    = -I../ -I../local/include -I../local/include/ghemical -I../libghemical-3.0.0/src/
-LDFLAGS   = -L../local/lib/
-PKG_CONFIG_PATH=$(dirname $(pwd))/local/lib/pkgconfig
+CFLAGS    = -I../ -I../${LOCAL}/include -I../${LOCAL}/include/ghemical -I../libghemical-3.0.0/src/
+LDFLAGS   = -L../${LOCAL}/lib/
+PKG_CONFIG_PATH=$(dirname $(pwd))/${LOCAL}/lib/pkgconfig
 
 EX1 =		example1
 EX2 =		example2

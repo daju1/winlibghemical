@@ -259,8 +259,8 @@ libghemical_make:
 
 libghemical_clean:
 	(cd libghemical-3.0.0 && make clean)
-	
-	
+
+
 mopac7_configure:
 	(cd mopac7-1.15 && ./configure --prefix=${install_dir})
 
