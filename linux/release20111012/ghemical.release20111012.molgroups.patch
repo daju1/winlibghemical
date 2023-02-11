@@ -9,6 +9,15 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  using namespace std;
  
  #ifdef WIN32
+@@ -159,7 +160,7 @@
+ 	traj_num_atoms = NOT_DEFINED;
+ 	total_traj_frames = NOT_DEFINED;
+ 	current_traj_frame = NOT_DEFINED;
+-	trajectory_version = 14;
++	trajectory_version = 15;
+ 	
+ 	verbosity = 3;
+ 	
 @@ -1151,6 +1152,252 @@
  /*##############################################*/
  /*##############################################*/
@@ -262,6 +271,95 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::GetRange(i32s ind, i32s value, iter_al * result)
  {
  	iter_al range[2] = { atom_list.begin(), atom_list.end() };
+@@ -3450,7 +3697,7 @@
+ 		}
+ 		
+ 	// check if trajectory output should be made.
+-		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
++		if (!(n1 < param.nsteps_h + param.nsteps_e))// && !(n1 % frame_save_frq))
+ 		{
+ 			CopyCRD(eng, this, 0);
+ 			ofile.open(param.filename, ios::out | ios::binary | ios::app);
+@@ -4678,11 +4925,10 @@
+ 	
+ 	trajfile->seekg(place, ios::beg);
+ 
+-	float tmp;
+-
+ 	if (trajectory_version > 10) {
+ 
+ 		float boundary[3];
++		float tmp;
+ 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+ 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+ 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+@@ -4699,10 +4945,52 @@
+ 			saved_boundary_potential_rad_solvent = boundary[2];
+ 		}
+ 	}
+-	
++
++	if (15 == trajectory_version)
++	{
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			f64 tmp;
++
++			f64 cdata[3];
++			f64 vdata[3];
++			f64 adata[3];
++			f64 fdata[3];
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				cdata[t4] = tmp;
++			}
++
++			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				vdata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				adata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				fdata[t4] = tmp;
++			}
++		}
++		return;
++	}
++
+ 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+ 	{
+ 	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++		float tmp;
+ 		
+ 		fGL cdata[3];
+ 		for (i32s t4 = 0; t4 < 3; t4++)
+@@ -4807,6 +5095,12 @@
+ 			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
+ 	}
+ 
++	if (trajectory_version == 15) {
++		return (GetTrajectoryEnergySize()
++			+ 3 * sizeof(float) // boundary
++			+ 12 * traj_num_atoms * sizeof(f64)); //crd + force + vel + acc
++	}
++
+ 	return -1;
+ }
+ 
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
 --- ./libghemical-3.0.0.original/src/model.h	2023-02-07 11:21:33.941100931 +0000
 +++ ./libghemical-3.0.0/src/model.h	2023-02-08 12:35:35.146716555 +0000
@@ -343,6 +441,91 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  void moldyn::SumModelImpuls(f64 * sum_p)
  {
  	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+@@ -516,36 +467,70 @@
+ 
+ void moldyn::SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version)
+ {
+-	float t1a;
+-	const int number_of_atoms = eng->GetAtomCount();
+-	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
++	if (trajectory_version < 15)
+ 	{
+-		for (i32s tt2 = 0;tt2 < 3;tt2++)
++		float t1a;
++		const int number_of_atoms = eng->GetAtomCount();
++		for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+ 		{
+-			t1a = eng->crd[tt1 * 3 + tt2];
+-			ofile.write((char *) & t1a, sizeof(t1a));
+-		}
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = eng->crd[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++
++			if (trajectory_version > 12)
++			{
++				for (i32s tt2 = 0;tt2 < 3;tt2++)
++				{
++					t1a = vel[tt1 * 3 + tt2];
++					ofile.write((char *) & t1a, sizeof(t1a));
++				}
++			}
++
++			if (trajectory_version > 13)
++			{
++				for (i32s tt2 = 0;tt2 < 3;tt2++)
++				{
++					t1a = acc[tt1 * 3 + tt2];
++					ofile.write((char *) & t1a, sizeof(t1a));
++				}
++			}
+ 
+-		if (trajectory_version > 12)
++			if (trajectory_version > 11)
++			{
++				for (i32s tt2 = 0;tt2 < 3;tt2++)
++				{
++					t1a = eng->d1[tt1 * 3 + tt2];
++					ofile.write((char *) & t1a, sizeof(t1a));
++				}
++			}
++		}
++	}
++	else if (15 == trajectory_version)
++	{
++		f64 t1a;
++		const int number_of_atoms = eng->GetAtomCount();
++		for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+ 		{
+ 			for (i32s tt2 = 0;tt2 < 3;tt2++)
+ 			{
++				t1a = eng->crd[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
+ 				t1a = vel[tt1 * 3 + tt2];
+ 				ofile.write((char *) & t1a, sizeof(t1a));
+ 			}
+-		}
+ 
+-		if (trajectory_version > 13)
+-		{
+ 			for (i32s tt2 = 0;tt2 < 3;tt2++)
+ 			{
+ 				t1a = acc[tt1 * 3 + tt2];
+ 				ofile.write((char *) & t1a, sizeof(t1a));
+ 			}
+-		}
+ 
+-		if (trajectory_version > 11)
+-		{
+ 			for (i32s tt2 = 0;tt2 < 3;tt2++)
+ 			{
+ 				t1a = eng->d1[tt1 * 3 + tt2];
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
 --- ./ghemical-3.0.0.original/src/project.cpp	2023-02-07 11:21:33.729100937 +0000
 +++ ./ghemical-3.0.0/src/project.cpp	2023-02-07 18:57:35.216382759 +0000
@@ -372,7 +555,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	if (!strcmp("sel_atoms_with_flag", kw1))
  	{
  		char kw2[32]; istr >> kw2;	
-@@ -3695,6 +3714,202 @@
+@@ -3695,6 +3714,368 @@
  	Message(str.str().c_str());
  }
  
@@ -391,18 +574,28 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +	float ekin;
 +	float epot;
-+	float tmp;
++
 +
 +	i32s shift = 0;
-+	fGL first_coordinate = 0.0;
-+	fGL previouse_coordinate = 0.0;
-+	fGL sum_coordinate = 0.0;
++	f64 first_coordinate = 0.0;
++	f64 previouse_coordinate = 0.0;
++	f64 sum_d_coordinate_error = 0.0;
++	f64 sum_coordinate = 0.0;
++	f64 sum_velocity = 0.0;
++	f64 previouse_velocity = 0.0;
++	f64 sum_d_velocity_error = 0.0;
++	f64 previouse_acceleration = 0.0;
++	f64 sum_acceleration = 0.0;
++	f64 sum_force = 0.0;
 +
 +	std::list<struct molgroup> molgroups;
 +	this->MakeMoleculesGroups(molgroups);
 +
 +	size_t natoms = atom_list.size();
-+	std::vector<fGL> c_data; c_data.resize(natoms * 3);
++	std::vector<f64> c_data; c_data.resize(natoms * 3);
++	std::vector<f64> v_data; v_data.resize(natoms * 3);
++	std::vector<f64> a_data; a_data.resize(natoms * 3);
++	std::vector<f64> f_data; f_data.resize(natoms * 3);
 +
 +	i32s max_frames = this->GetTotalFrames();
 +	for (i32s loop = 0; loop < max_frames; loop++)
@@ -421,6 +614,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		float boundary[3];
 +		if (trajectory_version > 10)
 +		{
++			float tmp;
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
@@ -433,61 +627,81 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		{
 +		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
 +			float t1a;
-+			fGL cdata[3];
++			f64 cdata[3];
 +			for (i32s t4 = 0;t4 < 3;t4++)
 +			{
 +				trajfile->read((char *) & t1a, sizeof(t1a));
 +				cdata[t4] = t1a;
-+				if (0 == crd_type) {
-+					c_data[3 * ind + t4] = t1a;
-+				}
++				c_data[3 * ind + t4] = t1a;
 +			}
 +
++			f64 vdata[3];
 +			if (trajectory_version > 12)
 +			{
-+				fGL vdata[3];
 +				for (i32s t4 = 0; t4 < 3; t4++)
 +				{
-+					trajfile->read((char *) & tmp, sizeof(tmp));
-+					vdata[t4] = tmp;
-+					if (1 == crd_type) {
-+						c_data[3 * ind + t4] = tmp;
-+					}
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					vdata[t4] = t1a;
++					v_data[3 * ind + t4] = t1a;
 +				}
 +			}
 +
++			f64 adata[3];
 +			if (trajectory_version > 13)
 +			{
-+				fGL adata[3];
 +				for (i32s t4 = 0; t4 < 3; t4++)
 +				{
-+					trajfile->read((char *) & tmp, sizeof(tmp));
-+					adata[t4] = tmp;
-+					if (2 == crd_type) {
-+						c_data[3 * ind + t4] = tmp;
-+					}
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					adata[t4] = t1a;
++					a_data[3 * ind + t4] = t1a;
 +				}
 +			}
 +
++			f64 fdata[3];
 +			if (trajectory_version > 11)
 +			{
-+				fGL fdata[3];
 +				for (i32s t4 = 0; t4 < 3; t4++)
 +				{
-+					trajfile->read((char *) & tmp, sizeof(tmp));
-+					fdata[t4] = tmp;
-+					if (3 == crd_type) {
-+						c_data[3 * ind + t4] = tmp;
-+					}
++					trajfile->read((char *) & t1a, sizeof(t1a));
++					fdata[t4] = t1a;
++					f_data[3 * ind + t4] = t1a;
 +				}
 +			}
++
++			//printf("%d -f/a %f %f %f\n", ind
++			//	, -fdata[0]/adata[0]
++			//	, -fdata[1]/adata[1]
++			//	, -fdata[2]/adata[2]
++			//	);
++
++			//printf("%d -f / a %f %f %f %f %f\n", ind
++			//	, -f_data[3 * ind + 0]/a_data[3 * ind + 0]
++			//	, -f_data[3 * ind + 1]/a_data[3 * ind + 1]
++			//	, -f_data[3 * ind + 2]/a_data[3 * ind + 2]
++			//	, -f_data[3 * ind + 2],a_data[3 * ind + 2]
++			//	);
++
++			/*printf("v, a %f %f %f %f %f %f\n"
++				, vdata[0],adata[0]
++				, vdata[1],adata[1]
++				, vdata[2],adata[2]
++				);*/
++
++			/*
++			acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
++			acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
++			acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
++			*/
 +
 +			ind++;
 +		}
 +
-+		fGL coordinate = 0;
-+		i32s indmol=0;
++		f64 coordinate = 0;
++		f64 velocity = 0;
++		f64 acceleration = 0;
++		f64 force = 0;
 +
++		i32s indmol=0;
 +		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
 +			it_mlgr != molgroups.end(); ++it_mlgr)
 +		{
@@ -502,12 +716,27 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +				continue;
 +			}
 +
-+			f64 crd, sum = 0.0, pre_crd = 0.0;
++			f64 crd, vel, acc, frc,
++				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0, 
++				pre_crd = 0.0, pre_vel = 0.0;
++
 +			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
 +				it != it_mlgr->natoms.end(); ++it)
 +			{
 +				ind = *it;
 +				crd = c_data[3 * ind + dim];
++				vel = v_data[3 * ind + dim];
++				acc = a_data[3 * ind + dim];
++				frc = f_data[3 * ind + dim];
++
++			//printf("crd vel acc frc %f %f %f %f\n"
++			//	, crd, vel, acc, frc
++			//	);
++
++			//printf("ind %d dim %d -frc/acc %f %f %f\n", ind, dim
++			//	, -frc/acc
++			//	, -frc, acc
++			//	);
 +
 +				if (0 == crd_type)
 +				{
@@ -522,19 +751,30 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +					}
 +				}
 +
-+				sum += crd;
++				sum_crd += crd;
 +				pre_crd = crd;
++
++				sum_vel += vel;
++				pre_vel = vel;
++
++				sum_acc += acc;
++				sum_frc += frc;
 +			}
 +
-+			if (crd_type < 3) // crd, vel and acc, but not force
-+			{
-+				sum /= it_mlgr->natoms.size();
-+			}
++			//if (crd_type < 3) // crd, vel and acc, but not force
++			sum_crd /= it_mlgr->natoms.size();
++			sum_vel /= it_mlgr->natoms.size();
++			sum_acc /= it_mlgr->natoms.size();
++
++			coordinate   = sum_crd;
++			velocity     = sum_vel;
++			acceleration = sum_acc;
++			force        = sum_frc;
++
 +			indmol++;
-+			coordinate = sum;
 +		}
 +
-+		if (0 == crd_type)
++		//if (0 == crd_type)
 +		{
 +			if (coordinate - previouse_coordinate > boundary[dim])
 +			{
@@ -548,25 +788,134 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			}
 +			sum_coordinate = coordinate - first_coordinate;
 +		}
-+		else
++		//else
 +		{
-+			sum_coordinate += coordinate;
++			sum_velocity     += velocity;
++			sum_acceleration += acceleration;
++			sum_force        += force;
 +		}
 +
-+		f64 value = coordinate + 2 * shift * boundary[dim];
++		/*
++		f64 tstep1;		// timestep [fs] // [1.0e-15 s]
++		f64 tstep2;		// timestep ^ 2	 // [1.0e-30 s^2]		
++
++		f64 tmpA = acc[n1 * 3 + n2];
++		f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
++		f64 tmp2 = tstep2 * tmpA * 0.5e-9;
++
++		if (!locked[n1])
++		{
++			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
++			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
++		}
++
++		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
++		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
++		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
++		*/
++
++		f64 tstep1 = 0.5, tstep2 = tstep1 * tstep1;
++		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
++		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
++		f64 dc     = dcv + dca;
++
++		f64 dv1 = tstep1 * previouse_acceleration * 0.5e-6;
++		f64 dv2 = tstep1 * acceleration * 0.5e-6;
++		f64 dv  = dv1 + dv2;
++
++		f64 d_coordinate = coordinate - previouse_coordinate;
++		f64 d_velocity   = velocity   - previouse_velocity;
++
++		f64 d_coordinate_error = d_coordinate - dc;
++		f64 d_velocity_error   = d_velocity   - dv;
++
++		sum_d_coordinate_error += d_coordinate_error;
++		sum_d_velocity_error   += d_velocity_error;
++
++		printf("loop %d dc %0.06e = %0.06e (%0.06e + %0.06e) error=%0.06e %0.06e\n", loop
++			, d_coordinate
++			, dc
++			, dcv, dca
++			, d_coordinate_error
++			, d_velocity_error
++			);
++
++		f64 value = 0.0;
++		switch (crd_type)
++		{
++		case 0:
++			value = coordinate + 2 * shift * boundary[dim];
++			break;
++		case 1:
++			value = velocity;
++			break;
++		case 2:
++			value = acceleration;
++			break;
++		case 3:
++			value = force;
++			break;
++		case 4:
++			value = d_coordinate_error;
++			break;
++		case 6:
++			value = d_velocity_error;
++			break;
++		case 7:
++			value = sum_d_coordinate_error;
++			break;
++		case 8:
++			value = sum_d_velocity_error;
++			break;
++
++		default:
++			break;
++		}
++
 +		plot->AddData(loop, value);
 +
 +		mt_a1 = mt_a2 = mt_a3 = NULL;
-+		previouse_coordinate = coordinate;
++
++		previouse_coordinate   = coordinate;
++		previouse_velocity     = velocity;
++		previouse_acceleration = acceleration;
++
 +		if (0 == loop)
 +		{
 +			first_coordinate = coordinate;
 +		}
 +	}
 +
-+	fGL mean_coordinate = sum_coordinate / max_frames;
-+	printf("sum_%s %f\n", crd_name[crd_type], sum_coordinate);
-+	printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
++	f64 mean_coordinate   = sum_coordinate   / max_frames;
++	f64 mean_velocity     = sum_velocity     / max_frames;
++	f64 mean_acceleration = sum_acceleration / max_frames;
++	f64 mean_force        = sum_force        / max_frames;
++
++	f64 mean_d_coordinate_error = sum_d_coordinate_error / max_frames;
++	f64 mean_d_velocity_error = sum_d_velocity_error / max_frames;
++
++	printf("sum_coordinate-sum_d_coordinate_error %f\n", sum_coordinate - sum_d_coordinate_error);
++
++	printf("sum_coordinate %f\n", sum_coordinate);
++	printf("mean_coordinate %f\n", mean_coordinate);
++
++	printf("sum_d_coordinate_error %f\n", sum_d_coordinate_error);
++	printf("mean_d_coordinate_error %f\n", mean_d_coordinate_error);
++
++	printf("sum_velocity %f\n", sum_velocity);
++	printf("mean_velocity %f\n", mean_velocity);
++
++	printf("sum_d_velocity_error %f\n", sum_d_velocity_error);
++	printf("mean_d_velocity_error %f\n", mean_d_velocity_error);
++
++	printf("sum_acceleration %f\n", sum_acceleration);
++	printf("mean_acceleration %f\n", mean_acceleration);
++
++	printf("sum_force %f\n", sum_force);
++	printf("mean_force %f\n", mean_force);
++
++	//printf("sum_%s %f\n", crd_name[crd_type], sum_coordinate);
++	//printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
 +
 +	plot->Finalize();
 +	plot->GetWnd()->RequestUpdate(false);
@@ -575,7 +924,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
  {
  	if (!this->GetTrajectoryFile())
-@@ -3710,6 +3925,9 @@
+@@ -3710,6 +4091,9 @@
  	float epot;
  	float tmp;
  
@@ -585,7 +934,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	i32s max_frames = this->GetTotalFrames();
  	for (i32s loop = 0;loop < max_frames;loop++)
  	{
-@@ -3724,9 +3942,9 @@
+@@ -3724,9 +4108,9 @@
  		trajfile->read((char *) & ekin, sizeof(ekin));
  		trajfile->read((char *) & epot, sizeof(epot));
  
@@ -596,7 +945,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -3806,10 +4024,22 @@
+@@ -3806,10 +4190,22 @@
  		else
  			coordinate = 0;
  
