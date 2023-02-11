@@ -360,6 +360,18 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	return -1;
  }
  
+@@ -4830,6 +5124,11 @@
+ 	current_traj_frame = p1;
+ }
+ 
++void model::SetTrajectoryVersionBeforeMoldyn(i32s version)
++{
++	trajectory_version = version;
++}
++
+ void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
+ {
+ 	char file_id[10];
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
 --- ./libghemical-3.0.0.original/src/model.h	2023-02-07 11:21:33.941100931 +0000
 +++ ./libghemical-3.0.0/src/model.h	2023-02-08 12:35:35.146716555 +0000
@@ -372,6 +384,16 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
  	
  /// GetRange is used to get a range of atoms that form molecules, residues etc...
+@@ -435,7 +437,8 @@
+ 	
+ 	i32s GetCurrentFrame(void);
+ 	void SetCurrentFrame(i32s);
+-	
++
++	void SetTrajectoryVersionBeforeMoldyn(i32s version);
+ 	void WriteTrajectoryHeader(ofstream &, int, moldyn *, int);
+ 	void WriteTrajectoryFrame(ofstream &, moldyn *);
+ 	
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
 --- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-02-07 11:21:33.929100931 +0000
 +++ ./libghemical-3.0.0/src/moldyn.cpp	2023-02-08 12:11:21.442754711 +0000
@@ -555,7 +577,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	if (!strcmp("sel_atoms_with_flag", kw1))
  	{
  		char kw2[32]; istr >> kw2;	
-@@ -3695,6 +3714,403 @@
+@@ -3695,6 +3714,404 @@
  	Message(str.str().c_str());
  }
  
@@ -618,6 +640,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
 +			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
 +		}
 +
 +		i32s ind = 0;
@@ -813,12 +836,12 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			if (coordinate - previouse_coordinate > boundary[dim])
 +			{
 +				shift -= 1;
-+				printf("coordinate %f- previouse_coordinate %f > boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
 +			}
 +			if (coordinate - previouse_coordinate < -boundary[dim])
 +			{
 +				shift += 1;
-+				printf("coordinate %f- previouse_coordinate %f < boundary[dim] %f shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
 +			}
 +			sum_coordinate = coordinate - first_coordinate;
 +		}
@@ -866,13 +889,13 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		sum_d_coordinate_error += d_coordinate_error;
 +		sum_d_velocity_error   += d_velocity_error;
 +
-+		/*printf("loop %d dc %0.06e = %0.06e (%0.06e + %0.06e) error=%0.06e %0.06e\n", loop
++		printf("loop %d dc %0.06e = %0.06e (%0.06e + %0.06e) error=%0.06e %0.06e\n", loop
 +			, d_coordinate
 +			, dc
 +			, dcv, dca
 +			, d_coordinate_error
 +			, d_velocity_error
-+			);*/
++			);
 +
 +		f64 value = 0.0;
 +		switch (crd_type)
@@ -892,13 +915,13 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		case 4:
 +			value = d_coordinate_error;
 +			break;
-+		case 6:
++		case 5:
 +			value = d_velocity_error;
 +			break;
-+		case 7:
++		case 6:
 +			value = sum_d_coordinate_error;
 +			break;
-+		case 8:
++		case 7:
 +			value = sum_d_velocity_error;
 +			break;
 +
@@ -959,7 +982,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
  {
  	if (!this->GetTrajectoryFile())
-@@ -3710,6 +4126,9 @@
+@@ -3710,6 +4127,9 @@
  	float epot;
  	float tmp;
  
@@ -969,7 +992,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	i32s max_frames = this->GetTotalFrames();
  	for (i32s loop = 0;loop < max_frames;loop++)
  	{
-@@ -3724,9 +4143,9 @@
+@@ -3724,9 +4144,9 @@
  		trajfile->read((char *) & ekin, sizeof(ekin));
  		trajfile->read((char *) & epot, sizeof(epot));
  
@@ -980,7 +1003,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -3806,10 +4225,22 @@
+@@ -3806,10 +4226,22 @@
  		else
  			coordinate = 0;
  
