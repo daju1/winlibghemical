@@ -1,25 +1,168 @@
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
+--- ./libghemical-3.0.0.original/src/Makefile.in	2023-02-11 12:52:01.934245352 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2023-02-12 20:59:06.455845851 +0000
+@@ -302,6 +302,7 @@
+ 	libghemicaldefine.h \
+ 	libghemical-features.h \
+ 	local_i18n.h \
++	long_stream.h \
+ 	typedef.h \
+ 	v3d.h \
+ 	atom.h \
+diff -Nur ./libghemical-3.0.0.original/src/long_stream.h ./libghemical-3.0.0/src/long_stream.h
+--- ./libghemical-3.0.0.original/src/long_stream.h	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/long_stream.h	2023-02-12 14:14:00.696350257 +0000
+@@ -0,0 +1,125 @@
++﻿#pragma once
++#include <string>
++#include <iostream>
++#include <fstream>
++
++//---------------------------------------------------
++// пространство имен, в которое заносятся детали реализации
++namespace detail {
++   //http://forum.sources.ru/index.php?showtopic=83356&view=showall
++   //http://www.tdoc.ru/c/programming/cpp/cpp-traits-page4.html
++   template <typename num_type, typename state_type = std::mbstate_t>
++   class pos_type_t {
++      typedef pos_type_t<num_type, state_type> my_type;
++
++      num_type    m_pos;
++      state_type  m_state;
++
++      static state_type initial_state;
++
++   public:
++      // конструкторы
++      pos_type_t(std::streampos off) : m_pos(off), m_state(initial_state) {}
++      pos_type_t(num_type off = 0) : m_pos(off), m_state(initial_state) {}
++      pos_type_t(state_type state, num_type pos) : m_pos(pos), m_state(state) {}
++
++      // получение состояния потока
++      state_type state() const {
++         return(m_state);
++      }
++
++      // установка состояния потока
++      void state(state_type st) {
++         m_state = st;
++      }
++
++      // получение позиции
++      num_type seekpos() const    {
++         return(m_pos);
++      }
++
++      // оператор преобразования
++      operator num_type() const {
++         return(m_pos);
++      }
++
++      // далее идут операторы, которые осуществляют арифметические операции
++
++      num_type operator- (const my_type& rhs) const {
++         return(static_cast<num_type>(*this) - static_cast<num_type>(rhs));
++      }
++
++      my_type& operator+= (num_type pos) {
++         m_pos += pos;
++         return(*this);
++      }
++
++      my_type& operator-= (num_type pos) {
++         m_pos -= pos;
++         return(*this);
++      }
++
++      my_type operator+ (num_type pos) const {
++         my_type tmp(*this);
++         return(tmp += pos);
++      }
++
++      my_type operator- (num_type pos) const {
++         my_type tmp(*this);
++         return(tmp -= pos);
++      }
++
++      // операторы сравнения
++
++      bool operator== (const my_type& rhs) const {
++         return(static_cast<num_type>(*this) == static_cast<num_type>(rhs));
++      }
++
++      bool operator!= (const my_type& rhs) const {
++         return(!(*this == rhs));
++      }
++   };
++   //---------------------------------------------------
++   // статическая константа, которая обозначает начальное состояние
++   template <typename num_type, typename state_type>
++   state_type pos_type_t<num_type, state_type>::initial_state;
++}
++//---------------------------------------------------
++// наконец-то наш класс свойств:
++template <typename char_t, typename long_pos_t>
++struct long_pointer_traits : public std::char_traits<char_t> {
++   // тип, используемый для представления позиции в потоке
++   // определение pos_type через наш только что написанный класс
++   typedef detail::pos_type_t<long_pos_t> pos_type;
++
++   // тип, используемый для представления
++   // смещений между позициями в потоке
++   // определение off_type через тип, переданный во 2 аргументе шаблона
++   typedef long_pos_t off_type;
++};
++
++
++//---------------------------------------------------
++// вводим тип "длинного" файла
++// "длинные" типы:
++
++typedef std::basic_filebuf <char, long_pointer_traits<char, int64_t> > long_filebuf;
++typedef std::basic_ifstream<char, long_pointer_traits<char, int64_t> > long_ifstream;
++typedef std::basic_ofstream<char, long_pointer_traits<char, int64_t> > long_ofstream;
++typedef std::basic_fstream <char, long_pointer_traits<char, int64_t> > long_fstream;
++
++typedef std::basic_string  <char, long_pointer_traits<char, int64_t> > long_string;
++
++//---------------------------------------------------
++/*int main(int argc, char** argv) {
++long_ifstream infile(argv[1], std::ios::binary);
++infile.seekg(0L, std::ios::end);
++long_ifstream::pos_type nSize = infile.tellg();
++std::cout << nSize;
++return(0);
++
++long_ifstream infile(strFileName, std::ios::binary);
++long_string res;
++std::getline(infile, res);
++}*/
++
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2023-02-07 11:21:33.857100933 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2023-02-07 18:16:34.080447359 +0000
-@@ -53,6 +53,7 @@
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-02-11 20:25:03.717681261 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-02-12 20:39:17.823870518 +0000
+@@ -51,8 +51,10 @@
+ 
+ #include <cstring>
  #include <iomanip>
++#include "long_stream.h"
  #include <sstream>
  #include <strstream>
 +#include <map>
  using namespace std;
  
  #ifdef WIN32
-@@ -159,7 +160,8 @@
+@@ -159,7 +161,8 @@
  	traj_num_atoms = NOT_DEFINED;
  	total_traj_frames = NOT_DEFINED;
  	current_traj_frame = NOT_DEFINED;
 -	trajectory_version = 14;
-+	trajectory_version = 15;
++	trajectory_version = 17;
 +	frame_save_frq = 10000;
  	
  	verbosity = 3;
  	
-@@ -1151,6 +1153,252 @@
+@@ -1151,6 +1154,252 @@
  /*##############################################*/
  /*##############################################*/
  
@@ -272,15 +415,28 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::GetRange(i32s ind, i32s value, iter_al * result)
  {
  	iter_al range[2] = { atom_list.begin(), atom_list.end() };
-@@ -3258,7 +3506,6 @@
- 	ofstream ofile;		// the trajectory file...
+@@ -3255,10 +3504,9 @@
+ 	ofstream logfile;
+ 	logfile.open(logfilename, ios::out);
+ 	
+-	ofstream ofile;		// the trajectory file...
++	long_ofstream ofile;		// the trajectory file...
  	ofile.open(param.filename, ios::out | ios::binary);
  	
 -	const int frame_save_frq = 10000;
  	const int total_frames = param.nsteps_s / frame_save_frq;
  	
  	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
-@@ -4657,13 +4904,24 @@
+@@ -4606,7 +4854,7 @@
+ 			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
+ 		}	*/
+ 		
+-		trajfile = new ifstream(fn, ios::in | ios::binary);
++		trajfile = new long_ifstream(fn, ios::in | ios::binary);
+ 		//trajfile->seekg(8, ios::beg);	// skip the file id...
+ 		char file_id[10];
+ 		trajfile->read((char *) & file_id, 8);
+@@ -4657,13 +4905,24 @@
  			PrintToLog(str.str().c_str());
  		}
  
@@ -310,7 +466,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			PrintToLog(str.str().c_str());
  		}
  	}
-@@ -4678,11 +4936,10 @@
+@@ -4678,11 +4937,10 @@
  	
  	trajfile->seekg(place, ios::beg);
  
@@ -323,7 +479,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -4699,10 +4956,76 @@
+@@ -4699,10 +4957,76 @@
  			saved_boundary_potential_rad_solvent = boundary[2];
  		}
  	}
@@ -401,7 +557,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		
  		fGL cdata[3];
  		for (i32s t4 = 0; t4 < 3; t4++)
-@@ -4743,6 +5066,31 @@
+@@ -4743,6 +5067,31 @@
  				fdata[t4] = tmp;
  			}
  		}
@@ -433,7 +589,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
-@@ -4765,10 +5113,19 @@
+@@ -4765,10 +5114,19 @@
  		return (8 + 2 * sizeof(int));
  	}
  
@@ -455,7 +611,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
  size_t model::GetTrajectoryEnergySize()
-@@ -4807,6 +5164,27 @@
+@@ -4807,6 +5165,27 @@
  			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
  	}
  
@@ -483,10 +639,20 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	return -1;
  }
  
-@@ -4830,6 +5208,16 @@
+@@ -4815,7 +5194,7 @@
+ 	return total_traj_frames;
+ }
+ 
+-ifstream * model::GetTrajectoryFile(void)
++long_ifstream * model::GetTrajectoryFile(void)
+ {
+ 	return trajfile;
+ }
+@@ -4830,32 +5209,48 @@
  	current_traj_frame = p1;
  }
  
+-void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
 +void model::SetTrajectoryVersionBeforeMoldyn(i32s version)
 +{
 +	trajectory_version = version;
@@ -497,33 +663,83 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	frame_save_frq = frq;
 +}
 +
- void model::WriteTrajectoryHeader(ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
++void model::WriteTrajectoryHeader(long_ofstream & ofile, int total_frames, moldyn * dyn, int frame_save_freq)
  {
  	char file_id[10];
-@@ -4842,10 +5230,16 @@
+ 	snprintf(file_id, 9, "traj_v%02d", trajectory_version);
+ 	cout << "file_id = \"" << file_id << "\"" << endl;
+ 
+ 	const int number_of_atoms = GetAtomCount();
+-	
++
+ 	ofile.write((char *) file_id, 8);					// file id, 8 chars.
  	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
  	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
  
 -	if (trajectory_version > 11)
 +	if (trajectory_version > 11 && trajectory_version <= 15)
-+	{
+ 	{
+-		float tstep = dyn->tstep1 * frame_save_freq;
+-		ofile.write((char *) & tstep, sizeof(tstep));
 +		float _time_step_between_traj_records = dyn->tstep1 * frame_save_freq;
 +		ofile.write((char *) & _time_step_between_traj_records, sizeof(_time_step_between_traj_records));
 +	}
 +	else if (trajectory_version > 15)
- 	{
--		float tstep = dyn->tstep1 * frame_save_freq;
--		ofile.write((char *) & tstep, sizeof(tstep));
++	{
 +		double tstep1 = dyn->tstep1;
 +		ofile.write((char *) & frame_save_freq, sizeof(frame_save_freq));
 +		ofile.write((char *) & tstep1, sizeof(tstep1));
  	}
  }
  
+-void model::WriteTrajectoryFrame(ofstream & ofile, moldyn * dyn)
++void model::WriteTrajectoryFrame(long_ofstream & ofile, moldyn * dyn)
+ {
+ 	const float ekin = dyn->GetEKin();
+ 	const float epot = dyn->GetEPot();
+-	
++
+ 	float boundary[3] = { -1.0, -1.0, -1.0 };
+-	
++
+ 	engine_bp * eng_bp = dynamic_cast<engine_bp *>(dyn->eng);
+ 	if (eng_bp != NULL)
+ 	{
+@@ -4863,13 +5258,13 @@
+ 		boundary[1] = eng_bp->bp_rad_solute;
+ 		boundary[2] = eng_bp->bp_rad_solvent;
+ 	}
+-	
++
+ 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(dyn->eng);
+ 	if (eng_pbc != NULL)
+ 	{
+ 		eng_pbc->setTrajBoundary(boundary);
+ 	}
+-	
++
+ 	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+ 	ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+ 
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
 --- ./libghemical-3.0.0.original/src/model.h	2023-02-11 20:23:48.869682815 +0000
-+++ ./libghemical-3.0.0/src/model.h	2023-02-12 09:48:02.652681426 +0000
-@@ -109,6 +109,11 @@
++++ ./libghemical-3.0.0/src/model.h	2023-02-12 20:38:58.015870929 +0000
+@@ -57,7 +57,7 @@
+ 
+ #include <list>
+ #include <vector>
+-#include <fstream>
++#include "long_stream.h"
+ #include <iostream>
+ #include <algorithm>
+ using namespace std;
+@@ -104,11 +104,16 @@
+ 	i32s nmol;
+ 	vector<chn_info> * ref_civ;	// vector<chn_info *> ?!?!?!
+ 	
+-	ifstream * trajfile;		// trajectory files...
++	long_ifstream * trajfile;	// trajectory files...
+ 	i32s traj_num_atoms;		// trajectory files...
  	i32s total_traj_frames;		// trajectory files...
  	i32s current_traj_frame;	// trajectory files...
  
@@ -544,17 +760,26 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
  	
  /// GetRange is used to get a range of atoms that form molecules, residues etc...
-@@ -435,7 +442,9 @@
+@@ -431,13 +438,15 @@
+ 	size_t GetTrajectoryFrameSize();
+ 
+ 	i32s GetTotalFrames(void);
+-	ifstream * GetTrajectoryFile(void);
++	long_ifstream * GetTrajectoryFile(void);
  	
  	i32s GetCurrentFrame(void);
  	void SetCurrentFrame(i32s);
 -	
+-	void WriteTrajectoryHeader(ofstream &, int, moldyn *, int);
+-	void WriteTrajectoryFrame(ofstream &, moldyn *);
 +
 +	void SetTrajectoryVersionBeforeMoldyn(i32s version);
 +	void SetTrajectoryFrameSaveFrq(int frq);
- 	void WriteTrajectoryHeader(ofstream &, int, moldyn *, int);
- 	void WriteTrajectoryFrame(ofstream &, moldyn *);
++	void WriteTrajectoryHeader(long_ofstream &, int, moldyn *, int);
++	void WriteTrajectoryFrame(long_ofstream &, moldyn *);
  	
+ 	void EvaluateBFact(void);
+ 	void EvaluateDiffConst(double);
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
 --- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-02-11 12:52:01.938245352 +0000
 +++ ./libghemical-3.0.0/src/moldyn.cpp	2023-02-12 09:19:34.064716884 +0000
@@ -695,9 +920,12 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  void moldyn::SumModelImpuls(f64 * sum_p)
  {
  	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
-@@ -516,41 +484,117 @@
+@@ -514,43 +482,119 @@
+ 	}
+ }
  
- void moldyn::SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version)
+-void moldyn::SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version)
++void moldyn::SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version)
  {
 -	float t1a;
 -	const int number_of_atoms = eng->GetAtomCount();
@@ -843,6 +1071,26 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	f64 * mass;			// [kg/mol]
  	
  	char * locked;
+@@ -179,8 +183,8 @@
+ 	
+ 	f64 sum_of_masses;	// this is for density...
+ 	
+-	friend void model::WriteTrajectoryFrame(ofstream &, moldyn *);
+-	friend void model::WriteTrajectoryHeader(ofstream & ofile, int, moldyn *, int);
++	friend void model::WriteTrajectoryFrame(long_ofstream &, moldyn *);
++	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn *, int);
+ 	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+ 	
+ 	public:
+@@ -217,7 +221,7 @@
+ 	void ForceModelMomentumToZero();
+ 	void ForceMoleculesMomentumToZero();
+ 
+-	void SaveTrajectoryFrame(ofstream& ofile, i32s trajectory_version);
++	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
+ };
+ 
+ /*################################################################################################*/
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
 --- ./ghemical-3.0.0.original/src/project.cpp	2023-02-07 11:21:33.729100937 +0000
 +++ ./ghemical-3.0.0/src/project.cpp	2023-02-07 18:57:35.216382759 +0000

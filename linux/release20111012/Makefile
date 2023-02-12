@@ -233,7 +233,7 @@ untar_openbabel: openbabel-2.0.0.tar.gz
 ghemical: libghemical liboglappth openbabel ghemical_app
 
 ghemical_configure:
-	(cd ghemical-3.0.0 && ./configure --prefix=${install_dir} OPENBABEL_CFLAGS="-I${OPEN_BABEL_INCDIR}" OPENBABEL_LIBS="-L${openbabel_lib_path} -lopenbabel" LIBGHEMICAL_CFLAGS="-I${LIBGHEMICAL_INCDIR}" LIBGHEMICAL_LIBS="-L${libghemical_lib_path} -lghemical -loglappth" CXXFLAGS='-std=c++11')
+	(cd ghemical-3.0.0 && ./configure --prefix=${install_dir} OPENBABEL_CFLAGS="-I${OPEN_BABEL_INCDIR}" OPENBABEL_LIBS="-L${openbabel_lib_path} -lopenbabel" LIBGHEMICAL_CFLAGS="-I${LIBGHEMICAL_INCDIR}" LIBGHEMICAL_LIBS="-L${libghemical_lib_path} -lghemical -loglappth")
 
 ghemical_app:
 	make ghemical_configure && (cd ghemical-3.0.0 && make && make install)
@@ -246,7 +246,7 @@ ghemical_clean:
 
 libghemical_configure:
 	#(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 --enable-mpqc)
-	(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 MOPAC7_CFLAGS="-I${MOPAC7_INCDIR}" MOPAC7_LIBS="-L${mopac7_lib_path} -lmopac7" CXXFLAGS='-std=c++11')
+	(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 MOPAC7_CFLAGS="-I${MOPAC7_INCDIR}" MOPAC7_LIBS="-L${mopac7_lib_path} -lmopac7")
 
 ghemical_examples: mopac7 liboglappth libghemical openbabel
 	(cd examples && make clean && make all)

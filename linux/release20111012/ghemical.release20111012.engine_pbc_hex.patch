@@ -324,8 +324,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0
 +
 +		if (p1 > 0)
 +		{
-+			GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2a p1=") + std::to_string(p1)).c_str());
-+			GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, (std::string("eng1_mm_default_nbt_mim::ComputeNBT1 t2b p1=") + std::to_string(p1)).c_str());
++			GetSetup()->GetModel()->apply_periodic_cond(this, t2a, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2a p1=");// + std::to_string(p1)).c_str());
++			GetSetup()->GetModel()->apply_periodic_cond(this, t2b, false, true, "eng1_mm_default_nbt_mim::ComputeNBT1 t2b p1=");// + std::to_string(p1)).c_str());
 +		}
 +
 +		for (i32s n2 = 0;n2 < 3;n2++)
