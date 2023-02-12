@@ -438,6 +438,7 @@ class project : public model
 
 	void TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim);
 	void TrajView_CoordinatePlot(i32s ind, i32s dim);
+	void TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type);
 	void TrajView_DistancePlot(i32s inda, i32s indb);
 	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
 

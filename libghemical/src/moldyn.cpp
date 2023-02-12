@@ -57,7 +57,10 @@ moldyn::moldyn(engine * p1, f64 p2)
 	
 	vel = new f64[eng->GetAtomCount() * 3];			// [1.0E+3 m/s]
 	acc = new f64[eng->GetAtomCount() * 3];			// [1.0E+12 m/s^2]
-	
+
+	cumsum_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+	cumsum_acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+	cumsum_f   = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
 	mass = new f64[eng->GetAtomCount()];
 	
 	locked = new char[eng->GetAtomCount()];
@@ -85,6 +88,10 @@ moldyn::moldyn(engine * p1, f64 p2)
 		{
 			vel[counter * 3 + n1] = 0.0;
 			acc[counter * 3 + n1] = 0.0;
+
+			cumsum_vel[counter * 3 + n1] = 0.0;
+			cumsum_acc[counter * 3 + n1] = 0.0;
+			cumsum_f  [counter * 3 + n1] = 0.0;
 		}
 		
 		counter++;
@@ -104,6 +111,10 @@ moldyn::~moldyn(void)
 	delete[] vel;
 	delete[] acc;
 	
+	delete[] cumsum_vel;
+	delete[] cumsum_acc;
+	delete[] cumsum_f;
+
 	delete[] mass;
 	
 	delete[] locked;
@@ -116,24 +127,16 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			f64 tmpA = acc[n1 * 3 + n2];
+
 			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
 			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
-			
-			if (locked[n1])
+
+			if (!locked[n1])
 			{
-				tmpA = 0.0;	// make sure that locked atoms remain locked!
-				tmp1 = 0.0;	// make sure that locked atoms remain locked!
-				tmp2 = 0.0;	// make sure that locked atoms remain locked!
-				
-				// the engine class really cannot compute and return zero forces
-				// for the locked atoms.
-				
-				// then how to ensure translational invariance and stuff like that?
+				eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
+
+				vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
 			}
-			
-			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
-			
-			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
 		}
 	}
 	
@@ -144,17 +147,26 @@ void moldyn::TakeMDStep(bool enable_temperature_control)
 	
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
-		if (locked[n1]) continue;
-		//a = -F/m
-		//dv = a*dt
-		
-		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
-		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
-		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
-		
-		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
-		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
-		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
+		if (locked[n1])
+		{
+			acc[n1 * 3 + 0] = acc[n1 * 3 + 1] = acc[n1 * 3 + 2] = 0.0;
+			vel[n1 * 3 + 0] = vel[n1 * 3 + 1] = vel[n1 * 3 + 2] = 0.0;
+		}
+		else
+		{
+			for (i32s n2 = 0;n2 < 3;n2++)
+			{
+				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
+				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
+
+				cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
+				cumsum_acc[n1 * 3 + n2] += acc[n1 * 3 + n2];
+			}
+		}
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			cumsum_f[n1 * 3 + n2] += eng->d1[n1 * 3 + n2];
+		}
 	}
 	
 	ekin = KineticEnergy();
@@ -1206,6 +1218,92 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 	ekin = p1;
 }
 
+molgroup::molgroup(enum molgrouptype _molgrouptype)
+{
+	molgrouptype = _molgrouptype;
+	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+	num_locked = 0;
+}
+
+molgroup::molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms)
+{
+	molgrouptype = _molgrouptype;
+	num_locked = 0;
+	for (std::list<i32s>::iterator it = _natoms.begin(); it != _natoms.end(); ++it)
+	{
+		natoms.push_back(*it);
+	}
+	
+	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+}
+
+void molgroup::ForceMoleculesMomentumToZero(moldyn * mld)
+{
+	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+	num_locked = 0;
+
+	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+	{
+		i32s n1 = *it;
+
+		if (mld->locked[n1])
+		{
+			num_locked++;
+			continue;
+		}
+
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
+		}
+	}
+
+	f64 dp[3];
+	for (i32s n2 = 0;n2 < 3;n2++)
+		dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size() - num_locked);
+
+	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+	{
+		i32s n1 = *it;
+
+		if (mld->locked[n1]) continue;
+
+		for (i32s n2 = 0; n2 < 3; n2++)
+		{
+			mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
+		}
+	}
+
+	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+
+	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+	{
+		i32s n1 = *it;
+
+		if (mld->locked[n1]) continue;
+
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
+		}
+	}
+
+	for (i32s n2 = 0; n2 < 3; n2++)
+		printf ("sum_p[%d] %e\n", n2,  sum_p[n2]);
+}
+
+void moldyn_tst::ForceMoleculesMomentumToZero()
+{
+	model * mdl = eng->GetSetup()->GetModel();
+	std::list<struct molgroup> molgroups;
+	mdl->MakeMoleculesGroups(molgroups);
+	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
+		it_mlgr != molgroups.end(); ++it_mlgr)
+	{
+		it_mlgr->ForceMoleculesMomentumToZero(this);
+	}
+}
+
 void moldyn_tst::SumModelImpuls(f64 * sum_p)
 {		
 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
@@ -1267,40 +1365,116 @@ void moldyn_tst::SaveLastFrame(ofstream& ofile)
 
 void moldyn_tst::SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version)
 {
-	float t1a;
-	const int number_of_atoms = eng->GetAtomCount();
-	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+	if (trajectory_version < 15 || 16 == trajectory_version)
 	{
-		for (i32s tt2 = 0;tt2 < 3;tt2++)
+		float t1a;
+		const int number_of_atoms = eng->GetAtomCount();
+		for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
 		{
-			t1a = eng->crd[tt1 * 3 + tt2];
-			ofile.write((char *) & t1a, sizeof(t1a));
-		}
+			for (i32s tt2 = 0;tt2 < 3;tt2++)
+			{
+				t1a = eng->crd[tt1 * 3 + tt2];
+				ofile.write((char *) & t1a, sizeof(t1a));
+			}
 
-		if (trajectory_version > 12)
+			if (trajectory_version > 12)
+			{
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = vel[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+
+			if (trajectory_version > 13)
+			{
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = acc[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+
+			if (trajectory_version > 11)
+			{
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = eng->d1[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+
+			if (16 == trajectory_version)
+			{
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_vel[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_acc[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_f[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+			}
+		}
+	}
+	else if (15 == trajectory_version || 17 == trajectory_version)
+	{
+		f64 t1a;
+		const int number_of_atoms = eng->GetAtomCount();
+		for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
 		{
+			for (i32s tt2 = 0;tt2 < 3;tt2++)
+			{
+				t1a = eng->crd[tt1 * 3 + tt2];
+				ofile.write((char *) & t1a, sizeof(t1a));
+			}
+
 			for (i32s tt2 = 0;tt2 < 3;tt2++)
 			{
 				t1a = vel[tt1 * 3 + tt2];
 				ofile.write((char *) & t1a, sizeof(t1a));
 			}
-		}
 
-		if (trajectory_version > 13)
-		{
 			for (i32s tt2 = 0;tt2 < 3;tt2++)
 			{
 				t1a = acc[tt1 * 3 + tt2];
 				ofile.write((char *) & t1a, sizeof(t1a));
 			}
-		}
 
-		if (trajectory_version > 11)
-		{
 			for (i32s tt2 = 0;tt2 < 3;tt2++)
 			{
 				t1a = eng->d1[tt1 * 3 + tt2];
 				ofile.write((char *) & t1a, sizeof(t1a));
+			}
+
+			if (17 == trajectory_version)
+			{
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_vel[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_acc[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
+
+				for (i32s tt2 = 0;tt2 < 3;tt2++)
+				{
+					t1a = cumsum_f[tt1 * 3 + tt2];
+					ofile.write((char *) & t1a, sizeof(t1a));
+				}
 			}
 		}
 	}

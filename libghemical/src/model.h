@@ -124,7 +124,13 @@ class model
 	i32s traj_num_atoms;
 	i32s total_traj_frames;
 	i32s current_traj_frame;
-	int trajectory_version;
+
+	float time_step_between_traj_records;
+	int frame_save_frq;
+	double traj_tstep1;
+	int traj_frame_save_frq;
+
+	i32s trajectory_version;
 
 	vector<const char *> ecomp_grp_name_usr;
 	
@@ -307,6 +313,7 @@ class model
 	bool IsGroupsSorted(void) { return is_groups_sorted; }
 	
 	iter_al FindAtomByIndex(i32s);
+	void MakeMoleculesGroups(std::list<struct molgroup>& molgroups);
 	
 	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
 	
@@ -419,19 +426,25 @@ example to evaluate quality of the data or to match the data with records in oth
 
 	// methods related to MD trajectories...
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
+	void OpenTrajectory(const char *);
+	void ReadTrajectoryFrame(void);
+	void CloseTrajectory(void);
+
 	size_t GetTrajectoryHeaderSize();
 	size_t GetTrajectoryEnergySize();
 	size_t GetTrajectoryFrameSize();
-	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
-	void OpenTrajectory(const char *);
-	void CloseTrajectory(void);
-	void ReadTrajectoryFrame(void);
+
 
 	i32s GetTotalFrames(void);
 	long_ifstream * GetTrajectoryFile(void);
 
 	i32s GetCurrentFrame(void);
 	void SetCurrentFrame(i32s);
+	void SetTrajectoryVersionBeforeMoldyn(i32s version);
+	void SetTrajectoryFrameSaveFrq(int frq);
+	void WriteTrajectoryHeader(long_ofstream &, int, moldyn_tst *, int);
+	void WriteTrajectoryFrame(long_ofstream &, moldyn_tst *);
 
 	void ecomp_AddGroupU(const char *);
 	bool ecomp_DeleteGroupU(int);
@@ -442,8 +455,7 @@ example to evaluate quality of the data or to match the data with records in oth
 	void ecomp_RegisterWithAutoSolvChn1(void);
 	void ecomp_RegisterWithAutoSolvChn2(void);	*/
 	
-	void WriteTrajectoryHeader(long_ofstream &, int, moldyn_tst *, int);
-	void WriteTrajectoryFrame(long_ofstream &, moldyn_tst *);
+
 	private:
 
 	void ecomp_Register(void);

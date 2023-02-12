@@ -2038,6 +2038,24 @@ void project::ProcessCommandString(graphics_view * gv, const char * command)
 		return;
 	}
 
+	if (!strcmp("make_plot_mol_crd", kw1))
+	{
+		char kw2[32]; istr >> kw2;	// A
+		char kw3[32]; istr >> kw3;	// B
+		char kw4[32]; istr >> kw4;	// B
+		char kw5[32]; istr >> kw5;	// B
+
+		char ** endptr = NULL;
+
+		i32s molgrouptype = strtol(kw2, endptr, 10);
+		i32s ind_mol      = strtol(kw3, endptr, 10);
+		i32s dim          = strtol(kw4, endptr, 10);
+		i32s crd_type     = strtol(kw5, endptr, 10);
+
+		TrajView_MoleculeCoordinatePlot((enum molgrouptype)molgrouptype, ind_mol, dim, crd_type);
+		return;
+	}
+
 	if (!strcmp("make_nematic_plot", kw1))
 	{
 		char kw2[32]; istr >> kw2;	// A
@@ -4425,6 +4443,493 @@ void project::DoDensity(void)
 
   Message(buffer);
 }
+
+void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
+{
+	if (!this->GetTrajectoryFile())
+	{
+		this->ErrorMessage(("Trajectory file does not opened?"));
+		return;
+	}
+
+	const char * crd_name [] = {"coordinate", "velocity", "acceleration", "force"};
+
+	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+
+	float ekin;
+	float epot;
+
+
+	i32s shift = 0;
+	f64 first_coordinate = 0.0;
+	f64 previouse_coordinate = 0.0;
+	f64 sum_d_coordinate_error = 0.0;
+	f64 sum_coordinate = 0.0;
+	f64 sum_velocity = 0.0;
+	f64 previouse_velocity = 0.0;
+	f64 sum_d_velocity_error = 0.0;
+	f64 previouse_acceleration = 0.0;
+	f64 sum_acceleration = 0.0;
+	f64 sum_force = 0.0;
+
+	std::list<struct molgroup> molgroups;
+	this->MakeMoleculesGroups(molgroups);
+
+	size_t natoms = atom_list.size();
+	std::vector<f64> c_data; c_data.resize(natoms * 3);
+	std::vector<f64> v_data; v_data.resize(natoms * 3);
+	std::vector<f64> a_data; a_data.resize(natoms * 3);
+	std::vector<f64> f_data; f_data.resize(natoms * 3);
+
+	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
+	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
+	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
+
+	i32s max_frames = this->GetTotalFrames();
+	for (i32s loop = 0; loop < max_frames; loop++)
+	{
+		this->SetCurrentFrame(loop);
+
+		i32s place = GetTrajectoryHeaderSize();						// skip the header...
+		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+		//place += GetTrajectoryEnergySize();							// skip epot and ekin...
+
+		trajfile->seekg(place, ios::beg);
+
+		trajfile->read((char *) & ekin, sizeof(ekin));
+		trajfile->read((char *) & epot, sizeof(epot));
+
+		float boundary[3];
+		if (trajectory_version > 10)
+		{
+			float tmp;
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+			if (loop  ==  max_frames - 1) {
+				printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
+			}
+		}
+
+		i32s ind = 0;
+		mt_a1 = mt_a2 = mt_a3 = NULL;
+
+		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
+		{
+			f64 cdata[3];
+			f64 vdata[3];
+			f64 adata[3];
+			f64 fdata[3];
+
+			if (trajectory_version < 15)
+			{
+				float t1a;
+				for (i32s t4 = 0;t4 < 3;t4++)
+				{
+					trajfile->read((char *) & t1a, sizeof(t1a));
+					cdata[t4] = t1a;
+					c_data[3 * ind + t4] = t1a;
+				}
+
+				if (trajectory_version > 12)
+				{
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						vdata[t4] = t1a;
+						v_data[3 * ind + t4] = t1a;
+					}
+				}
+
+				if (trajectory_version > 13)
+				{
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						adata[t4] = t1a;
+						a_data[3 * ind + t4] = t1a;
+					}
+				}
+
+				if (trajectory_version > 11)
+				{
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						fdata[t4] = t1a;
+						f_data[3 * ind + t4] = t1a;
+					}
+				}
+
+				if (16 == trajectory_version)
+				{
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						vdata[t4] = t1a;
+						cumsum_v_data[3 * ind + t4] = t1a;
+					}
+
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						adata[t4] = t1a;
+						cumsum_a_data[3 * ind + t4] = t1a;
+					}
+
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						fdata[t4] = t1a;
+						cumsum_f_data[3 * ind + t4] = t1a;
+					}
+				}
+			}
+			else if (15 == trajectory_version || 17 == trajectory_version)
+			{
+				f64 t1a;
+				for (i32s t4 = 0;t4 < 3;t4++)
+				{
+					trajfile->read((char *) & t1a, sizeof(t1a));
+					cdata[t4] = t1a;
+					c_data[3 * ind + t4] = t1a;
+				}
+
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & t1a, sizeof(t1a));
+					vdata[t4] = t1a;
+					v_data[3 * ind + t4] = t1a;
+				}
+
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & t1a, sizeof(t1a));
+					adata[t4] = t1a;
+					a_data[3 * ind + t4] = t1a;
+				}
+
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & t1a, sizeof(t1a));
+					fdata[t4] = t1a;
+					f_data[3 * ind + t4] = t1a;
+				}
+
+				if (17 == trajectory_version)
+				{
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						vdata[t4] = t1a;
+						cumsum_v_data[3 * ind + t4] = t1a;
+					}
+
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						adata[t4] = t1a;
+						cumsum_a_data[3 * ind + t4] = t1a;
+					}
+
+					for (i32s t4 = 0; t4 < 3; t4++)
+					{
+						trajfile->read((char *) & t1a, sizeof(t1a));
+						fdata[t4] = t1a;
+						cumsum_f_data[3 * ind + t4] = t1a;
+					}
+				}
+			}
+
+			//printf("%d -f/a %f %f %f\n", ind
+			//	, -fdata[0]/adata[0]
+			//	, -fdata[1]/adata[1]
+			//	, -fdata[2]/adata[2]
+			//	);
+
+			//printf("%d -f / a %f %f %f %f %f\n", ind
+			//	, -f_data[3 * ind + 0]/a_data[3 * ind + 0]
+			//	, -f_data[3 * ind + 1]/a_data[3 * ind + 1]
+			//	, -f_data[3 * ind + 2]/a_data[3 * ind + 2]
+			//	, -f_data[3 * ind + 2],a_data[3 * ind + 2]
+			//	);
+
+			/*printf("v, a %f %f %f %f %f %f\n"
+				, vdata[0],adata[0]
+				, vdata[1],adata[1]
+				, vdata[2],adata[2]
+				);*/
+
+			/*
+			acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
+			acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
+			acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+			*/
+
+			ind++;
+		}
+
+		f64 coordinate = 0;
+		f64 velocity = 0;
+		f64 acceleration = 0;
+		f64 force = 0;
+
+		f64 cumsum_velocity = 0;
+		f64 cumsum_acceleration = 0;
+		f64 cumsum_force = 0;
+
+		i32s indmol=0;
+		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
+			it_mlgr != molgroups.end(); ++it_mlgr)
+		{
+			if (molgrouptype != it_mlgr->molgrouptype)
+			{
+				continue;
+			}
+
+			if (ind_mol != indmol)
+			{
+				indmol++;
+				continue;
+			}
+
+			f64 crd, vel, acc, frc,
+				cumsum_vel, cumsum_acc, cumsum_frc,
+				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0, 
+				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0, 
+				pre_crd = 0.0, pre_vel = 0.0;
+
+			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
+				it != it_mlgr->natoms.end(); ++it)
+			{
+				ind = *it;
+				crd = c_data[3 * ind + dim];
+				vel = v_data[3 * ind + dim];
+				acc = a_data[3 * ind + dim];
+				frc = f_data[3 * ind + dim];
+				cumsum_vel = cumsum_v_data[3 * ind + dim];
+				cumsum_acc = cumsum_a_data[3 * ind + dim];
+				cumsum_frc = cumsum_f_data[3 * ind + dim];
+
+			//printf("crd vel acc frc %f %f %f %f\n"
+			//	, crd, vel, acc, frc
+			//	);
+
+			//printf("ind %d dim %d -frc/acc %f %f %f\n", ind, dim
+			//	, -frc/acc
+			//	, -frc, acc
+			//	);
+
+				if (0 == crd_type)
+				{
+					//this->apply_periodic_cond(eng, test2);
+					if (crd - pre_crd > boundary[dim])
+					{
+						crd -= 2 * boundary[dim];
+					}
+					if (crd - pre_crd < -boundary[dim])
+					{
+						crd += 2 * boundary[dim];
+					}
+				}
+
+				sum_crd += crd;
+				pre_crd = crd;
+
+				sum_vel += vel;
+				pre_vel = vel;
+
+				sum_acc += acc;
+				sum_frc += frc;
+
+				sum_cumsum_vel += cumsum_vel;
+				sum_cumsum_acc += cumsum_acc;
+				sum_cumsum_frc += cumsum_frc;
+			}
+
+			//if (crd_type < 3) // crd, vel and acc, but not force
+			sum_crd /= it_mlgr->natoms.size();
+			sum_vel /= it_mlgr->natoms.size();
+			sum_acc /= it_mlgr->natoms.size();
+
+			sum_cumsum_vel /= it_mlgr->natoms.size();
+			sum_cumsum_acc /= it_mlgr->natoms.size();
+
+			coordinate   = sum_crd;
+			velocity     = sum_vel;
+			acceleration = sum_acc;
+			force        = sum_frc;
+
+			cumsum_velocity     = sum_cumsum_vel;
+			cumsum_acceleration = sum_cumsum_acc;
+			cumsum_force        = sum_cumsum_frc;
+
+			indmol++;
+		}
+
+		//if (0 == crd_type)
+		{
+			if (coordinate - previouse_coordinate > boundary[dim])
+			{
+				shift -= 1;
+				printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+			}
+			if (coordinate - previouse_coordinate < -boundary[dim])
+			{
+				shift += 1;
+				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+			}
+			sum_coordinate = coordinate - first_coordinate;
+		}
+		//else
+		{
+			sum_velocity     += velocity;
+			sum_acceleration += acceleration;
+			sum_force        += force;
+		}
+
+		/*
+		f64 tstep1;		// timestep [fs] // [1.0e-15 s]
+		f64 tstep2;		// timestep ^ 2	 // [1.0e-30 s^2]		
+
+		f64 tmpA = acc[n1 * 3 + n2];
+		f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
+		f64 tmp2 = tstep2 * tmpA * 0.5e-9;
+
+		if (!locked[n1])
+		{
+			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
+			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
+		}
+
+		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
+		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
+		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
+		*/
+
+		f64 tstep1 = 0.5, tstep2 = tstep1 * tstep1;
+		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
+		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
+		f64 dc     = dcv + dca;
+
+		f64 dv1 = tstep1 * previouse_acceleration * 0.5e-6;
+		f64 dv2 = tstep1 * acceleration * 0.5e-6;
+		f64 dv  = dv1 + dv2;
+
+		f64 d_coordinate = coordinate - previouse_coordinate;
+		f64 d_velocity   = velocity   - previouse_velocity;
+
+		f64 d_coordinate_error = d_coordinate - dc;
+		f64 d_velocity_error   = d_velocity   - dv;
+
+		sum_d_coordinate_error += d_coordinate_error;
+		sum_d_velocity_error   += d_velocity_error;
+
+		if (loop  ==  max_frames - 1) {
+			printf("loop %d dc %0.06e = %0.06e (%0.06e + %0.06e) error=%0.06e %0.06e\n", loop
+				, d_coordinate
+				, dc
+				, dcv, dca
+				, d_coordinate_error
+				, d_velocity_error
+				);
+		}
+
+		f64 value = 0.0;
+		switch (crd_type)
+		{
+		case 0:
+			value = coordinate + 2 * shift * boundary[dim];
+			break;
+		case 1:
+			value = velocity;
+			break;
+		case 2:
+			value = acceleration;
+			break;
+		case 3:
+			value = force;
+			break;
+		case 4:
+			value = d_coordinate_error;
+			break;
+		case 5:
+			value = d_velocity_error;
+			break;
+		case 6:
+			value = sum_d_coordinate_error;
+			break;
+		case 7:
+			value = sum_d_velocity_error;
+			break;
+		case 8:
+			value = cumsum_velocity;
+			break;
+		case 9:
+			value = cumsum_acceleration;
+			break;
+		case 10:
+			value = cumsum_force;
+			break;
+
+		default:
+			break;
+		}
+
+		plot->AddData(loop, value);
+
+		mt_a1 = mt_a2 = mt_a3 = NULL;
+
+		previouse_coordinate   = coordinate;
+		previouse_velocity     = velocity;
+		previouse_acceleration = acceleration;
+
+		if (0 == loop)
+		{
+			first_coordinate = coordinate;
+		}
+	}
+
+	f64 mean_coordinate   = sum_coordinate   / max_frames;
+	f64 mean_velocity     = sum_velocity     / max_frames;
+	f64 mean_acceleration = sum_acceleration / max_frames;
+	f64 mean_force        = sum_force        / max_frames;
+
+	f64 mean_coordinate_per_time = mean_coordinate / this->time_step_between_traj_records;
+
+	f64 mean_d_coordinate_error = sum_d_coordinate_error / max_frames;
+	f64 mean_d_velocity_error   = sum_d_velocity_error   / max_frames;
+
+	printf("sum_d_coordinate_error / sum_coordinate %f\n", sum_d_coordinate_error / sum_coordinate);
+	printf("sum_coordinate - sum_d_coordinate_error %f\n", sum_coordinate - sum_d_coordinate_error);
+
+	printf("sum_coordinate  %f (nm)\n",  sum_coordinate);
+	printf("mean_coordinate %e (nm/frame)\n", mean_coordinate);
+
+	printf("sum_d_coordinate_error  %f \n",  sum_d_coordinate_error);
+	printf("mean_d_coordinate_error %e\n", mean_d_coordinate_error);
+
+	printf("sum_velocity  %f\n",  sum_velocity);
+	printf("mean_velocity %e [1.0e+3 m/s]\n", mean_velocity);
+	printf("mean_coordinate_per_time %e [nm/fs]\n", mean_coordinate_per_time);
+
+	printf("sum_d_velocity_error  %f\n",  sum_d_velocity_error);
+	printf("mean_d_velocity_error %e\n", mean_d_velocity_error);
+
+	printf("sum_acceleration  %f\n",  sum_acceleration);
+	printf("mean_acceleration %f\n", mean_acceleration);
+
+	printf("sum_force %f\n",  sum_force);
+	printf("mean_force %f\n", mean_force);
+
+	//printf("sum_%s %f\n",  crd_name[crd_type], sum_coordinate);
+	//printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
+
+	plot->SetCenterAndScale();
+	plot->Update();
+}
+
 
 void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
 {

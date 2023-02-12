@@ -63,6 +63,38 @@ class moldyn_param
 	~moldyn_param(void) { }
 };
 
+struct molecule
+{
+	i32s ncarbons;
+	std::list<i32s> natoms;
+
+	molecule(i32s _ncarbons, i32s natom)
+	{
+		ncarbons = _ncarbons;
+		natoms.push_back(natom);
+	}
+};
+
+enum molgrouptype
+{
+	GAS,
+	MEMBRANE_OR_GLOBULE
+};
+
+struct molgroup
+{
+	enum molgrouptype molgrouptype;
+	std::list<i32s> natoms;
+	f64 sum_p[3];
+	int num_locked;
+
+	molgroup(enum molgrouptype _molgrouptype);
+
+	molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms);
+
+	void ForceMoleculesMomentumToZero(moldyn * mld);
+};
+
 /*################################################################################################*/
 
 /**	A molecular dynamics class.
@@ -83,16 +115,20 @@ class moldyn
 	
 	engine * eng;
 	
-	f64 * vel;
-	f64 * acc;
-	
-	f64 * mass;
+	f64 * vel;			// [1.0e+3 m/s]
+	f64 * acc;			// [1.0e+12 m/s^2]
+
+	f64 * cumsum_vel;
+	f64 * cumsum_acc;
+	f64 * cumsum_f;
+
+	f64 * mass;			// [kg/mol]
 	
 	char * locked;
 	int num_locked;
 	
-	f64 tstep1;	// timestep
-	f64 tstep2;	// timestep ^ 2
+	f64 tstep1;		// timestep [fs]
+	f64 tstep2;		// timestep ^ 2
 	
 	f64 ekin;
 	f64 epot;
@@ -101,6 +137,8 @@ class moldyn
 	
 	friend void model::WriteTrajectoryFrame(long_ofstream &, moldyn_tst *);
 	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn_tst *, int);
+	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+	
 	public:
 	
 	f64 temperature;
@@ -268,7 +306,7 @@ class moldyn_tst  : public moldyn
 	
 	void LockAtoms(vector<i32s>& nAtoms);
 	void LockAtoms(char * fn);
-
+	void ForceMoleculesMomentumToZero();
 #if SNARJAD_TARGET_WORKING
 	// my functions:
 	i32s n_snarjad;

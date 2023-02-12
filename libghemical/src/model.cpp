@@ -187,10 +187,16 @@ model::model(void)
 	periodic_box_HALFdim[1] = 1.0;
 	periodic_box_HALFdim[2] = 1.0;
 
-	trajectory_version = 14;
 
 	nmol = NOT_DEFINED;
 	ref_civ = NULL;
+	
+	trajfile = NULL;
+	traj_num_atoms = NOT_DEFINED;
+	total_traj_frames = NOT_DEFINED;
+	current_traj_frame = NOT_DEFINED;
+	trajectory_version = 15;
+	frame_save_frq = 10000;
 }
 
 model::~model(void)
@@ -654,6 +660,254 @@ void model::ClearModel(void)
 	{
 		iter_al it1 = atom_list.begin();
 		RemoveAtom(it1);
+	}
+
+
+}
+
+/*##############################################*/
+/*##############################################*/
+
+void model::MakeMoleculesGroups(std::list<struct molgroup>& molgroups)
+{
+	iter_bl itb;
+
+	i32s n1, nmol;
+	bool iscarbon1;
+	bool iscarbon2;
+	i32s index1, index2;
+	std::map<i32s, molecule>::iterator itmol;
+	std::map<i32s, molecule>::iterator itmol1;
+	std::map<i32s, molecule>::iterator itmol2;
+
+	UpdateIndex();
+
+	std::map<i32s, molecule> mols;
+
+	for (itb = this->GetBondsBegin();
+		itb != this->GetBondsEnd();
+		++itb)
+	{
+		atom * at1 = (* itb).atmr[0];
+		atom * at2 = (* itb).atmr[1];
+
+		iscarbon1 = 6 == at1->el.GetAtomicNumber();
+		iscarbon2 = 6 == at2->el.GetAtomicNumber();
+
+		index1 = at1->index;
+		index2 = at2->index;
+
+		i32s found1 = NOT_DEFINED;
+		i32s found2 = NOT_DEFINED;
+
+		for (itmol = mols.begin();
+			itmol != mols.end();
+			itmol++)
+		{
+			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
+			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
+			for(; it != end; ++it)
+			{
+				if ((*it) == index1)
+				{
+					found1 = (*itmol).first;
+				}
+				if ((*it) == index2)
+				{
+					found2 = (*itmol).first;
+				}
+			}
+		}
+
+		if (NOT_DEFINED == found1 &&
+			NOT_DEFINED == found2)
+		{
+			i32s id = mols.size();
+			mols.insert(std::pair<i32s, molecule>(id,
+				molecule(iscarbon1 ? 1 : 0, index1)));
+			itmol = mols.find(id);
+			(* itmol).second.natoms.push_back(index2);
+			(* itmol).second.ncarbons += iscarbon2 ? 1 : 0;
+		}
+		else
+		{
+			if (NOT_DEFINED == found1)
+			{
+				i32s id = found2;
+				itmol = mols.find(id);
+				(* itmol).second.natoms.push_back(index1);
+				(* itmol).second.ncarbons += iscarbon1 ? 1 : 0;
+			}
+			if (NOT_DEFINED == found2)
+			{
+				i32s id = found1;
+				itmol = mols.find(id);
+				(* itmol).second.natoms.push_back(index2);
+				(* itmol).second.ncarbons += iscarbon2 ? 1 : 0;
+			}
+		}
+	}
+
+	for (itb = this->GetBondsBegin();
+		itb != this->GetBondsEnd();
+		++itb)
+	{
+		atom * at1 = (* itb).atmr[0];
+		atom * at2 = (* itb).atmr[1];
+
+		iscarbon1 = 6 == at1->el.GetAtomicNumber();
+		iscarbon2 = 6 == at2->el.GetAtomicNumber();
+
+		index1 = at1->index;
+		index2 = at2->index;
+
+		i32s found1 = NOT_DEFINED;
+		i32s found2 = NOT_DEFINED;
+
+		for (itmol = mols.begin();
+			itmol != mols.end();
+			itmol++)
+		{
+			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
+			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
+			for(; it != end; ++it)
+			{
+				if ((*it) == index1)
+				{
+					found1 = (*itmol).first;
+				}
+				if ((*it) == index2)
+				{
+					found2 = (*itmol).first;
+				}
+			}
+		}
+
+		if (! (NOT_DEFINED == found1 && NOT_DEFINED == found2))
+		{
+			if (found1 < found2 )
+			{
+				itmol2 = mols.find(found2);
+				itmol1 = mols.find(found1);
+
+				// 2 > 1
+				std::list<i32s>::iterator it  = (* itmol2).second.natoms.begin();
+				std::list<i32s>::iterator end = (* itmol2).second.natoms.end();
+				for(; it != end;++it)
+				{
+					(* itmol1).second.natoms.push_back(*it);
+				}
+				(* itmol1).second.ncarbons += (* itmol2).second.ncarbons;
+
+				mols.erase(itmol2);
+			}
+
+			if (found2 < found1 )
+			{
+				itmol2 = mols.find(found2);
+				itmol1 = mols.find(found1);
+
+				// 1 > 2
+				std::list<i32s>::iterator it  = (* itmol1).second.natoms.begin();
+				std::list<i32s>::iterator end = (* itmol1).second.natoms.end();
+				for(; it != end;++it)
+				{
+					(* itmol2).second.natoms.push_back(*it);
+				}
+				(* itmol2).second.ncarbons += (* itmol1).second.ncarbons;
+
+				mols.erase(itmol1);
+			}
+		}
+	}
+
+	for (itb = this->GetBondsBegin();
+		itb != this->GetBondsEnd();
+		++itb)
+	{
+		atom * at1 = (* itb).atmr[0];
+		atom * at2 = (* itb).atmr[1];
+
+		iscarbon1 = 6 == at1->el.GetAtomicNumber();
+		iscarbon2 = 6 == at2->el.GetAtomicNumber();
+
+		index1 = at1->index;
+		index2 = at2->index;
+
+		i32s found1 = NOT_DEFINED;
+		i32s found2 = NOT_DEFINED;
+
+		for (itmol = mols.begin();
+			itmol != mols.end();
+			itmol++)
+		{
+			std::list<i32s>::iterator it  = (*itmol).second.natoms.begin();
+			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
+			for(; it != end; ++it)
+			{
+				if ((*it) == index1)
+				{
+					found1 = (*itmol).first;
+				}
+				if ((*it) == index2)
+				{
+					found2 = (*itmol).first;
+				}
+			}
+		}
+
+		if (! (NOT_DEFINED == found1 && NOT_DEFINED == found2))
+		{
+			at1->id[0] = found1;
+			at2->id[0] = found2;
+		}
+	}
+
+	iter_al it1;
+	bool iscarbon;
+
+	std::map<i32s, molecule> molecules;
+	for (n1 = 0, it1 = this->GetAtomsBegin();
+		 n1 < this->GetAtomCount() && it1 != this->GetAtomsEnd();
+		 n1++, it1++)
+	{
+		nmol = (* it1).id[0];
+		iscarbon = 6 == (* it1).el.GetAtomicNumber();
+		itmol = molecules.find(nmol);
+		if (itmol == molecules.end())
+		{
+			molecules.insert(std::pair<i32s, molecule>((* it1).id[0], molecule(iscarbon ? 1 : 0, n1)));
+		}
+		else
+		{
+			(* itmol).second.ncarbons += iscarbon ? 1 : 0;
+			(* itmol).second.natoms.push_back(n1);
+		}
+	}
+
+	molgroups.push_back(molgroup(GAS));
+	for (itmol = molecules.begin(); itmol != molecules.end(); itmol++)
+	{
+		if ((*itmol).second.ncarbons > 2)
+		{
+			molgroups.push_back(molgroup(MEMBRANE_OR_GLOBULE, (*itmol).second.natoms));
+		}
+		else
+		{
+			std::list<i32s>::iterator it = (*itmol).second.natoms.begin();
+			std::list<i32s>::iterator end = (*itmol).second.natoms.end();
+			for(; it != end; ++it)
+			{
+				molgroups.front().natoms.push_back(*it);
+			}
+		}
+	}
+
+	printf("molgroups size = %d\n", molgroups.size());
+	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
+		it_mlgr != molgroups.end(); ++it_mlgr)
+	{
+		printf("%s natoms size = %d\n", (GAS == (*it_mlgr).molgrouptype ? "gas" : "membrane or globule"), (*it_mlgr).natoms.size());
 	}
 }
 
@@ -4905,13 +5159,24 @@ void model::OpenTrajectory(const char * fn)
 			PrintToLog(str.str().c_str());
 		}
 
-		if (trajectory_version > 11)
+		if (trajectory_version > 11 && trajectory_version <= 15)
 		{
-			float tstep;
-			trajfile->read((char *) & tstep, sizeof(tstep));
+			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
 			stringstream str;
-			str << ("time step between traj records ") << (tstep / 1000) << (" * 1.0E-12 s") << endl
-				<< ("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
+			str << ("time step between traj records ") << (time_step_between_traj_records / 1000) << (" * 1.0E-12 s") << endl
+				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
+			PrintToLog(str.str().c_str());
+		}
+		else
+		{
+			trajfile->read((char *) & traj_frame_save_frq, sizeof(traj_frame_save_frq));
+			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
+			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
+			stringstream str;
+			str << ("traj_frame_save_frq ") << traj_frame_save_frq 
+				<< (" traj_tstep1 ") << traj_tstep1 << endl
+				<< ("time step between traj records ") << (time_step_between_traj_records / 1000) << (" * 1.0E-12 s") << endl
+				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
 			PrintToLog(str.str().c_str());
 		}
 	}
@@ -4926,11 +5191,11 @@ void model::ReadTrajectoryFrame(void)
 	
 	trajfile->seekg(place, ios::beg);
 
-	float tmp;
 
 	if (trajectory_version > 10) {
 
 		float boundary[3];
+		float tmp;
 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
 		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
@@ -4947,10 +5212,76 @@ void model::ReadTrajectoryFrame(void)
 			boundary_potential_radius2 = boundary[2];
 		}
 	}
-	
+
+	if (15 == trajectory_version || 17 == trajectory_version)
+	{
+		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+		{
+		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+			f64 tmp;
+
+			f64 cdata[3];
+			f64 vdata[3];
+			f64 adata[3];
+			f64 fdata[3];
+			f64 cumsum_vdata[3];
+			f64 cumsum_adata[3];
+			f64 cumsum_fdata[3];
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				cdata[t4] = tmp;
+			}
+
+			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				vdata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				adata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				fdata[t4] = tmp;
+			}
+
+			if (17 == trajectory_version)
+			{
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					cumsum_vdata[t4] = tmp;
+				}
+
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					cumsum_adata[t4] = tmp;
+				}
+
+				for (i32s t4 = 0; t4 < 3; t4++)
+				{
+					trajfile->read((char *) & tmp, sizeof(tmp));
+					cumsum_fdata[t4] = tmp;
+				}
+			}
+		}
+		return;
+	}
+
 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 	{
 	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+		float tmp;
 		
 		fGL cdata[3];
 		for (i32s t4 = 0; t4 < 3; t4++)
@@ -4990,6 +5321,31 @@ void model::ReadTrajectoryFrame(void)
 				fdata[t4] = tmp;
 			}
 		}
+
+		if (16 == trajectory_version)
+		{
+			fGL cumsum_vdata[3];
+			fGL cumsum_adata[3];
+			fGL cumsum_fdata[3];
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				cumsum_vdata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				cumsum_adata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				cumsum_fdata[t4] = tmp;
+			}
+		}
 	}
 	this->UpdateAllGraphicsViews();
 }
@@ -5013,10 +5369,19 @@ size_t model::GetTrajectoryHeaderSize()
 		return (8 + 2 * sizeof(int));
 	}
 
+	if (trajectory_version <= 15)
+	{
+		// file_id
+		// number_of_atoms,  total_frames
+		// time_step_between_traj_records
+		return (8 + 2 * sizeof(int) + sizeof(float));
+	}
+
 	// file_id
 	// number_of_atoms,  total_frames
-	// tstep
-	return (8 + 2 * sizeof(int) + sizeof(float));
+	// frame_save_frq, tstep
+	return (8 + 3 * sizeof(int) + sizeof(double));
+
 }
 
 size_t model::GetTrajectoryEnergySize()
@@ -5053,6 +5418,27 @@ size_t model::GetTrajectoryFrameSize()
 		return (GetTrajectoryEnergySize()
 			+ 3 * sizeof(float) // boundary
 			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
+	}
+
+	if (trajectory_version == 15) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 12 * traj_num_atoms * sizeof(f64)); //crd + force + vel + acc
+	}
+
+
+	if (trajectory_version == 16) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 12 * traj_num_atoms * sizeof(float) //crd + force + vel + acc
+			+ 9  * traj_num_atoms * sizeof(float)); //cumsum_force + cumsum_vel + cumsum_acc
+	}
+
+	if (trajectory_version == 17) {
+		return (GetTrajectoryEnergySize()
+			+ 3 * sizeof(float) // boundary
+			+ 12 * traj_num_atoms * sizeof(f64) //crd + force + vel + acc
+			+ 9  * traj_num_atoms * sizeof(f64)); //cumsum_force + cumsum_vel + cumsum_acc
 	}
 
 	return -1;
@@ -5092,6 +5478,16 @@ void model::SetCurrentFrame(i32s p1)
 	current_traj_frame = p1;
 }
 
+void model::SetTrajectoryVersionBeforeMoldyn(i32s version)
+{
+	trajectory_version = version;
+}
+
+void model::SetTrajectoryFrameSaveFrq(int frq)
+{
+	frame_save_frq = frq;
+}
+
 void model::WriteTrajectoryHeader(long_ofstream & ofile, int total_frames, moldyn_tst * dyn, int frame_save_freq)
 {
 	char file_id[10];
@@ -5104,10 +5500,16 @@ void model::WriteTrajectoryHeader(long_ofstream & ofile, int total_frames, moldy
 	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
 	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
 
-	if (trajectory_version > 11)
+	if (trajectory_version > 11 && trajectory_version <= 15)
 	{
-		float tstep = dyn->tstep1 * frame_save_freq;
-		ofile.write((char *) & tstep, sizeof(tstep));
+		float _time_step_between_traj_records = dyn->tstep1 * frame_save_freq;
+		ofile.write((char *) & _time_step_between_traj_records, sizeof(_time_step_between_traj_records));
+	}
+	else if (trajectory_version > 15)
+	{
+		double tstep1 = dyn->tstep1;
+		ofile.write((char *) & frame_save_freq, sizeof(frame_save_freq));
+		ofile.write((char *) & tstep1, sizeof(tstep1));
 	}
 }
 
