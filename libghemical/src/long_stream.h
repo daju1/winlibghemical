@@ -1,10 +1,10 @@
-#pragma once
+п»ї#pragma once
 #include <string>
 #include <iostream>
 #include <fstream>
 
 //---------------------------------------------------
-// пространство имен, в которое заносятся детали реализации
+// РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјРµРЅ, РІ РєРѕС‚РѕСЂРѕРµ Р·Р°РЅРѕСЃСЏС‚СЃСЏ РґРµС‚Р°Р»Рё СЂРµР°Р»РёР·Р°С†РёРё
 namespace detail {
    //http://forum.sources.ru/index.php?showtopic=83356&view=showall
    //http://www.tdoc.ru/c/programming/cpp/cpp-traits-page4.html
@@ -18,32 +18,32 @@ namespace detail {
       static state_type initial_state;
 
    public:
-      // конструкторы
+      // РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹
       pos_type_t(std::streampos off) : m_pos(off), m_state(initial_state) {}
       pos_type_t(num_type off = 0) : m_pos(off), m_state(initial_state) {}
       pos_type_t(state_type state, num_type pos) : m_pos(pos), m_state(state) {}
 
-      // получение состояния потока
+      // РїРѕР»СѓС‡РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕС‚РѕРєР°
       state_type state() const {
          return(m_state);
       }
 
-      // установка состояния потока
+      // СѓСЃС‚Р°РЅРѕРІРєР° СЃРѕСЃС‚РѕСЏРЅРёСЏ РїРѕС‚РѕРєР°
       void state(state_type st) {
          m_state = st;
       }
 
-      // получение позиции
+      // РїРѕР»СѓС‡РµРЅРёРµ РїРѕР·РёС†РёРё
       num_type seekpos() const    {
          return(m_pos);
       }
 
-      // оператор преобразования
+      // РѕРїРµСЂР°С‚РѕСЂ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
       operator num_type() const {
          return(m_pos);
       }
 
-      // далее идут операторы, которые осуществляют арифметические операции
+      // РґР°Р»РµРµ РёРґСѓС‚ РѕРїРµСЂР°С‚РѕСЂС‹, РєРѕС‚РѕСЂС‹Рµ РѕСЃСѓС‰РµСЃС‚РІР»СЏСЋС‚ Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРёРµ РѕРїРµСЂР°С†РёРё
 
       num_type operator- (const my_type& rhs) const {
          return(static_cast<num_type>(*this) - static_cast<num_type>(rhs));
@@ -69,7 +69,7 @@ namespace detail {
          return(tmp -= pos);
       }
 
-      // операторы сравнения
+      // РѕРїРµСЂР°С‚РѕСЂС‹ СЃСЂР°РІРЅРµРЅРёСЏ
 
       bool operator== (const my_type& rhs) const {
          return(static_cast<num_type>(*this) == static_cast<num_type>(rhs));
@@ -80,28 +80,28 @@ namespace detail {
       }
    };
    //---------------------------------------------------
-   // статическая константа, которая обозначает начальное состояние
+   // СЃС‚Р°С‚РёС‡РµСЃРєР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р°, РєРѕС‚РѕСЂР°СЏ РѕР±РѕР·РЅР°С‡Р°РµС‚ РЅР°С‡Р°Р»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
    template <typename num_type, typename state_type>
    state_type pos_type_t<num_type, state_type>::initial_state;
 }
 //---------------------------------------------------
-// наконец-то наш класс свойств:
+// РЅР°РєРѕРЅРµС†-С‚Рѕ РЅР°С€ РєР»Р°СЃСЃ СЃРІРѕР№СЃС‚РІ:
 template <typename char_t, typename long_pos_t>
 struct long_pointer_traits : public std::char_traits<char_t> {
-   // тип, используемый для представления позиции в потоке
-   // определение pos_type через наш только что написанный класс
+   // С‚РёРї, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РїРѕР·РёС†РёРё РІ РїРѕС‚РѕРєРµ
+   // РѕРїСЂРµРґРµР»РµРЅРёРµ pos_type С‡РµСЂРµР· РЅР°С€ С‚РѕР»СЊРєРѕ С‡С‚Рѕ РЅР°РїРёСЃР°РЅРЅС‹Р№ РєР»Р°СЃСЃ
    typedef detail::pos_type_t<long_pos_t> pos_type;
 
-   // тип, используемый для представления
-   // смещений между позициями в потоке
-   // определение off_type через тип, переданный во 2 аргументе шаблона
+   // С‚РёРї, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ
+   // СЃРјРµС‰РµРЅРёР№ РјРµР¶РґСѓ РїРѕР·РёС†РёСЏРјРё РІ РїРѕС‚РѕРєРµ
+   // РѕРїСЂРµРґРµР»РµРЅРёРµ off_type С‡РµСЂРµР· С‚РёРї, РїРµСЂРµРґР°РЅРЅС‹Р№ РІРѕ 2 Р°СЂРіСѓРјРµРЅС‚Рµ С€Р°Р±Р»РѕРЅР°
    typedef long_pos_t off_type;
 };
 
 
 //---------------------------------------------------
-// вводим тип "длинного" файла
-// "длинные" типы:
+// РІРІРѕРґРёРј С‚РёРї "РґР»РёРЅРЅРѕРіРѕ" С„Р°Р№Р»Р°
+// "РґР»РёРЅРЅС‹Рµ" С‚РёРїС‹:
 
 typedef std::basic_filebuf <char, long_pointer_traits<char, __int64> > long_filebuf;
 typedef std::basic_ifstream<char, long_pointer_traits<char, __int64> > long_ifstream;
