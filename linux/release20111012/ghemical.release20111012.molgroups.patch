@@ -1202,7 +1202,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			f64 adata[3];
 +			f64 fdata[3];
 +
-+			if (trajectory_version < 15)
++			if (trajectory_version < 15 || 16 == trajectory_version)
 +			{
 +				float t1a;
 +				for (i32s t4 = 0;t4 < 3;t4++)
