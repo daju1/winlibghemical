@@ -8,7 +8,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		dyn->ForceMoleculesMomentumToZero();
  
  		f64 sum_p[3];
- 		dyn->SumModelImpuls(sum_p);
+ 		dyn->SumModelMomentum(sum_p);
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
 --- ./libghemical-3.0.0.original/src/moldyn.cpp	2022-11-14 11:46:41.676492866 +0000
 +++ ./libghemical-3.0.0/src/moldyn.cpp	2022-11-11 09:37:33.000000000 +0000
@@ -146,7 +146,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +
 +
 +
- void moldyn::SumModelImpuls(f64 * sum_p)
+ void moldyn::SumModelMomentum(f64 * sum_p)
  {
  	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
@@ -201,7 +201,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
 @@ -180,6 +213,7 @@
  	void SetEKin(f64);
- 	void SumModelImpuls(f64 * sum_p);
+ 	void SumModelMomentum(f64 * sum_p);
  	void ForceModelMomentumToZero();
 +	void ForceMoleculesMomentumToZero();
  };

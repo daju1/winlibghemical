@@ -740,7 +740,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	public:
 @@ -215,6 +216,8 @@
- 	void SumModelImpuls(f64 * sum_p);
+ 	void SumModelMomentum(f64 * sum_p);
  	void ForceModelMomentumToZero();
  	void ForceMoleculesMomentumToZero();
 +

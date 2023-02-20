@@ -415,7 +415,26 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::GetRange(i32s ind, i32s value, iter_al * result)
  {
  	iter_al range[2] = { atom_list.begin(), atom_list.end() };
-@@ -3255,10 +3504,9 @@
+@@ -3236,6 +3485,18 @@
+ 			printf ("sum_p[%d]\t%e\n", n2,  sum_p[n2]);
+ 		}
+ 
++		std::list<struct molgroup> molgroups;
++		this->MakeMoleculesGroups(molgroups);
++		for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++			it_mlgr != molgroups.end(); ++it_mlgr)
++		{
++			it_mlgr->SumMoleculesMomentum(dyn);
++			printf("molgrouptype = %d, atoms number = %d\n", it_mlgr->molgrouptype, it_mlgr->natoms.size());
++			for (i32s n2 = 0; n2 < 3; n2++) {
++				printf ("sum_p[%d]\t%e\n", n2,  it_mlgr->sum_p[n2]);
++			}
++		}
++
+ 		initial_T = dyn->ConvEKinTemp(ekin);
+ 		printf("The temperature initiated = %f\n", initial_T);
+ 	}
+@@ -3255,10 +3516,9 @@
  	ofstream logfile;
  	logfile.open(logfilename, ios::out);
  	
@@ -427,7 +446,39 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	const int total_frames = param.nsteps_s / frame_save_frq;
  	
  	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
-@@ -4606,7 +4854,7 @@
+@@ -3280,6 +3540,15 @@
+ 	
+ 	for (i32s n1 = 0;n1 < tot_nsteps;n1++)
+ 	{
++	// check if trajectory output should be made.
++		if (!(n1 % frame_save_frq))
++		{
++			CopyCRD(eng, this, 0);
++			ofile.open(param.filename, ios::out | ios::binary | ios::app);
++			WriteTrajectoryFrame(ofile, dyn);
++			ofile.close();
++		}
++
+ 		bool checked_terms = true;
+ 		if (NULL != eng_mm)
+ 			checked_terms = eng_mm->CheckTerms(eng_pbc);
+@@ -3449,15 +3718,6 @@
+ 			}
+ 		}
+ 		
+-	// check if trajectory output should be made.
+-		if (!(n1 < param.nsteps_h + param.nsteps_e) && !(n1 % frame_save_frq))
+-		{
+-			CopyCRD(eng, this, 0);
+-			ofile.open(param.filename, ios::out | ios::binary | ios::app);
+-			WriteTrajectoryFrame(ofile, dyn);
+-			ofile.close();
+-		}
+-		
+ 	// check if graphics update should be made.
+ 		if (!(n1 % 100))
+ 		{
+@@ -4606,7 +4866,7 @@
  			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
  		}	*/
  		
@@ -436,29 +487,29 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		//trajfile->seekg(8, ios::beg);	// skip the file id...
  		char file_id[10];
  		trajfile->read((char *) & file_id, 8);
-@@ -4657,13 +4905,24 @@
+@@ -4657,13 +4917,24 @@
  			PrintToLog(str.str().c_str());
  		}
  
 -		if (trajectory_version > 11)
 +		if (trajectory_version > 11 && trajectory_version <= 15)
- 		{
--			float tstep;
--			trajfile->read((char *) & tstep, sizeof(tstep));
++		{
 +			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
- 			stringstream str;
--			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
--				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++			stringstream str;
 +			str << _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
 +				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
 +			PrintToLog(str.str().c_str());
 +		}
 +		else
-+		{
+ 		{
+-			float tstep;
+-			trajfile->read((char *) & tstep, sizeof(tstep));
 +			trajfile->read((char *) & traj_frame_save_frq, sizeof(traj_frame_save_frq));
 +			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
 +			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
-+			stringstream str;
+ 			stringstream str;
+-			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
+-				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
 +			str << _("traj_frame_save_frq ") << traj_frame_save_frq 
 +				<< _(" traj_tstep1 ") << traj_tstep1 << endl
 +				<< _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
@@ -466,7 +517,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			PrintToLog(str.str().c_str());
  		}
  	}
-@@ -4678,11 +4937,10 @@
+@@ -4678,11 +4949,10 @@
  	
  	trajfile->seekg(place, ios::beg);
  
@@ -479,7 +530,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -4699,10 +4957,76 @@
+@@ -4699,10 +4969,76 @@
  			saved_boundary_potential_rad_solvent = boundary[2];
  		}
  	}
@@ -557,7 +608,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		
  		fGL cdata[3];
  		for (i32s t4 = 0; t4 < 3; t4++)
-@@ -4743,6 +5067,31 @@
+@@ -4743,6 +5079,31 @@
  				fdata[t4] = tmp;
  			}
  		}
@@ -589,7 +640,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
-@@ -4765,10 +5114,19 @@
+@@ -4765,10 +5126,19 @@
  		return (8 + 2 * sizeof(int));
  	}
  
@@ -611,27 +662,32 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
  size_t model::GetTrajectoryEnergySize()
-@@ -4807,6 +5165,27 @@
+@@ -4803,10 +5173,31 @@
+ 
+ 	if (trajectory_version == 14) {
+ 		return (GetTrajectoryEnergySize()
+-			+ 3 * sizeof(float) // boundary
++			+ 3  * sizeof(float) // boundary
  			+ 12 * traj_num_atoms * sizeof(float)); //crd + force + vel + acc
  	}
  
 +	if (trajectory_version == 15) {
 +		return (GetTrajectoryEnergySize()
-+			+ 3 * sizeof(float) // boundary
++			+ 3  * sizeof(float) // boundary
 +			+ 12 * traj_num_atoms * sizeof(f64)); //crd + force + vel + acc
 +	}
 +
 +
 +	if (trajectory_version == 16) {
 +		return (GetTrajectoryEnergySize()
-+			+ 3 * sizeof(float) // boundary
++			+ 3  * sizeof(float) // boundary
 +			+ 12 * traj_num_atoms * sizeof(float) //crd + force + vel + acc
 +			+ 9  * traj_num_atoms * sizeof(float)); //cumsum_force + cumsum_vel + cumsum_acc
 +	}
 +
 +	if (trajectory_version == 17) {
 +		return (GetTrajectoryEnergySize()
-+			+ 3 * sizeof(float) // boundary
++			+ 3  * sizeof(float) // boundary
 +			+ 12 * traj_num_atoms * sizeof(f64) //crd + force + vel + acc
 +			+ 9  * traj_num_atoms * sizeof(f64)); //cumsum_force + cumsum_vel + cumsum_acc
 +	}
@@ -639,7 +695,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	return -1;
  }
  
-@@ -4815,7 +5194,7 @@
+@@ -4815,7 +5206,7 @@
  	return total_traj_frames;
  }
  
@@ -648,7 +704,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  {
  	return trajfile;
  }
-@@ -4830,32 +5209,48 @@
+@@ -4830,32 +5221,48 @@
  	current_traj_frame = p1;
  }
  
@@ -705,7 +761,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	engine_bp * eng_bp = dynamic_cast<engine_bp *>(dyn->eng);
  	if (eng_bp != NULL)
  	{
-@@ -4863,13 +5258,13 @@
+@@ -4863,13 +5270,13 @@
  		boundary[1] = eng_bp->bp_rad_solute;
  		boundary[2] = eng_bp->bp_rad_solvent;
  	}
@@ -827,7 +883,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
  			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
  			
-@@ -150,14 +162,19 @@
+@@ -150,13 +162,18 @@
  		}
  		else
  		{
@@ -846,15 +902,81 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +				cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
 +				cumsum_acc[n1 * 3 + n2] += acc[n1 * 3 + n2];
 +			}
- 		}
++		}
 +		for (i32s n2 = 0;n2 < 3;n2++)
 +		{
 +			cumsum_f[n1 * 3 + n2] += eng->d1[n1 * 3 + n2];
-+		}
+ 		}
  	}
  	
- 	f64 ekinCOMP[3];
-@@ -443,55 +460,8 @@
+@@ -385,7 +402,7 @@
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+ }
+ 
+-void molgroup::ForceMoleculesMomentumToZero(moldyn * mld)
++void molgroup::SumMoleculesMomentum(moldyn * mld)
+ {
+ 	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
+ 	num_locked = 0;
+@@ -405,93 +422,45 @@
+ 			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
+ 		}
+ 	}
++}
++
++void molgroup::ForceMoleculesMomentumToZero(moldyn * mld)
++{
++	SumMoleculesMomentum(mld);
+ 
+ 	f64 dp[3];
+-	for (i32s n2 = 0;n2 < 3;n2++)
+-		dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size() - num_locked);
+ 
+-	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
++	for (i32s n1 = 0; n1 < natoms.size(); n1++)
+ 	{
+-		i32s n1 = *it;
+-
+-		if (mld->locked[n1]) continue;
++		for (i32s n2 = 0;n2 < 3;n2++) {
++			dp[n2] = (/*sum_p1[n2]*/ - sum_p[n2]) / (natoms.size() - num_locked);
++		}
+ 
+-		for (i32s n2 = 0; n2 < 3; n2++)
++		for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+ 		{
+-			mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
+-		}
+-	}
++			i32s n1 = *it;
+ 
+-	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
++			if (mld->locked[n1]) continue;
+ 
+-	for (std::list<i32s>::iterator it = natoms.begin(); it != natoms.end(); ++it)
+-	{
+-		i32s n1 = *it;
++			for (i32s n2 = 0; n2 < 3; n2++)
++			{
++				mld->vel[n1 * 3 + n2] += dp[n2] / mld->mass[n1];
++			}
++		}
+ 
+-		if (mld->locked[n1]) continue;
++		SumMoleculesMomentum(mld);
+ 
+-		for (i32s n2 = 0;n2 < 3;n2++)
+-		{
+-			sum_p[n2] += mld->mass[n1] * mld->vel[n1 * 3 + n2];
++		for (i32s n2 = 0; n2 < 3; n2++) {
++			printf ("%d sum_p[%d] %0.48e\n", n1, n2, sum_p[n2]);
+ 		}
+ 	}
+-
+-	for (i32s n2 = 0; n2 < 3; n2++)
+-		printf ("sum_p[%d] %e\n", n2,  sum_p[n2]);
+ }
+ 
  void moldyn::ForceMoleculesMomentumToZero()
  {
  	model * mdl = eng->GetSetup()->GetModel();
@@ -911,16 +1033,16 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
  		it_mlgr != molgroups.end(); ++it_mlgr)
  	{
-@@ -499,8 +469,6 @@
+@@ -499,8 +468,6 @@
  	}
  }
  
 -
 -
- void moldyn::SumModelImpuls(f64 * sum_p)
+ void moldyn::SumModelMomentum(f64 * sum_p)
  {
  	for (i32s n2 = 0;n2 < 3;n2++) sum_p[n2] = 0.0;
-@@ -514,43 +482,119 @@
+@@ -514,43 +481,119 @@
  	}
  }
  
@@ -954,7 +1076,8 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +					ofile.write((char *) & t1a, sizeof(t1a));
 +				}
 +			}
-+
+ 
+-		if (trajectory_version > 12)
 +			if (trajectory_version > 13)
 +			{
 +				for (i32s tt2 = 0;tt2 < 3;tt2++)
@@ -972,8 +1095,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +					ofile.write((char *) & t1a, sizeof(t1a));
 +				}
 +			}
- 
--		if (trajectory_version > 12)
++
 +			if (16 == trajectory_version)
 +			{
 +				for (i32s tt2 = 0;tt2 < 3;tt2++)
@@ -1056,9 +1178,17 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	}
  }
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
---- ./libghemical-3.0.0.original/src/moldyn.h	2023-02-11 12:52:01.934245352 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2023-02-12 09:04:32.860735586 +0000
-@@ -163,7 +163,11 @@
+--- ./libghemical-3.0.0.original/src/moldyn.h	2023-02-20 02:59:56.066845433 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2023-02-20 03:40:14.534795244 +0000
+@@ -139,6 +139,7 @@
+ 
+ 	molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms);
+ 
++	void SumMoleculesMomentum(moldyn * mld);
+ 	void ForceMoleculesMomentumToZero(moldyn * mld);
+ };
+ 
+@@ -163,7 +164,11 @@
  	
  	f64 * vel;			// [1.0e+3 m/s]
  	f64 * acc;			// [1.0e+12 m/s^2]
@@ -1071,7 +1201,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	f64 * mass;			// [kg/mol]
  	
  	char * locked;
-@@ -179,8 +183,8 @@
+@@ -179,9 +184,10 @@
  	
  	f64 sum_of_masses;	// this is for density...
  	
@@ -1080,9 +1210,11 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +	friend void model::WriteTrajectoryFrame(long_ofstream &, moldyn *);
 +	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn *, int);
  	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
++	friend void molgroup::SumMoleculesMomentum(moldyn * );
  	
  	public:
-@@ -217,7 +221,7 @@
+ 	
+@@ -217,7 +223,7 @@
  	void ForceModelMomentumToZero();
  	void ForceMoleculesMomentumToZero();
  
