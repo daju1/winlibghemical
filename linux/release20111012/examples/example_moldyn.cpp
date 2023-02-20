@@ -56,6 +56,7 @@ int main(int argc, char ** argv)
 	bool const_E = false;
 	bool const_P = false;
 	bool inverse_time = false;
+	box_optimization_moldyn_mode box_optimization = box_optimization_always;
 
 	/* handle (optional) flags first */
 	while (1+flags < argc && argv[1+flags][0] == '-') {
@@ -63,6 +64,16 @@ int main(int argc, char ** argv)
 		case 'E': const_E = true; break;
 		case 'P': const_P = true; break;
 		case 'I': inverse_time = true; break;
+		case 'B':
+			box_optimization = (box_optimization_moldyn_mode) strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: B argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
 		case 'N':
 			N = strtol(argv[2+flags], &end, 0);
 			if (*end) {
@@ -199,6 +210,9 @@ int main(int argc, char ** argv)
 
 		param.inverse_time_init = inverse_time;
 		cout << "inverse_time_init = " << param.inverse_time_init << endl;
+
+		param.box_optimization = box_optimization;
+		cout << "box_optimization = " << param.box_optimization << endl;
 
 		param.target_T = temperature;
 		cout << "target_T = " << param.target_T << endl;

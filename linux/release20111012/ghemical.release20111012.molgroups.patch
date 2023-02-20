@@ -471,7 +471,41 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		bool checked_terms = true;
  		if (NULL != eng_mm)
  			checked_terms = eng_mm->CheckTerms(eng_pbc);
-@@ -3449,15 +3718,6 @@
+@@ -3339,22 +3608,25 @@
+ 		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
+ 
+ #if USE_BOUNDARY_OPT_ON_MOLDYN
+-		if (!(n1 % 10) || !checked_terms){
+-			if (b_opt && param.box_optimization){
++		if (b_opt && (!(n1 % 10) || !checked_terms)){
++			if (box_optimization_always == param.box_optimization) {
+ 				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+ 				if (eng_pbc != NULL)
+ 				{
+ 					eng_pbc->log_box_optimization();
+ 					eng_pbc->set_saved_periodic_box(this);
+ 				}
+-				else
+-				{
+-					//printf ("box_optimization is disabled eng_pbc = %d\n", eng_pbc);
+-				}
+ 			}
+-			else
++			else if (box_optimization_equilibration == param.box_optimization
++				&& n1 < param.nsteps_h + param.nsteps_e)
+ 			{
+-				//printf ("box_optimization is disabled b_opt = %d param.box_optimization = %d\n", b_opt, param.box_optimization);
++				// box_optimization just during heating and equilibration
++				b_opt->TakeCGStep(conjugate_gradient::Newton2An);
++				if (eng_pbc != NULL)
++				{
++					eng_pbc->log_box_optimization();
++					eng_pbc->set_saved_periodic_box(this);
++				}
+ 			}
+ 		}
+ #endif
+@@ -3449,15 +3721,6 @@
  			}
  		}
  		
@@ -487,7 +521,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	// check if graphics update should be made.
  		if (!(n1 % 100))
  		{
-@@ -4606,7 +4866,7 @@
+@@ -4606,7 +4869,7 @@
  			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
  		}	*/
  		
@@ -496,29 +530,29 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		//trajfile->seekg(8, ios::beg);	// skip the file id...
  		char file_id[10];
  		trajfile->read((char *) & file_id, 8);
-@@ -4657,13 +4917,24 @@
+@@ -4657,13 +4920,24 @@
  			PrintToLog(str.str().c_str());
  		}
  
 -		if (trajectory_version > 11)
 +		if (trajectory_version > 11 && trajectory_version <= 15)
-+		{
+ 		{
+-			float tstep;
+-			trajfile->read((char *) & tstep, sizeof(tstep));
 +			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
-+			stringstream str;
+ 			stringstream str;
+-			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
+-				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
 +			str << _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
 +				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
 +			PrintToLog(str.str().c_str());
 +		}
 +		else
- 		{
--			float tstep;
--			trajfile->read((char *) & tstep, sizeof(tstep));
++		{
 +			trajfile->read((char *) & traj_frame_save_frq, sizeof(traj_frame_save_frq));
 +			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
 +			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
- 			stringstream str;
--			str << _("time step between traj records ") << (tstep / 1000) << _(" * 1.0E-12 s") << endl
--				<< _("the trajectory common time is ") << (tstep * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++			stringstream str;
 +			str << _("traj_frame_save_frq ") << traj_frame_save_frq 
 +				<< _(" traj_tstep1 ") << traj_tstep1 << endl
 +				<< _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
@@ -526,7 +560,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			PrintToLog(str.str().c_str());
  		}
  	}
-@@ -4678,11 +4949,10 @@
+@@ -4678,11 +4952,10 @@
  	
  	trajfile->seekg(place, ios::beg);
  
@@ -539,7 +573,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -4699,10 +4969,76 @@
+@@ -4699,10 +4972,76 @@
  			saved_boundary_potential_rad_solvent = boundary[2];
  		}
  	}
@@ -617,7 +651,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		
  		fGL cdata[3];
  		for (i32s t4 = 0; t4 < 3; t4++)
-@@ -4743,6 +5079,31 @@
+@@ -4743,6 +5082,31 @@
  				fdata[t4] = tmp;
  			}
  		}
@@ -649,7 +683,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  }
  
-@@ -4765,10 +5126,19 @@
+@@ -4765,10 +5129,19 @@
  		return (8 + 2 * sizeof(int));
  	}
  
@@ -671,7 +705,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
  size_t model::GetTrajectoryEnergySize()
-@@ -4803,10 +5173,31 @@
+@@ -4803,10 +5176,31 @@
  
  	if (trajectory_version == 14) {
  		return (GetTrajectoryEnergySize()
@@ -704,7 +738,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	return -1;
  }
  
-@@ -4815,7 +5206,7 @@
+@@ -4815,7 +5209,7 @@
  	return total_traj_frames;
  }
  
@@ -713,7 +747,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  {
  	return trajfile;
  }
-@@ -4830,32 +5221,48 @@
+@@ -4830,32 +5224,48 @@
  	current_traj_frame = p1;
  }
  
@@ -770,7 +804,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	engine_bp * eng_bp = dynamic_cast<engine_bp *>(dyn->eng);
  	if (eng_bp != NULL)
  	{
-@@ -4863,13 +5270,13 @@
+@@ -4863,13 +5273,13 @@
  		boundary[1] = eng_bp->bp_rad_solute;
  		boundary[2] = eng_bp->bp_rad_solvent;
  	}
@@ -1204,8 +1238,22 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  }
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
 --- ./libghemical-3.0.0.original/src/moldyn.h	2023-02-20 02:59:56.066845433 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2023-02-20 15:47:38.629889518 +0000
-@@ -61,6 +61,7 @@
++++ ./libghemical-3.0.0/src/moldyn.h	2023-02-20 17:44:14.381744339 +0000
+@@ -34,6 +34,13 @@
+ 
+ /*################################################################################################*/
+ 
++enum box_optimization_moldyn_mode
++{
++	box_optimization_no = 0,
++	box_optimization_always,
++	box_optimization_equilibration, // box_optimization just during heating and equilibration
++};
++
+ class moldyn_param
+ {
+ 	protected:
+@@ -61,10 +68,12 @@
  	bool constant_P;
  
  	bool maxwell_distribution_init;
@@ -1213,15 +1261,25 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	char filename[256];
  
-@@ -96,6 +97,7 @@
+-	bool recalc_box, box_optimization;
++	bool recalc_box;
++	box_optimization_moldyn_mode box_optimization;
+ 	
+ 	public:
+ 	
+@@ -96,9 +105,10 @@
  		constant_P = false;
  
  		maxwell_distribution_init = true;
 +		inverse_time_init = false;
  
  		recalc_box = false;
- 		box_optimization = true;
-@@ -139,6 +141,7 @@
+-		box_optimization = true;
++		box_optimization = box_optimization_always;
+ 		
+ 		std::strcpy(filename, "untitled.traj");
+ 	}
+@@ -139,6 +149,7 @@
  
  	molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms);
  
@@ -1229,7 +1287,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	void ForceMoleculesMomentumToZero(moldyn * mld);
  };
  
-@@ -163,7 +166,11 @@
+@@ -163,7 +174,11 @@
  	
  	f64 * vel;			// [1.0e+3 m/s]
  	f64 * acc;			// [1.0e+12 m/s^2]
@@ -1242,7 +1300,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	f64 * mass;			// [kg/mol]
  	
  	char * locked;
-@@ -179,9 +186,10 @@
+@@ -179,9 +194,10 @@
  	
  	f64 sum_of_masses;	// this is for density...
  	
@@ -1255,7 +1313,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	public:
  	
-@@ -200,7 +208,7 @@
+@@ -200,7 +216,7 @@
  	moldyn(engine *, f64);
  	virtual ~moldyn(void);
  
@@ -1264,7 +1322,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	f64 GetEKin(void) { return ekin; }
  	f64 GetEPot(void) { return epot; }
-@@ -217,7 +225,7 @@
+@@ -217,7 +233,7 @@
  	void ForceModelMomentumToZero();
  	void ForceMoleculesMomentumToZero();
  
@@ -1273,6 +1331,92 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  };
  
  /*################################################################################################*/
+diff -Nur ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.cpp ./ghemical-3.0.0/src/gtk_moldyn_dialog.cpp
+--- ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.cpp	2023-02-11 12:52:01.926245353 +0000
++++ ./ghemical-3.0.0/src/gtk_moldyn_dialog.cpp	2023-02-20 19:31:56.117610241 +0000
+@@ -21,6 +21,7 @@
+ #include "gtk_moldyn_dialog.h"
+ 
+ #include "local_i18n.h"
++#include "ghemical/moldyn.h"
+ 
+ #include <gtk/gtk.h>
+ 
+@@ -65,7 +66,9 @@
+ 
+ 	checkbutton_maxwell_distribution_init = glade_xml_get_widget(xml, "checkbutton_maxwell_distribution_init");
+ 	checkbutton_recalc_box = glade_xml_get_widget(xml, "checkbutton_recalc_box");
+-	checkbutton_box_optimization = glade_xml_get_widget(xml, "checkbutton_box_optimization");
++	radiobutton_box_optimization_0 = glade_xml_get_widget(xml, "radiobutton_box_optimization_0");
++	radiobutton_box_optimization_1 = glade_xml_get_widget(xml, "radiobutton_box_optimization_1");
++	radiobutton_box_optimization_2 = glade_xml_get_widget(xml, "radiobutton_box_optimization_2");
+ 
+ 	entry_trajfile = glade_xml_get_widget(xml, "entry_trajfile");
+ 	button_browse = glade_xml_get_widget(xml, "button_browse");
+@@ -132,7 +135,27 @@
+ 
+ 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_maxwell_distribution_init), (param->maxwell_distribution_init ? TRUE : FALSE));
+ 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_recalc_box), (param->recalc_box ? TRUE : FALSE));
+-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_box_optimization), (param->box_optimization ? TRUE : FALSE));
++	switch (param->box_optimization)
++	{
++	case box_optimization_no:
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_0), TRUE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_1), FALSE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_2), FALSE);
++		break;
++	case box_optimization_always:
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_0), FALSE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_1), TRUE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_2), FALSE);
++		break;
++	case box_optimization_equilibration:
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_0), FALSE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_1), FALSE);
++		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton_box_optimization_2), TRUE);
++		break;
++	
++	default:
++		break;
++	}
+ 
+ 	gtk_entry_set_text(GTK_ENTRY(entry_trajfile), param->filename);
+ 	
+@@ -219,7 +242,19 @@
+ 
+ 	ref->param->maxwell_distribution_init = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_maxwell_distribution_init)) == TRUE ? true : false);
+ 	ref->param->recalc_box = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_recalc_box)) == TRUE ? true : false);
+-	ref->param->box_optimization = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_box_optimization)) == TRUE ? true : false);
++
++	if (TRUE == gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->radiobutton_box_optimization_0)))
++	{
++		ref->param->box_optimization = box_optimization_no;
++	}
++	if (TRUE == gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->radiobutton_box_optimization_1)))
++	{
++		ref->param->box_optimization = box_optimization_always;
++	}
++	if (TRUE == gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->radiobutton_box_optimization_2)))
++	{
++		ref->param->box_optimization = box_optimization_equilibration;
++	}
+ 
+ 
+ 	buffer = gtk_entry_get_text(GTK_ENTRY(ref->entry_trajfile));
+diff -Nur ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.h ./ghemical-3.0.0/src/gtk_moldyn_dialog.h
+--- ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.h	2023-02-11 12:52:01.930245352 +0000
++++ ./ghemical-3.0.0/src/gtk_moldyn_dialog.h	2023-02-20 19:21:15.829623529 +0000
+@@ -57,7 +57,9 @@
+ 
+ 	GtkWidget * checkbutton_maxwell_distribution_init;
+ 	GtkWidget * checkbutton_recalc_box;
+-	GtkWidget * checkbutton_box_optimization;
++	GtkWidget * radiobutton_box_optimization_0;
++	GtkWidget * radiobutton_box_optimization_1;
++	GtkWidget * radiobutton_box_optimization_2;
+ 
+ 	
+ 	GtkWidget * entry_trajfile;
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
 --- ./ghemical-3.0.0.original/src/project.cpp	2023-02-07 11:21:33.729100937 +0000
 +++ ./ghemical-3.0.0/src/project.cpp	2023-02-07 18:57:35.216382759 +0000
@@ -1851,3 +1995,79 @@ diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
  	void TrajView_DistancePlot(i32s inda, i32s indb);
  	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
  
+diff -Nur ./ghemical-3.0.0.original/src/res_gtk/gtk_moldyn_dialog.glade ./ghemical-3.0.0/src/res_gtk/gtk_moldyn_dialog.glade
+--- ./ghemical-3.0.0.original/src/res_gtk/gtk_moldyn_dialog.glade	2023-02-11 12:52:01.926245353 +0000
++++ ./ghemical-3.0.0/src/res_gtk/gtk_moldyn_dialog.glade	2023-02-20 22:14:54.913407306 +0000
+@@ -439,13 +439,55 @@
+               </packing>
+             </child>
+             <child>
+-              <widget class="GtkCheckButton" id="checkbutton_box_optimization">
++              <widget class="GtkHBox" id="hbox5">
+                 <property name="visible">True</property>
+-                <property name="can_focus">True</property>
+-                <property name="label" translatable="yes">box optimization</property>
+-                <property name="use_underline">True</property>
+-                <property name="response_id">0</property>
+-                <property name="draw_indicator">True</property>
++                <property name="can_focus">False</property>
++                <property name="orientation">vertical</property>
++                <child>
++                  <widget class="GtkRadioButton" id="radiobutton_box_optimization_0">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="label" translatable="yes">no box optimization</property>
++                    <property name="use_underline">True</property>
++                    <property name="response_id">0</property>
++                    <property name="draw_indicator">True</property>
++                  </widget>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">0</property>
++                  </packing>
++                </child>
++                <child>
++                  <widget class="GtkRadioButton" id="radiobutton_box_optimization_1">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="label" translatable="yes">box optimization always</property>
++                    <property name="use_underline">True</property>
++                    <property name="response_id">1</property>
++                    <property name="draw_indicator">True</property>
++                  </widget>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <widget class="GtkRadioButton" id="radiobutton_box_optimization_2">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="label" translatable="yes">box optimization equilibration</property>
++                    <property name="use_underline">True</property>
++                    <property name="response_id">2</property>
++                    <property name="draw_indicator">True</property>
++                  </widget>
++                  <packing>
++                    <property name="expand">False</property>
++                    <property name="fill">False</property>
++                    <property name="position">2</property>
++                  </packing>
++                </child>
+               </widget>
+               <packing>
+                 <property name="expand">False</property>
+Binary files ./ghemical-3.0.0.original/src/spline.o and ./ghemical-3.0.0/src/spline.o differ
+diff -Nur ./ghemical-3.0.0.original/src/stamp-h1 ./ghemical-3.0.0/src/stamp-h1
+--- ./ghemical-3.0.0.original/src/stamp-h1	1970-01-01 00:00:00.000000000 +0000
++++ ./ghemical-3.0.0/src/stamp-h1	2023-02-20 20:02:56.201571640 +0000
+@@ -0,0 +1 @@
++timestamp for src/ghemicalconfig.h
+diff -Nur ./ghemical-3.0.0.original/stamp.h ./ghemical-3.0.0/stamp.h
+--- ./ghemical-3.0.0.original/stamp.h	1970-01-01 00:00:00.000000000 +0000
++++ ./ghemical-3.0.0/stamp.h	2023-02-20 20:02:51.473571738 +0000
+@@ -0,0 +1 @@
++timestamp
