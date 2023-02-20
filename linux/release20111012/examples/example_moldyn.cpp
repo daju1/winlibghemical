@@ -55,12 +55,14 @@ int main(int argc, char ** argv)
 	int frame_save_frq = 10000;
 	bool const_E = false;
 	bool const_P = false;
+	bool inverse_time = false;
 
 	/* handle (optional) flags first */
 	while (1+flags < argc && argv[1+flags][0] == '-') {
 		switch (argv[1+flags][1]) {
 		case 'E': const_E = true; break;
 		case 'P': const_P = true; break;
+		case 'I': inverse_time = true; break;
 		case 'N':
 			N = strtol(argv[2+flags], &end, 0);
 			if (*end) {
@@ -194,7 +196,9 @@ int main(int argc, char ** argv)
 			param.constant_P = false;
 		}
 		cout << "constant_P = " << param.constant_P << endl;
-		
+
+		param.inverse_time_init = inverse_time;
+		cout << "inverse_time_init = " << param.inverse_time_init << endl;
 
 		param.target_T = temperature;
 		cout << "target_T = " << param.target_T << endl;

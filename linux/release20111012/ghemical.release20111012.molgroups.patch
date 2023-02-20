@@ -415,6 +415,15 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::GetRange(i32s ind, i32s value, iter_al * result)
  {
  	iter_al range[2] = { atom_list.begin(), atom_list.end() };
+@@ -3222,7 +3471,7 @@
+ 	f64 initial_T = 0.;		// initial temperature [K]
+ 	if (param.maxwell_distribution_init)
+ 	{
+-		dyn->MaxwellDistribution(param.target_T);
++		dyn->MaxwellDistribution(param.target_T, param.inverse_time_init);
+ 
+ 		f64 ekin = dyn->KineticEnergy();
+ 		printf("ekin = %f\n", ekin);
 @@ -3236,6 +3485,18 @@
  			printf ("sum_p[%d]\t%e\n", n2,  sum_p[n2]);
  		}
@@ -863,7 +872,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  		}
  		
  		counter++;
-@@ -95,6 +103,10 @@
+@@ -95,12 +103,16 @@
  	delete[] vel;
  	delete[] acc;
  	
@@ -874,6 +883,22 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	delete[] mass;
  	
  	delete[] locked;
+ }
+ 
+-void moldyn::MaxwellDistribution(f64 Temp)
++void moldyn::MaxwellDistribution(f64 Temp, bool inverse_time)
+ {
+ 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+ 	{
+@@ -110,7 +122,7 @@
+ 		{
+ 			i32u rnum = rand();
+ 			f64 r1 = ((f64) rnum / (f64) RAND_MAX);
+-			vel[n1 * 3 + n2] = invnormaldistribution(r1) * sqrt(1.0*8.314*Temp/mass[n1]) / 1000.;
++			vel[n1 * 3 + n2] = (inverse_time ? -1 : 1 ) * invnormaldistribution(r1) * sqrt(1.0*8.314*Temp/mass[n1]) / 1000.;
+ 		}
+ 	}
+ }
 @@ -122,7 +134,7 @@
  		for (i32s n2 = 0;n2 < 3;n2++)
  		{
@@ -1179,8 +1204,24 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  }
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
 --- ./libghemical-3.0.0.original/src/moldyn.h	2023-02-20 02:59:56.066845433 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2023-02-20 03:40:14.534795244 +0000
-@@ -139,6 +139,7 @@
++++ ./libghemical-3.0.0/src/moldyn.h	2023-02-20 15:47:38.629889518 +0000
+@@ -61,6 +61,7 @@
+ 	bool constant_P;
+ 
+ 	bool maxwell_distribution_init;
++	bool inverse_time_init;
+ 	
+ 	char filename[256];
+ 
+@@ -96,6 +97,7 @@
+ 		constant_P = false;
+ 
+ 		maxwell_distribution_init = true;
++		inverse_time_init = false;
+ 
+ 		recalc_box = false;
+ 		box_optimization = true;
+@@ -139,6 +141,7 @@
  
  	molgroup(enum molgrouptype _molgrouptype, std::list<i32s> _natoms);
  
@@ -1188,7 +1229,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	void ForceMoleculesMomentumToZero(moldyn * mld);
  };
  
-@@ -163,7 +164,11 @@
+@@ -163,7 +166,11 @@
  	
  	f64 * vel;			// [1.0e+3 m/s]
  	f64 * acc;			// [1.0e+12 m/s^2]
@@ -1201,7 +1242,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	f64 * mass;			// [kg/mol]
  	
  	char * locked;
-@@ -179,9 +184,10 @@
+@@ -179,9 +186,10 @@
  	
  	f64 sum_of_masses;	// this is for density...
  	
@@ -1214,7 +1255,16 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	public:
  	
-@@ -217,7 +223,7 @@
+@@ -200,7 +208,7 @@
+ 	moldyn(engine *, f64);
+ 	virtual ~moldyn(void);
+ 
+-	void MaxwellDistribution(f64 Temp);
++	void MaxwellDistribution(f64 Temp, bool inverse_time);
+ 	
+ 	f64 GetEKin(void) { return ekin; }
+ 	f64 GetEPot(void) { return epot; }
+@@ -217,7 +225,7 @@
  	void ForceModelMomentumToZero();
  	void ForceMoleculesMomentumToZero();
  
