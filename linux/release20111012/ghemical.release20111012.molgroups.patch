@@ -547,7 +547,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
 +			PrintToLog(str.str().c_str());
 +		}
-+		else
++		else if (trajectory_version > 15)
 +		{
 +			trajfile->read((char *) & traj_frame_save_frq, sizeof(traj_frame_save_frq));
 +			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
@@ -1464,7 +1464,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	if (!strcmp("sel_atoms_with_flag", kw1))
  	{
  		char kw2[32]; istr >> kw2;	
-@@ -3695,6 +3718,631 @@
+@@ -3695,6 +3718,644 @@
  	Message(str.str().c_str());
  }
  
@@ -2025,6 +2025,19 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			value = gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane;
 +			break;
 +
++		case 13:
++			value = gas_atom_went_down_out_from_membrane;
++			break;
++		case 14:
++			value = gas_atom_went_up_into_memrane;
++			break;
++		case 15:
++			value = gas_atom_went_down_into_membrane;
++			break;
++		case 16:
++			value = gas_atom_went_up_out_from_memrane;
++			break;
++
 +		default:
 +			break;
 +		}
@@ -2096,7 +2109,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
  {
  	if (!this->GetTrajectoryFile())
-@@ -3710,6 +4358,9 @@
+@@ -3710,6 +4371,9 @@
  	float epot;
  	float tmp;
  
@@ -2106,7 +2119,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	i32s max_frames = this->GetTotalFrames();
  	for (i32s loop = 0;loop < max_frames;loop++)
  	{
-@@ -3724,9 +4375,9 @@
+@@ -3724,9 +4388,9 @@
  		trajfile->read((char *) & ekin, sizeof(ekin));
  		trajfile->read((char *) & epot, sizeof(epot));
  
@@ -2117,7 +2130,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -3806,10 +4457,22 @@
+@@ -3806,10 +4470,22 @@
  		else
  			coordinate = 0;
  
