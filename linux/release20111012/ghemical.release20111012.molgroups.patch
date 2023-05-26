@@ -1418,9 +1418,27 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.h ./ghemical-3.0.0/src
  	
  	GtkWidget * entry_trajfile;
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
---- ./ghemical-3.0.0.original/src/project.cpp	2023-02-07 11:21:33.729100937 +0000
-+++ ./ghemical-3.0.0/src/project.cpp	2023-02-07 18:57:35.216382759 +0000
-@@ -1639,6 +1639,25 @@
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-02-11 12:52:01.930245352 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-05-26 08:41:59.114846251 +0000
+@@ -61,6 +61,8 @@
+ 
+ #include "local_i18n.h"
+ 
++#include "float.h"
++
+ #include <cstring>
+ #include <fstream>
+ #include <sstream>
+@@ -68,6 +70,8 @@
+ #include <algorithm>
+ using namespace std;
+ 
++
++
+ /*################################################################################################*/
+ 
+ custom_transformer_client::custom_transformer_client(void) :
+@@ -1639,6 +1643,25 @@
  		return;
  	}
  	
@@ -1446,7 +1464,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	if (!strcmp("sel_atoms_with_flag", kw1))
  	{
  		char kw2[32]; istr >> kw2;	
-@@ -3695,6 +3714,492 @@
+@@ -3695,6 +3718,631 @@
  	Message(str.str().c_str());
  }
  
@@ -1484,13 +1502,20 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +	size_t natoms = atom_list.size();
 +	std::vector<f64> c_data; c_data.resize(natoms * 3);
++	std::vector<f64> previouse_c_data; previouse_c_data.resize(natoms * 3, 0.0);
 +	std::vector<f64> v_data; v_data.resize(natoms * 3);
++	std::vector<f64> previouse_v_data; previouse_v_data.resize(natoms * 3, 0.0);
 +	std::vector<f64> a_data; a_data.resize(natoms * 3);
 +	std::vector<f64> f_data; f_data.resize(natoms * 3);
 +
 +	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
 +	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
 +	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
++
++	int64_t gas_atom_went_down_out_from_membrane = 0,
++			gas_atom_went_up_into_memrane = 0,
++			gas_atom_went_down_into_membrane = 0,
++			gas_atom_went_up_out_from_memrane = 0;
 +
 +	i32s max_frames = this->GetTotalFrames();
 +	for (i32s loop = 0; loop < max_frames; loop++)
@@ -1685,6 +1710,9 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		f64 cumsum_acceleration = 0;
 +		f64 cumsum_force = 0;
 +
++		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX;
++		bool is_membrane_cutted_by_boundary = false;
++
 +		i32s indmol=0;
 +		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
 +			it_mlgr != molgroups.end(); ++it_mlgr)
@@ -1702,9 +1730,13 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +			f64 crd, vel, acc, frc,
 +				cumsum_vel, cumsum_acc, cumsum_frc,
++				max_crd = -FLT_MAX, min_crd = FLT_MAX,
 +				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0, 
 +				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0, 
-+				pre_crd = 0.0, pre_vel = 0.0;
++				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
++				pre_loop_crd = 0.0;
++
++			bool is_cutted_by_boundary = false;
 +
 +			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
 +				it != it_mlgr->natoms.end(); ++it)
@@ -1717,6 +1749,8 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +				cumsum_vel = cumsum_v_data[3 * ind + dim];
 +				cumsum_acc = cumsum_a_data[3 * ind + dim];
 +				cumsum_frc = cumsum_f_data[3 * ind + dim];
++				pre_loop_crd = previouse_c_data[3 * ind + dim];
++				pre_loop_vel = previouse_v_data[3 * ind + dim];
 +
 +			//printf("crd vel acc frc %f %f %f %f\n"
 +			//	, crd, vel, acc, frc
@@ -1730,21 +1764,30 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +				if (0 == crd_type)
 +				{
 +					//this->apply_periodic_cond(eng, test2);
-+					if (crd - pre_crd > boundary[dim])
++					if (crd - pre_atom_crd > boundary[dim])
 +					{
 +						crd -= 2 * boundary[dim];
++						is_cutted_by_boundary = true;
 +					}
-+					if (crd - pre_crd < -boundary[dim])
++					if (crd - pre_atom_crd < -boundary[dim])
 +					{
 +						crd += 2 * boundary[dim];
++						is_cutted_by_boundary = true;
 +					}
 +				}
 +
++				if (max_crd < crd) {
++					max_crd = crd;
++				}
++
++				if (min_crd > crd) {
++					min_crd = crd;
++				}
++
 +				sum_crd += crd;
-+				pre_crd = crd;
++				pre_atom_crd = crd;
 +
 +				sum_vel += vel;
-+				pre_vel = vel;
 +
 +				sum_acc += acc;
 +				sum_frc += frc;
@@ -1771,8 +1814,105 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			cumsum_acceleration = sum_cumsum_acc;
 +			cumsum_force        = sum_cumsum_frc;
 +
++			if (MEMBRANE_OR_GLOBULE == it_mlgr->molgrouptype)
++			{
++				max_membrane_crd = max_crd, min_membrane_crd = min_crd;
++				is_membrane_cutted_by_boundary = is_cutted_by_boundary;
++			}
++
 +			indmol++;
 +		}
++
++
++		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++			it_mlgr != molgroups.end(); ++it_mlgr)
++		{
++			if (GAS != it_mlgr->molgrouptype)
++			{
++				continue;
++			}
++
++			f64 crd, pre_loop_crd = 0.0;;
++
++			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
++				it != it_mlgr->natoms.end(); ++it)
++			{
++				ind = *it;
++				crd = c_data[3 * ind + dim];
++				pre_loop_crd = previouse_c_data[3 * ind + dim];
++
++				if (loop > 0)
++				{
++					if (is_membrane_cutted_by_boundary)
++					{
++						if (min_membrane_crd < -boundary[dim])
++						{
++							if (crd <= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd > min_membrane_crd + 2 * boundary[dim])
++							{
++								gas_atom_went_down_out_from_membrane++;
++							}
++							if (crd >= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd < min_membrane_crd + 2 * boundary[dim])
++							{
++								gas_atom_went_up_into_memrane++;
++							}
++
++							if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
++							{
++								gas_atom_went_down_into_membrane++;
++							}
++							if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
++							{
++								gas_atom_went_up_out_from_memrane++;
++							}
++						}
++
++						if (max_membrane_crd > boundary[dim])
++						{
++							if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
++							{
++								gas_atom_went_down_out_from_membrane++;
++							}
++							if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
++							{
++								gas_atom_went_up_into_memrane++;
++							}
++
++							if (crd <= max_membrane_crd - 2 * boundary[dim]&& pre_loop_crd > max_membrane_crd - 2 * boundary[dim])
++							{
++								gas_atom_went_down_into_membrane++;
++							}
++							if (crd >= max_membrane_crd - 2 * boundary[dim] && pre_loop_crd < max_membrane_crd - 2 * boundary[dim])
++							{
++								gas_atom_went_up_out_from_memrane++;
++							}
++						}
++					}
++					else
++					{
++						if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
++						{
++							gas_atom_went_down_out_from_membrane++;
++						}
++						if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
++						{
++							gas_atom_went_up_into_memrane++;
++						}
++
++						if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
++						{
++							gas_atom_went_down_into_membrane++;
++						}
++						if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
++						{
++							gas_atom_went_up_out_from_memrane++;
++						}
++					}
++				}
++			}
++
++			//
++		}
++
 +
 +		//if (0 == crd_type)
 +		{
@@ -1878,6 +2018,12 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		case 10:
 +			value = cumsum_force;
 +			break;
++		case 11:
++			value = gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane;
++			break;
++		case 12:
++			value = gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane;
++			break;
 +
 +		default:
 +			break;
@@ -1894,6 +2040,12 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		if (0 == loop)
 +		{
 +			first_coordinate = coordinate;
++		}
++
++		for (i32s t4 = 0; t4 < natoms * 3; t4++)
++		{
++			previouse_c_data[t4] = c_data[t4];
++			previouse_v_data[t4] = v_data[t4];
 +		}
 +	}
 +
@@ -1929,6 +2081,11 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	printf("sum_force %f\n",  sum_force);
 +	printf("mean_force %f\n", mean_force);
 +
++	printf("gas_atom_went_down_out_from_membrane %ld\n", gas_atom_went_down_out_from_membrane);
++	printf("gas_atom_went_up_into_memrane %ld\n", gas_atom_went_up_into_memrane);
++	printf("gas_atom_went_down_into_membrane %ld\n" , gas_atom_went_down_into_membrane);
++	printf("gas_atom_went_up_out_from_memrane %ld\n", gas_atom_went_up_out_from_memrane);
++
 +	//printf("sum_%s %f\n",  crd_name[crd_type], sum_coordinate);
 +	//printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
 +
@@ -1939,7 +2096,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
  {
  	if (!this->GetTrajectoryFile())
-@@ -3710,6 +4215,9 @@
+@@ -3710,6 +4358,9 @@
  	float epot;
  	float tmp;
  
@@ -1949,7 +2106,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	i32s max_frames = this->GetTotalFrames();
  	for (i32s loop = 0;loop < max_frames;loop++)
  	{
-@@ -3724,9 +4232,9 @@
+@@ -3724,9 +4375,9 @@
  		trajfile->read((char *) & ekin, sizeof(ekin));
  		trajfile->read((char *) & epot, sizeof(epot));
  
@@ -1960,7 +2117,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
  			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
-@@ -3806,10 +4314,22 @@
+@@ -3806,10 +4457,22 @@
  		else
  			coordinate = 0;
  
