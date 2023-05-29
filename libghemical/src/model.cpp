@@ -195,7 +195,7 @@ model::model(void)
 	traj_num_atoms = NOT_DEFINED;
 	total_traj_frames = NOT_DEFINED;
 	current_traj_frame = NOT_DEFINED;
-	trajectory_version = 15;
+	trajectory_version = 17;
 	frame_save_frq = 10000;
 }
 
@@ -5167,7 +5167,7 @@ void model::OpenTrajectory(const char * fn)
 				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
 			PrintToLog(str.str().c_str());
 		}
-		else
+		else if (trajectory_version > 15)
 		{
 			trajfile->read((char *) & traj_frame_save_frq, sizeof(traj_frame_save_frq));
 			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));

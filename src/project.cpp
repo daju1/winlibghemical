@@ -44,6 +44,7 @@
 #include "views.h"
 
 #include "filetrans.h"
+#include "float.h"
 
 //#include <gdk/gdk.h>
 
@@ -4478,13 +4479,20 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 
 	size_t natoms = atom_list.size();
 	std::vector<f64> c_data; c_data.resize(natoms * 3);
+	std::vector<f64> previouse_c_data; previouse_c_data.resize(natoms * 3, 0.0);
 	std::vector<f64> v_data; v_data.resize(natoms * 3);
+	std::vector<f64> previouse_v_data; previouse_v_data.resize(natoms * 3, 0.0);
 	std::vector<f64> a_data; a_data.resize(natoms * 3);
 	std::vector<f64> f_data; f_data.resize(natoms * 3);
 
 	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
 	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
 	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
+
+	int gas_atom_went_down_out_from_membrane = 0,
+			gas_atom_went_up_into_memrane = 0,
+			gas_atom_went_down_into_membrane = 0,
+			gas_atom_went_up_out_from_memrane = 0;
 
 	i32s max_frames = this->GetTotalFrames();
 	for (i32s loop = 0; loop < max_frames; loop++)
@@ -4522,7 +4530,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 			f64 adata[3];
 			f64 fdata[3];
 
-			if (trajectory_version < 15)
+			if (trajectory_version < 15 || 16 == trajectory_version)
 			{
 				float t1a;
 				for (i32s t4 = 0;t4 < 3;t4++)
@@ -4679,6 +4687,9 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		f64 cumsum_acceleration = 0;
 		f64 cumsum_force = 0;
 
+		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX;
+		bool is_membrane_cutted_by_boundary = false;
+
 		i32s indmol=0;
 		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
 			it_mlgr != molgroups.end(); ++it_mlgr)
@@ -4696,9 +4707,13 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 
 			f64 crd, vel, acc, frc,
 				cumsum_vel, cumsum_acc, cumsum_frc,
+				max_crd = -FLT_MAX, min_crd = FLT_MAX,
 				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0, 
 				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0, 
-				pre_crd = 0.0, pre_vel = 0.0;
+				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
+				pre_loop_crd = 0.0;
+
+			bool is_cutted_by_boundary = false;
 
 			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
 				it != it_mlgr->natoms.end(); ++it)
@@ -4711,6 +4726,8 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 				cumsum_vel = cumsum_v_data[3 * ind + dim];
 				cumsum_acc = cumsum_a_data[3 * ind + dim];
 				cumsum_frc = cumsum_f_data[3 * ind + dim];
+				pre_loop_crd = previouse_c_data[3 * ind + dim];
+				pre_loop_vel = previouse_v_data[3 * ind + dim];
 
 			//printf("crd vel acc frc %f %f %f %f\n"
 			//	, crd, vel, acc, frc
@@ -4724,21 +4741,30 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 				if (0 == crd_type)
 				{
 					//this->apply_periodic_cond(eng, test2);
-					if (crd - pre_crd > boundary[dim])
+					if (crd - pre_atom_crd > boundary[dim])
 					{
 						crd -= 2 * boundary[dim];
+						is_cutted_by_boundary = true;
 					}
-					if (crd - pre_crd < -boundary[dim])
+					if (crd - pre_atom_crd < -boundary[dim])
 					{
 						crd += 2 * boundary[dim];
+						is_cutted_by_boundary = true;
 					}
 				}
 
+				if (max_crd < crd) {
+					max_crd = crd;
+				}
+
+				if (min_crd > crd) {
+					min_crd = crd;
+				}
+
 				sum_crd += crd;
-				pre_crd = crd;
+				pre_atom_crd = crd;
 
 				sum_vel += vel;
-				pre_vel = vel;
 
 				sum_acc += acc;
 				sum_frc += frc;
@@ -4765,8 +4791,105 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 			cumsum_acceleration = sum_cumsum_acc;
 			cumsum_force        = sum_cumsum_frc;
 
+			if (MEMBRANE_OR_GLOBULE == it_mlgr->molgrouptype)
+			{
+				max_membrane_crd = max_crd, min_membrane_crd = min_crd;
+				is_membrane_cutted_by_boundary = is_cutted_by_boundary;
+			}
+
 			indmol++;
 		}
+
+
+		for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
+			it_mlgr != molgroups.end(); ++it_mlgr)
+		{
+			if (GAS != it_mlgr->molgrouptype)
+			{
+				continue;
+			}
+
+			f64 crd, pre_loop_crd = 0.0;;
+
+			for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
+				it != it_mlgr->natoms.end(); ++it)
+			{
+				ind = *it;
+				crd = c_data[3 * ind + dim];
+				pre_loop_crd = previouse_c_data[3 * ind + dim];
+
+				if (loop > 0)
+				{
+					if (is_membrane_cutted_by_boundary)
+					{
+						if (min_membrane_crd < -boundary[dim])
+						{
+							if (crd <= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd > min_membrane_crd + 2 * boundary[dim])
+							{
+								gas_atom_went_down_out_from_membrane++;
+							}
+							if (crd >= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd < min_membrane_crd + 2 * boundary[dim])
+							{
+								gas_atom_went_up_into_memrane++;
+							}
+
+							if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
+							{
+								gas_atom_went_down_into_membrane++;
+							}
+							if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
+							{
+								gas_atom_went_up_out_from_memrane++;
+							}
+						}
+
+						if (max_membrane_crd > boundary[dim])
+						{
+							if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
+							{
+								gas_atom_went_down_out_from_membrane++;
+							}
+							if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
+							{
+								gas_atom_went_up_into_memrane++;
+							}
+
+							if (crd <= max_membrane_crd - 2 * boundary[dim]&& pre_loop_crd > max_membrane_crd - 2 * boundary[dim])
+							{
+								gas_atom_went_down_into_membrane++;
+							}
+							if (crd >= max_membrane_crd - 2 * boundary[dim] && pre_loop_crd < max_membrane_crd - 2 * boundary[dim])
+							{
+								gas_atom_went_up_out_from_memrane++;
+							}
+						}
+					}
+					else
+					{
+						if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
+						{
+							gas_atom_went_down_out_from_membrane++;
+						}
+						if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
+						{
+							gas_atom_went_up_into_memrane++;
+						}
+
+						if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
+						{
+							gas_atom_went_down_into_membrane++;
+						}
+						if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
+						{
+							gas_atom_went_up_out_from_memrane++;
+						}
+					}
+				}
+			}
+
+			//
+		}
+
 
 		//if (0 == crd_type)
 		{
@@ -4872,6 +4995,25 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		case 10:
 			value = cumsum_force;
 			break;
+		case 11:
+			value = gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane;
+			break;
+		case 12:
+			value = gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane;
+			break;
+
+		case 13:
+			value = gas_atom_went_down_out_from_membrane;
+			break;
+		case 14:
+			value = gas_atom_went_up_into_memrane;
+			break;
+		case 15:
+			value = gas_atom_went_down_into_membrane;
+			break;
+		case 16:
+			value = gas_atom_went_up_out_from_memrane;
+			break;
 
 		default:
 			break;
@@ -4888,6 +5030,12 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		if (0 == loop)
 		{
 			first_coordinate = coordinate;
+		}
+
+		for (i32s t4 = 0; t4 < natoms * 3; t4++)
+		{
+			previouse_c_data[t4] = c_data[t4];
+			previouse_v_data[t4] = v_data[t4];
 		}
 	}
 
@@ -4922,6 +5070,11 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 
 	printf("sum_force %f\n",  sum_force);
 	printf("mean_force %f\n", mean_force);
+
+	printf("gas_atom_went_down_out_from_membrane %ld\n", gas_atom_went_down_out_from_membrane);
+	printf("gas_atom_went_up_into_memrane %ld\n", gas_atom_went_up_into_memrane);
+	printf("gas_atom_went_down_into_membrane %ld\n" , gas_atom_went_down_into_membrane);
+	printf("gas_atom_went_up_out_from_memrane %ld\n", gas_atom_went_up_out_from_memrane);
 
 	//printf("sum_%s %f\n",  crd_name[crd_type], sum_coordinate);
 	//printf("mean_%s %f\n", crd_name[crd_type], mean_coordinate);
