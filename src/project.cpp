@@ -4687,7 +4687,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		f64 cumsum_acceleration = 0;
 		f64 cumsum_force = 0;
 
-		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX;
+		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX, membrane_thickness = 0.0, half_free_space = 0.0;
 		bool is_membrane_cutted_by_boundary = false;
 
 		i32s indmol=0;
@@ -4738,7 +4738,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 			//	, -frc, acc
 			//	);
 
-				if (0 == crd_type)
+				//if (0 == crd_type)
 				{
 					//this->apply_periodic_cond(eng, test2);
 					if (crd - pre_atom_crd > boundary[dim])
@@ -4794,6 +4794,8 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 			if (MEMBRANE_OR_GLOBULE == it_mlgr->molgrouptype)
 			{
 				max_membrane_crd = max_crd, min_membrane_crd = min_crd;
+				membrane_thickness = max_membrane_crd - min_membrane_crd;
+				half_free_space = boundary[dim] - 0.5 * membrane_thickness;
 				is_membrane_cutted_by_boundary = is_cutted_by_boundary;
 			}
 
@@ -4824,20 +4826,43 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 					{
 						if (min_membrane_crd < -boundary[dim])
 						{
-							if (crd <= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd > min_membrane_crd + 2 * boundary[dim])
+							f64 membranes_part_under_boundary = - boundary[dim] - min_membrane_crd;
+
+							bool pre_loop_crd_inside_membrane
+								=  (pre_loop_crd >= -boundary[dim] && pre_loop_crd <= max_membrane_crd)
+								|| (pre_loop_crd <= +boundary[dim] && pre_loop_crd >= +boundary[dim] - membranes_part_under_boundary);
+							bool current_crd_inside_membrane
+								=  (crd          >= -boundary[dim] && crd          <= max_membrane_crd)
+								|| (crd          <= +boundary[dim] && crd          >= +boundary[dim] - membranes_part_under_boundary);
+
+							bool current_crd_under_membrane
+								=  (crd < +boundary[dim] - membranes_part_under_boundary)
+								&& (crd > +boundary[dim] - membranes_part_under_boundary - half_free_space);
+							bool pre_loop_crd_under_membrane
+								=  (pre_loop_crd < +boundary[dim] - membranes_part_under_boundary)
+								&& (pre_loop_crd > +boundary[dim] - membranes_part_under_boundary - half_free_space);
+
+							bool current_crd_above_membrane
+								= crd > max_membrane_crd
+								&& crd < max_membrane_crd + half_free_space;
+							bool pre_loop_crd_above_membrane
+								= pre_loop_crd > max_membrane_crd
+								&& pre_loop_crd < max_membrane_crd + half_free_space;
+
+							if (current_crd_under_membrane && pre_loop_crd_inside_membrane)
 							{
 								gas_atom_went_down_out_from_membrane++;
 							}
-							if (crd >= min_membrane_crd + 2 * boundary[dim] && pre_loop_crd < min_membrane_crd + 2 * boundary[dim])
+							if (current_crd_inside_membrane && pre_loop_crd_under_membrane)
 							{
 								gas_atom_went_up_into_memrane++;
 							}
 
-							if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
+							if (current_crd_inside_membrane && pre_loop_crd_above_membrane)
 							{
 								gas_atom_went_down_into_membrane++;
 							}
-							if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
+							if (current_crd_above_membrane && pre_loop_crd_inside_membrane)
 							{
 								gas_atom_went_up_out_from_memrane++;
 							}
@@ -4845,20 +4870,43 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 
 						if (max_membrane_crd > boundary[dim])
 						{
-							if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
+							f64 membranes_part_above_boundary = max_membrane_crd - boundary[dim];
+
+							bool pre_loop_crd_inside_membrane
+								=  (pre_loop_crd <= +boundary[dim] && pre_loop_crd >= min_membrane_crd)
+								|| (pre_loop_crd >= -boundary[dim] && pre_loop_crd <= -boundary[dim] + membranes_part_above_boundary);
+							bool current_crd_inside_membrane
+								=  (crd <= +boundary[dim] && crd >= min_membrane_crd)
+								|| (crd >= -boundary[dim] && crd <= -boundary[dim] + membranes_part_above_boundary);
+
+							bool current_crd_under_membrane
+								= crd < min_membrane_crd
+								&& crd > min_membrane_crd - half_free_space;
+							bool pre_loop_crd_under_membrane
+								= pre_loop_crd < min_membrane_crd
+								&& pre_loop_crd > min_membrane_crd - half_free_space;
+
+							bool current_crd_above_membrane
+								=  (crd > -boundary[dim] + membranes_part_above_boundary)
+								&& (crd < -boundary[dim] + membranes_part_above_boundary + half_free_space);
+							bool pre_loop_crd_above_membrane
+								=  (pre_loop_crd > -boundary[dim] + membranes_part_above_boundary)
+								&& (pre_loop_crd < -boundary[dim] + membranes_part_above_boundary + half_free_space);
+
+							if (current_crd_under_membrane && pre_loop_crd_inside_membrane)
 							{
 								gas_atom_went_down_out_from_membrane++;
 							}
-							if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
+							if (current_crd_inside_membrane && pre_loop_crd_under_membrane)
 							{
 								gas_atom_went_up_into_memrane++;
 							}
 
-							if (crd <= max_membrane_crd - 2 * boundary[dim]&& pre_loop_crd > max_membrane_crd - 2 * boundary[dim])
+							if (current_crd_inside_membrane && pre_loop_crd_above_membrane)
 							{
 								gas_atom_went_down_into_membrane++;
 							}
-							if (crd >= max_membrane_crd - 2 * boundary[dim] && pre_loop_crd < max_membrane_crd - 2 * boundary[dim])
+							if (current_crd_above_membrane && pre_loop_crd_inside_membrane)
 							{
 								gas_atom_went_up_out_from_memrane++;
 							}
@@ -4866,28 +4914,57 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 					}
 					else
 					{
-						if (crd <= min_membrane_crd && pre_loop_crd > min_membrane_crd)
+						bool pre_loop_crd_inside_membrane = pre_loop_crd >= min_membrane_crd && pre_loop_crd <= max_membrane_crd;
+						bool current_crd_inside_membrane  = crd          >= min_membrane_crd && crd          <= max_membrane_crd;
+
+						bool current_crd_under_membrane
+							= min_membrane_crd - half_free_space < -boundary[dim]
+							? ((crd < min_membrane_crd && crd >= -boundary[dim])
+								||
+								(crd <= +boundary[dim] && crd > +boundary[dim] + (-boundary[dim] - (min_membrane_crd - half_free_space)) ))
+							: crd < min_membrane_crd && crd > min_membrane_crd - half_free_space;
+
+						bool current_crd_above_membrane
+							= max_membrane_crd + half_free_space > +boundary[dim]
+							? ((crd > max_membrane_crd && crd <= +boundary[dim])
+								||
+								(crd >= -boundary[dim] && crd < -boundary[dim] + (max_membrane_crd + half_free_space - boundary[dim])))
+							: crd > max_membrane_crd && crd <= max_membrane_crd + half_free_space;
+
+						bool pre_loop_crd_under_membrane
+							= min_membrane_crd - half_free_space < -boundary[dim]
+							? ((pre_loop_crd < min_membrane_crd && pre_loop_crd >= -boundary[dim])
+								||
+								(pre_loop_crd <= +boundary[dim] && pre_loop_crd > +boundary[dim] + (-boundary[dim] - (min_membrane_crd - half_free_space)) ))
+							: pre_loop_crd < min_membrane_crd && pre_loop_crd > min_membrane_crd - half_free_space;
+
+						bool pre_loop_crd_above_membrane
+							= max_membrane_crd + half_free_space > +boundary[dim]
+							? ((pre_loop_crd > max_membrane_crd && pre_loop_crd <= +boundary[dim])
+								||
+								(pre_loop_crd >= -boundary[dim] && pre_loop_crd < -boundary[dim] + (max_membrane_crd + half_free_space - boundary[dim])))
+							: pre_loop_crd > max_membrane_crd && pre_loop_crd <= max_membrane_crd + half_free_space;
+
+						if (current_crd_under_membrane && pre_loop_crd_inside_membrane)
 						{
 							gas_atom_went_down_out_from_membrane++;
 						}
-						if (crd >= min_membrane_crd && pre_loop_crd < min_membrane_crd)
+						if (current_crd_inside_membrane && pre_loop_crd_under_membrane)
 						{
 							gas_atom_went_up_into_memrane++;
 						}
 
-						if (crd <= max_membrane_crd && pre_loop_crd > max_membrane_crd)
+						if (current_crd_inside_membrane && pre_loop_crd_above_membrane)
 						{
 							gas_atom_went_down_into_membrane++;
 						}
-						if (crd >= max_membrane_crd && pre_loop_crd < max_membrane_crd)
+						if (current_crd_above_membrane && pre_loop_crd_inside_membrane)
 						{
 							gas_atom_went_up_out_from_memrane++;
 						}
 					}
 				}
 			}
-
-			//
 		}
 
 
@@ -4903,7 +4980,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 				shift += 1;
 				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
 			}
-			sum_coordinate = coordinate - first_coordinate;
+			sum_coordinate = (coordinate + 2 * shift * boundary[dim]) - first_coordinate;
 		}
 		//else
 		{
@@ -4931,7 +5008,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 		*/
 
-		f64 tstep1 = 0.5, tstep2 = tstep1 * tstep1;
+		f64 tstep1 = /*0.5*/traj_tstep1, tstep2 = tstep1 * tstep1;
 		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
 		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
 		f64 dc     = dcv + dca;
@@ -4941,6 +5018,14 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 		f64 dv  = dv1 + dv2;
 
 		f64 d_coordinate = coordinate - previouse_coordinate;
+		if (d_coordinate > boundary[dim])
+		{
+			d_coordinate -= 2*boundary[dim];
+		}
+		if (d_coordinate < -boundary[dim])
+		{
+			d_coordinate += 2*boundary[dim];
+		}
 		f64 d_velocity   = velocity   - previouse_velocity;
 
 		f64 d_coordinate_error = d_coordinate - dc;
@@ -4996,10 +5081,10 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 			value = cumsum_force;
 			break;
 		case 11:
-			value = gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane;
+			value = gas_atom_went_up_into_memrane - gas_atom_went_down_out_from_membrane;
 			break;
 		case 12:
-			value = gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane;
+			value = gas_atom_went_up_out_from_memrane - gas_atom_went_down_into_membrane;
 			break;
 
 		case 13:
@@ -5044,7 +5129,10 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 	f64 mean_acceleration = sum_acceleration / max_frames;
 	f64 mean_force        = sum_force        / max_frames;
 
+	f64 trajectory_common_time = (time_step_between_traj_records * (total_traj_frames - 1) / 1000000);// 1.0E-9 s
+
 	f64 mean_coordinate_per_time = mean_coordinate / this->time_step_between_traj_records;
+	f64 sum_coordinate_per_time = sum_coordinate / trajectory_common_time; // m/sec
 
 	f64 mean_d_coordinate_error = sum_d_coordinate_error / max_frames;
 	f64 mean_d_velocity_error   = sum_d_velocity_error   / max_frames;
@@ -5061,6 +5149,7 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 	printf("sum_velocity  %f\n",  sum_velocity);
 	printf("mean_velocity %e [1.0e+3 m/s]\n", mean_velocity);
 	printf("mean_coordinate_per_time %e [nm/fs]\n", mean_coordinate_per_time);
+	printf("sum_coordinate_per_time %e [m/s]\n", sum_coordinate_per_time);
 
 	printf("sum_d_velocity_error  %f\n",  sum_d_velocity_error);
 	printf("mean_d_velocity_error %e\n", mean_d_velocity_error);

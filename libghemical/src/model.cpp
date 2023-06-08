@@ -196,7 +196,11 @@ model::model(void)
 	total_traj_frames = NOT_DEFINED;
 	current_traj_frame = NOT_DEFINED;
 	trajectory_version = 17;
-	frame_save_frq = 10000;
+	frame_save_frq = 1000;
+
+	traj_tstep1                    = 0.5; // fs
+	traj_frame_save_frq            = 1000;
+	time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
 }
 
 model::~model(void)
@@ -5162,6 +5166,7 @@ void model::OpenTrajectory(const char * fn)
 		if (trajectory_version > 11 && trajectory_version <= 15)
 		{
 			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
+			//TODO: assert (traj_tstep1 * traj_frame_save_frq == time_step_between_traj_records)
 			stringstream str;
 			str << ("time step between traj records ") << (time_step_between_traj_records / 1000) << (" * 1.0E-12 s") << endl
 				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
@@ -5174,6 +5179,15 @@ void model::OpenTrajectory(const char * fn)
 			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
 			stringstream str;
 			str << ("traj_frame_save_frq ") << traj_frame_save_frq 
+				<< (" traj_tstep1 ") << traj_tstep1 << endl
+				<< ("time step between traj records ") << (time_step_between_traj_records / 1000) << (" * 1.0E-12 s") << endl
+				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;
+			PrintToLog(str.str().c_str());
+		}
+		else
+		{
+			stringstream str;
+			str << ("traj_frame_save_frq ") << traj_frame_save_frq
 				<< (" traj_tstep1 ") << traj_tstep1 << endl
 				<< ("time step between traj records ") << (time_step_between_traj_records / 1000) << (" * 1.0E-12 s") << endl
 				<< ("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << (" * 1.0E-9 s") << endl << ends;

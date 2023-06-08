@@ -125,10 +125,10 @@ class model
 	i32s total_traj_frames;
 	i32s current_traj_frame;
 
-	float time_step_between_traj_records;
-	int frame_save_frq;
-	double traj_tstep1;
-	int traj_frame_save_frq;
+	float time_step_between_traj_records; // read from the trajectory
+	int frame_save_frq;                   // used for MolDyn
+	double traj_tstep1;                   // read from the trajectory. timestep [fs]
+	int traj_frame_save_frq;              // read from the trajectory. Used for TrajView_MoleculeCoordinatePlot
 
 	i32s trajectory_version;
 
