@@ -223,7 +223,7 @@ LRESULT CALLBACK WndProcGhemicalPlot(HWND hWnd, UINT message, WPARAM wParam, LPA
 }
 
 
-HWND MakeGhemicalPlot(HWND hwnd, void * lParam, char * win_name)
+HWND MakeGhemicalPlot(HWND hwnd, void * lParam, const char * win_name)
 {
 	printf("MakeGhemicalPlot lParam = %x\n", lParam);
 	WNDCLASSEX wc;
@@ -338,8 +338,8 @@ const char * win_plot1d_view::ui_description =
 "  </popup>"
 "</ui>";
 
-win_plot1d_view::win_plot1d_view(win_project * p1, i32s p2, const char * s1, const char * sv)
-	: win_ogl_view(p1), plot1d_view(p1, p2, s1, sv), ogl_view()
+win_plot1d_view::win_plot1d_view(win_project * p1, i32s p2, const char * s1, const char * sv, const char * title)
+	: win_ogl_view(p1), plot1d_view(p1, p2, s1, sv, title), ogl_view()
 {
 //printf("win_plot1d_view\n");
 	//здесь надо создать окно графика !!! наподобие как в конструкторе класса 
@@ -349,7 +349,7 @@ win_plot1d_view::win_plot1d_view(win_project * p1, i32s p2, const char * s1, con
 
 
 
-	this->view_widget = MakeGhemicalPlot(prj->GetWidget(), (void*) dynamic_cast<win_ogl_view*>(this), "plot 1D");
+	this->view_widget = MakeGhemicalPlot(prj->GetWidget(), (void*) dynamic_cast<win_ogl_view*>(this), title);
 
 	//cout << "view_widget = " << view_widget << endl;
 	
@@ -411,9 +411,10 @@ void win_plot1d_view::popup_AttachDetach(HWND widget, void *)
 	i32s ud1 = old_p1dv->getUD1();
 	const char * s1 = old_p1dv->getN1();
 	const char * sv = old_p1dv->getNV();
+	const char * title = old_p1dv->getNT();
 	bool flag = (oglv->detached == NULL);
-	
-	plot1d_view * new_p1dv = oglv->prj->AddPlot1DView(ud1, s1, sv, flag);
+
+	plot1d_view * new_p1dv = oglv->prj->AddPlot1DView(ud1, s1, sv, title, flag);
 	
 	// try to retain as much data/settings as possible.
 	
@@ -464,10 +465,10 @@ const char * win_plot2d_view::ui_description =
 "  </popup>"
 "</ui>";
 
-win_plot2d_view::win_plot2d_view(win_project * p1, i32s p2, const char * s1, const char * s2, const char * sv)
-	: win_ogl_view(p1), plot2d_view(p1, p2, s1, s2, sv), ogl_view()
+win_plot2d_view::win_plot2d_view(win_project * p1, i32s p2, const char * s1, const char * s2, const char * sv, const char * title)
+	: win_ogl_view(p1), plot2d_view(p1, p2, s1, s2, sv, title), ogl_view()
 {
-	this->view_widget = MakeGhemicalPlot(prj->GetWidget(), (void*) dynamic_cast<win_ogl_view*>(this), "plot 2D");
+	this->view_widget = MakeGhemicalPlot(prj->GetWidget(), (void*) dynamic_cast<win_ogl_view*>(this), title);
 
 	//cout << "view_widget = " << view_widget << endl;
 	
@@ -529,9 +530,10 @@ void win_plot2d_view::popup_AttachDetach(HWND widget, void *)
 	const char * s1 = old_p2dv->getN1();
 	const char * s2 = old_p2dv->getN2();
 	const char * sv = old_p2dv->getNV();
+	const char * title = old_p2dv->getNT();
 	bool flag = (oglv->detached == NULL);
 	
-	plot2d_view * new_p2dv = oglv->prj->AddPlot2DView(ud2, s1, s2, sv, flag);
+	plot2d_view * new_p2dv = oglv->prj->AddPlot2DView(ud2, s1, s2, sv, title, flag);
 	
 	// try to retain as much data/settings as possible.
 	
@@ -579,8 +581,8 @@ const char * win_rcp_view::ui_description =
 "  </popup>"
 "</ui>";
 
-win_rcp_view::win_rcp_view(win_project * p1, i32s p2, const char * s1, const char * sv)
-	: win_ogl_view(p1), rcp_view(p1, p2, s1, sv), ogl_view()
+win_rcp_view::win_rcp_view(win_project * p1, i32s p2, const char * s1, const char * sv, const char * title)
+	: win_ogl_view(p1), rcp_view(p1, p2, s1, sv, title), ogl_view()
 {
 /*	win_label_set_text(win_LABEL(label_widget), "RC plot view");	// fixme!!!
 	

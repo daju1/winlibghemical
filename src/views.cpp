@@ -348,22 +348,26 @@ void plotting_view::InitGL(void)
 
 /*################################################################################################*/
 
-plot1d_view::plot1d_view(project * p1, i32s p2, const char * s1, const char * sv) : plotting_view(p1)
+plot1d_view::plot1d_view(project * p1, i32s p2, const char * s1, const char * sv, const char * title) : plotting_view(p1)
 {
 	plot_userdata1 = p2;
-	
+
 	if (!s1 || !strlen(s1)) { cout << "invalid s1 passed to plot1d_view!" << endl; exit(EXIT_FAILURE); }
 	else { name1 = new char[strlen(s1) + 1]; strcpy(name1, s1); }
-	
+
 	if (!sv || !strlen(sv)) { cout << "invalid sv passed to plot1d_view!" << endl; exit(EXIT_FAILURE); }
 	else { namev = new char[strlen(sv) + 1]; strcpy(namev, sv); }
+
+	if (!title || !strlen(title)) { cout << "invalid title passed to plot1d_view!" << endl; exit(EXIT_FAILURE); }
+	else { name_title = new char[strlen(title) + 1]; strcpy(name_title, title); }
 }
 
 plot1d_view::~plot1d_view(void)
 {
 	delete[] name1;
 	delete[] namev;
-	
+	delete[] name_title;
+
 	cout << "mem leak!!! free() the non-NULL udata blocks for all data points!!!" << endl;		// ???
 }
 
@@ -524,7 +528,7 @@ void plot1d_view::ImportData(plot1d_view * p)
 
 /*################################################################################################*/
 
-plot2d_view::plot2d_view(project * p1, i32s p2, const char * s1, const char * s2, const char * sv) : plotting_view(p1)
+plot2d_view::plot2d_view(project * p1, i32s p2, const char * s1, const char * s2, const char * sv, const char * title) : plotting_view(p1)
 {
 	plot_userdata2 = p2;
 	
@@ -536,6 +540,9 @@ plot2d_view::plot2d_view(project * p1, i32s p2, const char * s1, const char * s2
 	
 	if (!sv || !strlen(sv)) { cout << "invalid sv passed to plot2d_view!" << endl; exit(EXIT_FAILURE); }
 	else { namev = new char[strlen(sv) + 1]; strcpy(namev, sv); }
+
+	if (!title || !strlen(title)) { cout << "invalid title passed to plot2d_view!" << endl; exit(EXIT_FAILURE); }
+	else { name_title = new char[strlen(title) + 1]; strcpy(name_title, title); }
 }
 
 plot2d_view::~plot2d_view(void)
@@ -543,7 +550,8 @@ plot2d_view::~plot2d_view(void)
 	delete[] name1;
 	delete[] name2;
 	delete[] namev;
-	
+	delete[] name_title;
+
 	cout << "mem leak!!! free() the non-NULL udata blocks for all data points!!!" << endl;		// ???
 }
 
@@ -713,7 +721,7 @@ void plot2d_view::ImportData(plot2d_view * p)
 
 /*################################################################################################*/
 
-rcp_view::rcp_view(project * p1, i32s p2, const char * s1, const char * sv) : plot1d_view(p1, p2, s1, sv)
+rcp_view::rcp_view(project * p1, i32s p2, const char * s1, const char * sv, const char * title) : plot1d_view(p1, p2, s1, sv, title)
 {
 	ready = false;
 	

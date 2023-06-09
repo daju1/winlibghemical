@@ -309,9 +309,9 @@ class project : public model
 	bool RemoveGraphicsView(graphics_view *, bool);
 	bool IsThisLastGraphicsView(graphics_view *);
 	
-	plot1d_view * AddPlot1DView(i32s, const char *, const char *, bool);
-	plot2d_view * AddPlot2DView(i32s, const char *, const char *, const char *, bool);
-	rcp_view * AddReactionCoordinatePlotView(i32s, const char *, const char *, bool);
+	plot1d_view * AddPlot1DView(i32s, const char *, const char *, const char *, bool);
+	plot2d_view * AddPlot2DView(i32s, const char *, const char *, const char *, const char *, bool);
+	rcp_view * AddReactionCoordinatePlotView(i32s, const char *, const char *, const char *, bool);
 	eld_view * AddEnergyLevelDiagramView(bool);
 	bool RemovePlottingView(plotting_view *);
 	

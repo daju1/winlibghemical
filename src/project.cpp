@@ -1123,9 +1123,9 @@ bool project::IsThisLastGraphicsView(graphics_view * p1)
 	else return false;
 }
 
-plot1d_view * project::AddPlot1DView(i32s ud1, const char * s1, const char * sv, bool detached)
+plot1d_view * project::AddPlot1DView(i32s ud1, const char * s1, const char * sv, const char * title, bool detached)
 {
-	plot1d_view * p1dv = graphics_factory->ProducePlot1DView(this, ud1, s1, sv, detached);
+	plot1d_view * p1dv = graphics_factory->ProducePlot1DView(this, ud1, s1, sv, title, detached);
 	plotting_view_vector.push_back(p1dv);
 	
 	if (pv != NULL) pv->PlottingViewAdded(plotting_view_vector.back());
@@ -1133,9 +1133,9 @@ plot1d_view * project::AddPlot1DView(i32s ud1, const char * s1, const char * sv,
 	return p1dv;
 }
 
-plot2d_view * project::AddPlot2DView(i32s ud2, const char * s1, const char * s2, const char * sv, bool detached)
+plot2d_view * project::AddPlot2DView(i32s ud2, const char * s1, const char * s2, const char * sv, const char * title, bool detached)
 {
-	plot2d_view * p2dv = graphics_factory->ProducePlot2DView(this, ud2, s1, s2, sv, detached);
+	plot2d_view * p2dv = graphics_factory->ProducePlot2DView(this, ud2, s1, s2, sv, title, detached);
 	plotting_view_vector.push_back(p2dv);
 	
 	if (pv != NULL) pv->PlottingViewAdded(plotting_view_vector.back());
@@ -1143,9 +1143,9 @@ plot2d_view * project::AddPlot2DView(i32s ud2, const char * s1, const char * s2,
 	return p2dv;
 }
 
-rcp_view * project::AddReactionCoordinatePlotView(i32s ud1, const char * s1, const char * sv, bool detached)
+rcp_view * project::AddReactionCoordinatePlotView(i32s ud1, const char * s1, const char * sv, const char * title, bool detached)
 {
-	rcp_view * rcpv = graphics_factory->ProduceRCPView(this, ud1, s1, sv, detached);
+	rcp_view * rcpv = graphics_factory->ProduceRCPView(this, ud1, s1, sv, title, detached);
 	plotting_view_vector.push_back(rcpv);
 	
 	if (pv != NULL) pv->PlottingViewAdded(plotting_view_vector.back());
@@ -4456,7 +4456,8 @@ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i3
 	const char * crd_name [] = {"coordinate", "velocity", "acceleration", "force"};
 
 	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+	std::string title = std::string("Molecule Coordinate plot of ") + traj_filename;
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 	float ekin;
 	float epot;
@@ -5195,7 +5196,8 @@ void project::TrajView_CoordinatePlot(i32s inda, i32s dim)
 	// check if there were problems with OpenTrajectory()?!?!?!
 
 	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+	std::string title = std::string("Coordinate plot of ") + traj_filename;
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 	float ekin;
 	float epot;
@@ -5362,7 +5364,8 @@ void project::TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim)
 				// check if there were problems with OpenTrajectory()?!?!?!
 					
 				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				std::string title = std::string("Coordinate difference plot of ") + traj_filename;
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 				float ekin;
 				float epot;
@@ -5526,18 +5529,18 @@ void project::TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt)
 		{
 			cout << "trying to open \"" << filename << "\"." << endl;
 			this->OpenTrajectory(filename);
+			std::string title = std::string("Veloncity Distribution 2D of ") + traj_filename;
 			// check if there were problems with OpenTrajectory()?!?!?!
 			// check if there were problems with OpenTrajectory()?!?!?!
 			// check if there were problems with OpenTrajectory()?!?!?!
-				
 			const char * s1 = "tor1(deg)"; const char * s2 = "tor2(deg)"; const char * sv = "E(kJ/mol)";
-			plot2d_view * plot = AddPlot2DView(PLOT_USERDATA_STRUCTURE, s1, s2, sv, true);
+			plot2d_view * plot = AddPlot2DView(PLOT_USERDATA_STRUCTURE, s1, s2, sv, title.c_str(), true);
 			
 			//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
 			//plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
 				//const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-				plot1d_view * plot1 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
-				plot1d_view * plot11 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				plot1d_view * plot1 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
+				plot1d_view * plot11 = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 			float ekin;
 			float epot;
@@ -5953,7 +5956,8 @@ void project::TrajView_NematicCoordinatePlot(i32s _type, i32s _dim)
 				// check if there were problems with OpenTrajectory()?!?!?!
 					
 				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				std::string title = std::string("Nematic Coordinate plot of ") + traj_filename;
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 				float ekin;
 				float epot;
@@ -6237,7 +6241,8 @@ void project::TrajView_DistancePlot(i32s inda, i32s indb)
 				// check if there were problems with OpenTrajectory()?!?!?!
 					
 				const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				std::string title = std::string("Distance plot of ") + traj_filename;
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 				float ekin;
 				float epot;
@@ -6402,7 +6407,8 @@ void project::TrajView_AnglePlot(i32s inda, i32s indb, i32s indc)
 				// check if there were problems with OpenTrajectory()?!?!?!
 					
 				const char * s1 = "frame(num)"; const char * sv = "angle (degree)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				std::string title = std::string("Angle plot of ") + traj_filename;
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 				float ekin;
 				float epot;
@@ -6676,7 +6682,8 @@ void project::DoEnergyPlot1D(i32s inda, i32s indb, i32s indc, i32s div1, fGL sta
 //if (ffa1 < 0) { PrintToLog("ERROR : could not find angle-term.\n"); return; }
 	
 	const char * s1 = "ang(deg)"; const char * sv = "E(kJ/mol)";
-	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+	std::string title = std::string("Energy plot of ") + traj_filename;
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 	FILE *stream = NULL;
 	if (filename) stream = fopen(filename,"wt");
@@ -6927,7 +6934,8 @@ printf("project::DoEnergyPlot1D 7\n");
 if (fft1 < 0) { PrintToLog("ERROR : could not find tor-term.\n"); return; }
 printf("project::DoEnergyPlot1D 8\n");
 	const char * s1 = "tor(deg)"; const char * sv = "E(kJ/mol)";
-	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+	std::string title = std::string("Energy plot of ") + traj_filename;
+	plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 printf("project::DoEnergyPlot1D 9\n");
 	f64 tor1 = range1[0];
 	{
@@ -7082,7 +7090,8 @@ if (ict1 < 0) { PrintToLog("ERROR : could not find tor-term for tor1.\n"); retur
 if (ict2 < 0) { PrintToLog("ERROR : could not find tor-term for tor2.\n"); return; }
 	
 	const char * s1 = "tor1(deg)"; const char * s2 = "tor2(deg)"; const char * sv = "E(kJ/mol)";
-	plot2d_view * plot = AddPlot2DView(PLOT_USERDATA_STRUCTURE, s1, s2, sv, true);
+	std::string title = std::string("Energy Plot 2D of ") + traj_filename;
+	plot2d_view * plot = AddPlot2DView(PLOT_USERDATA_STRUCTURE, s1, s2, sv, title.c_str(), true);
 	
 	f64 tor1 = range1[0];
 	{
@@ -7166,7 +7175,8 @@ Message("BUG notice : TSS and libmopac7 seem to have\nsome compatibility problem
 	f64 erl = tss->GetE(0); f64 epl = tss->GetE(1);
 	
 	const char * s1 = "rc"; const char * sv = "E(kJ/mol)";
-	rcp_view * plot = AddReactionCoordinatePlotView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+	std::string title = std::string("Transition State Search of ") + traj_filename;
+	rcp_view * plot = AddReactionCoordinatePlotView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 	
 	for (i32u n1 = 0;n1 < tss->patoms.size();n1++) plot->AddPAtom(tss->patoms[n1]);
 	for (i32u n1 = 0;n1 < tss->rbonds.size();n1++) plot->AddRBond(tss->rbonds[n1]);

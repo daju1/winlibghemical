@@ -1897,7 +1897,8 @@ void win_project::popup_TrajView_EnergyPlot(HWND widget, void * data, bool do_po
 				// check if there were problems with OpenTrajectory()?!?!?!
 					
 				const char * s1 = "frame(num)"; const char * sv = "E(kJ/mol)";
-				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, true);
+				std::string title = std::string("Energy plot of ") + traj_filename;
+				plot1d_view * plot = AddPlot1DView(PLOT_USERDATA_STRUCTURE, s1, sv, title.c_str(), true);
 
 				float ekin;
 				float epot;

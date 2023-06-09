@@ -704,10 +704,10 @@ graphics_view * win_class_factory::ProduceGraphicsView(project * prj1, camera * 
 	return gv;
 }
 
-plot1d_view * win_class_factory::ProducePlot1DView(project * prj1, i32s ud1, const char * s1, const char * sv, bool detach)
+plot1d_view * win_class_factory::ProducePlot1DView(project * prj1, i32s ud1, const char * s1, const char * sv, const char * title, bool detach)
 {
 	win_project * prj2 = dynamic_cast<win_project *>(prj1);
-	win_plot1d_view * p1dv = new win_plot1d_view(prj2, ud1, s1, sv);
+	win_plot1d_view * p1dv = new win_plot1d_view(prj2, ud1, s1, sv, title);
 	
 	if (detach)
 	{
@@ -728,10 +728,10 @@ plot1d_view * win_class_factory::ProducePlot1DView(project * prj1, i32s ud1, con
 	return p1dv;
 }
 
-plot2d_view * win_class_factory::ProducePlot2DView(project * prj1, i32s ud2, const char * s1, const char * s2, const char * sv, bool detach)
+plot2d_view * win_class_factory::ProducePlot2DView(project * prj1, i32s ud2, const char * s1, const char * s2, const char * sv, const char * title, bool detach)
 {
 	win_project * prj2 = dynamic_cast<win_project *>(prj1);
-	win_plot2d_view * p2dv = new win_plot2d_view(prj2, ud2, s1, s2, sv);
+	win_plot2d_view * p2dv = new win_plot2d_view(prj2, ud2, s1, s2, sv, title);
 	
 	if (detach)
 	{
@@ -752,10 +752,10 @@ plot2d_view * win_class_factory::ProducePlot2DView(project * prj1, i32s ud2, con
 	return p2dv;
 }
 
-rcp_view * win_class_factory::ProduceRCPView(project * prj1, i32s ud1, const char * s1, const char * sv, bool detach)
+rcp_view * win_class_factory::ProduceRCPView(project * prj1, i32s ud1, const char * s1, const char * sv, const char * title, bool detach)
 {
 	win_project * prj2 = dynamic_cast<win_project *>(prj1);
-	win_rcp_view * rcpv = new win_rcp_view(prj2, ud1, s1, sv);
+	win_rcp_view * rcpv = new win_rcp_view(prj2, ud1, s1, sv, title);
 	
 	if (detach)
 	{

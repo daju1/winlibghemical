@@ -141,10 +141,10 @@ class win_class_factory : public graphics_class_factory
 	
 	graphics_view * ProduceGraphicsView(project *, camera *, bool);		// virtual
 	
-	plot1d_view * ProducePlot1DView(project *, i32s, const char *, const char *, bool);			// virtual
-	plot2d_view * ProducePlot2DView(project *, i32s, const char *, const char *, const char *, bool);	// virtual
+	plot1d_view * ProducePlot1DView(project *, i32s, const char *, const char *, const char *, bool);			// virtual
+	plot2d_view * ProducePlot2DView(project *, i32s, const char *, const char *, const char *, const char *, bool);	// virtual
 	
-	rcp_view * ProduceRCPView(project *, i32s, const char *, const char *, bool);		// virtual
+	rcp_view * ProduceRCPView(project *, i32s, const char *, const char *, const char *, bool);		// virtual
 	
 	eld_view * ProduceELDView(project *, bool);						// virtual
 };

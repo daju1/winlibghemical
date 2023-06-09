@@ -129,6 +129,8 @@ class model
 	int frame_save_frq;                   // used for MolDyn
 	double traj_tstep1;                   // read from the trajectory. timestep [fs]
 	int traj_frame_save_frq;              // read from the trajectory. Used for TrajView_MoleculeCoordinatePlot
+	std::string traj_path;
+	std::string traj_filename;
 
 	i32s trajectory_version;
 

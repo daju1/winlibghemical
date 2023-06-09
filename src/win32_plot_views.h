@@ -32,7 +32,7 @@ class win_plot1d_view : public win_ogl_view, public plot1d_view
 	
 	private:
 	
-	win_plot1d_view(win_project *, i32s, const char *, const char *);
+	win_plot1d_view(win_project *, i32s, const char *, const char *, const char *);
 	
 	friend class win_class_factory;
 	
@@ -61,7 +61,7 @@ class win_plot2d_view : public win_ogl_view, public plot2d_view
 	
 	private:
 	
-	win_plot2d_view(win_project *, i32s, const char *, const char *, const char *);
+	win_plot2d_view(win_project *, i32s, const char *, const char *, const char *, const char *);
 	
 	friend class win_class_factory;
 	
@@ -90,7 +90,7 @@ class win_rcp_view : public win_ogl_view, public rcp_view
 	
 	private:
 	
-	win_rcp_view(win_project *, i32s, const char *, const char *);
+	win_rcp_view(win_project *, i32s, const char *, const char *, const char *);
 	
 	friend class win_class_factory;
 	

@@ -99,6 +99,14 @@ const bool model::sf_is_polar[SF_NUM_TYPES] =
 	false				// V
 };
 
+std::string split_filename (const std::string& str)
+{
+  std::size_t found = str.find_last_of("/\\");
+  //std::string path = str.substr(0,found);
+  std::string file = str.substr(found+1);
+  return file;
+}
+
 bool ReadTargetListFile(char * filename, vector<i32s>& target_list)
 {
 	target_list.clear();
@@ -5110,7 +5118,8 @@ void model::OpenTrajectory(const char * fn)
 		{
 			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
 		}*/
-		
+		traj_path = std::string(fn);
+		traj_filename = split_filename(traj_path);
 		trajfile = new long_ifstream(fn, ios::in | ios::binary);
 		//trajfile->seekg(8, ios::beg);	// skip the file id...
 		char file_id[10];

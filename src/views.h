@@ -353,13 +353,14 @@ class plot1d_view : public plotting_view
 	
 	char * name1;
 	char * namev;
-	
+	char * name_title;
+
 	f64 min1; f64 max1;
 	f64 minv; f64 maxv;
 	
 	public:
 	
-	plot1d_view(project *, i32s, const char *, const char *);
+	plot1d_view(project *, i32s, const char *, const char *, const char *);
 	virtual ~plot1d_view(void);
 
 	void SaveAs();
@@ -383,6 +384,7 @@ class plot1d_view : public plotting_view
 	i32s getUD1(void) { return plot_userdata1; }
 	const char * getN1(void) { return name1; }
 	const char * getNV(void) { return namev; }
+	const char * getNT(void) { return name_title; }
 	
 	void ImportData(plot1d_view *);		///< this is for duplicating a view for attach/detach...
 };
@@ -410,6 +412,7 @@ class plot2d_view : public plotting_view
 	char * name1;
 	char * name2;
 	char * namev;
+	char * name_title;
 	
 	f64 min1; f64 max1;
 	f64 min2; f64 max2;
@@ -419,7 +422,7 @@ class plot2d_view : public plotting_view
 	
 	public:
 	
-	plot2d_view(project *, i32s, const char *, const char *, const char *);
+	plot2d_view(project *, i32s, const char *, const char *, const char *, const char *);
 	virtual ~plot2d_view(void);
 	
 /**	AddData() is used to add data points.
@@ -443,6 +446,7 @@ class plot2d_view : public plotting_view
 	const char * getN1(void) { return name1; }
 	const char * getN2(void) { return name2; }
 	const char * getNV(void) { return namev; }
+	const char * getNT(void) { return name_title; }
 	
 	void ImportData(plot2d_view *);		///< this is for duplicating a view for attach/detach...
 };
@@ -466,7 +470,7 @@ class rcp_view : public plot1d_view
 	
 	public:
 	
-	rcp_view(project *, i32s, const char *, const char *);
+	rcp_view(project *, i32s, const char *, const char *, const char *);
 	~rcp_view(void);
 	
 	void AddPAtom(i32u p1) { patoms.push_back(p1); }
@@ -524,10 +528,10 @@ class graphics_class_factory
 	
 	virtual graphics_view * ProduceGraphicsView(project *, camera *, bool) = 0;
 	
-	virtual plot1d_view * ProducePlot1DView(project *, i32s, const char *, const char *, bool) = 0;
-	virtual plot2d_view * ProducePlot2DView(project *, i32s, const char *, const char *, const char *, bool) = 0;
+	virtual plot1d_view * ProducePlot1DView(project *, i32s, const char *, const char *, const char *, bool) = 0;
+	virtual plot2d_view * ProducePlot2DView(project *, i32s, const char *, const char *, const char *, const char *, bool) = 0;
 	
-	virtual rcp_view * ProduceRCPView(project *, i32s, const char *, const char *, bool) = 0;
+	virtual rcp_view * ProduceRCPView(project *, i32s, const char *, const char *, const char *, bool) = 0;
 	
 	virtual eld_view * ProduceELDView(project *, bool) = 0;
 };
