@@ -476,7 +476,7 @@ moldyn_tst::moldyn_tst(engine * p1, f64 p2) : moldyn (p1, p2)
 		}
 		
 		mass[counter] = glob_atmtab[counter]->mass;
-		// умножаем на массу единицы атомного веса углеродной шкалы в кг и на число Авогадро
+		// СѓРјРЅРѕР¶Р°РµРј РЅР° РјР°СЃСЃСѓ РµРґРёРЅРёС†С‹ Р°С‚РѕРјРЅРѕРіРѕ РІРµСЃР° СѓРіР»РµСЂРѕРґРЅРѕР№ С€РєР°Р»С‹ РІ РєРі Рё РЅР° С‡РёСЃР»Рѕ РђРІРѕРіР°РґСЂРѕ
 		mass[counter] *= 1.6605402e-27 * 6.0221367e+23;
 		if (glob_atmtab[counter]->flags & ATOMFLAG_IS_SPECIAL_ATOM)
 		{
@@ -541,13 +541,13 @@ moldyn_tst::moldyn_tst(engine * p1, f64 p2) : moldyn (p1, p2)
 
 
 #if GRAVI_OSCILLATOR_WORKING 
-// режим работы с наложением броуновского осциллятора 
-// в виде гравитационной осцилляции
+// СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ РЅР°Р»РѕР¶РµРЅРёРµРј Р±СЂРѕСѓРЅРѕРІСЃРєРѕРіРѕ РѕСЃС†РёР»Р»СЏС‚РѕСЂР° 
+// РІ РІРёРґРµ РіСЂР°РІРёС‚Р°С†РёРѕРЅРЅРѕР№ РѕСЃС†РёР»Р»СЏС†РёРё
 	v_pract = 0.0; // m/s
 	v_theor = 0.0;
     v0 = 0.0; // m/s
-	g0 = 0;//амплитуда гравитационногоосциллятора [m/s^2]
-	omega = 0;//круговая частота гравитационного осциллятора [s^-1]
+	g0 = 0;//Р°РјРїР»РёС‚СѓРґР° РіСЂР°РІРёС‚Р°С†РёРѕРЅРЅРѕРіРѕ РѕСЃС†РёР»Р»СЏС‚РѕСЂР° [m/s^2]
+	omega = 0;//РєСЂСѓРіРѕРІР°СЏ С‡Р°СЃС‚РѕС‚Р° РіСЂР°РІРёС‚Р°С†РёРѕРЅРЅРѕРіРѕ РѕСЃС†РёР»Р»СЏС‚РѕСЂР° [s^-1]
 	start_gravi_step_counter = 0;
 	to_start_gravi = false;
 #endif
@@ -603,9 +603,9 @@ void moldyn_tst::SetGraviG(f64 *p)
 	}
 }
 #if GRAVI_OSCILLATOR_WORKING 
-// режим работы с наложением броуновского осциллятора 
-// в виде гравитационной осцилляции
-//функция инициализации гравитационного осциллятора, вызывается перед началом работы
+// СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ СЃ РЅР°Р»РѕР¶РµРЅРёРµРј Р±СЂРѕСѓРЅРѕРІСЃРєРѕРіРѕ РѕСЃС†РёР»Р»СЏС‚РѕСЂР° 
+// РІ РІРёРґРµ РіСЂР°РІРёС‚Р°С†РёРѕРЅРЅРѕР№ РѕСЃС†РёР»Р»СЏС†РёРё
+//С„СѓРЅРєС†РёСЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіСЂР°РІРёС‚Р°С†РёРѕРЅРЅРѕРіРѕ РѕСЃС†РёР»Р»СЏС‚РѕСЂР°, РІС‹Р·С‹РІР°РµС‚СЃСЏ РїРµСЂРµРґ РЅР°С‡Р°Р»РѕРј СЂР°Р±РѕС‚С‹
 void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param, engine_pbc2 * eng_pbc)
 {
 	this->len_n_len_g = param.len_n_len_g;
@@ -616,7 +616,7 @@ void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param, engine_pbc2 * eng_
 	printf("M = %f\n", this->M);
 	gamma = 5.0 / 3.0;
 
-	double RT_M = 8.314510 * param.temperature / M; // Дж/кг = m^2/s^2
+	double RT_M = 8.314510 * param.temperature / M; // Р”Р¶/РєРі = m^2/s^2
 	g0 = ( RT_M * sqrt(2.0) * PI / (len_g * 1.0e-9) ) * sqrt(gamma * len_n_len_g / N_mol); // m/s^2
 	omega = ( PI / (len_g * 1.0e-9) ) * sqrt(gamma * RT_M); // s^-1
 	v0 = sqrt(2.0 * RT_M * len_n_len_g / N_mol);
@@ -638,17 +638,17 @@ void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param, engine_pbc2 * eng_
 
 
 }
-// на каждом шаге вычисляется значение амплитуды g в центре осцилляторе
+// РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ Р°РјРїР»РёС‚СѓРґС‹ g РІ С†РµРЅС‚СЂРµ РѕСЃС†РёР»Р»СЏС‚РѕСЂРµ
 void moldyn_tst::TakeGraviStep()
 {
 	if(to_start_gravi)
 	{
-		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//момент времени в секундах
+		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//РјРѕРјРµРЅС‚ РІСЂРµРјРµРЅРё РІ СЃРµРєСѓРЅРґР°С…
 #if !GRAVI_OSCILLATOR_WORKING_LINEAR
-		m_g[2] = g0 * cos(omega * t)/* * 1.0e-12*/; //амплитуда в центре осциллятора
+		m_g[2] = g0 * cos(omega * t)/* * 1.0e-12*/; //Р°РјРїР»РёС‚СѓРґР° РІ С†РµРЅС‚СЂРµ РѕСЃС†РёР»Р»СЏС‚РѕСЂР°
 		v_theor = v0 * sin(omega * t);
 #else
-		m_g[2] = k_lin_gravi * t/* * 1.0e-12*/; //амплитуда в центре осциллятора
+		m_g[2] = k_lin_gravi * t/* * 1.0e-12*/; //Р°РјРїР»РёС‚СѓРґР° РІ С†РµРЅС‚СЂРµ РѕСЃС†РёР»Р»СЏС‚РѕСЂР°
 		//printf("m_g[2] %f = k_lin_gravi %f  * t %f\n", m_g[2], k_lin_gravi, t);
 		v_theor = 0.0;
 #endif
@@ -667,13 +667,13 @@ double moldyn_tst::GetPractV()
 #endif
 
 #if SOUND_GRAVI_OSCILLATOR
-// на каждом шаге вычисляется значение амплитуды g
+// РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ Р°РјРїР»РёС‚СѓРґС‹ g
 void moldyn_tst::TakeGraviStep()
 {
 	if(to_start_gravi)
 	{
-		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//момент времени в секундах
-		m_g_gravi_dim = g0 * sin(omega * t)/* * 1.0e-12*/; //амплитуда в центре осциллятора
+		double t = tstep1 * (step_counter - start_gravi_step_counter)/* * 1.0e-15*/;//РјРѕРјРµРЅС‚ РІСЂРµРјРµРЅРё РІ СЃРµРєСѓРЅРґР°С…
+		m_g_gravi_dim = g0 * sin(omega * t)/* * 1.0e-12*/; //Р°РјРїР»РёС‚СѓРґР° РІ С†РµРЅС‚СЂРµ РѕСЃС†РёР»Р»СЏС‚РѕСЂР°
 	}
 }
 void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param)
@@ -697,8 +697,8 @@ void moldyn_tst::InitGraviOscillator(moldyn_tst_param& param)
 	start_gravi_step_counter = step_counter;
 	//gravi_dim = param.gravi_dim;
 	//g0 = param.g0;
-	//пеерводим период из пикасекунд в фемтосекунды
-	//и получаем круговую частоту в обратных фемтосекунды
+	//РїРµРµСЂРІРѕРґРёРј РїРµСЂРёРѕРґ РёР· РїРёРєР°СЃРµРєСѓРЅРґ РІ С„РµРјС‚РѕСЃРµРєСѓРЅРґС‹
+	//Рё РїРѕР»СѓС‡Р°РµРј РєСЂСѓРіРѕРІСѓСЋ С‡Р°СЃС‚РѕС‚Сѓ РІ РѕР±СЂР°С‚РЅС‹С… С„РµРјС‚РѕСЃРµРєСѓРЅРґС‹
 	omega = 2.0 * M_PI / (1000.0 * m_T);
 	m_g_gravi_dim = 0.0;
 
@@ -862,9 +862,9 @@ void moldyn_tst::ComputeTargetCrd()
 #if 1
 		for(size_t i1 = 0; i1 < num_target; i1++)
 		{
-			// здесь не учтены пока периодические условия
-			// если атомы цели разрежутся периодической границей, 
-			// возникнет ошибка
+			// Р·РґРµСЃСЊ РЅРµ СѓС‡С‚РµРЅС‹ РїРѕРєР° РїРµСЂРёРѕРґРёС‡РµСЃРєРёРµ СѓСЃР»РѕРІРёСЏ
+			// РµСЃР»Рё Р°С‚РѕРјС‹ С†РµР»Рё СЂР°Р·СЂРµР¶СѓС‚СЃСЏ РїРµСЂРёРѕРґРёС‡РµСЃРєРѕР№ РіСЂР°РЅРёС†РµР№, 
+			// РІРѕР·РЅРёРєРЅРµС‚ РѕС€РёР±РєР°
 			target_crd[n2] += eng->crd[this->m_target_list[i1] * 3 + n2];
 		}
 #else
@@ -872,9 +872,9 @@ void moldyn_tst::ComputeTargetCrd()
 		{			
 			if (target[n1])
 			{
-				// здесь не учтены пока периодические условия
-				// если атомы цели разрежутся периодической границей, 
-				// возникнет ошибка
+				// Р·РґРµСЃСЊ РЅРµ СѓС‡С‚РµРЅС‹ РїРѕРєР° РїРµСЂРёРѕРґРёС‡РµСЃРєРёРµ СѓСЃР»РѕРІРёСЏ
+				// РµСЃР»Рё Р°С‚РѕРјС‹ С†РµР»Рё СЂР°Р·СЂРµР¶СѓС‚СЃСЏ РїРµСЂРёРѕРґРёС‡РµСЃРєРѕР№ РіСЂР°РЅРёС†РµР№, 
+				// РІРѕР·РЅРёРєРЅРµС‚ РѕС€РёР±РєР°
 				target_crd[n2] += eng->crd[n1 * 3 + n2];
 			}
 		}
@@ -1047,6 +1047,71 @@ void moldyn_tst::WriteWorkedForcesHeader()
 #endif
 void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 {
+#if WRITE_LOCKED_FORCES
+	double sum_mom_xy = 0.0;
+
+	double sum_vel[3];
+	sum_vel[0] = 0.0;
+	sum_vel[1] = 0.0;
+	sum_vel[2] = 0.0;
+
+	double sum_vel_up[3];
+	sum_vel_up[0] = 0.0;
+	sum_vel_up[1] = 0.0;
+	sum_vel_up[2] = 0.0;
+
+	double sum_vel_dw[3];
+	sum_vel_dw[0] = 0.0;
+	sum_vel_dw[1] = 0.0;
+	sum_vel_dw[2] = 0.0;
+
+	double sum_fup[3];
+	sum_fup[0] = 0.0;
+	sum_fup[1] = 0.0;
+	sum_fup[2] = 0.0;
+	double sum_fdw[3];
+	sum_fdw[0] = 0.0;
+	sum_fdw[1] = 0.0;
+	sum_fdw[2] = 0.0;
+#endif
+#if WRITE_WORKED_FORCES
+	double sum_mom_xy = 0.0;
+
+	double sum_vel[3];
+	sum_vel[0] = 0.0;
+	sum_vel[1] = 0.0;
+	sum_vel[2] = 0.0;
+
+	double sum_vel_wk_up[3];
+	sum_vel_wk_up[0] = 0.0;
+	sum_vel_wk_up[1] = 0.0;
+	sum_vel_wk_up[2] = 0.0;
+
+	double sum_vel_wk_dw[3];
+	sum_vel_wk_dw[0] = 0.0;
+	sum_vel_wk_dw[1] = 0.0;
+	sum_vel_wk_dw[2] = 0.0;
+
+
+	double sum_vel_up[3];
+	sum_vel_up[0] = 0.0;
+	sum_vel_up[1] = 0.0;
+	sum_vel_up[2] = 0.0;
+
+	double sum_vel_dw[3];
+	sum_vel_dw[0] = 0.0;
+	sum_vel_dw[1] = 0.0;
+	sum_vel_dw[2] = 0.0;
+
+	double sum_f_wk_up[3];
+	sum_f_wk_up[0] = 0.0;
+	sum_f_wk_up[1] = 0.0;
+	sum_f_wk_up[2] = 0.0;
+	double sum_f_wk_dw[3];
+	sum_f_wk_dw[0] = 0.0;
+	sum_f_wk_dw[1] = 0.0;
+	sum_f_wk_dw[2] = 0.0;
+#endif
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
 		for (i32s n2 = 0;n2 < 3;n2++)
@@ -1055,8 +1120,11 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
 			f64 tmp2 = tstep2 * tmpA * 0.5e-9;
 			
-
+#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 
+			if (n2 == 2 && locked[n1])
+#else
 			if (locked[n1])
+#endif
 			{
 				tmpA = 0.0;	// make sure that locked atoms remain locked!
 				tmp1 = 0.0;	// make sure that locked atoms remain locked!
@@ -1071,8 +1139,61 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
 			
 			vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
-
+#if WRITE_LOCKED_FORCES
+			sum_vel[n2] += vel[n1 * 3 + n2];
+			if (eng->crd[n1 * 3 + 1] > 0.0)
+			{
+				sum_vel_up[n2] += vel[n1 * 3 + n2];
+			}
+			else
+			{
+				sum_vel_dw[n2] += vel[n1 * 3 + n2];
+			}
+#endif
+#if WRITE_WORKED_FORCES
+			if (worked[n1])
+			{
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+					sum_vel_wk_up[n2] += vel[n1 * 3 + n2];
+				}
+				else
+				{
+					sum_vel_wk_dw[n2] += vel[n1 * 3 + n2];
+				}
+			}
+			//else
+			{
+				sum_vel[n2] += vel[n1 * 3 + n2];
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+					sum_vel_up[n2] += vel[n1 * 3 + n2];
+				}
+				else
+				{
+					sum_vel_dw[n2] += vel[n1 * 3 + n2];
+				}
+			}
+#endif
 		}
+#if WRITE_LOCKED_FORCES
+		// СЌС‚Рѕ РЅРµРІРµСЂРЅРѕ
+		// РјРѕРјРµРЅС‚ РїРѕ С‡Р°СЃРѕРІРѕР№ СЃС‚СЂРµР»РєРµ
+		// y*vx-x*vy
+		sum_mom_xy += 
+			eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0] - 
+			eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1];
+#endif
+#if WRITE_WORKED_FORCES
+		if (!worked[n1])
+		{
+			// РјРѕРјРµРЅС‚ РїСЂРѕС‚РёРІ С‡Р°СЃРѕРІРѕР№ СЃС‚СЂРµР»РєРё
+			// x*vy-y*vx
+			sum_mom_xy += mass[n1] * 
+				(eng->crd[n1 * 3 + 0] * vel[n1 * 3 + 1] - 
+				eng->crd[n1 * 3 + 1] * vel[n1 * 3 + 0]);
+		}
+#endif
 	}
 	
 	eng->DoSHAKE();
@@ -1080,9 +1201,62 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 	eng->Compute(1);
 	epot = eng->energy;
 
+#if WRITE_LOCKED_FORCES
+	FILE * locked_forces_stream = fopen(locked_forces_fn, "at");
+	if (locked_forces_stream)
+		fprintf(locked_forces_stream, "%f", tstep1*step_counter);
+#endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+	FILE * worked_forces_stream = fopen(worked_forces_fn, "at");
+	if (worked_forces_stream)
+		fprintf(worked_forces_stream, "%f", tstep1*step_counter);
+#endif /*WRITE_LOCKED_FORCES*/
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{
+#if WRITE_LOCKED_FORCES
+		if (locked[n1])
+		{
+			if (locked_forces_stream)
+			{
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+	sum_fup[0] += -eng->d1[n1 * 3 + 0];
+	sum_fup[1] += -eng->d1[n1 * 3 + 1];
+	sum_fup[2] += -eng->d1[n1 * 3 + 2];
+				}
+				else
+				{
+	sum_fdw[0] += -eng->d1[n1 * 3 + 0];
+	sum_fdw[1] += -eng->d1[n1 * 3 + 1];
+	sum_fdw[2] += -eng->d1[n1 * 3 + 2];
+				}
+			}
+		}
+#endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+		if (worked[n1])
+		{
+				if (eng->crd[n1 * 3 + 1] > 0.0)
+				{
+	sum_f_wk_up[0] += -eng->d1[n1 * 3 + 0];
+	sum_f_wk_up[1] += -eng->d1[n1 * 3 + 1];
+	sum_f_wk_up[2] += -eng->d1[n1 * 3 + 2];
+				}
+				else
+				{
+	sum_f_wk_dw[0] += -eng->d1[n1 * 3 + 0];
+	sum_f_wk_dw[1] += -eng->d1[n1 * 3 + 1];
+	sum_f_wk_dw[2] += -eng->d1[n1 * 3 + 2];
+				}
+			
+		}
+#endif /*WRITE_WORKED_FORCES*/
+
+#if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 
+		if (n2 == 2 && locked[n1]) continue;
+#else
 		if (locked[n1]) continue;
+#endif
 		//a = -F/m
 		//dv = a*dt
 		
@@ -1090,12 +1264,23 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
 		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
 
+#if SOUND_GRAVI_OSCILLATOR
+		acc[n1 * 3 + gravi_dim] += m_g_gravi_dim;
+#endif
 
 		if (gravi[n1])
 		{
+#if GRAVI_OSCILLATOR_WORKING 
+#if !GRAVI_OSCILLATOR_WORKING_LINEAR
+			acc[n1 * 3 + 2] += this->m_g[2] * cos (eng->crd[n1 * 3 + 2] / len_g);
+#else
+			acc[n1 * 3 + 2] += this->m_g[2]);
+#endif
+#else
 			acc[n1 * 3 + 0] += this->m_g[0];
 			acc[n1 * 3 + 1] += this->m_g[1];
 			acc[n1 * 3 + 2] += this->m_g[2];
+#endif /* GRAVI_OSCILLATOR_WORKING */
 		}
 		
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
@@ -1103,13 +1288,91 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 	}
 
+#if WRITE_LOCKED_FORCES
+	if (locked_forces_stream)
+	{
+#if SOUND_GRAVI_OSCILLATOR
+		fprintf(locked_forces_stream, ",%f", m_g_gravi_dim);
+#endif
+		fprintf(locked_forces_stream, ",%f", temperature);
+		fprintf(locked_forces_stream, ",%f", ConvEKinTemp(ekin));
+
+		fprintf(locked_forces_stream, ",%f", sum_mom_xy);
+
+		fprintf(locked_forces_stream, ",%f", sum_vel[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_up[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[0]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[1]);
+		fprintf(locked_forces_stream, ",%f", sum_vel_dw[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_fup[0]);
+		fprintf(locked_forces_stream, ",%f", sum_fup[1]);
+		fprintf(locked_forces_stream, ",%f", sum_fup[2]);
+
+		fprintf(locked_forces_stream, ",%f", sum_fdw[0]);
+		fprintf(locked_forces_stream, ",%f", sum_fdw[1]);
+		fprintf(locked_forces_stream, ",%f", sum_fdw[2]);
+
+		fprintf(locked_forces_stream, "\n");
+		fclose(locked_forces_stream);
+	}
+#endif /*WRITE_LOCKED_FORCES*/
+#if WRITE_WORKED_FORCES
+	if (worked_forces_stream)
+	{
+#if SOUND_GRAVI_OSCILLATOR
+		fprintf(worked_forces_stream, ",%f", m_g_gravi_dim);
+#endif
+		fprintf(worked_forces_stream, ",%f", temperature);
+		fprintf(worked_forces_stream, ",%f", ConvEKinTemp(ekin));
+
+		fprintf(worked_forces_stream, ",%f", sum_mom_xy);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_wk_dw[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_vel_dw[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[0]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[1]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_up[2]);
+
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[0]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[1]);
+		fprintf(worked_forces_stream, ",%f", sum_f_wk_dw[2]);
+
+		fprintf(worked_forces_stream, "\n");
+		fclose(worked_forces_stream);
+	}
+#endif /*WRITE_WORKED_FORCES*/
+
 	ekin = KineticEnergy();
 
 	if (enable_temperature_control)
 	{
 		f64 delta = (temperature / ConvEKinTemp(ekin)) - 1.0;
 
-		
 		f64 tc = sqrt(1.0 + temperature_coupling * delta);
 
 		bool with_constant_impuls = false;
@@ -1155,7 +1418,7 @@ f64 moldyn_tst::ConvEKinTemp(f64 p1)
 
 void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_impuls)
 {
-	// определяем суммарный импульс системы до применения термостата
+	// РѕРїСЂРµРґРµР»СЏРµРј СЃСѓРјРјР°СЂРЅС‹Р№ РёРјРїСѓР»СЊСЃ СЃРёСЃС‚РµРјС‹ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ С‚РµСЂРјРѕСЃС‚Р°С‚Р°
 	f64 sum_p1[3];
 	if (with_constant_impuls)
 	{
@@ -1169,22 +1432,22 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 			SumModelImpuls(sum_p1);
 	}
 
-	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
-	// оригинальный код, не учитывающий необходимость соблюдения закона сохранения импульса
+	//в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–
+	// РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РєРѕРґ, РЅРµ СѓС‡РёС‚С‹РІР°СЋС‰РёР№ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ СЃРѕР±Р»СЋРґРµРЅРёСЏ Р·Р°РєРѕРЅР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РёРјРїСѓР»СЊСЃР°
 	//f64 tmp1 = p1 / KineticEnergy();
-	f64 tmp1 = p1 / ekin;//заменили для ускорения поскольку ekin было вычислено непосредственно перед вызовом данной функции
+	f64 tmp1 = p1 / ekin;//Р·Р°РјРµРЅРёР»Рё РґР»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РїРѕСЃРєРѕР»СЊРєСѓ ekin Р±С‹Р»Рѕ РІС‹С‡РёСЃР»РµРЅРѕ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј РґР°РЅРЅРѕР№ С„СѓРЅРєС†РёРё
 	f64 tmp2 = (tmp1 < 0.0 ? 0.0 : sqrt(tmp1));
 	
 	i32u tmp3 = eng->GetAtomCount() * 3;
 	for (i32u n1 = 0;n1 < tmp3;n1++) vel[n1] *= tmp2;
-	//№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	//в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–в„–
 	if (with_constant_impuls)
 	{
-		// определяем суммарный импульс системы после применения термостата
+		// РѕРїСЂРµРґРµР»СЏРµРј СЃСѓРјРјР°СЂРЅС‹Р№ РёРјРїСѓР»СЊСЃ СЃРёСЃС‚РµРјС‹ РїРѕСЃР»Рµ РїСЂРёРјРµРЅРµРЅРёСЏ С‚РµСЂРјРѕСЃС‚Р°С‚Р°
 		f64 sum_p2[3];
 		SumModelImpuls(sum_p2);
-		// производим такую корректировку, чтобы суммарный импульс в результате действия термостата не изменился 
-		f64 dp[3];//поправка к импульсу в расчёте на каждый атом
+		// РїСЂРѕРёР·РІРѕРґРёРј С‚Р°РєСѓСЋ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєСѓ, С‡С‚РѕР±С‹ СЃСѓРјРјР°СЂРЅС‹Р№ РёРјРїСѓР»СЊСЃ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РґРµР№СЃС‚РІРёСЏ С‚РµСЂРјРѕСЃС‚Р°С‚Р° РЅРµ РёР·РјРµРЅРёР»СЃСЏ 
+		f64 dp[3];//РїРѕРїСЂР°РІРєР° Рє РёРјРїСѓР»СЊСЃСѓ РІ СЂР°СЃС‡С‘С‚Рµ РЅР° РєР°Р¶РґС‹Р№ Р°С‚РѕРј
 		for (i32s n2 = 0;n2 < 3;n2++) 
 			dp[n2] = (sum_p1[n2] - sum_p2[n2]) / (eng->GetAtomCount() - num_locked);
 
@@ -1199,7 +1462,7 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 			}
 		}
 #if 0
-		//Отладка
+		//РћС‚Р»Р°РґРєР°
 		f64 sum_p3[3];
 		SumModelImpuls(sum_p3);
 
@@ -1208,7 +1471,7 @@ void moldyn_tst::SetEKin(f64 p1, bool with_constant_impuls, bool and_with_zero_i
 #endif
 	}
 #if 1 
-	//Отладка
+	//РћС‚Р»Р°РґРєР°
 	f64 ekin_tst = KineticEnergy();
 	if (fabs(p1 - ekin_tst) > 1e-6)
 	{

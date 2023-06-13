@@ -3662,6 +3662,16 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 
 void model::DoMolDyn_tst(moldyn_tst_param & param, bool updt)
 {
+#if DIFFUSE_WORKING
+	FILE * out;
+	out = fopen("diffuse.txt", "wt");
+	fclose (out);
+#endif
+#if KLAPAN_DIFFUSE_WORKING
+	FILE * out;
+	out = fopen("diffuse_klap.txt", "wt");
+	fclose (out);
+#endif
 // make this thread-safe since this can be called from project::pcs_job_RandomSearch() at the app side...
 // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // this means: 1) make sure that PrintToLog() is safe, 2) only call UpdateAllGraphicsViews(false) because
@@ -3710,6 +3720,20 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 #endif /*USE_ENGINE_PBC_TST*/
 	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
 
+#if KLAPAN_DIFFUSE_WORKING
+	char klap_name[1048];
+	DWORD nFilterIndex;
+	if (OpenFileDlg(0, "Klapan List File (*.dat)\0*.dat\0All files \0*.*\0", 
+		klap_name, nFilterIndex) 
+		!= S_OK)
+	{
+		return;
+	}
+	eng_pbc->ReadClapanList(klap_name);
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+	eng_pbc->SetGraviAtomFlagOnSolvent();
+#endif
 
 // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
 //if (eng_mbp != NULL) eng_mbp->nd_eval = new number_density_evaluator(eng_mbp, false, 20);
@@ -3742,7 +3766,30 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //	else dyn = new moldyn_langevin(eng, param.timestep);
 
 
+#if WRITE_LOCKED_FORCES
+	dyn->WriteLockedForcesHeader();
+#endif
+#if WRITE_WORKED_FORCES
+	dyn->WriteWorkedForcesHeader();
+#endif
+#if SOUND_GRAVI_OSCILLATOR
+	dyn->InitGraviOscillator(param);
+#endif
 
+#if !GRAVI_OSCILLATOR_START_ON_T_USTANOV
+#if GRAVI_OSCILLATOR_WORKING 
+	dyn->InitGraviOscillator(param, eng_pbc);
+#endif
+#endif
+
+#if KLAPAN_DIFFUSE_WORKING || GRAVI_OSCILLATOR_WORKING 	
+	DWORD nFilter_Index;
+	char fixed_name[1048];
+	if (S_OK == OpenFileDlg(0, "Fixed List File (*.dat)\0*.dat\0All files \0*.*\0", fixed_name, nFilter_Index))
+	{
+		dyn->LockAtoms(fixed_name);
+	}
+#endif
 
 	//#######################################################################
 	//#######################################################################
@@ -3764,6 +3811,27 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	char outfilename_traj[1024];
 	strcpy(outfilename_traj, param.filename_traj);
 
+#if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
+	char ofilename[1024];
+	strcpy(ofilename, param.filename);
+	last_dot = NOT_DEFINED;
+	for (i32u fn = 0;fn < strlen(ofilename);fn++)
+	{
+		if (ofilename[fn] == '.') last_dot = (i32s) fn;
+	}
+	if (last_dot < 0) last_dot = strlen(ofilename);
+	ofilename[last_dot + 0] = '\0';
+
+
+#if SNARJAD_TARGET_WORKING
+	sprintf(outfilename, "%s_vel_%0.3f.traj", ofilename, param.start_snarjad_vel[2]);
+#endif
+
+#if PROBNIY_ATOM_WORKING
+	sprintf(outfilename, "%s_at_mv_dir_%d.traj", ofilename, this->prob_atom_move_direction);
+#endif
+
+#endif
 
 	printf("outfilename_traj = %s\n", outfilename_traj);
 	/////////////////////////////////////////////////////
@@ -3808,10 +3876,130 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 //	str2b << "E_solute,";		// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solvent,";	// a primitive implementation for energy components ; FIXME!!!
 //	str2b << "E_solusolv,";	// a primitive implementation for energy components ; FIXME!!!
-
-
+	str2b << "SolventMolsThroughZ,";
+#if KLAPAN_DIFFUSE_WORKING
+	str2b << "SolventMolsThroughKlap,";
+	str2b << "Klapan_Z,";
+	str2b << "Solvent_Z,";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 
+	str2b << "G,v_theor,v_pract";
+#endif
+	//str2b << "NThroughZmin,";
+	//str2b << "NThroughZmax";
 	str2b << endl << ends;
 	logfile << mbuff1;
+
+#if SNARJAD_TARGET_WORKING
+	i32s n_snarjad = eng->GetAtomCount() - 1;
+	printf("pre LockAtom()\n");
+	dyn->LockAtom(n_snarjad);
+	// устанавливаем цель
+	dyn->SetTarget(param.target_list);
+	dyn->n_snarjad = n_snarjad;
+
+	char logfilename2[1024];
+	strcpy(logfilename2, param.filename);
+	last_dot = NOT_DEFINED;
+	for (i32u fn = 0;fn < strlen(logfilename2);fn++)
+	{
+		if (logfilename2[fn] == '.') last_dot = (i32s) fn;
+	}	
+	if (last_dot < 0) last_dot = strlen(logfilename2);
+	logfilename2[last_dot + 0] = '\0'; 
+
+
+	sprintf(logfilename, "%s_vel_%0.3f.log", logfilename2, param.start_snarjad_vel[2]);
+
+	printf("logfilename = %s\n", logfilename);
+
+	ofstream logfile2;
+	logfile2.open(logfilename, ios::out);
+
+	{
+		ostrstream str2b(mbuff1, sizeof(mbuff1));
+		str2b << "step," << "T,";
+		str2b << "r," << "rz," << "Epot,";
+		str2b << "sn_vel[0],";
+		str2b << "sn_vel[1],";
+		str2b << "sn_vel[2],";
+		str2b << "sn_crd[0],";
+		str2b << "sn_crd[1],";
+		str2b << "sn_crd[2],";
+		str2b << "sn_f[0],";
+		str2b << "sn_f[1],";
+		str2b << "sn_f[2],";
+		str2b << "target_crd[0],";
+		str2b << "target_crd[1],";
+		str2b << "target_crd[2]";
+
+#if USE_BOUNDARY_OPT_ON_MOLDYN
+		if (param.box_optimization)
+		{
+			str2b << ",boundary[0]";
+			str2b << ",boundary[1]";
+			str2b << ",boundary[2]";
+		}
+#endif
+
+		str2b << endl << ends;
+		logfile2 << mbuff1;
+	}
+#endif /*SNARJAD_TARGET_WORKING*/
+
+#if PROBNIY_ATOM_WORKING
+	i32s n_prob_atom = eng->GetAtomCount() - 1;
+	printf("pre LockAtom()\n");
+	dyn->LockAtom(n_prob_atom);
+	// устанавливаем цель
+	dyn->SetTarget(param.target_list);
+	dyn->n_prob_atom = n_prob_atom;
+
+	char logfilename2[1024];
+	strcpy(logfilename2, param.filename);
+	last_dot = NOT_DEFINED;
+	for (i32u fn = 0;fn < strlen(logfilename2);fn++)
+	{
+		if (logfilename2[fn] == '.') last_dot = (i32s) fn;
+	}	
+	if (last_dot < 0) last_dot = strlen(logfilename2);
+	logfilename2[last_dot + 0] = '\0'; 
+
+
+	sprintf(logfilename, "%s_pr_at_mv_dir_%d.log", logfilename2, prob_atom_move_direction ? +1 : -1);
+	
+	printf("logfilename = %s\n", logfilename);
+
+	ofstream logfile2;
+	logfile2.open(logfilename, ios::out);
+
+	{	
+		ostrstream str2b(mbuff1, sizeof(mbuff1));
+		str2b << "step," << "T,";
+		str2b << "rz," << "Epot,";
+
+		str2b << "prob_atom_crd[0],";
+		str2b << "prob_atom_crd[1],";
+		str2b << "prob_atom_crd[2],";
+
+		str2b << "prob_atom_f[0],";
+		str2b << "prob_atom_f[1],";
+		str2b << "prob_atom_f[2],";
+
+		str2b << "target_crd[0],";
+		str2b << "target_crd[1],";
+		str2b << "target_crd[2]";
+/*
+#if USE_BOUNDARY_OPT_ON_MOLDYN
+		str2b << ",boundary[0]";
+		str2b << ",boundary[1]";
+		str2b << ",boundary[2]";
+#endif
+*/
+		str2b << endl << ends;
+		logfile2 << mbuff1;
+	}
+#endif /*PROBNIY_ATOM_WORKING*/
 
 #if USE_BOUNDARY_OPT_ON_MOLDYN
 	boundary_opt * b_opt = NULL;
@@ -3894,11 +4082,84 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 		}
 
 		bool enable_tc = false;
-		if (n1 <= param.nsteps_h + param.nsteps_e) enable_tc = true;
-
+		if (n1 < param.nsteps_h + param.nsteps_e) enable_tc = true;
+#if SOUND_GRAVI_OSCILLATOR
+		else
+			dyn->TakeGraviStep();
+#endif
 		if (!param.constant_e || param.langevin) enable_tc = true;
 
+#if SNARJAD_TARGET_WORKING
+		if (n1 == param.nsteps_h + param.nsteps_e)
+		{
+			// запуск снаряда по цели
+			printf("zapusk_snarjada\n");
+			f64 start_snarjad_crd[3];
+			// извлекаем начальные координаты снаряда
+			dyn->GetSnarjadVelCrd(NULL, start_snarjad_crd, NULL);
+			// устанавливаем цель
+			dyn->SetTarget(param.target_list);
+			// расчитываем координаты цели
+			dyn->ComputeTargetCrd();
+			// корректируем x и y координаты снаряда, чтобы они совпадали с центром цели
+			start_snarjad_crd[0] = dyn->target_crd[0];
+			start_snarjad_crd[1] = dyn->target_crd[1];
 
+			if (param.start_snarjad_vel[2] > 0)
+			{
+				start_snarjad_crd[2] = dyn->target_crd[2]-0.5;
+			}
+			else
+			{
+				start_snarjad_crd[2] = dyn->target_crd[2]+0.5;
+			}
+
+			// запуск снаряда по цели
+			dyn->ShootSnarjad(n_snarjad, param.start_snarjad_vel, start_snarjad_crd);
+			//MessageBox(0,"","",0);
+		}
+#endif
+#if PROBNIY_ATOM_WORKING
+		f64 prob_atom_crd[3];
+		if (n1 == param.nsteps_h + param.nsteps_e)
+		{
+			// устанавливаем цель
+			dyn->SetTarget(param.target_list);
+		}
+		if (
+			n1 >= param.nsteps_h + param.nsteps_e &&
+			!(n1 % 10))
+		{
+			int iii = n1 - param.nsteps_h + param.nsteps_e;
+			f64 step = 0.001;
+			// расчитываем координаты цели
+			dyn->ComputeTargetCrd();
+			// корректируем x и y координаты prob_atom, чтобы они совпадали с центром цели
+			prob_atom_crd[0] = dyn->target_crd[0];
+			prob_atom_crd[1] = dyn->target_crd[1];
+
+			if (this->prob_atom_move_direction)
+			{
+				prob_atom_crd[2] = dyn->target_crd[2]-0.5 + iii*step;
+			}
+			else
+			{
+				prob_atom_crd[2] = dyn->target_crd[2]+0.5 - iii*step;
+			}
+			dyn->SetProbAtom(n_prob_atom, prob_atom_crd);
+		}
+
+#endif
+
+#if GRAVI_OSCILLATOR_START_ON_T_USTANOV
+#if GRAVI_OSCILLATOR_WORKING 	
+	if (n1 == param.nsteps_h + param.nsteps_e)
+		dyn->InitGraviOscillator(param, eng_pbc);
+#endif
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+		dyn->TakeGraviStep();
+#endif
 		//##############################################################################
 		dyn->TakeMDStep(enable_tc);
 		//##############################################################################
@@ -3907,6 +4168,108 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
 #endif
 
+#if PROBNIY_ATOM_WORKING
+		if (
+			n1 >= param.nsteps_h + param.nsteps_e &&
+			!(n1 % 10))
+		{
+			f64 prob_atom_f[3];
+			dyn->GetProbAtomForce(prob_atom_f);
+			double rz = prob_atom_crd[2] - dyn->target_crd[2];
+
+			ostrstream str2b(mbuff1, sizeof(mbuff1));
+			str2b << n1 << "," << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
+			str2b << rz << "," << dyn->GetEPot() << ",";
+			str2b << prob_atom_crd[0] << "," << prob_atom_crd[1] << "," << prob_atom_crd[2] << ",";
+			str2b << -prob_atom_f[0] << "," << -prob_atom_f[1] << "," << -prob_atom_f[2] << ",";
+			str2b << dyn->target_crd[0] << "," << dyn->target_crd[1] << "," << dyn->target_crd[2];
+/*#if USE_BOUNDARY_OPT_ON_MOLDYN
+			str2b 
+				<< "," << this->periodic_box_HALFdim[0] 
+				<< "," << this->periodic_box_HALFdim[1]
+				<< "," << this->periodic_box_HALFdim[2];
+#endif*/
+			str2b << endl << ends;
+
+			logfile2 << mbuff1;
+			PrintToLog(mbuff1);
+
+		}
+#endif
+
+#if SNARJAD_TARGET_WORKING
+		if (
+			n1 > param.nsteps_h + param.nsteps_e &&
+			!(n1 % 10))
+		{
+			f64 sn_crd[3], sn_vel[3], sn_f[3];
+			// извлекаем координаты снаряда
+			dyn->GetSnarjadVelCrd(sn_vel, sn_crd, sn_f);
+			// расчитываем координаты цели
+			dyn->ComputeTargetCrd();
+
+			double r = 0.0;
+
+			for(i32s n2 = 0; n2 < 3; n2++)
+			{
+				double tmp0 = dyn->target_crd[n2] - sn_crd[n2];
+				r += tmp0 * tmp0;
+			}
+			r = sqrt(r);
+
+			double rz = sn_crd[2] - dyn->target_crd[2];
+			// если предыдущий шаг инициализирован
+			if(b_snarjad_through_membrana_started)
+			{
+				// если это не проход через граничные периодические условия
+				if (fabs(m_pre_snarjad_crd_z-sn_crd[2]) < this->periodic_box_HALFdim[2])
+				{
+					// если сняряд прошёл цель с отрицательной стороны
+					if (m_pre_snarjad_crd_z < m_pre_target_crd_z
+						&&
+						sn_crd[2] >= dyn->target_crd[2])
+					{
+						n_snarjad_through_membrana++;
+					}
+					// если сняряд прошёл цель с положительной стороны
+					if (m_pre_snarjad_crd_z >= m_pre_target_crd_z
+						&&
+						sn_crd[2] < dyn->target_crd[2])
+					{
+						n_snarjad_through_membrana--;
+					}
+				}
+			}
+
+
+			m_pre_snarjad_crd_z					= sn_crd[2];
+			m_pre_target_crd_z					= dyn->target_crd[2];
+			//m_pre_snarjad_membrana_dist_z		= rz;
+			b_snarjad_through_membrana_started	= true;
+
+			ostrstream str2b(mbuff1, sizeof(mbuff1));
+			str2b << n1 << "," << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
+			str2b << r << "," << rz << "," << dyn->GetEPot() << ",";
+			str2b << sn_vel[0] << "," << sn_vel[1] << "," << sn_vel[2] << ",";
+			str2b << sn_crd[0] << "," << sn_crd[1] << "," << sn_crd[2] << ",";
+			str2b << -sn_f[0] << "," << -sn_f[1] << "," << -sn_f[2] << ",";
+			str2b << dyn->target_crd[0] << "," << dyn->target_crd[1] << "," << dyn->target_crd[2];
+#if USE_BOUNDARY_OPT_ON_MOLDYN
+			if (param.box_optimization)
+			{
+				str2b 
+					<< "," << this->periodic_box_HALFdim[0] 
+					<< "," << this->periodic_box_HALFdim[1]
+					<< "," << this->periodic_box_HALFdim[2];
+			}
+#endif
+			str2b << endl << ends;
+
+			logfile2 << mbuff1;
+			PrintToLog(mbuff1);
+		}
+
+#endif
 		if (!(n1 % 10))
 		{
 			ThreadLock();
@@ -3923,20 +4286,60 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 			ostrstream str2a(mbuff1, sizeof(mbuff1));
 			str2a << "step " << n1 << "  T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " K  ";
 			str2a << "Epot = " << dyn->GetEPot() << " kJ/mol  Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " kJ/mol ";
-
+#if KLAPAN_DIFFUSE_WORKING
+			str2a << "GetSolventNumberThroughZ = "  <<  eng_pbc->GetSolventNumberThroughZ() << " ";
+			str2a << "GetSolventNumberThroughKlapan = "  <<  eng_pbc->GetSolventNumberThroughKlapan() << " ";
+			str2a << "Z_Klapan = "  <<  eng_pbc->GetKlapanZ() << " ";
+			str2a << "Z_Solvent = "  <<  eng_pbc->GetSolventZ() << " ";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 	
+			str2a << "G = " << dyn->GetGravi(2) << " ";
+			str2a << "v_theor = " << dyn->GetTheorV() << " ";
+			str2a << "v_pract = " << dyn->GetPractV() << " ";
+#endif
+//			str2a << "NThroughZmin = "  <<  eng_pbc->GetNThroughZmin() << "";
+//			str2a << "NThroughZmax = "  <<  eng_pbc->GetNThroughZmax() << "";
 			str2a << endl << ends;
 			PrintToLog(mbuff1);
-	
+#if 0
+			ostrstream str2b(mbuff1, sizeof(mbuff1));
+			str2b << "step " << n1 << " T = " << dyn->ConvEKinTemp(dyn->GetEKin()) << " ";
+			str2b << "Epot = " << dyn->GetEPot() << " Etot = " << (dyn->GetEKin() + dyn->GetEPot()) << " ;; ";
+			str2b << "E_solute = " << eng->E_solute << " ";		// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solvent = " << eng->E_solvent << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << "E_solusolv = " << eng->E_solusolv << " ";	// a primitive implementation for energy components ; FIXME!!!
+			str2b << endl << ends;
+			logfile << mbuff1;
+#else			
 			
 			ostrstream str2b(mbuff1, sizeof(mbuff1));
+#if 1
 			str2b << /*`"time " <<*/ n1 * param.timestep * 1.0e-15 << ",";
+#else
+			str2b << /*`"step " <<*/ n1 << ",";
+#endif
 			str2b << dyn->ConvEKinTemp(dyn->GetEKin()) << ",";
 			str2b << /*"Epot = " <<*/ dyn->GetEPot() << ",";
 			str2b << (dyn->GetEKin() + dyn->GetEPot()) << ",";
-
+//			str2b << /*"E_solute = " <<*/ eng->E_solute << ",";		// a primitive implementation for energy components ; FIXME!!!
+//			str2b << /*"E_solvent = " <<*/ eng->E_solvent << ",";	// a primitive implementation for energy components ; FIXME!!!
+//			str2b << /*"E_solusolv = " <<*/ eng->E_solusolv << ",";	// a primitive implementation for energy components ; FIXME!!!
+#if KLAPAN_DIFFUSE_WORKING
+			str2b << eng_pbc->GetSolventNumberThroughZ() << ",";
+			str2b << eng_pbc->GetSolventNumberThroughKlapan() << ",";
+			str2b << eng_pbc->GetKlapanZ() << ",";
+			str2b << eng_pbc->GetSolventZ() << ",";
+#endif
+#if GRAVI_OSCILLATOR_WORKING 
+			str2b << dyn->GetGravi(2) << ",";
+			str2b << dyn->GetTheorV() << ",";
+			str2b << dyn->GetPractV();
+#endif
+//			str2b << eng_pbc->GetNThroughZmin() << ",";
+//			str2b << eng_pbc->GetNThroughZmax() << ",";
 			str2b << endl << ends;
 			logfile << mbuff1;
-
+#endif
 			ThreadUnlock();
 		}
 		
@@ -3993,6 +4396,9 @@ printf("model::DoMolDyn(moldyn_param & param, bool updt)\n");
 	
 	ofile_traj.close();
 	logfile.close();
+#if SNARJAD_TARGET_WORKING || PROBNIY_ATOM_WORKING
+	logfile2.close();
+#endif
 	
 	delete dyn;
 #if USE_BOUNDARY_OPT_ON_MOLDYN
@@ -5798,7 +6204,7 @@ printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
 bool model::Read_GPR(char *infile_name)
 {
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ	
+	//открываем файл с молекулами
 	cout << "trying to open a file " << infile_name << " ; ";
 	ifstream ifile;
 	ifile.open(infile_name, ios::in);	
@@ -5810,9 +6216,9 @@ bool model::Read_GPR(char *infile_name)
 		return false;
 	}
 	cout << "ok!!!" << endl;
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	//загружаем молекулы в модель
 	bool read = ReadGPR(*this, ifile, false, false);
-	// пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	// и закрываем файл
 	ifile.close();
 	return read;
 }
@@ -5830,17 +6236,17 @@ void model::work_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, cha
 }
 void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, char * trgtlst_name, char * box_name, char * fixed_name, int total_frames)//my experiment
 {
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	//очищаем модель
 	this->ClearModel();
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ	
+	//открываем файл с молекулой мембраны и пробным атомом	
 	if (!this->Read_GPR(infile_name))
 	{
 		return;
 	}
 
 	//
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// производим оптимизацию геометрии молекулы по общепринятому алгоритму
+	// здесь же происходит оптимизация граничных условий
 	const bool updt = true;
 
 	printf("periodic_box_HALFdim[0] = %f\n", this->periodic_box_HALFdim[0]);
@@ -5848,15 +6254,15 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
 #if 0
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, 
-	// пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-	// пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
-	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ,
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// отменяем оптимизацию геометрии, потому что имеем в виду, 
+	// что мы имеем на входе уже молекулу с оптимизированной геометрией
+	// так же потому что оптимизация здесь нужна была для того лишь, чтобы
+	// оптимизировать размеры периодической ячейки
+	// Лучше вместо этого загружать готовые размеры периодической ячейки из файла,
+	// которые получены ранее при предварительной оптимизации геометрии
 	this->DoGeomOpt(param, updt);
 #else
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	//загрузка размеров периодической ячейки
 	this->LoadBox(box_name);
 #endif
 
@@ -5864,7 +6270,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	printf("periodic_box_HALFdim[1] = %f\n", this->periodic_box_HALFdim[1]);
 	printf("periodic_box_HALFdim[2] = %f\n", this->periodic_box_HALFdim[2]);
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	// теперь читаем из файла номера целевых атомов
 	vector<i32s> target_list;
 	ReadTargetListFile(trgtlst_name, target_list);
 	size_t num_target = target_list.size();
@@ -5876,14 +6282,14 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// открываем файл для записи траэктории
 	char outfilename[1024];
 	sprintf(outfilename, "prob_at_mv_dir_%d_geomopt.traj", prob_atom_move_direction ? +1 : -1);
 	printf("outfilename = %s\n", outfilename);
 	/////////////////////////////////////////////////////
 	ofstream ofile;
 	ofile.open(outfilename, ios_base::out | ios_base::trunc | ios_base::binary);
-	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	//записываем заголовок файла траэктории
 	const int number_of_atoms = GetAtomCount();
 	const char file_id[10] = "traj_v10";
 	
@@ -5896,7 +6302,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	//#####################################################################
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	// готовим объект вычислительной машины
 	engine * eng = GetCurrentSetup()->CreateEngineByIDNumber(CURRENT_ENG1_MM);
 	//#####################################################################
 	if (eng == NULL)
@@ -5912,17 +6318,17 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	str1 << ")." << endl << ends;
 	PrintToLog(mbuff1);
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ	
+	// копируем координаты атомов из модели в вычислительную машину	
 	CopyCRD(this, eng, 0);
 	CopyLockedCRD(this, eng, 0);
 
 
 	f64 energy00 = 0.0;
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+	// пробный атом - получаем его номер
 	i32s n_prob_atom = eng->GetAtomCount() - 1;
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// добавляем номер пробного атома к списку номеров атомов с фиксированной координатой
 	vector<i32s> missed_atoms_list;
 	ReadTargetListFile(fixed_name, missed_atoms_list);
 	missed_atoms_list.push_back(n_prob_atom);
@@ -5936,29 +6342,29 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 #if PROBNIY_ATOM_GEOMOPT_TRADITIONAL
 	geomopt * opt = new geomopt(eng, 100, 0.025, 10.0);		// optimal settings?!?!?
 #else
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, z пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 
-	// пїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ z пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ z пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅ z пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+	// расширенный класс оптимизации геометрии позволяющий
+	// при оптимизации фиксировать например, z координату
+	// определённых атомов - путём невключения этих координат
+	// в процедуру оптимизации. Этот класс может быть использован,
+	// например, для решения задачи поиска потенциального барьера
+	// проникновения пробного атома через мембрану. У пробного атома
+	// и у нескольких атомов мембраны фиксируется z координата,
+	// производится оптимизация геометрии с расчётом потенциальной
+	// энергии системы, затем в цикле изменяется z координата
+	// пробного атома, и производится перерасчёт оптимизации
+	// геометрии и потенциальной энергии. В итоге строится
+	// зависимомть потенциальной энергии системы
+	// от z координаты пробного атома
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 2 (z)
+	// создаём объект оптимизатора геометрии с использованием списка
+	// фиксируемых атомов по координате 2 (z)
 	geomopt_ex * opt = new geomopt_ex(missed_atoms_list, 2, eng, 100, 0.025, 10.0);		// optimal settings?!?!?
 #endif /*PROBNIY_ATOM_GEOMOPT_TRADITIONAL*/
-	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// создаём объект оптимизатора граничных условий натяжения мембраны
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
 	boundary_opt * b_opt = new boundary_opt(this, eng, 100, 0.025, 10.0);
 #endif
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	// открываем лог файл
 	char datfilename[1024];
 	sprintf(datfilename, "prob_at_mv_dir_%d_geomopt.dat", prob_atom_move_direction ? +1 : -1);
 	printf("datfilename = %s\n", datfilename);
@@ -5967,15 +6373,15 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 
 
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	// открываем лог файл
 	char logfilename[1024];
 	sprintf(logfilename, "prob_at_mv_dir_%d_geomopt.log", prob_atom_move_direction ? +1 : -1);
 	printf("logfilename = %s\n", logfilename);
 	//////////////////////////////////////////
 	ofstream logfile2;
 	logfile2.open(logfilename, ios::out);
-	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// пишем заголовок лог файла
+	// №№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
 	ostrstream str2b(mbuff1, sizeof(mbuff1));
 	str2b << "step,";
 	str2b << "rz," << "Epot," << "Epot00,";
@@ -6022,20 +6428,20 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	str2b << endl << ends;
 	logfile2 << mbuff1;
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-	f64 target_crd[3]; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	// №№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№
+	f64 target_crd[3]; // координата центра отверстия в мембране
 	f64 prob_atom_crd[3];
 	for (int iframe = 0; iframe < total_frames; iframe++)
 	{			
-		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+		// расчитываем координаты цели
 		for (i32s n2 = 0;n2 < 3;n2++)
 		{
 			target_crd[n2] = 0.0;
 			for(size_t i1 = 0; i1 < num_target; i1++)
 			{
-				// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
-				// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 
-				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+				// здесь не учтены пока периодические условия
+				// если атомы цели разрежутся периодической границей,
+				// возникнет ошибка
 				target_crd[n2] += eng->crd[target_list[i1] * 3 + n2];
 			}
 		}
@@ -6047,7 +6453,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 			}
 		}
 
-		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ x пїЅ y пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ prob_atom, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+		// корректируем x и y координаты prob_atom, чтобы они совпадали с центром цели
 		prob_atom_crd[0] = target_crd[0];
 		prob_atom_crd[1] = target_crd[1];
 #if 0
@@ -6072,7 +6478,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		}
 #endif
 		//dyn->SetProbAtom(n_prob_atom, prob_atom_crd);
-		//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+		//устанавливаем координаты пробного атома в модели
 		atom ** glob_atmtab = eng->GetSetup()->GetAtoms();
 		if (n_prob_atom < eng->GetSetup()->GetAtomCount())
 		{
@@ -6082,12 +6488,12 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 			
 			glob_atmtab[n_prob_atom]->SetCRD(0, x, y, z);
 		}
-		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ z пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
-		// this->working_prob_atom_GeomOpt(go);			
-		//{					
+		// производим оптимизацию геометрии при фиксированной z координате пробного атома и атомов цели
+		// this->working_prob_atom_GeomOpt(go);	
+		//{
 		//const bool updt = true;
 
-		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		// копируем координаты из модели в машину - здесь координата пробного атома уже изменена
 
 		CopyCRD(this, eng, 0);
 
@@ -6221,9 +6627,9 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
-		//пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+		//запись строки в лог файл
 		f64 prob_atom_f[3];
-		//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+		//получаем силу, действующую на пробный атом
 		for (i32s n2 = 0; n2 < 3; n2++)
 		{
 			prob_atom_f[n2] = eng->d1[n_prob_atom * 3 + n2];
@@ -6277,7 +6683,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 
 //eng->Check(1);
-//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+//получаем силу, действующую на пробный атом
 /*for (i32s n2 = 0; n2 < 3; n2++)
 {
 	printf("eng->d1[n_prob_atom * 3 + n2] = %f\n", eng->d1[n_prob_atom * 3 + n2]);
@@ -6286,7 +6692,7 @@ f64 old;
 cin >> old;*/
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
-		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		// запись фрейма в файл траектории
 		{
 			CopyCRD(eng, this, 0);
 			
@@ -6427,10 +6833,10 @@ void model::SaveSelected(char * filename)
 void model::SaveBox(char * boxfilename)
 {
 	char mbuff1[256];
-	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ box пїЅпїЅпїЅпїЅ
+	// открываем box файл
 	ofstream boxfile;
 	boxfile.open(boxfilename, ios::out);
-	// пїЅпїЅпїЅпїЅпїЅ box пїЅпїЅпїЅпїЅ
+	// пишем box файл
 	ostrstream str3b(mbuff1, sizeof(mbuff1));
 	str3b << this->periodic_box_HALFdim[0] << " ";
 	str3b << this->periodic_box_HALFdim[1] << " ";
