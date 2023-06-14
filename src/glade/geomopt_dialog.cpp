@@ -19,10 +19,10 @@ using namespace std;
 /*################################################################################################*/
 extern HINSTANCE hInst;								// current instance
 BOOL CALLBACK DlgProcGeomOpt(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) 
-{ 
+{
 	static geomopt_dialog * geomopt_dlg;
     switch (message) 
-    { 
+    {
 	case WM_INITDIALOG:
 		{
 			geomopt_dlg = reinterpret_cast<geomopt_dialog *>(lParam);
@@ -73,14 +73,14 @@ BOOL CALLBACK DlgProcGeomOpt(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 					geomopt_dlg->handler_ButtonCancel(NULL, geomopt_dlg);
 				EndDialog(hDlg, wParam); 
 			}
-        } 
+        }
 		break;
 	case WM_DESTROY:
 		{
 			if (geomopt_dlg)
 				delete geomopt_dlg;
 		}
-    } 
+    }
     return FALSE; 
 } 
 

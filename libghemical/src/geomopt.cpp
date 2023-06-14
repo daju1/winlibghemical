@@ -114,12 +114,51 @@ f64 geomopt::GetGradient(void)
 /*################################################################################################*/
 /*################################################################################################*/
 
+geomopt_ex::geomopt_ex(i32s n_prob_atom, vector<i32s> & missed_atoms_list, i32s missed_dim, engine * p1, i32s p2, f64 p3, f64 p4) : conjugate_gradient(p2, p3, p4)
+{
+	eng = p1;
+
+	vector<bool> b_atoms;
+	b_atoms.resize(eng->GetAtomCount());
+
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		b_atoms[n1] = true;
+	}
+
+	for (i32s i = 0; i < missed_atoms_list.size(); i++)
+	{
+		if(missed_atoms_list[i] >= 0 && missed_atoms_list[i] < eng->GetAtomCount())
+		{
+printf("missed_atoms_list[%d] = %d\n", i, missed_atoms_list[i]);
+			b_atoms[missed_atoms_list[i]] = false;
+		}
+	}
+
+	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+	{
+		if (n1 == n_prob_atom)
+		{
+			// у пробного атома фиксируются все три координаты
+			continue;
+		}
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			if ( b_atoms[n1] || (!b_atoms[n1] && n2 != missed_dim) )
+			{
+				AddVar(& eng->crd[n1 * 3 + n2], & eng->d1[n1 * 3 + n2]);
+printf("AddVar(& eng->crd[n1 * 3 + n2], & eng->d1[n1 * 3 + n2]); n1 = %d n2 = %d\n", n1, n2);
+			}
+		}
+	}
+}
+
 geomopt_ex::geomopt_ex(vector<i32s> & missed_atoms_list, i32s missed_dim, engine * p1, i32s p2, f64 p3, f64 p4) : conjugate_gradient(p2, p3, p4)
 {
 	eng = p1;
 
 	vector<bool> b_atoms;
-	b_atoms.resize(eng->GetAtomCount());	
+	b_atoms.resize(eng->GetAtomCount());
 
 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
 	{

@@ -114,7 +114,8 @@ class geomopt_ex : public conjugate_gradient
 	engine * eng;
 	
 	public:
-	
+	// а в этом варианте у пробного атома фиксируются все три координаты
+	geomopt_ex(i32s /*n_prob_atom*/, vector<i32s> & /*missed_atoms_list*/, i32s /*missed_dim*/, engine *, i32s, f64, f64);
 	geomopt_ex(vector<i32s> & /*missed_atoms_list*/, i32s /*missed_dim*/, engine *, i32s, f64, f64);
 	~geomopt_ex(void);
 	

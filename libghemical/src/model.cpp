@@ -6331,7 +6331,9 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	// добавляем номер пробного атома к списку номеров атомов с фиксированной координатой
 	vector<i32s> missed_atoms_list;
 	ReadTargetListFile(fixed_name, missed_atoms_list);
+#if (0 == PROBNIY_ATOM_FIXED_AND_GEOMOPT)
 	missed_atoms_list.push_back(n_prob_atom);
+#endif
 
 	size_t num_missed = missed_atoms_list.size();
 	for(int i = 0; i < num_missed; i++)
@@ -6358,7 +6360,11 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	// создаём объект оптимизатора геометрии с использованием списка
 	// фиксируемых атомов по координате 2 (z)
+#if PROBNIY_ATOM_FIXED_AND_GEOMOPT
+	geomopt_ex * opt = new geomopt_ex(n_prob_atom, missed_atoms_list, 2, eng, 100, 0.025, 10.0);		// optimal settings?!?!?
+#else
 	geomopt_ex * opt = new geomopt_ex(missed_atoms_list, 2, eng, 100, 0.025, 10.0);		// optimal settings?!?!?
+#endif
 #endif /*PROBNIY_ATOM_GEOMOPT_TRADITIONAL*/
 	// создаём объект оптимизатора граничных условий натяжения мембраны
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
