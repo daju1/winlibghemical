@@ -6282,9 +6282,31 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
+	char commonfilename[1024];
+	char suffix[1024];
+	sprintf(commonfilename, "prob_at_mv_dir_%d_geomopt", prob_atom_move_direction ? +1 : -1);
+
+	if (param.enable_delta_e)
+	{
+		sprintf(suffix, "_delta_e=%0.2e", param.treshold_delta_e);
+		strcat(commonfilename, suffix);
+	}
+
+	if (param.enable_grad)
+	{
+		sprintf(suffix, "_grad=%0.2e", param.treshold_grad);
+		strcat(commonfilename, suffix);
+	}
+
+	if (! param.enable_delta_e && !param.enable_grad)
+	{
+		sprintf(suffix, "_nsteps=%d", param.treshold_nsteps);
+		strcat(commonfilename, suffix);
+	}
+
 	// открываем файл для записи траэктории
 	char outfilename[1024];
-	sprintf(outfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.traj", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
+	sprintf(outfilename, "%s.traj", commonfilename);
 	printf("outfilename = %s\n", outfilename);
 	/////////////////////////////////////////////////////
 	ofstream ofile;
@@ -6372,7 +6394,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 #endif
 	// открываем лог файл
 	char datfilename[1024];
-	sprintf(datfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.dat", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
+	sprintf(datfilename, "%s.dat", commonfilename);
 	printf("datfilename = %s\n", datfilename);
 
 	FILE * dat = fopen(datfilename, "wt");
@@ -6381,7 +6403,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	// открываем лог файл
 	char logfilename[1024];
-	sprintf(logfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.log", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
+	sprintf(logfilename, "%s.log", commonfilename);
 	printf("logfilename = %s\n", logfilename);
 	//////////////////////////////////////////
 	ofstream logfile2;
