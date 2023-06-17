@@ -6284,7 +6284,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	// открываем файл для записи траэктории
 	char outfilename[1024];
-	sprintf(outfilename, "prob_at_mv_dir_%d_geomopt.traj", prob_atom_move_direction ? +1 : -1);
+	sprintf(outfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.traj", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
 	printf("outfilename = %s\n", outfilename);
 	/////////////////////////////////////////////////////
 	ofstream ofile;
@@ -6372,7 +6372,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 #endif
 	// открываем лог файл
 	char datfilename[1024];
-	sprintf(datfilename, "prob_at_mv_dir_%d_geomopt.dat", prob_atom_move_direction ? +1 : -1);
+	sprintf(datfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.dat", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
 	printf("datfilename = %s\n", datfilename);
 
 	FILE * dat = fopen(datfilename, "wt");
@@ -6381,7 +6381,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	// открываем лог файл
 	char logfilename[1024];
-	sprintf(logfilename, "prob_at_mv_dir_%d_geomopt.log", prob_atom_move_direction ? +1 : -1);
+	sprintf(logfilename, "prob_at_mv_dir_%d_geomopt_nsteps=%d.log", prob_atom_move_direction ? +1 : -1, param.treshold_nsteps);
 	printf("logfilename = %s\n", logfilename);
 	//////////////////////////////////////////
 	ofstream logfile2;
