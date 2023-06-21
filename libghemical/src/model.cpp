@@ -6284,11 +6284,11 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	/////////////////////////////////////////////////////
 	char commonfilename[1024];
 	char suffix[1024];
-	sprintf(commonfilename, "prob_at_mv_dir_%d_geomopt", prob_atom_move_direction ? +1 : -1);
+	sprintf(commonfilename, "prob_at_mv_dir_%d_geomopt_%d", prob_atom_move_direction ? +1 : -1, total_frames);
 
 	if (param.enable_delta_e)
 	{
-		sprintf(suffix, "_delta_e=%0.2e", param.treshold_delta_e);
+		sprintf(suffix, "_delta_e=%0.2e_min_steps=%d", param.treshold_delta_e, param.treshold_delta_e_min_nsteps);
 		strcat(commonfilename, suffix);
 	}
 
@@ -6416,11 +6416,12 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 
 	//str2b << "prob_atom_crd[0],";
 	//str2b << "prob_atom_crd[1],";
-	str2b << "prob_atom_crd[2],";
+	str2b << "prob_atom_z,";
 
 	//str2b << "prob_atom_f[0],";
 	//str2b << "prob_atom_f[1],";
-	str2b << "prob_atom_f[2],";
+	str2b << "prob_atom_fz,";
+	str2b << "prob_atom_fz_integral,";
 
 	//str2b << "target_crd[0],";
 	//str2b << "target_crd[1],";
@@ -6459,8 +6460,9 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	// ¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹¹
 	f64 target_crd[3]; // êîîðäèíàòà öåíòðà îòâåðñòèÿ â ìåìáðàíå
 	f64 prob_atom_crd[3];
+	f64 prob_atom_fz, prev_prob_atom_fz, prob_atom_fz_integral = 0.0;
 	for (int iframe = 0; iframe < total_frames; iframe++)
-	{			
+	{
 		// ðàñ÷èòûâàåì êîîðäèíàòû öåëè
 		for (i32s n2 = 0;n2 < 3;n2++)
 		{
@@ -6495,7 +6497,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 			prob_atom_crd[2] = target_crd[2]+0.5 - iframe*step;
 		}
 #else
-		f64 step = 2.0 * this->periodic_box_HALFdim[2] / double(total_frames);
+		f64 step = 2.0 * this->periodic_box_HALFdim[2] / double(total_frames - 1);
 		if (this->prob_atom_move_direction)
 		{
 			prob_atom_crd[2] = -this->periodic_box_HALFdim[2] + iframe*step;
@@ -6620,10 +6622,9 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 				}
 			}
 
-			
-			
+
 			last_energy = opt->optval;
-			
+
 			if (!(n1 % 10) || terminate)
 			{
 				CopyCRD(eng, this, 0);
@@ -6631,14 +6632,14 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 				
 				UpdateAllGraphicsViews(updt);
 			}
-			
+
 			//ThreadUnlock();
-			
+
 			if (terminate) break;		// exit the loop here!!!
-			
+
 			n1++;	// update the number of steps...
 		}
-			
+
 		// we will not delete current_eng here, so that we can draw plots using it...
 		// we will not delete current_eng here, so that we can draw plots using it...
 		// we will not delete current_eng here, so that we can draw plots using it...
@@ -6672,10 +6673,17 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		str2b << iframe << ",";
 		str2b << rz << "," << opt->optval << "," << opt->optval-energy00 << ",";
 		str2b << prob_atom_crd[2] << ",";
+
 		if(prob_atom_move_direction)
-			str2b << prob_atom_f[2] << ",";
+			prob_atom_fz = prob_atom_f[2];
 		else
-			str2b << -prob_atom_f[2] << ",";
+			prob_atom_fz = -prob_atom_f[2];
+
+		str2b << prob_atom_fz << ",";
+
+		if (iframe > 0) prob_atom_fz_integral += step * (prob_atom_fz + prev_prob_atom_fz) / 2;
+		str2b << prob_atom_fz_integral << ",";
+		prev_prob_atom_fz = prob_atom_fz;
 
 		//str2b << target_crd[2];
 		str2b << n1;
@@ -6705,7 +6713,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		}
 		str2b << endl << ends;
 
-		logfile2 << mbuff1;
+		logfile2 << mbuff1; logfile2.flush();
 		PrintToLog(mbuff1);
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
