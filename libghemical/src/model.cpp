@@ -5569,7 +5569,7 @@ void model::OpenTrajectory(const char * fn)
 		i32s max_frames = GetTotalFrames();
 		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
 
-		if (total_traj_frames != real_frames)
+		if (total_traj_frames > real_frames)
 		{
 			stringstream str;
 			str << ("the trajectory real_frames ") << real_frames << (" does not correspond to ") <<  total_traj_frames << (" frames. Will be reset") << endl << ends;
@@ -5612,169 +5612,159 @@ void model::OpenTrajectory(const char * fn)
 	else PrintToLog(("trajectory file is already open!\n"));
 }
 
+void model::ReadTrajectoryFrameAtom(iter_al it1)
+{
+	if (15 == trajectory_version || 17 == trajectory_version)
+	{
+		f64 tmp;
+
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			traj_frame_cdata[t4] = tmp;
+		}
+
+		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
+
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			traj_frame_vdata[t4] = tmp;
+		}
+
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			traj_frame_adata[t4] = tmp;
+		}
+
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			traj_frame_fdata[t4] = tmp;
+		}
+
+		if (17 == trajectory_version)
+		{
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_vdata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_adata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_fdata[t4] = tmp;
+			}
+		}
+	}
+	else /* if (15 == trajectory_version || 17 == trajectory_version) */
+	{
+
+		float tmp;
+
+		for (i32s t4 = 0; t4 < 3; t4++)
+		{
+			trajfile->read((char *) & tmp, sizeof(tmp));
+			traj_frame_cdata[t4] = tmp;
+		}
+
+		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
+
+		if (trajectory_version > 12)
+		{
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_vdata[t4] = tmp;
+			}
+		}
+
+		if (trajectory_version > 13)
+		{
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_adata[t4] = tmp;
+			}
+		}
+
+		if (trajectory_version > 11)
+		{
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_fdata[t4] = tmp;
+			}
+		}
+
+		if (16 == trajectory_version)
+		{
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_vdata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_adata[t4] = tmp;
+			}
+
+			for (i32s t4 = 0; t4 < 3; t4++)
+			{
+				trajfile->read((char *) & tmp, sizeof(tmp));
+				traj_frame_cumsum_fdata[t4] = tmp;
+			}
+		}
+	}
+}
+
 void model::ReadTrajectoryFrame(void)
 {
-	i32s place = GetTrajectoryHeaderSize();						// skip the header...
-	place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
-	place += GetTrajectoryEnergySize();							// skip epot and ekin...
+	size_t place = GetTrajectoryHeaderSize();						// skip the header...
+	size_t trajectory_frame_size = GetTrajectoryFrameSize();
+	size_t trajectory_energy_size = GetTrajectoryEnergySize();
+	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
+	place += trajectory_energy_size;							// skip epot and ekin...
 	
 	trajfile->seekg(place, ios::beg);
 
 
 	if (trajectory_version > 10) {
 
-		float boundary[3];
 		float tmp;
-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
+		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[0] = tmp;
+		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[1] = tmp;
+		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[2] = tmp;
 
-		if (boundary[0] >= 0.0)
+		if (traj_frame_boundary[0] >= 0.0)
 		{
-			periodic_box_HALFdim[0] = boundary[0];
-			periodic_box_HALFdim[1] = boundary[1];
-			periodic_box_HALFdim[2] = boundary[2];
+			periodic_box_HALFdim[0] = traj_frame_boundary[0];
+			periodic_box_HALFdim[1] = traj_frame_boundary[1];
+			periodic_box_HALFdim[2] = traj_frame_boundary[2];
 		}
-		else if (boundary[1] >= 0.0)
+		else if (traj_frame_boundary[1] >= 0.0)
 		{
-			boundary_potential_radius1 = boundary[1];
-			boundary_potential_radius2 = boundary[2];
+			boundary_potential_radius1 = traj_frame_boundary[1];
+			boundary_potential_radius2 = traj_frame_boundary[2];
 		}
 	}
 
-	if (15 == trajectory_version || 17 == trajectory_version)
-	{
-		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
-		{
-		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-			f64 tmp;
-
-			f64 cdata[3];
-			f64 vdata[3];
-			f64 adata[3];
-			f64 fdata[3];
-			f64 cumsum_vdata[3];
-			f64 cumsum_adata[3];
-			f64 cumsum_fdata[3];
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				cdata[t4] = tmp;
-			}
-
-			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				vdata[t4] = tmp;
-			}
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				adata[t4] = tmp;
-			}
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				fdata[t4] = tmp;
-			}
-
-			if (17 == trajectory_version)
-			{
-				for (i32s t4 = 0; t4 < 3; t4++)
-				{
-					trajfile->read((char *) & tmp, sizeof(tmp));
-					cumsum_vdata[t4] = tmp;
-				}
-
-				for (i32s t4 = 0; t4 < 3; t4++)
-				{
-					trajfile->read((char *) & tmp, sizeof(tmp));
-					cumsum_adata[t4] = tmp;
-				}
-
-				for (i32s t4 = 0; t4 < 3; t4++)
-				{
-					trajfile->read((char *) & tmp, sizeof(tmp));
-					cumsum_fdata[t4] = tmp;
-				}
-			}
-		}
-		return;
-	}
 
 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
 	{
-	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
-		float tmp;
-		
-		fGL cdata[3];
-		for (i32s t4 = 0; t4 < 3; t4++)
-		{
-			trajfile->read((char *) & tmp, sizeof(tmp));
-			cdata[t4] = tmp;
-		}
-		
-		(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
-
-		if (trajectory_version > 12)
-		{
-			fGL vdata[3];
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				vdata[t4] = tmp;
-			}
-		}
-
-		if (trajectory_version > 13)
-		{
-			fGL adata[3];
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				adata[t4] = tmp;
-			}
-		}
-
-		if (trajectory_version > 11)
-		{
-			fGL fdata[3];
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				fdata[t4] = tmp;
-			}
-		}
-
-		if (16 == trajectory_version)
-		{
-			fGL cumsum_vdata[3];
-			fGL cumsum_adata[3];
-			fGL cumsum_fdata[3];
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				cumsum_vdata[t4] = tmp;
-			}
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				cumsum_adata[t4] = tmp;
-			}
-
-			for (i32s t4 = 0; t4 < 3; t4++)
-			{
-				trajfile->read((char *) & tmp, sizeof(tmp));
-				cumsum_fdata[t4] = tmp;
-			}
-		}
+		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+		ReadTrajectoryFrameAtom(it1);
 	}
 	this->UpdateAllGraphicsViews();
 }

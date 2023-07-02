@@ -134,6 +134,17 @@ class model
 
 	i32s trajectory_version;
 
+	float traj_frame_boundary[3];
+
+	f64 traj_frame_cdata[3];
+	f64 traj_frame_vdata[3];
+	f64 traj_frame_adata[3];
+	f64 traj_frame_fdata[3];
+	f64 traj_frame_cumsum_vdata[3];
+	f64 traj_frame_cumsum_adata[3];
+	f64 traj_frame_cumsum_fdata[3];
+
+
 	vector<const char *> ecomp_grp_name_usr;
 	
 //	int ecomp_ngrps;
@@ -431,6 +442,7 @@ example to evaluate quality of the data or to match the data with records in oth
 	void TrajectorySetTotalFrames(const char * fn, i32s _total_traj_frames);
 	void OpenTrajectory(const char *);
 	void ReadTrajectoryFrame(void);
+	void ReadTrajectoryFrameAtom(iter_al it1);
 	void CloseTrajectory(void);
 
 	size_t GetTrajectoryHeaderSize();
