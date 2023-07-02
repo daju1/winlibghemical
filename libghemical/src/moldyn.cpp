@@ -1253,10 +1253,15 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 #endif /*WRITE_WORKED_FORCES*/
 
 #if MOLDYN_LOCK_ATOMS_ONLY_ON_Z_DIM 
-		if (n2 == 2 && locked[n1]) continue;
+		if (n2 == 2 && locked[n1]) {
 #else
-		if (locked[n1]) continue;
+		if (locked[n1]) {
 #endif
+			acc[n1 * 3 + 0] = acc[n1 * 3 + 1] = acc[n1 * 3 + 2] = 0.0;
+			vel[n1 * 3 + 0] = vel[n1 * 3 + 1] = vel[n1 * 3 + 2] = 0.0;
+		}
+		else //not locked
+		{
 		//a = -F/m
 		//dv = a*dt
 		
@@ -1286,6 +1291,17 @@ void moldyn_tst::TakeMDStep(bool enable_temperature_control)
 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
+
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
+			cumsum_acc[n1 * 3 + n2] += acc[n1 * 3 + n2];
+		}
+		}//not locked
+		for (i32s n2 = 0;n2 < 3;n2++)
+		{
+			cumsum_f[n1 * 3 + n2] += eng->d1[n1 * 3 + n2];
+		}
 	}
 
 #if WRITE_LOCKED_FORCES
