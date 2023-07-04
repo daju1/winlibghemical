@@ -14,7 +14,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		size_t traj_body_size = end_pos - start_pos;
 +
 +		i32s max_frames = GetTotalFrames();
-+		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
++		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize() - 1;
 +
 +		if (total_traj_frames != real_frames)
 +		{
