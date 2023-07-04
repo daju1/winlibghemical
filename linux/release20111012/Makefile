@@ -89,6 +89,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.molgroups.patch
 	patch -p1 < ./ghemical.release20111012.traj_v2.patch
 	patch -p1 < ./ghemical.release20111012.make_plot_crd_diff.patch
+	patch -p1 < ./ghemical.release20111012.save_plot_1d_data.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -218,6 +219,13 @@ remove_cashed:
 	rm -f -r liboglappth-1.0.0.cashed
 	rm -f -r mopac7-1.15.cashed
 	rm -f -r openbabel-2.0.0.cashed
+
+remove_cashed2:
+	rm -f -r ghemical-3.0.0.cashed2
+	rm -f -r libghemical-3.0.0.cashed2
+	rm -f -r liboglappth-1.0.0.cashed2
+	rm -f -r mopac7-1.15.cashed2
+	rm -f -r openbabel-2.0.0.cashed2
 
 untar_ghemical: ghemical-3.0.0.tar.gz
 	tar -xzmf $?

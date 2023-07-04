@@ -1,0 +1,231 @@
+diff -Nur ./ghemical-3.0.0.original/src/gtk_p1dview_wnd.cpp ./ghemical-3.0.0/src/gtk_p1dview_wnd.cpp
+--- ./ghemical-3.0.0.original/src/gtk_p1dview_wnd.cpp	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/gtk_p1dview_wnd.cpp	2023-07-04 19:37:21.201545436 +0000
+@@ -30,7 +30,8 @@
+ GtkActionEntry gtk_p1dview_wnd::entries[] =
+ {
+ 	{ "AttachDetachPlot1D", NULL, N_("Attach/Detach This View"), NULL, N_("Select whether this view is attached or in an independent window"), (GCallback) gtk_p1dview_wnd::popup_AttachDetach },
+-	{ "DeleteViewPlot1D", NULL, N_("Delete View"), NULL, N_("Delete this view"), (GCallback) gtk_p1dview_wnd::popup_DeleteView }
++	{ "DeleteViewPlot1D", NULL, N_("Delete View"), NULL, N_("Delete this view"), (GCallback) gtk_p1dview_wnd::popup_DeleteView },
++	{ "SavePlot1DData", NULL, N_("Save Data"), NULL, N_("Save "), (GCallback) gtk_p1dview_wnd::popup_SaveData }
+ };
+ 
+ const char * gtk_p1dview_wnd::ui_description =
+@@ -39,6 +40,8 @@
+ "    <menuitem action='AttachDetachPlot1D'/>"
+ "    <separator/>"
+ "    <menuitem action='DeleteViewPlot1D'/>"
++"    <separator/>"
++"    <menuitem action='SavePlot1DData'/>"
+ "  </popup>"
+ "</ui>";
+ 
+@@ -87,6 +90,14 @@
+ 	gtk_app::GetPrjX()->RemovePlottingClient(wcl);
+ }
+ 
++void gtk_p1dview_wnd::popup_SaveData(GtkWidget *, gpointer data)
++{
++	gtk_wnd * wnd = iv_Find((GtkWidget *) data);
++	p1dview_wcl * wcl = dynamic_cast<p1dview_wcl *>(wnd->GetClient());
++	
++	gtk_app::GetPrjX()->SavePlottingClient(wcl);
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./ghemical-3.0.0.original/src/gtk_p1dview_wnd.h ./ghemical-3.0.0/src/gtk_p1dview_wnd.h
+--- ./ghemical-3.0.0.original/src/gtk_p1dview_wnd.h	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/gtk_p1dview_wnd.h	2023-07-04 19:37:40.009544943 +0000
+@@ -42,6 +42,7 @@
+ 	
+ 	static void popup_AttachDetach(GtkWidget *, gpointer);
+ 	static void popup_DeleteView(GtkWidget *, gpointer);
++	static void popup_SaveData(GtkWidget *, gpointer);
+ };
+ 
+ /*################################################################################################*/
+diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp
+--- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2023-07-04 20:42:27.313442910 +0000
+@@ -189,7 +189,7 @@
+ 
+ /*################################################################################################*/
+ 
+-const char * make_tmp_filename(gtk_project * prj)
++const char * make_tmp_filename(project * prj)
+ {
+ 	static char tmp_filename[256];
+ 	prj->GetFullProjectFileName(tmp_filename, 256);
+@@ -353,6 +353,54 @@
+ {
+ }
+ 
++/*################################################################################################*/
++
++const char gtk_plot_data_save_dialog::title[] = "Save Plot Data";
++project * gtk_plot_data_save_dialog::prj = NULL;
++p1dview_wcl * gtk_plot_data_save_dialog::plot = NULL;
++
++gtk_plot_data_save_dialog::gtk_plot_data_save_dialog(project * p1, p1dview_wcl * p2) :
++	gtk_file_dialog(title, PLOTFILENAME_FILTER, make_tmp_filename(p1))
++{
++	prj = p1;
++	plot = p2;
++}
++
++gtk_plot_data_save_dialog::~gtk_plot_data_save_dialog(void)
++{
++}
++
++bool gtk_plot_data_save_dialog::OkEvent(const char * filename)
++{
++	if (plot == NULL)
++	{
++		assertion_failed(__FILE__, __LINE__, "plot == NULL");
++	}
++	
++	// should check to see if file already exists...
++	
++	prj->ParseProjectFileNameAndPath(filename);
++	
++	char buffer[256];
++	prj->GetProjectFileName(buffer, 256, true);
++	
++	custom_app::GetAppC()->UpdateAllWindowTitles();
++	
++	char tmp_filename[256];
++	prj->GetFullProjectFileName(tmp_filename, 256);
++	
++	ofstream ofile;
++	ofile.open(tmp_filename, ios::out);
++	plot->SaveData(ofile);
++	ofile.close();
++
++	return true;
++}
++
++void gtk_plot_data_save_dialog::CancelEvent(void)
++{
++}
++
+ /*################################################################################################*/
+ 
+ const char gtk_file_save_graphics_dialog::title[] = "Save Graphics File - ps";
+diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h ./ghemical-3.0.0/src/gtk_simple_dialogs.h
+--- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.h	2023-07-04 20:46:14.669436942 +0000
+@@ -74,7 +74,7 @@
+ 
+ /*################################################################################################*/
+ 
+-const char * make_tmp_filename(gtk_project *);
++const char * make_tmp_filename(project *);
+ 
+ class gtk_file_dialog
+ {
+@@ -131,6 +131,25 @@
+ 	
+ 	bool OkEvent(const char *);	// virtual
+ 	void CancelEvent(void);		// virtual
++};
++
++/*################################################################################################*/
++
++class gtk_plot_data_save_dialog : public gtk_file_dialog
++{
++	private:
++	
++	static const char title[];
++	static project * prj;
++	static p1dview_wcl * plot;
++	
++	public:
++	
++	gtk_plot_data_save_dialog(project *, p1dview_wcl *);
++	~gtk_plot_data_save_dialog(void);
++	
++	bool OkEvent(const char *);	// virtual
++	void CancelEvent(void);		// virtual
+ };
+ 
+ /*################################################################################################*/
+diff -Nur ./ghemical-3.0.0.original/src/p1dview_wcl.cpp ./ghemical-3.0.0/src/p1dview_wcl.cpp
+--- ./ghemical-3.0.0.original/src/p1dview_wcl.cpp	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/p1dview_wcl.cpp	2023-07-04 19:38:17.301543964 +0000
+@@ -75,6 +75,14 @@
+ 	dv.push_back(newdata);
+ }
+ 
++void p1dview_wcl::SaveData(ofstream & file)
++{
++	for (i32u n1 = 0;n1 < dv.size();n1++)
++	{
++		file << dv[n1].c1 << ", " << dv[n1].v << std::endl;
++	}
++}
++
+ void p1dview_wcl::AddDataWithAC(double c1, double v, engine * eng)
+ {
+ 	p1d_data newdata;
+diff -Nur ./ghemical-3.0.0.original/src/p1dview_wcl.h ./ghemical-3.0.0/src/p1dview_wcl.h
+--- ./ghemical-3.0.0.original/src/p1dview_wcl.h	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/p1dview_wcl.h	2023-07-04 19:38:07.725544215 +0000
+@@ -61,6 +61,7 @@
+ 	virtual ~p1dview_wcl(void);
+ 	
+ 	void AddData(double, double);
++	void SaveData(ofstream & file);
+ 	
+ 	void AddDataWithAC(double, double, engine *);
+ 	void AddDataWithAC(double, double, model *, int);
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-07-04 19:38:38.145543417 +0000
+@@ -20,6 +20,8 @@
+ 
+ #include "project.h"	// config.h is here -> we get ENABLE-macros here...
+ 
++#include "gtk_simple_dialogs.h"
++
+ #include <ghemical/libghemicaldefine.h>
+ 
+ #include <ghemical/v3d.h>
+@@ -893,6 +895,17 @@
+ 	
+ 	return true;
+ }
++
++bool project::SavePlottingClient(base_wcl * wcl)
++{
++	p1dview_wcl* plot1d = dynamic_cast<p1dview_wcl *>(wcl);
++	if (plot1d)
++	{
++		new gtk_plot_data_save_dialog(this, plot1d);
++	}
++	
++	return true;
++}
+ 
+ void project::UpdateAllViews(void)
+ {
+diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
+--- ./ghemical-3.0.0.original/src/project.h	2023-07-04 19:36:42.509546452 +0000
++++ ./ghemical-3.0.0/src/project.h	2023-07-04 19:38:26.129543732 +0000
+@@ -60,6 +60,7 @@
+ using namespace std;
+ 
+ #define FILENAME_FILTER	"*.gpr"
++#define PLOTFILENAME_FILTER	"*.txt"
+ 
+ /*################################################################################################*/
+ 
+@@ -298,6 +299,7 @@
+ 	rcpview_wcl * AddReactionCoordinatePlotClient(const char *, const char *, bool);
+ 	gpcview_wcl * AddGenericProteinChainClient(bool);
+ 	bool RemovePlottingClient(base_wcl *);
++	bool SavePlottingClient(base_wcl *);
+ 	
+ 	void UpdateAllViews(void);
+ 	
