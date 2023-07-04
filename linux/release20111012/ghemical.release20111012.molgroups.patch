@@ -1480,10 +1480,11 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
 +	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++	std::string title = std::string("Molecule Coordinate plot of ") + traj_filename;
++	plot->SetTitle(title.c_str());
 +
 +	float ekin;
 +	float epot;
-+
 +
 +	i32s shift = 0;
 +	f64 first_coordinate = 0.0;
@@ -1912,7 +1913,6 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +
 +			//
 +		}
-+
 +
 +		//if (0 == crd_type)
 +		{

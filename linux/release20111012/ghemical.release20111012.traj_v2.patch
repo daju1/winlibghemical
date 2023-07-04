@@ -1,0 +1,310 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-07-04 09:33:13.366496860 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-07-04 09:41:01.878484563 +0000
+@@ -128,6 +128,14 @@
+ 	false				// V
+ };
+ 
++std::string split_filename (const std::string& str)
++{
++  std::size_t found = str.find_last_of("/\\");
++  //std::string path = str.substr(0,found);
++  std::string file = str.substr(found+1);
++  return file;
++}
++
+ model::model(void)
+ {
+ 	current_setup = new setup1_mm(this);
+@@ -4869,6 +4877,8 @@
+ 			if (!((* it1).flags & ATOMFLAG_IS_HIDDEN)) traj_num_atoms++;
+ 		}	*/
+ 		
++		traj_path = std::string(fn);
++		traj_filename = split_filename(traj_path);
+ 		trajfile = new long_ifstream(fn, ios::in | ios::binary);
+ 		//trajfile->seekg(8, ios::beg);	// skip the file id...
+ 		char file_id[10];
+@@ -4944,172 +4954,163 @@
+ 	else PrintToLog(_("trajectory file is already open!\n"));
+ }
+ 
+-void model::ReadTrajectoryFrame(void)
++void model::ReadTrajectoryFrameAtom(iter_al it1)
+ {
+-	size_t place = GetTrajectoryHeaderSize();						// skip the header...
+-	place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
+-	place += GetTrajectoryEnergySize();							// skip epot and ekin...
+-	
+-	trajfile->seekg(place, ios::beg);
++	if (15 == trajectory_version || 17 == trajectory_version)
++	{
++		f64 tmp;
+ 
+-	if (trajectory_version > 10) {
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			traj_frame_cdata[t4] = tmp;
++		}
+ 
+-		float boundary[3];
+-		float tmp;
+-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+-		trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
+ 
+-		if (boundary[0] >= 0.0)
++		for (i32s t4 = 0; t4 < 3; t4++)
+ 		{
+-			saved_periodic_box_HALFdim[0] = boundary[0];
+-			saved_periodic_box_HALFdim[1] = boundary[1];
+-			saved_periodic_box_HALFdim[2] = boundary[2];
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			traj_frame_vdata[t4] = tmp;
+ 		}
+-		else if (boundary[1] >= 0.0)
++
++		for (i32s t4 = 0; t4 < 3; t4++)
+ 		{
+-			saved_boundary_potential_rad_solute = boundary[1];
+-			saved_boundary_potential_rad_solvent = boundary[2];
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			traj_frame_adata[t4] = tmp;
+ 		}
+-	}
+ 
+-	if (15 == trajectory_version || 17 == trajectory_version)
+-	{
+-		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		for (i32s t4 = 0; t4 < 3; t4++)
+ 		{
+-		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+-			f64 tmp;
+-
+-			f64 cdata[3];
+-			f64 vdata[3];
+-			f64 adata[3];
+-			f64 fdata[3];
+-			f64 cumsum_vdata[3];
+-			f64 cumsum_adata[3];
+-			f64 cumsum_fdata[3];
+-
+-			for (i32s t4 = 0; t4 < 3; t4++)
+-			{
+-				trajfile->read((char *) & tmp, sizeof(tmp));
+-				cdata[t4] = tmp;
+-			}
+-
+-			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			traj_frame_fdata[t4] = tmp;
++		}
+ 
++		if (17 == trajectory_version)
++		{
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				vdata[t4] = tmp;
++				traj_frame_cumsum_vdata[t4] = tmp;
+ 			}
+ 
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				adata[t4] = tmp;
++				traj_frame_cumsum_adata[t4] = tmp;
+ 			}
+ 
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				fdata[t4] = tmp;
+-			}
+-
+-			if (17 == trajectory_version)
+-			{
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					cumsum_vdata[t4] = tmp;
+-				}
+-
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					cumsum_adata[t4] = tmp;
+-				}
+-
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					cumsum_fdata[t4] = tmp;
+-				}
++				traj_frame_cumsum_fdata[t4] = tmp;
+ 			}
+ 		}
+-		return;
+ 	}
+-
+-	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	else /* if (15 == trajectory_version || 17 == trajectory_version) */
+ 	{
+-	//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++
+ 		float tmp;
+-		
+-		fGL cdata[3];
++
+ 		for (i32s t4 = 0; t4 < 3; t4++)
+ 		{
+ 			trajfile->read((char *) & tmp, sizeof(tmp));
+-			cdata[t4] = tmp;
++			traj_frame_cdata[t4] = tmp;
+ 		}
+-		
+-		(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+ 
++		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
+ 
+ 		if (trajectory_version > 12)
+ 		{
+-			fGL vdata[3];
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				vdata[t4] = tmp;
++				traj_frame_vdata[t4] = tmp;
+ 			}
+ 		}
+ 
+ 		if (trajectory_version > 13)
+ 		{
+-			fGL adata[3];
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				adata[t4] = tmp;
++				traj_frame_adata[t4] = tmp;
+ 			}
+ 		}
+ 
+ 		if (trajectory_version > 11)
+ 		{
+-			fGL fdata[3];
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				fdata[t4] = tmp;
++				traj_frame_fdata[t4] = tmp;
+ 			}
+ 		}
+ 
+ 		if (16 == trajectory_version)
+ 		{
+-			fGL cumsum_vdata[3];
+-			fGL cumsum_adata[3];
+-			fGL cumsum_fdata[3];
+ 
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				cumsum_vdata[t4] = tmp;
++				traj_frame_cumsum_vdata[t4] = tmp;
+ 			}
+ 
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				cumsum_adata[t4] = tmp;
++				traj_frame_cumsum_adata[t4] = tmp;
+ 			}
+ 
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+-				cumsum_fdata[t4] = tmp;
++				traj_frame_cumsum_fdata[t4] = tmp;
+ 			}
+ 		}
+ 	}
+ }
+ 
++void model::ReadTrajectoryFrame(void)
++{
++	size_t place = GetTrajectoryHeaderSize();						// skip the header...
++	size_t trajectory_frame_size = GetTrajectoryFrameSize();
++	size_t trajectory_energy_size = GetTrajectoryEnergySize();
++	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
++	place += trajectory_energy_size;							// skip epot and ekin...
++	
++	trajfile->seekg(place, ios::beg);
++
++
++	if (trajectory_version > 10) {
++
++		float tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[0] = tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[1] = tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[2] = tmp;
++
++		if (traj_frame_boundary[0] >= 0.0)
++		{
++			saved_periodic_box_HALFdim[0] = traj_frame_boundary[0];
++			saved_periodic_box_HALFdim[1] = traj_frame_boundary[1];
++			saved_periodic_box_HALFdim[2] = traj_frame_boundary[2];
++		}
++		else if (traj_frame_boundary[1] >= 0.0)
++		{
++			saved_boundary_potential_rad_solute = traj_frame_boundary[1];
++			saved_boundary_potential_rad_solvent = traj_frame_boundary[2];
++		}
++	}
++
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++		ReadTrajectoryFrameAtom(it1);
++	}
++	this->UpdateAllGraphicsViews();
++}
++
+ void model::CloseTrajectory(void)
+ {
+ 	if (trajfile != NULL)
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-07-04 09:33:13.362496860 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-07-04 09:36:19.190491983 +0000
+@@ -113,8 +113,21 @@
+ 	int frame_save_frq;                   // used for MolDyn
+ 	double traj_tstep1;                   // read from the trajectory. timestep [fs]
+ 	int traj_frame_save_frq;              // read from the trajectory. Used for TrajView_MoleculeCoordinatePlot
++	std::string traj_path;
++	std::string traj_filename;
+ 
+ 	i32s trajectory_version;
++
++	float traj_frame_boundary[3];
++
++	f64 traj_frame_cdata[3];
++	f64 traj_frame_vdata[3];
++	f64 traj_frame_adata[3];
++	f64 traj_frame_fdata[3];
++	f64 traj_frame_cumsum_vdata[3];
++	f64 traj_frame_cumsum_adata[3];
++	f64 traj_frame_cumsum_fdata[3];
++
+ 	
+ 	public:
+ 	
+@@ -431,6 +444,7 @@
+ // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	void OpenTrajectory(const char *);
+ 	void ReadTrajectoryFrame(void);
++	void ReadTrajectoryFrameAtom(iter_al it1);
+ 	void CloseTrajectory(void);
+ 
+ 	size_t GetTrajectoryHeaderSize();

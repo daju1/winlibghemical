@@ -1,0 +1,101 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-07-04 09:33:13.358496860 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-07-04 09:42:42.662481917 +0000
+@@ -4530,60 +4530,23 @@
+ 		}
+ 
+ 		i32s ind = 0;
+-		mt_a1 = mt_a2 = mt_a3 = NULL;		
++		mt_a1 = mt_a2 = mt_a3 = NULL;
++		f64 crd1, crd2;
+ 
+ 		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+ 		{
+-		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+-			float t1a;
+-			fGL cdata[3];
+-			for (i32s t4 = 0;t4 < 3;t4++)
+-			{
+-				trajfile->read((char *) & t1a, sizeof(t1a));
+-				cdata[t4] = t1a;
+-			}
+-
+-			if (trajectory_version > 12)
+-			{
+-				fGL vdata[3];
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					vdata[t4] = tmp;
+-				}
+-			}
+-
+-			if (trajectory_version > 13)
+-			{
+-				fGL adata[3];
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					adata[t4] = tmp;
+-				}
+-			}
+-
+-			if (trajectory_version > 11)
+-			{
+-				fGL fdata[3];
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & tmp, sizeof(tmp));
+-					fdata[t4] = tmp;
+-				}
+-			}
+-
+-			(* it1).SetCRD(0, cdata[0], cdata[1], cdata[2]);
+-
+-			if (ind == ind1)
+-			{
+-				mt_a1 = &(* it1);
+-			}
+-
+-			if (ind == ind2)
+-			{
+-				mt_a2 = &(* it1);
+-			}
++						this->ReadTrajectoryFrameAtom(it1);
++						if (ind == ind1)
++						{
++							//mt_a1 = &(* it1);
++							crd1 = this->traj_frame_cdata[dim];
++						}
++
++						if (ind == ind2)
++						{
++							//mt_a2 = &(* it1);
++							crd2 = this->traj_frame_cdata[dim];
++						}
+ 
+ 			/*if (ind == indc)
+ 			{
+@@ -4593,20 +4556,10 @@
+ 			ind++;
+ 		}
+ 
+-		fGL coordinate;
++		f64 crd = crd1-crd2;
+ 
+-		if (mt_a1 && mt_a2 && dim >=0 && dim < 3)
+-		{
+-			const fGL * p1 = mt_a1->GetCRD(0);
+-			const fGL * p2 = mt_a2->GetCRD(0);
+-// my measure
+-//cout  << "el = " << mt_a1->el.GetSymbol() << " " << mt_a1->el.GetAtomicNumber() << " x = " << p1[0] << " y = " << p1[1] << " z = " << p1[2] << endl;
+-			coordinate = p1[dim]-p2[dim];
+-		}
+-		else
+-			coordinate = 0;
+ 
+-		f64 value = coordinate;
++		f64 value = crd;
+ 		plot->AddData(loop, value);
+ 
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;
