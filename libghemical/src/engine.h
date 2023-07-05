@@ -1,4 +1,4 @@
-// ENGINE.H : the "engine" base class for computation engine classes.
+п»ї// ENGINE.H : the "engine" base class for computation engine classes.
 
 // Copyright (C) 1998 Tommi Hassinen.
 
@@ -343,17 +343,17 @@ class engine_wbp : virtual public engine, virtual public engine_pbc
 	bool use_upp_wall; 
 	bool use_down_wall; 
 #if SEVERAL_WBP
-	map<int, int> mN2;//индекс стенки = 2 for Z!!!
+	map<int, int> mN2;//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 2 for Z!!!
 #else
-	int N2;//индекс стенки = 2 for Z!!!
+	int N2;//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 2 for Z!!!
 #endif
 	
 #if SEVERAL_WBP
-	map<int, f64> m_bp_wall_crd;//индекс стенки = 2 for Z!!!
+	map<int, f64> m_bp_wall_crd;//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 2 for Z!!!
 #else
-	f64 bp_wall_crd; //координата стенки
+	f64 bp_wall_crd; //РєРѕРѕСЂРґРёРЅР°С‚Р° СЃС‚РµРЅРєРё
 #endif
-	f64 bp_fc_wall;	// силовая константа взаимодействия со стенкой
+	f64 bp_fc_wall;	// СЃРёР»РѕРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃРѕ СЃС‚РµРЅРєРѕР№
 
 	friend class model;
 	

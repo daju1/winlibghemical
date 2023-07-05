@@ -1,4 +1,4 @@
-// GEOMOPT.CPP
+п»ї// GEOMOPT.CPP
 
 // Copyright (C) 1998 Tommi Hassinen.
 
@@ -139,7 +139,7 @@ printf("missed_atoms_list[%d] = %d\n", i, missed_atoms_list[i]);
 	{
 		if (n1 == n_prob_atom)
 		{
-			// у пробного атома фиксируются все три координаты
+			// Сѓ РїСЂРѕР±РЅРѕРіРѕ Р°С‚РѕРјР° С„РёРєСЃРёСЂСѓСЋС‚СЃСЏ РІСЃРµ С‚СЂРё РєРѕРѕСЂРґРёРЅР°С‚С‹
 			continue;
 		}
 		for (i32s n2 = 0;n2 < 3;n2++)
