@@ -1,4 +1,4 @@
-// ENG1_MM_DEFAULT_NBT_WBP.CPP
+п»ї// ENG1_MM_DEFAULT_NBT_WBP.CPP
 
 // Copyright (C) 1998 Tommi Hassinen.
 
@@ -73,12 +73,12 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 	use_down_wall = true; 
 
 #if SEVERAL_WBP
-	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
-	mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
-	//mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
+	//РµСЃР»Рё РІС‚РѕСЂРѕР№ РёРЅРґРµРєСЃ СЂР°РІРµРЅ РЅСѓР»СЋ, С‚Рѕ СЃС‚РµРЅРєР° СЏРІР»СЏРµС‚СЃСЏ Р°Р±СЃРѕР»СЋС‚РЅРѕ РїСЂРѕР·СЂР°С‡РЅРѕР№ РґР»СЏ Р°С‚РѕРјРѕРІ СЂР°СЃС‚РІРѕСЂРёС‚РµР»СЏ
+	mN2.insert(map<int,int>::value_type(1,0));//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 1 for Y!!!
+	//mN2.insert(map<int,int>::value_type(2,0));//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 2 for Z!!!
 #else
-	N2 = 2;//индекс стенки = 2 for Z!!!
-	N2 = 1;//индекс стенки = 1 for Y!!!
+	N2 = 2;//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 2 for Z!!!
+	N2 = 1;//РёРЅРґРµРєСЃ СЃС‚РµРЅРєРё = 1 for Y!!!
 #endif
 	
 #if SEVERAL_WBP
@@ -88,15 +88,15 @@ eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p
 		m_bp_wall_crd.insert(
 			map<int,f64>::value_type(
 			(*itm).first, 
-			GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).first]));//координата стенки
+			GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).first]));//РєРѕРѕСЂРґРёРЅР°С‚Р° СЃС‚РµРЅРєРё
 	}
 #else
-	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
+	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //РєРѕРѕСЂРґРёРЅР°С‚Р° СЃС‚РµРЅРєРё
 #endif
-	bp_fc_wall = 12500.0;	// силовая константа взаимодействия со стенкой
-	bp_fc_wall = 5000.0;	// силовая константа взаимодействия со стенкой
-	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Е^2) = 5000 kJ/(mol*(nm)^2)
-	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Е^2) = 12500 kJ/(mol*(nm)^2)
+	bp_fc_wall = 12500.0;	// СЃРёР»РѕРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃРѕ СЃС‚РµРЅРєРѕР№
+	bp_fc_wall = 5000.0;	// СЃРёР»РѕРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃРѕ СЃС‚РµРЅРєРѕР№
+	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Р•^2) = 5000 kJ/(mol*(nm)^2)
+	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Р•^2) = 12500 kJ/(mol*(nm)^2)
 
 	if (ostr != NULL && (use_upp_wall || use_down_wall))
 	{
@@ -129,9 +129,9 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 		int N2 = (*itm).first;    
 		int free_solvent = (*itm).second;    
 		f64 bp_wall_crd;
-		//GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).second];//координата стенки
+		//GetSetup()->GetModel()->periodic_box_HALFdim[(*itm).second];//РєРѕРѕСЂРґРёРЅР°С‚Р° СЃС‚РµРЅРєРё
 #endif	
-	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //координата стенки
+	bp_wall_crd = GetSetup()->GetModel()->periodic_box_HALFdim[N2]; //РєРѕРѕСЂРґРёРЅР°С‚Р° СЃС‚РµРЅРєРё
 
 	if (use_down_wall)
 	{
@@ -169,9 +169,9 @@ void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
 			// f = a(x-b)^2
 			// df/dx = 2a(x-b)
 			
-			//глубина проникновения атома в зону действия потенциала стенки
+			//РіР»СѓР±РёРЅР° РїСЂРѕРЅРёРєРЅРѕРІРµРЅРёСЏ Р°С‚РѕРјР° РІ Р·РѕРЅСѓ РґРµР№СЃС‚РІРёСЏ РїРѕС‚РµРЅС†РёР°Р»Р° СЃС‚РµРЅРєРё
 			f64 t2a = - bp_wall_crd - t1c;
-			//энергия на которую увеличилась потенци альная энергия атома
+			//СЌРЅРµСЂРіРёСЏ РЅР° РєРѕС‚РѕСЂСѓСЋ СѓРІРµР»РёС‡РёР»Р°СЃСЊ РїРѕС‚РµРЅС†Рё Р°Р»СЊРЅР°СЏ СЌРЅРµСЂРіРёСЏ Р°С‚РѕРјР°
 			f64 t2b = fc * t2a * t2a;
 			
 			energy_bt1 += t2b;
@@ -179,12 +179,12 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			
 			if (p1 > 0)
 			{
-				// сила, направленная от стенки
+				// СЃРёР»Р°, РЅР°РїСЂР°РІР»РµРЅРЅР°СЏ РѕС‚ СЃС‚РµРЅРєРё
 				f64 t2c = 2.0 * fc * t2a;
 				
 				i32s n2 = N2;
 				//{
-					// проекция силы на координатную ось
+					// РїСЂРѕРµРєС†РёСЏ СЃРёР»С‹ РЅР° РєРѕРѕСЂРґРёРЅР°С‚РЅСѓСЋ РѕСЃСЊ
 					f64 t2d = t2c;
 					
 					d1[l2g_mm[n1] * 3 + n2] -= t2d;
@@ -233,9 +233,9 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			// f = a(x-b)^2
 			// df/dx = 2a(x-b)
 			
-			//глубина проникновения атома в зону действия потенциала стенки
+			//РіР»СѓР±РёРЅР° РїСЂРѕРЅРёРєРЅРѕРІРµРЅРёСЏ Р°С‚РѕРјР° РІ Р·РѕРЅСѓ РґРµР№СЃС‚РІРёСЏ РїРѕС‚РµРЅС†РёР°Р»Р° СЃС‚РµРЅРєРё
 			f64 t2a = t1c - bp_wall_crd;
-			//энергия на которую увеличилась потенци альная энергия атома
+			//СЌРЅРµСЂРіРёСЏ РЅР° РєРѕС‚РѕСЂСѓСЋ СѓРІРµР»РёС‡РёР»Р°СЃСЊ РїРѕС‚РµРЅС†Рё Р°Р»СЊРЅР°СЏ СЌРЅРµСЂРіРёСЏ Р°С‚РѕРјР°
 			f64 t2b = fc * t2a * t2a;
 			
 			energy_bt1 += t2b;
@@ -243,12 +243,12 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			
 			if (p1 > 0)
 			{
-				// сила, направленная от стенки
+				// СЃРёР»Р°, РЅР°РїСЂР°РІР»РµРЅРЅР°СЏ РѕС‚ СЃС‚РµРЅРєРё
 				f64 t2c = 2.0 * fc * t2a;
 				
 				i32s n2 = N2;
 				//{
-					// проекция силы на координатную ось
+					// РїСЂРѕРµРєС†РёСЏ СЃРёР»С‹ РЅР° РєРѕРѕСЂРґРёРЅР°С‚РЅСѓСЋ РѕСЃСЊ
 					f64 t2d = -t2c;
 					
 					d1[l2g_mm[n1] * 3 + n2] -= t2d;
@@ -278,7 +278,7 @@ if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solut
 			f64 t2b = crd[l2g_mm[atmi[1]] * 3 + n2];
 			
 			t1a[n2] = t2a - t2b;
-			// периодические условия для тех измерений где нет стенки
+			// РїРµСЂРёРѕРґРёС‡РµСЃРєРёРµ СѓСЃР»РѕРІРёСЏ РґР»СЏ С‚РµС… РёР·РјРµСЂРµРЅРёР№ РіРґРµ РЅРµС‚ СЃС‚РµРЅРєРё
 #if SEVERAL_WBP
 			map<int, int>::iterator found = mN2.find(n2);
 			if (found == mN2.end())
