@@ -48,8 +48,8 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_p1dview_wnd.h ./ghemical-3.0.0/src/g
  /*################################################################################################*/
 diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp
 --- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp	2023-07-04 19:36:42.509546452 +0000
-+++ ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2023-07-04 20:42:27.313442910 +0000
-@@ -189,7 +189,7 @@
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2023-07-05 04:10:12.068737771 +0000
+@@ -189,13 +189,34 @@
  
  /*################################################################################################*/
  
@@ -58,18 +58,43 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/
  {
  	static char tmp_filename[256];
  	prj->GetFullProjectFileName(tmp_filename, 256);
-@@ -353,6 +353,54 @@
- {
+ 	return tmp_filename;
  }
  
-+/*################################################################################################*/
++const char * make_box_filename(project * prj)
++{
++	static char tmp_filename[256];
++	prj->GetFullBoxFileName(tmp_filename, 256);
++	return tmp_filename;
++}
 +
++const char * make_traj_filename(project * prj)
++{
++	static char tmp_filename[256];
++	prj->GetFullTrajFileName(tmp_filename, 256);
++	return tmp_filename;
++}
++
++const char * make_plotdata_filename(project * prj, base_wcl * plot)
++{
++	static char tmp_filename[512];
++	prj->GetFullPlotDataFileName(tmp_filename, plot->GetTitle(), 512);
++	return tmp_filename;
++}
++
+ GtkWidget * gtk_file_dialog::dialog;
+ 
+ gtk_file_dialog::gtk_file_dialog(const char * title, const char * filter, const char * def_fn)
+@@ -355,6 +376,48 @@
+ 
+ /*################################################################################################*/
+ 
 +const char gtk_plot_data_save_dialog::title[] = "Save Plot Data";
 +project * gtk_plot_data_save_dialog::prj = NULL;
 +p1dview_wcl * gtk_plot_data_save_dialog::plot = NULL;
 +
 +gtk_plot_data_save_dialog::gtk_plot_data_save_dialog(project * p1, p1dview_wcl * p2) :
-+	gtk_file_dialog(title, PLOTFILENAME_FILTER, make_tmp_filename(p1))
++	gtk_file_dialog(title, PLOTFILENAME_FILTER, make_plotdata_filename(p1, p2))
 +{
 +	prj = p1;
 +	plot = p2;
@@ -85,18 +110,12 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/
 +	{
 +		assertion_failed(__FILE__, __LINE__, "plot == NULL");
 +	}
-+	
-+	// should check to see if file already exists...
-+	
-+	prj->ParseProjectFileNameAndPath(filename);
-+	
++
 +	char buffer[256];
 +	prj->GetProjectFileName(buffer, 256, true);
 +	
-+	custom_app::GetAppC()->UpdateAllWindowTitles();
-+	
-+	char tmp_filename[256];
-+	prj->GetFullProjectFileName(tmp_filename, 256);
++	char tmp_filename[512];
++	prj->GetFullPlotDataFileName(tmp_filename, plot->GetTitle(), 512);
 +	
 +	ofstream ofile;
 +	ofile.open(tmp_filename, ios::out);
@@ -110,9 +129,38 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/
 +{
 +}
 +
- /*################################################################################################*/
- 
++/*################################################################################################*/
++
  const char gtk_file_save_graphics_dialog::title[] = "Save Graphics File - ps";
+ gtk_project * gtk_file_save_graphics_dialog::prj = NULL;
+ 
+@@ -392,7 +455,7 @@
+ gtk_project * gtk_trajfile_dialog::prj = NULL;
+ 
+ gtk_trajfile_dialog::gtk_trajfile_dialog(gtk_project * p1) :
+-	gtk_file_dialog(title, NULL, NULL)
++	gtk_file_dialog(title, NULL, make_traj_filename(p1))
+ {
+ 	prj = p1;
+ }
+@@ -433,7 +496,7 @@
+ gtk_project * gtk_importpdb_dialog::prj = NULL;
+ 
+ gtk_importpdb_dialog::gtk_importpdb_dialog(gtk_project * p1) :
+-	gtk_file_dialog(title, NULL, NULL)
++	gtk_file_dialog(title, NULL, make_tmp_filename(p1))
+ {
+ 	prj = p1;
+ }
+@@ -470,7 +533,7 @@
+ gtk_project * gtk_importbox_dialog::prj = NULL;
+ 
+ gtk_importbox_dialog::gtk_importbox_dialog(gtk_project * p1) :
+-	gtk_file_dialog(title, NULL, NULL)
++	gtk_file_dialog(title, BOXFILENAME_FILTER, make_box_filename(p1))
+ {
+ 	prj = p1;
+ }
 diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h ./ghemical-3.0.0/src/gtk_simple_dialogs.h
 --- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h	2023-07-04 19:36:42.509546452 +0000
 +++ ./ghemical-3.0.0/src/gtk_simple_dialogs.h	2023-07-04 20:46:14.669436942 +0000
@@ -153,13 +201,14 @@ diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h ./ghemical-3.0.0/sr
  /*################################################################################################*/
 diff -Nur ./ghemical-3.0.0.original/src/p1dview_wcl.cpp ./ghemical-3.0.0/src/p1dview_wcl.cpp
 --- ./ghemical-3.0.0.original/src/p1dview_wcl.cpp	2023-07-04 19:36:42.509546452 +0000
-+++ ./ghemical-3.0.0/src/p1dview_wcl.cpp	2023-07-04 19:38:17.301543964 +0000
-@@ -75,6 +75,14 @@
++++ ./ghemical-3.0.0/src/p1dview_wcl.cpp	2023-07-05 04:45:39.104681941 +0000
+@@ -75,6 +75,15 @@
  	dv.push_back(newdata);
  }
  
 +void p1dview_wcl::SaveData(ofstream & file)
 +{
++	file << name1 << ", " << namev << std::endl;
 +	for (i32u n1 = 0;n1 < dv.size();n1++)
 +	{
 +		file << dv[n1].c1 << ", " << dv[n1].v << std::endl;
@@ -192,11 +241,87 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  #include <ghemical/libghemicaldefine.h>
  
  #include <ghemical/v3d.h>
-@@ -893,6 +895,17 @@
- 	
+@@ -190,6 +192,24 @@
+ 	return ext;
+ }
+ 
++const char * project::GetBoxFileNameExtension(void)
++{
++	static const char ext[] = "box";
++	return ext;
++}
++
++const char * project::GetTrajFileNameExtension(void)
++{
++	static const char ext[] = "traj_v17";
++	return ext;
++}
++
++const char * project::GetPlotDataFileNameExtension(void)
++{
++	static const char ext[] = "txt";
++	return ext;
++}
++
+ void project::SetProjectPath(const char * path)
+ {
+ 	if (project_path != NULL) delete[] project_path;
+@@ -301,6 +321,51 @@
+ 	strcpy(buffer, ostr.str().c_str());
+ }
+ 
++void project::GetFullBoxFileName(char * buffer, int buffer_size)
++{
++	ostringstream ostr;
++	
++	if (project_path != NULL) ostr << project_path << DIR_SEPARATOR;
++	ostr << project_filename << EXT_SEPARATOR << GetBoxFileNameExtension() << ends;
++	
++	if (strlen(ostr.str().c_str()) + 1 >= buffer_size)
++	{
++		assertion_failed(__FILE__, __LINE__, "buffer overflow!");
++	}
++	
++	strcpy(buffer, ostr.str().c_str());
++}
++
++void project::GetFullTrajFileName(char * buffer, int buffer_size)
++{
++	ostringstream ostr;
++	
++	if (project_path != NULL) ostr << project_path << DIR_SEPARATOR;
++	ostr << project_filename << EXT_SEPARATOR << GetTrajFileNameExtension() << ends;
++	
++	if (strlen(ostr.str().c_str()) + 1 >= buffer_size)
++	{
++		assertion_failed(__FILE__, __LINE__, "buffer overflow!");
++	}
++	
++	strcpy(buffer, ostr.str().c_str());
++}
++
++void project::GetFullPlotDataFileName(char * buffer, const char * plot_title, int buffer_size)
++{
++	ostringstream ostr;
++
++	if (project_path != NULL) ostr << project_path << DIR_SEPARATOR;
++	ostr << project_filename << "_" << plot_title << EXT_SEPARATOR << GetPlotDataFileNameExtension() << ends;
++	
++	if (strlen(ostr.str().c_str()) + 1 >= buffer_size)
++	{
++		assertion_failed(__FILE__, __LINE__, "buffer overflow!");
++	}
++	
++	strcpy(buffer, ostr.str().c_str());
++}
++
+ /*##############################################*/
+ /*##############################################*/
+ 
+@@ -894,6 +959,17 @@
  	return true;
  }
-+
+ 
 +bool project::SavePlottingClient(base_wcl * wcl)
 +{
 +	p1dview_wcl* plot1d = dynamic_cast<p1dview_wcl *>(wcl);
@@ -207,21 +332,54 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	
 +	return true;
 +}
- 
++
  void project::UpdateAllViews(void)
  {
+ 	UpdateAllGraphicsViews();
+@@ -4502,6 +4578,8 @@
+ 		
+ 	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+ 	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
++	std::string title = std::string("Coordinate Difference plot of ") + traj_filename;
++	plot->SetTitle(title.c_str());
+ 
+ 	float ekin;
+ 	float epot;
 diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
 --- ./ghemical-3.0.0.original/src/project.h	2023-07-04 19:36:42.509546452 +0000
-+++ ./ghemical-3.0.0/src/project.h	2023-07-04 19:38:26.129543732 +0000
-@@ -60,6 +60,7 @@
++++ ./ghemical-3.0.0/src/project.h	2023-07-05 04:10:45.128736903 +0000
+@@ -60,6 +60,8 @@
  using namespace std;
  
  #define FILENAME_FILTER	"*.gpr"
 +#define PLOTFILENAME_FILTER	"*.txt"
++#define BOXFILENAME_FILTER	"*.box"
  
  /*################################################################################################*/
  
-@@ -298,6 +299,7 @@
+@@ -194,6 +196,9 @@
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	
+ 	const char * GetProjectFileNameExtension(void);
++	const char * GetBoxFileNameExtension(void);
++	const char * GetTrajFileNameExtension(void);
++	const char * GetPlotDataFileNameExtension(void);
+ 	
+ 	void SetProjectPath(const char *);
+ 	void SetProjectFileName(const char *);
+@@ -205,6 +210,11 @@
+ 	void GetProjectFileName(char *, int, bool);
+ 	void GetFullProjectFileName(char *, int);
+ 
++	void GetFullBoxFileName(char *, int);
++	void GetFullTrajFileName(char *, int);
++	
++	void GetFullPlotDataFileName(char *, const char *, int);
++
+ // methods for file I/O : ReadGPR and WriteGPR are friend functions so that it would be easier to "borrow" them elsewhere...
+ // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	friend bool ReadGPR_OLD(project &, istream &, bool, bool = false);		///< this is for the very old version.
+@@ -298,6 +308,7 @@
  	rcpview_wcl * AddReactionCoordinatePlotClient(const char *, const char *, bool);
  	gpcview_wcl * AddGenericProteinChainClient(bool);
  	bool RemovePlottingClient(base_wcl *);
