@@ -90,6 +90,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.traj_v2.patch
 	patch -p1 < ./ghemical.release20111012.make_plot_crd_diff.patch
 	patch -p1 < ./ghemical.release20111012.save_plot_1d_data.patch
+	patch -p1 < ./ghemical.release20111012.eng1_mm_default_wbp.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

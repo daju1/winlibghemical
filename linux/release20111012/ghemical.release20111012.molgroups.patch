@@ -10,7 +10,7 @@ diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/M
  	v3d.h \
  	atom.h \
 diff -Nur ./libghemical-3.0.0.original/src/long_stream.h ./libghemical-3.0.0/src/long_stream.h
---- ./libghemical-3.0.0.original/src/long_stream.h	1970-01-01 00:00:00.000000000 +0000
+--- Null
 +++ ./libghemical-3.0.0/src/long_stream.h	2023-02-12 14:14:00.696350257 +0000
 @@ -0,0 +1,125 @@
 +﻿#pragma once

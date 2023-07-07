@@ -1,0 +1,1287 @@
+diff -Nur ./libghemical-3.0.0.original/po/POTFILES.in ./libghemical-3.0.0/po/POTFILES.in
+--- ./libghemical-3.0.0.original/po/POTFILES.in	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/po/POTFILES.in	2023-07-06 06:45:45.890224974 +0000
+@@ -5,6 +5,7 @@
+ src/constraint.cpp
+ src/eng1_mm.cpp
+ src/eng1_mm_default.cpp
++src/eng1_mm_default_nbt_wbp.cpp
+ src/eng1_mm_prmfit.cpp
+ src/eng1_mm_tripos52.cpp
+ src/eng1_qm.cpp
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.am ./libghemical-3.0.0/src/Makefile.am
+--- ./libghemical-3.0.0.original/src/Makefile.am	2023-07-05 08:39:21.744313878 +0000
++++ ./libghemical-3.0.0/src/Makefile.am	2023-07-06 06:28:55.686251490 +0000
+@@ -35,6 +35,7 @@
+ 	eng1_mm_tripos52.cpp \
+ 	tab_mm_tripos52.cpp \
+ 	eng1_mm_default.cpp \
++	eng1_mm_default_nbt_wbp.cpp \
+ 	tab_mm_default.cpp \
+ 	eng1_mm_prmfit.cpp \
+ 	tab_mm_prmfit.cpp \
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
+--- ./libghemical-3.0.0.original/src/Makefile.in	2023-07-05 08:39:21.744313878 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2023-07-06 06:57:00.418207269 +0000
+@@ -77,7 +77,7 @@
+ 	engine.lo typerule.lo utility.lo chn_info.lo seqbuild.lo \
+ 	mfinder.lo eng1_qm.lo eng1_qm_mpqc.lo eng1_qm_mopac.lo \
+ 	eng1_mm.lo eng1_mm_tripos52.lo tab_mm_tripos52.lo \
+-	eng1_mm_default.lo tab_mm_default.lo eng1_mm_prmfit.lo \
++	eng1_mm_default.lo eng1_mm_default_nbt_wbp.lo tab_mm_default.lo eng1_mm_prmfit.lo \
+ 	tab_mm_prmfit.lo eng1_sf.lo eng1_sf_ua.lo eng1_sf_cg.lo \
+ 	eng2_qm_mm.lo notice.lo conjgrad.lo intcrd.lo search.lo \
+ 	boundary_opt.lo geomopt.lo moldyn.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
+@@ -278,6 +278,7 @@
+ 	eng1_mm_tripos52.cpp \
+ 	tab_mm_tripos52.cpp \
+ 	eng1_mm_default.cpp \
++	eng1_mm_default_nbt_wbp.cpp \
+ 	tab_mm_default.cpp \
+ 	eng1_mm_prmfit.cpp \
+ 	tab_mm_prmfit.cpp \
+@@ -452,6 +453,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constraint.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_default.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_default_nbt_wbp.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_prmfit.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_mm_tripos52.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eng1_qm.Plo@am__quote@
+diff -Nur ./libghemical-3.0.0.original/src/atom.h ./libghemical-3.0.0/src/atom.h
+--- ./libghemical-3.0.0.original/src/atom.h	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/atom.h	2023-07-05 19:51:02.647256070 +0000
+@@ -146,6 +146,8 @@
+ #define ATOMFLAG_MEASURE_ND_RDF		(1 << 24)
+ #define ATOMFLAG_COUNT_IN_RDF		(1 << 25)
+ 
++#define ATOMFLAG_IS_SMOOTHLY_LOCKED		(1 << 17)
++
+ /// An atom class.
+ /** Will store all data about an atom, including type, coordinates, and a connectivity 
+ record list for quick access to neighbor atoms. */
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-07-05 17:42:15.395458893 +0000
+@@ -41,6 +41,7 @@
+ 	
+ 	ENG1_MM_DEFAULT,
+ 	ENG1_MM_PERIODIC,
++	ENG1_MM_PERIODIC_WBP,
+ 	ENG1_MM_PERIODIC_HEX,
+ 	
+ 	ENG1_MM_EXPERIMENTAL,
+@@ -54,6 +55,7 @@
+ 	
+ 	_("eng1_mm_default_bp : The default engine (under construction)"),
+ 	_("eng1_mm_default_mim : The periodic engine (minimum image model)"),
++	_("eng1_mm_default_wbp : The periodic engine X and wall boundary potential Y, Z"),
+ 	_("eng1_mm_default_mim_hex : The hexagonal periodic engine (minimum image model)"),
+ 	
+ 	_("eng1_mm_prmfit : Experimental"),
+@@ -168,6 +170,12 @@
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+ 		return new eng1_mm_default_mim(this, 1);
+ 
++		case ENG1_MM_PERIODIC_WBP:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1);
++
+ 		case ENG1_MM_PERIODIC_HEX:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+ 	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.h	2023-07-05 12:40:48.267933640 +0000
+@@ -50,6 +50,7 @@
+ #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
+ #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
+ #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
++#define ENG1_MM_PERIODIC_WBP	0x0102		// eng1_mm_default_wbp
+ #define ENG1_MM_PERIODIC_HEX	0x0111		// eng1_mm_default_mim
+ 
+ #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2023-07-05 18:56:11.703342450 +0000
+@@ -1808,8 +1808,69 @@
+ eng1_mm_default_mim_hex::~eng1_mm_default_mim_hex(void)
+ {
+ }
++
+ /*################################################################################################*/
+ 
++eng1_mm_default_nbt_sl::eng1_mm_default_nbt_sl(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2)
++{
++	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*�^2) = 5000 kJ/(mol*(nm)^2)
++	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*�^2) = 12500 kJ/(mol*(nm)^2)
++	fc_smoothly_locked = 12500.0;
++	radius = 0.01;
++}
++
++eng1_mm_default_nbt_sl::~eng1_mm_default_nbt_sl(void)
++{
++}
++
++void eng1_mm_default_nbt_sl::ComputeNBT2(i32u p1)
++{
++	/*atom ** atmtab = GetSetup()->GetMMAtoms();
++
++	for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
++	{
++		if (!(atmtab[n1]->flags & ATOMFLAG_IS_SMOOTHLY_LOCKED))
++			continue;
++
++		f64 fc = fc_smoothly_locked;
++
++		f64 t1a[3]; f64 t1b = 0.0;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			f64 t9a = locked_crd[l2g_mm[n1] * 3 + n2];
++			f64 t9b = crd[l2g_mm[n1] * 3 + n2];
++
++			t1a[n2] = t9a - t9b;
++			t1b += t1a[n2] * t1a[n2];
++		}
++
++		f64 t1c = sqrt(t1b);
++
++		if (t1c < radius) continue;
++
++		// f = a(x-b)^2
++		// df/dx = 2a(x-b)
++
++		f64 t2a = t1c - radius;
++		f64 t2b = fc * t2a * t2a;
++
++		energy_nbt1c += t2b;
++// if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
++
++		if (p1 > 0 && t1c)
++		{
++			f64 t2c = 2.0 * fc * t2a;
++
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				f64 t2d = (t1a[n2] / t1c) * t2c;
++
++				d1[l2g_mm[n1] * 3 + n2] -= t2d;
++			}
++		}
++	}*/
++}
++
+ /*################################################################################################*/
+ 
+ eng1_mm_default_bp::eng1_mm_default_bp(setup * p1, i32u p2) :
+@@ -1842,6 +1903,18 @@
+ {
+ }
+ 
++/*################################################################################################*/
++
++eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
++	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2)
++	// , eng1_mm_default_nbt_sl(p1, p2)
++{
++}
++
++eng1_mm_default_wbp::~eng1_mm_default_wbp(void)
++{
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.h	2023-07-05 18:53:00.331347473 +0000
+@@ -216,6 +216,37 @@
+ 	void ComputeNBT1(i32u);		// virtual
+ };
+ 
++/// molecular mechanics; nonbonded part, wall boundary potential.
++
++#define WBP_COPIED_FROM_MIM 1
++
++class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
++{
++	protected:
++#if WBP_COPIED_FROM_MIM
++	f64 sw1; f64 sw2;
++	f64 swA; f64 swB;
++
++	f64 shft1;
++	f64 shft3;
++
++	f64 limit;
++#endif
++
++	vector<mm_default_nbt1> nbt1_vector;
++
++	public:
++
++	eng1_mm_default_nbt_wbp(setup *, i32u);
++	virtual ~eng1_mm_default_nbt_wbp(void);
++
++	protected:
++
++	void UpdateTerms(void);
++	void ComputeNBT1(i32u);		// virtual
++};
++
++
+ /// molecular mechanics; nonbonded part, minimum image model.
+ 
+ // what is the most reasonable objective or strategy here???
+@@ -256,6 +287,26 @@
+ 	virtual void ComputeNBT1(i32u);		// virtual
+ };
+ 
++/// molecular mechanics; nonbonded part, smoothly locked atom potential.
++
++class eng1_mm_default_nbt_sl : virtual public eng1_mm
++{
++	protected:
++
++	f64 fc_smoothly_locked;
++	f64 radius;
++
++	public:
++
++	eng1_mm_default_nbt_sl(setup *, i32u);
++	virtual ~eng1_mm_default_nbt_sl(void);
++
++	protected:
++
++	void ComputeNBT2(i32u);		// virtual
++};
++
++/*################################################################################################*/
+ 
+ 
+ class eng1_mm_default_nbt_mim_cartesian : virtual public eng1_mm_default_nbt_mim, public engine_pbc_cartesian
+@@ -292,6 +343,15 @@
+ 	~eng1_mm_default_bp(void);
+ };
+ 
++class eng1_mm_default_wbp : public eng1_mm_default_bt, public eng1_mm_default_nbt_wbp
++//	, public eng1_mm_default_nbt_sl
++{
++	public:
++
++	eng1_mm_default_wbp(setup *, i32u);
++	~eng1_mm_default_wbp(void);
++};
++
+ class eng1_mm_default_mim : public eng1_mm_default_bt, public eng1_mm_default_nbt_mim_cartesian
+ {
+ 	public:
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp	2023-07-05 17:25:27.475485349 +0000
+@@ -0,0 +1,557 @@
++﻿// ENG1_MM_DEFAULT_NBT_WBP.CPP
++
++// Copyright (C) 1998 Tommi Hassinen.
++
++// This program is free software; you can redistribute it and/or modify it
++// under the terms of the license (GNU GPL) which comes with this package.
++
++/*################################################################################################*/
++
++#include "eng1_mm_default.h"
++
++#include "eng1_mm.h"
++#include "tab_mm_default.h"
++
++#include <algorithm>
++#include <strstream>
++using namespace std;
++
++bool custom_isnan(double var)
++{
++	volatile double d = var;
++	return d != d;
++}
++
++bool custom_isnan(float var)
++{
++	volatile float d = var;
++	return d != d;
++}
++
++/*################################################################################################*/
++eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_wbp(p1, p2)
++{
++//	atom ** atmtab = GetSetup()->GetMMAtoms();
++//	bond ** bndtab = GetSetup()->GetMMBonds();
++
++#if WBP_COPIED_FROM_MIM
++
++	fGL mindim = GetSetup()->GetModel()->saved_periodic_box_HALFdim[0];
++	if (GetSetup()->GetModel()->saved_periodic_box_HALFdim[1] < mindim) mindim = GetSetup()->GetModel()->saved_periodic_box_HALFdim[1];
++	if (GetSetup()->GetModel()->saved_periodic_box_HALFdim[2] < mindim) mindim = GetSetup()->GetModel()->saved_periodic_box_HALFdim[2];
++
++	sw1 = 0.6; if (sw1 < (mindim - 0.4)) sw1 = mindim - 0.4;	// will trigger if boxdim < 2.0 nm!!!
++	sw2 = shft1 = mindim - 0.2;
++
++	limit = mindim;
++	//update = true;
++
++	// calculate the actual values...
++
++	sw1 = sw1 * sw1;
++	sw2 = sw2 * sw2;
++
++	swA = 3.0 * sw1;
++	swB = pow(sw2 - sw1, 3.0);
++
++	shft3 = pow(shft1, 3.0);
++
++	limit = limit * limit;
++#else
++	//update = true;
++#endif
++	nbt1_vector.reserve(250000);
++
++	// also check engine::bp_center!!!
++	// also check engine::bp_center!!!
++	// also check engine::bp_center!!!
++
++	use_upp_wall = true;
++	use_down_wall = true;
++
++#if SEVERAL_WBP
++	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
++	mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
++	//mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++#else
++	N2 = 2;//индекс стенки = 2 for Z!!!
++	N2 = 1;//индекс стенки = 1 for Y!!!
++#endif
++
++#if SEVERAL_WBP
++	for (map<int,int>::iterator itm = mN2.begin();
++		itm != mN2.end(); itm++)
++	{
++		m_bp_wall_crd.insert(
++			map<int,f64>::value_type(
++			(*itm).first,
++			GetSetup()->GetModel()->saved_periodic_box_HALFdim[(*itm).first]));//координата стенки
++	}
++#else
++	bp_wall_crd = GetSetup()->GetModel()->saved_periodic_box_HALFdim[N2]; //координата стенки
++#endif
++	bp_fc_wall = 12500.0;	// силовая константа взаимодействия со стенкой
++	bp_fc_wall = 5000.0;	// силовая константа взаимодействия со стенкой
++	//bp_fc_solute = 5000.0;		// 50 kJ/(mol*Е^2) = 5000 kJ/(mol*(nm)^2)
++	//bp_fc_solvent = 12500.0;	// 125 kJ/(mol*Е^2) = 12500 kJ/(mol*(nm)^2)
++
++//	if (ostr != NULL && (use_upp_wall || use_down_wall))
++//	{
++//		(* ostr) << "use_upp_wall || use_down_wall ; ";
++//		(* ostr) << bp_wall_crd << " " << bp_wall_crd << " ; ";
++//		(* ostr) << endl;
++//	}
++}
++
++eng1_mm_default_nbt_wbp::~eng1_mm_default_nbt_wbp(void)
++{
++}
++
++void eng1_mm_default_nbt_wbp::ComputeNBT1(i32u p1)
++{
++	energy_nbt1a = 0.0;
++	energy_nbt1b = 0.0;
++	energy_nbt1c = 0.0;
++	energy_nbt1d = 0.0;
++
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++
++	// an additional pass for the boundary potential (optional).
++	// an additional pass for the boundary potential (optional).
++	// an additional pass for the boundary potential (optional).
++#if SEVERAL_WBP
++	for (map<int,int>::iterator itm = mN2.begin();
++		itm != mN2.end(); itm++)
++	{
++		int N2 = (*itm).first;
++		int free_solvent = (*itm).second;
++		f64 bp_wall_crd;
++		//GetSetup()->GetModel()->saved_periodic_box_HALFdim[(*itm).second];//координата стенки
++#endif
++	bp_wall_crd = GetSetup()->GetModel()->saved_periodic_box_HALFdim[N2]; //координата стенки
++
++	if (use_down_wall)
++	{
++		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
++		{
++#if SEVERAL_WBP
++			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
++				continue;
++#endif
++
++			//f64 radius = bp_radius_solute;
++			f64 fc = bp_fc_wall;
++
++			/*if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
++			{
++				radius = bp_radius_solvent;
++				fc = bp_fc_solvent;
++			}*/
++
++			/*f64 t1a[3]; f64 t1b = 0.0;
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				f64 t9a = bp_center[n2];
++				f64 t9b = crd[l2g_mm[n1] * 3 + n2];
++
++				t1a[n2] = t9a - t9b;
++				t1b += t1a[n2] * t1a[n2];
++			}
++
++			f64 t1c = sqrt(t1b);*/
++			f64 t1c = crd[l2g_mm[n1] * 3 + N2];
++
++			if (t1c > - bp_wall_crd) continue;
++
++			// f = a(x-b)^2
++			// df/dx = 2a(x-b)
++
++			//глубина проникновения атома в зону действия потенциала стенки
++			f64 t2a = - bp_wall_crd - t1c;
++			//энергия на которую увеличилась потенци альная энергия атома
++			f64 t2b = fc * t2a * t2a;
++
++			energy_bt1 += t2b;
++// if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
++
++			if (p1 > 0)
++			{
++				// сила, направленная от стенки
++				f64 t2c = 2.0 * fc * t2a;
++
++				i32s n2 = N2;
++				//{
++					// проекция силы на координатную ось
++					f64 t2d = t2c;
++
++					d1[l2g_mm[n1] * 3 + n2] -= t2d;
++				//}
++			}
++		}
++	}
++
++	// the nonbonded terms begin...
++	// the nonbonded terms begin...
++	// the nonbonded terms begin...
++
++	if (use_upp_wall)
++	{
++		for (i32s n1 = 0;n1 < GetSetup()->GetMMAtomCount();n1++)
++		{
++#if SEVERAL_WBP
++			if (free_solvent && atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
++				continue;
++#endif
++			//f64 radius = bp_radius_solute;
++			f64 fc = bp_fc_wall;
++
++			/*if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM)
++			{
++				radius = bp_radius_solvent;
++				fc = bp_fc_solvent;
++			}*/
++
++			/*f64 t1a[3]; f64 t1b = 0.0;
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				f64 t9a = bp_center[n2];
++				f64 t9b = crd[l2g_mm[n1] * 3 + n2];
++
++				t1a[n2] = t9a - t9b;
++				t1b += t1a[n2] * t1a[n2];
++			}
++
++			f64 t1c = sqrt(t1b);*/
++			f64 t1c = crd[l2g_mm[n1] * 3 + N2];
++
++
++			if (t1c < bp_wall_crd) continue;
++
++			// f = a(x-b)^2
++			// df/dx = 2a(x-b)
++
++			//глубина проникновения атома в зону действия потенциала стенки
++			f64 t2a = t1c - bp_wall_crd;
++			//энергия на которую увеличилась потенци альная энергия атома
++			f64 t2b = fc * t2a * t2a;
++
++			energy_bt1 += t2b;
++// if (atmtab[n1]->flags & ATOMFLAG_IS_SOLVENT_ATOM) E_solvent += t2b; else E_solute += t2b;
++
++			if (p1 > 0)
++			{
++				// сила, направленная от стенки
++				f64 t2c = 2.0 * fc * t2a;
++
++				i32s n2 = N2;
++				//{
++					// проекция силы на координатную ось
++					f64 t2d = -t2c;
++
++					d1[l2g_mm[n1] * 3 + n2] -= t2d;
++				//}
++
++			}
++		}
++	}
++
++#if SEVERAL_WBP
++	}
++#endif
++	/*if (update)*/ UpdateTerms();
++
++	// the nonbonded terms begin...
++	// the nonbonded terms begin...
++	// the nonbonded terms begin...
++
++	for (i32s n1 = 0;n1 < (i32s) nbt1_vector.size();n1++)
++	{
++		i32s * atmi = nbt1_vector[n1].atmi;
++
++		f64 t1a[3]; f64 t1b = 0.0;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			f64 t2a = crd[l2g_mm[atmi[0]] * 3 + n2];
++			f64 t2b = crd[l2g_mm[atmi[1]] * 3 + n2];
++
++			t1a[n2] = t2a - t2b;
++			// периодические условия для тех измерений где нет стенки
++#if SEVERAL_WBP
++			map<int, int>::iterator found = mN2.find(n2);
++			if (found == mN2.end())
++#else
++			if (n2 != N2)
++#endif
++			{
++				if (t1a[n2] < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					t1a[n2] += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++				}
++				else if (t1a[n2] > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					t1a[n2] -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++				}
++			}
++
++			t1b += t1a[n2] * t1a[n2];
++		}
++
++		f64 t1c = sqrt(t1b);
++
++		// f1 = (r/a)^-12 - (r/b)^-6
++		// df1/dr = -12/a(r/a)^-13 + 6/b(r/b)^-7
++
++		f64 t3a = t1c / nbt1_vector[n1].kr;
++		f64 t3b = t1c / nbt1_vector[n1].kd;
++
++		f64 t4a = t3a * t3a * t3a; f64 t4b = t4a * t4a; f64 t4c = t4b * t4b;	// ^3 ^6 ^12
++		f64 t5a = t3b * t3b * t3b; f64 t5b = t5a * t5a;				// ^3 ^6
++
++		f64 t6a = 1.0 / (t4c) - 1.0 / (t5b);
++
++#if WBP_COPIED_FROM_MIM
++		// s1 = (rE^2 - r^2)^2 * (rE^2 + 2r^2 - 3rB^2) / (rE^2 - rB^2)^3
++		// ds1/dr = [this will yield 2 terms quite easily...]
++
++		f64 t3x;		// value
++		f64 t3y; f64 t3z;	// derivative
++		if (t1b < sw1)
++		{
++			t3x = 1.0;
++			t3y = t3z = 0.0;
++		}
++		else if (t1b > sw2)
++		{
++			t3x = 0.0;
++			t3y = t3z = 0.0;
++		}
++		else
++		{
++			f64 t3c = sw2 - t1b; f64 t3d = t3c * t3c;
++			f64 t3e = sw2 + 2.0 * t1b - swA;
++
++			t3x = t3d * t3e / swB;
++			t3y = 4.0 * t1c * t3d / swB;
++			t3z = 4.0 * t1c * t3c * t3e / swB;
++		}
++
++		energy_nbt1a += t6a * t3x;
++#else // copied from mbp
++		energy_nbt1a += t6a;
++#endif
++
++		// f2 = Q/r
++		// df2/dr = -Q/r^2
++
++		f64 t6b = nbt1_vector[n1].qq / t1c;
++
++#if WBP_COPIED_FROM_MIM
++		// s2 = (1 - (r/rE)^3)^2
++		// ds2/dr = -6r^2 * (1 - (r/rE)^3) / rE^3
++
++		f64 t4x;		// value
++		f64 t4y;		// derivative
++		if (t1c > shft1)
++		{
++			t4x = 0.0;
++			t4y = 0.0;
++		}
++		else
++		{
++			f64 t4d = t1b * t1c / shft3;
++			f64 t4e = 1.0 - t4d;
++
++			t4x = t4e * t4e;
++			t4y = 6.0 * t1b * t4e / shft3;
++		}
++
++		energy_nbt1b += t6b * t4x;
++
++		f64 tote = t6a * t3x + t6b * t4x;
++#else // copied from mbp
++
++		energy_nbt1b += t6b;
++
++		f64 tote = t6a + t6b;
++#endif
++
++// int class1 = (atmtab[atmi[0]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
++// int class2 = (atmtab[atmi[1]]->flags & ATOMFLAG_IS_SOLVENT_ATOM);
++// if (class1 == class2) { if (class1) E_solvent += tote; else E_solute += tote; }
++// else E_solusolv += tote;
++
++#if !WBP_COPIED_FROM_MIM
++		// copied from mbp
++		if (p1 > 0)
++		{
++			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
++			f64 t7b = 6.0 / (nbt1_vector[n1].kd * t5b * t3b);
++
++			f64 t8a = nbt1_vector[n1].qq / t1b;
++
++			f64 t9a = t7b - t7a - t8a;
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				f64 t9b = (t1a[n2] / t1c) * t9a;
++
++				d1[l2g_mm[atmi[0]] * 3 + n2] += t9b;
++				d1[l2g_mm[atmi[1]] * 3 + n2] -= t9b;
++			}
++		}
++#else // from mim
++		if (p1 > 0)
++		{
++			f64 t7a = 12.0 / (nbt1_vector[n1].kr * t4c * t3a);
++			f64 t7b = 6.0 / (nbt1_vector[n1].kd * t5b * t3b);
++
++			f64 t8a = nbt1_vector[n1].qq / t1b;
++
++			f64 t9a = (t7b - t7a) * t3x + t6a * (t3y - t3z);
++			f64 t9b = t8a * t4x + t6b * t4y;
++
++			f64 t9c = t9a - t9b;
++
++			for (i32s n2 = 0;n2 < 3;n2++)
++			{
++				f64 t9d = (t1a[n2] / t1c) * t9c;
++
++				d1[l2g_mm[atmi[0]] * 3 + n2] += t9d;
++				d1[l2g_mm[atmi[1]] * 3 + n2] -= t9d;
++			}
++		}
++#endif
++	}
++}
++
++void eng1_mm_default_nbt_wbp::UpdateTerms(void)
++{
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++//	bond ** bndtab = GetSetup()->GetMMBonds();
++
++	//update = false;
++	nbt1_vector.resize(0);
++
++	//if (ostr != NULL) (* ostr) << "creating nbt1-terms: ";
++	i32s nbt1_err = 0;
++
++	for (i32s ind1 = 0;ind1 < GetSetup()->GetMMAtomCount() - 1;ind1++)
++	{
++		for (i32s ind2 = ind1 + 1;ind2 < GetSetup()->GetMMAtomCount();ind2++)
++		{
++			i32s test = range_cr1[ind1];
++			while (test < range_cr1[ind1 + 1])
++			{
++				if (cr1[test] == atmtab[ind2]) break;
++				else test++;
++			}
++
++			if (test == range_cr1[ind1 + 1])
++			{
++				f64 t1a; f64 t1b = 0.0;
++				for (i32s n1 = 0;n1 < 3;n1++)
++				{
++					f64 t2a = crd[l2g_mm[ind1] * 3 + n1];
++					f64 t2b = crd[l2g_mm[ind2] * 3 + n1];
++
++					t1a = t2a - t2b;
++
++#if SEVERAL_WBP
++					map<int, int>::iterator found = mN2.find(n1);
++					if (found == mN2.end())
++#else
++					if (n1 != N2)
++#endif
++					{
++						if (t1a < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n1])
++						{
++							t1a += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n1];
++						}
++						else if (t1a > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n1])
++						{
++							t1a -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n1];
++						}
++					}
++
++					t1b += t1a * t1a;
++				}
++
++#if WBP_COPIED_FROM_MIM
++				if (t1b > limit) continue;
++#endif
++
++				test = range_cr2[ind1];
++				while (test < range_cr2[ind1 + 1])
++				{
++					if (cr2[test] == atmtab[ind2]) break;
++					else test++;
++				}
++
++				bool is14 = (test != range_cr2[ind1 + 1]);
++
++				mm_default_nbt1 newnbt1;
++				newnbt1.atmi[0] = ind1;
++				newnbt1.atmi[1] = ind2;
++
++				bool success = false;
++				if (dynamic_cast<setup1_mm *>(GetSetup())->GetExceptions())
++				{
++					success = default_tables::GetInstance()->e_Init(this, & newnbt1, is14);
++				}
++				else
++				{
++					// see also eng1_mm_default_nbt_mbp ctor ; should be the same!!!
++					// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++					bool errors = false;
++					const default_at * at;
++
++					f64 r1 = 0.150; f64 e1 = 0.175;			// default...
++					at = default_tables::GetInstance()->GetAtomType(atmtab[ind1]->atmtp);
++					if (at != NULL) { r1 = at->vdw_R; e1 = at->vdw_E; }
++					else errors = true;
++
++					f64 r2 = 0.150; f64 e2 = 0.175;			// default...
++					at = default_tables::GetInstance()->GetAtomType(atmtab[ind2]->atmtp);
++					if (at != NULL) { r2 = at->vdw_R; e2 = at->vdw_E; }
++					else errors = true;
++
++					f64 optdist = r1 + r2;
++					f64 energy = sqrt(e1 * e2);
++
++					f64 charge1 = atmtab[ind1]->charge;
++					f64 charge2 = atmtab[ind2]->charge;
++					newnbt1.qq = 138.9354518 * charge1 * charge2;
++
++					if (is14)
++					{
++						energy *= 0.5;
++						newnbt1.qq *= 0.75;
++					}
++
++					f64 tmp1 = optdist * pow(1.0 * energy, 1.0 / 12.0);
++					f64 tmp2 = optdist * pow(2.0 * energy, 1.0 / 6.0);
++
++					newnbt1.kr = tmp1;
++					newnbt1.kd = tmp2;
++
++					if (!errors) success = true;
++				}
++
++				nbt1_err += !success;
++				nbt1_vector.push_back(newnbt1);
++			}
++		}
++	}
++
++	// report possible errors...
++
++	i32s total_err = nbt1_err;
++	if (total_err)
++	{
++		char mbuff1[256];
++		ostrstream str1(mbuff1, sizeof(mbuff1));
++		str1 << "WARNING : there were " << total_err << " missing parameters in the nonbonded terms." << endl << ends;
++		GetSetup()->GetModel()->PrintToLog(mbuff1);
++	}
++}
++/*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
+--- ./libghemical-3.0.0.original/src/engine.cpp	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/engine.cpp	2023-07-06 16:30:57.789303366 +0000
+@@ -1020,6 +1020,222 @@
+ 
+ /*################################################################################################*/
+ 
++engine_wbp::engine_wbp(setup * p1, i32u p2) : engine(p1, p2)
++{
++	//use_upp_wall = GetSetup()->GetModel()->use_boundary_potential;
++	//bp_wall_crd = GetSetup()->GetModel()->boundary_potential_radius1;
++	//bp_wall_crd = GetSetup()->GetModel()->boundary_potential_radius2;
++
++	f64 * tmp = GetSetup()->GetModel()->saved_periodic_box_HALFdim;
++	
++	box_HALFdim[0] = tmp[0];
++	box_HALFdim[1] = tmp[1];
++	box_HALFdim[2] = tmp[2];
++	
++	tmp = NULL;
++}
++
++engine_wbp::~engine_wbp(void)
++{
++}
++
++void engine_wbp::CheckMolLocations(void)
++{
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++	/*for (i32s n1 = 0;n1 < nmol_mm;n1++)
++	{
++		f64 sum[3] = { 0.0, 0.0, 0.0 };
++		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
++		for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++		{
++			i32u index = atmtab[n2]->varind;
++			for (i32s n3 = 0;n3 < 3;n3++)
++			{
++				sum[n3] += crd[index * 3 + n3];
++			}
++		}
++
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++#if SEVERAL_WBP
++			map<int, int>::iterator found = mN2.find(n2);
++			if (found == mN2.end())
++#else
++			if (n2 != N2)
++#endif
++			{
++				f64 test = sum[n2] / ac;
++
++				if (test < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
++					{
++						i32u index = atmtab[n3]->varind;
++						crd[index * 3 + n2] += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++					}
++				}
++				else if (test > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
++					{
++						i32u index = atmtab[n3]->varind;
++						crd[index * 3 + n2] -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++					}
++				}
++			}
++		}
++	}*/
++}
++
++#if 1
++void engine_wbp::CheckAtomLocations(void)
++{
++	static unsigned long nchecking = 0;
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++	for (i32s n2 = 0;n2 < GetSetup()->GetMMAtomCount();n2++)
++	{
++		i32u index = atmtab[n2]->varind;
++		for (i32s n3 = 0;n3 < 3;n3++)
++		{
++#if SEVERAL_WBP
++			map<int, int>::iterator found = mN2.find(n3);
++			if (found == mN2.end())
++#else
++			if (n3 != N2)
++#endif
++			{
++				f64 test = crd[index * 3 + n3];
++
++				if (test < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3])
++				{
++					crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3];
++				}
++				else if (test > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3])
++				{
++					crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3];
++				}
++			}
++		}
++	}
++	nchecking++;
++}
++
++#else
++
++void engine_wbp::CheckAtomLocations(void)
++{
++	static unsigned long nchecking = 0;
++	atom ** atmtab = GetSetup()->GetMMAtoms();
++
++	/*for (i32s n1 = 0;n1 < nmol_mm;n1++)// цикл по молекулам
++	{
++		f64 sum[3] = { 0.0, 0.0, 0.0 };
++		// число атомов в молекуле
++		f64 ac = (f64) (mrange[n1 + 1] - mrange[n1]);
++#if 0
++		if (ac <= 3) // если это молекула растворителя - определяем по числу атомов
++		{
++			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++			{
++				i32u index = atmtab[n2]->varind;
++				for (i32s n3 = 0;n3 < 3;n3++)
++				{
++					sum[n3] += crd[index * 3 + n3];
++				}
++			}
++			for ( n2 = 0;n2 < 3;n2++)
++			{
++				f64 test = sum[n2] / ac;
++
++				if (test < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					// считаем проникновение молекул растворителя сквозь z
++					if (n2 == 2)
++					{
++						dn_solvent_through_z--;
++					}
++					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
++					{
++						i32u index = atmtab[n3]->varind;
++						crd[index * 3 + n2] += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++					}
++
++				}
++				else if (test > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2])
++				{
++					// считаем проникновение молекул растворителя сквозь z
++					if (n2 == 2)
++					{
++						dn_solvent_through_z++;
++					}
++					for (i32s n3 = mrange[n1];n3 < mrange[n1 + 1];n3++)
++					{
++						i32u index = atmtab[n3]->varind;
++						crd[index * 3 + n2] -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n2];
++					}
++				}
++
++				if (n2 == 2)
++				{
++
++				}
++			}
++		}
++		else
++#endif
++		{
++			for (i32s n2 = mrange[n1];n2 < mrange[n1 + 1];n2++)
++			{
++				i32u index = atmtab[n2]->varind;
++				for (i32s n3 = 0;n3 < 3;n3++)
++				{
++#if SEVERAL_WBP
++					map<int, int>::iterator found = mN2.find(n3);
++					if (found == mN2.end())
++#else
++					if (n3 != N2)
++#endif
++					{
++						f64 test = crd[index * 3 + n3];
++
++						if (test < -GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3])
++						{
++							crd[index * 3 + n3] += 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3];
++						}
++						else if (test > +GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3])
++						{
++							crd[index * 3 + n3] -= 2.0 * GetSetup()->GetModel()->saved_periodic_box_HALFdim[n3];
++						}
++					}
++				}
++			}
++		}
++	}*/
++
++#if 0
++	n_solvent_through_z    += dn_solvent_through_z;
++#endif
++
++	nchecking++;
++
++#if DIFFUSE_WORKING
++	FILE * out;
++	out = fopen("diffuse.txt", "at");
++	fprintf(out, "%d\n",n_through_z);
++	fclose (out);
++#endif
++}
++#endif
++
++void engine_wbp::set_saved_periodic_box(model * mdl)
++{
++	mdl->saved_periodic_box_HALFdim[0] = box_HALFdim[0];
++	mdl->saved_periodic_box_HALFdim[1] = box_HALFdim[1];
++	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[2];
++}
++
++/*################################################################################################*/
++
+ number_density_evaluator::number_density_evaluator(engine_bp * p1, bool p2, i32s p3)
+ {
+ 	eng = p1;
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2023-07-05 08:39:21.740313878 +0000
++++ ./libghemical-3.0.0/src/engine.h	2023-07-06 16:16:16.093326509 +0000
+@@ -500,6 +500,54 @@
+ 	}
+ };
+ 
++
++/// A base engine class for systems that utiliza a wall boundary potential
++// by Z dimension and periodic boundary potencial by other XY dimentions.
++#define SEVERAL_WBP 1
++#include <map>
++using namespace std;
++
++class engine_wbp : virtual public engine
++{
++	protected:
++
++	f64 box_HALFdim[3];
++
++	bool use_upp_wall;
++	bool use_down_wall;
++#if SEVERAL_WBP
++	map<int, int> mN2;//индекс стенки = 2 for Z!!!
++#else
++	int N2;//индекс стенки = 2 for Z!!!
++#endif
++
++#if SEVERAL_WBP
++	map<int, f64> m_bp_wall_crd;//индекс стенки = 2 for Z!!!
++#else
++	f64 bp_wall_crd; //координата стенки
++#endif
++	f64 bp_fc_wall;	// силовая константа взаимодействия со стенкой
++
++	friend class model;
++
++
++	public:
++
++	engine_wbp(setup *, i32u);
++	virtual ~engine_wbp(void);
++
++	void CheckMolLocations(void);
++	void CheckAtomLocations(void);
++
++	virtual void set_saved_periodic_box(model * mdl);
++
++	virtual void log_box_optimization()
++	{
++		cout << "box_optimization  [" << box_HALFdim[0] << " " << box_HALFdim[1] << " " << box_HALFdim[2] << "]" << endl;
++	}
++};
++
++
+ /*################################################################################################*/
+ 
+ /// Calculates "number density" of solvent molecules -> engine::bp_center.
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-07-07 16:02:54.622441385 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-07-07 16:09:40.302432966 +0000
+@@ -357,6 +357,79 @@
+ bool model::apply_periodic_cond(engine * eng, f64 * t1a, bool check, bool fail, const char * desr) const
+ {
+ 	{
++		engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
++
++		if (use_periodic_boundary_conditions && NULL != eng_wbp)
++		{
++			for (i32s n3 = 0;n3 < 3;n3++)
++			{
++	#if SEVERAL_WBP
++				map<int, int>::iterator found = eng_wbp->mN2.find(n3);
++				if (found == eng_wbp->mN2.end())
++	#else
++				if (n3 != N2)
++	#endif
++				{
++					f64 xyz = t1a[n3];
++
++					if (xyz < -eng_wbp->box_HALFdim[n3])
++					{
++						xyz += 2.0 * eng_wbp->box_HALFdim[n3];
++
++						if (xyz < -eng_wbp->box_HALFdim[n3])
++						{
++							ostringstream str;
++							str << desr << endl;
++							str << (fail ? _("FATAL :") : _("Warning :")) << " t1a " << t1a[n3] << _(" -box_HALFdim[" ) << n3 << _("] ") << -eng_wbp->box_HALFdim[n3] << endl << ends;
++							this->PrintToLog(str.str().c_str());
++							if (fail)
++							{
++								assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++							}
++							else
++							{
++								assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a-");
++							}
++							if (check)
++							{
++								return false;
++							}
++						}
++					}
++					else if (xyz > +eng_wbp->box_HALFdim[n3])
++					{
++						xyz -= 2.0 * eng_wbp->box_HALFdim[n3];
++
++						if (xyz > eng_wbp->box_HALFdim[n3])
++						{
++							ostringstream str;
++							str << desr << endl;
++							str << (fail ? _("FATAL :") : _("Warning :")) << " t1a " << t1a[n3] << _(" box_HALFdim[" ) << n3 << _("] ") << eng_wbp->box_HALFdim[n3] << endl << ends;
++							this->PrintToLog(str.str().c_str());
++							if (fail)
++							{
++								assertion_failed(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++							}
++							else
++							{
++								assertion_warning(__FILE__, __LINE__, "apply_periodic_cond failed ; a+");
++							}
++							if (check)
++							{
++								return false;
++							}
++						}
++					}
++					//######################################################################
++					if (!check)
++					{
++						t1a[n3] = xyz;
++					}
++				}
++			}
++		}
++	}
++	{
+ 		// eng_pbc != NULL if we will use a system with periodic boundary conditions...
+ 		engine_pbc_cartesian * eng_pbc = dynamic_cast<engine_pbc_cartesian *>(eng);
+ 
+@@ -3213,6 +3286,9 @@
+ 	
+ // eng_pbc != NULL if we will use a system with periodic boundary conditions...
+ 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++
++// eng_wbp != NULL if we will use a system with wall boundary potential...
++	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
+ 	
+ 	ostringstream str1;
+ 	str1 << _("Starting Geometry Optimization ");
+@@ -3253,14 +3329,22 @@
+ 	bool cancel = false;
+ 	while (!cancel)
+ 	{
+-		if (!(n1 % 10)) eng->RequestNeighborListUpdate();
+-		if (!(n1 % 10) && eng_pbc != NULL) eng_pbc->CheckAtomLocations();
++		if (!(n1 % 10)) {
++			eng->RequestNeighborListUpdate();
++			if (eng_wbp != NULL) eng_wbp->CheckAtomLocations();
++			else if (eng_pbc != NULL) eng_pbc->CheckAtomLocations();
++		}
+ 		
+ 		opt->TakeCGStep(conjugate_gradient::Newton2An);
+ #if USE_BOUNDARY_OPT_ON_GEOMOPT
+ 		if (param.box_optimization && b_opt){
+ 			b_opt->TakeCGStep(conjugate_gradient::Newton2An);
+-			if (eng_pbc != NULL)
++			if (eng_wbp != NULL)
++			{
++				eng_wbp->log_box_optimization();
++				eng_wbp->set_saved_periodic_box(this);
++			}
++			else if (eng_pbc != NULL)
+ 			{
+ 				eng_pbc->log_box_optimization();
+ 				eng_pbc->set_saved_periodic_box(this);
+@@ -3434,6 +3518,9 @@
+ // eng_pbc != NULL if we will use a system with periodic boundary conditions...
+ 	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
+ 
++// eng_wbp != NULL if we will use a system with wall boundary potential...
++	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
++
+ 	eng1_mm * eng_mm = dynamic_cast<eng1_mm *>(eng);
+ 	
+ // THIS IS OPTIONAL!!! FOR BOUNDARY POTENTIAL STUFF ONLY!!!
+@@ -3523,6 +3610,8 @@
+ 	
+ 	ofstream logfile;
+ 	logfile.open(logfilename, ios::out);
++
++	logfile << str1;
+ 	
+ 	long_ofstream ofile;		// the trajectory file...
+ 	ofile.open(param.filename, ios::out | ios::binary);
+@@ -3563,7 +3652,8 @@
+ 
+ 		if (!(n1 % 10) || !checked_terms)
+ 		{
+-			if (eng_pbc != NULL) eng_pbc->CheckAtomLocations();
++			if (eng_wbp != NULL) eng_wbp->CheckAtomLocations();
++			else if (eng_pbc != NULL) eng_pbc->CheckAtomLocations();
+ 			eng->RequestNeighborListUpdate();
+ 		}
+ 		
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-07-05 08:39:21.744313878 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-07-05 19:15:48.547311561 +0000
+@@ -189,6 +189,8 @@
+ 	friend class engine_bp;
+ 	friend class engine_pbc_cartesian;
+ 	friend class engine_pbc_hexagonal;
++	friend class engine_wbp;
++	friend class eng1_mm_default_nbt_wbp;
+ 
+ 	friend class setup1_qm;
+ 	friend class eng1_qm_mopac;
+
