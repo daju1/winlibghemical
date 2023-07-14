@@ -6294,6 +6294,14 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		strcat(commonfilename, suffix);
 	}
 
+#if PROBNIY_ATOM_FIXED_AND_GEOMOPT
+		sprintf(suffix, "_fix_xyz");
+		strcat(commonfilename, suffix);
+#else
+		sprintf(suffix, "_fix_z");
+		strcat(commonfilename, suffix);
+#endif
+
 	// открываем файл для записи траэктории
 	char outfilename[1024];
 	sprintf(outfilename, "%s.traj", commonfilename);
