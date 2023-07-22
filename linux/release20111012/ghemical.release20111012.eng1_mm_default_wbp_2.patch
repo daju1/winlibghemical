@@ -1,0 +1,46 @@
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2023-07-21 18:58:03.866929693 +0000
++++ ./libghemical-3.0.0/src/engine.h	2023-07-21 20:43:12.134798780 +0000
+@@ -545,6 +545,26 @@
+ 	{
+ 		cout << "box_optimization  [" << box_HALFdim[0] << " " << box_HALFdim[1] << " " << box_HALFdim[2] << "]" << endl;
+ 	}
++
++	virtual f64 cellVolume()
++	{
++		f64 tmpVOL = box_HALFdim[0] * box_HALFdim[1] * box_HALFdim[2];
++		return tmpVOL;
++	}
++
++	virtual void scaleBox(f64 delta)
++	{
++		box_HALFdim[0] *= delta;
++		box_HALFdim[1] *= delta;
++		box_HALFdim[2] *= delta;
++	}
++
++	virtual void setTrajBoundary(float * boundary)
++	{
++		boundary[0] = box_HALFdim[0];
++		boundary[1] = box_HALFdim[1];
++		boundary[2] = box_HALFdim[2];
++	}
+ };
+ 
+ 
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-07-21 18:58:03.866929693 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-07-21 20:44:18.130797411 +0000
+@@ -5371,6 +5371,12 @@
+ 		eng_pbc->setTrajBoundary(boundary);
+ 	}
+ 
++	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(dyn->eng);
++	if (eng_wbp != NULL)
++	{
++		eng_wbp->setTrajBoundary(boundary);
++	}
++
+ 	ofile.write((char *) & ekin, sizeof(ekin));	// kinetic energy, float.
+ 	ofile.write((char *) & epot, sizeof(epot));	// potential energy, float.
+ 

@@ -1,0 +1,105 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-07-21 18:58:03.858929693 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-07-21 19:27:53.238892559 +0000
+@@ -4585,6 +4585,11 @@
+ 	float epot;
+ 	float tmp;
+ 
++	f64 previouse_coordinate_1 = 0.0;
++	f64 previouse_coordinate_2 = 0.0;
++
++	int  shift_1 = 0, shift_2 = 0;
++
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0;loop < max_frames;loop++)
+ 	{
+@@ -4599,45 +4604,70 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
++		float boundary[3];
+ 		if (trajectory_version > 10)
+ 		{
+-			float boundary[3];
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
+ 			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++			if (boundary[0] < 0 && boundary[1] < 0 && boundary[2] < 0)
++			{
++				boundary[0] = saved_periodic_box_HALFdim[0];
++				boundary[1] = saved_periodic_box_HALFdim[1];
++				boundary[2] = saved_periodic_box_HALFdim[2];
++			}
++			if (loop  ==  max_frames - 1) {
++				printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			}
+ 		}
+ 
+ 		i32s ind = 0;
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;
+-		f64 crd1, crd2;
++		f64 coordinate_1, coordinate_2;
+ 
+ 		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+ 		{
+-						this->ReadTrajectoryFrameAtom(it1);
+-						if (ind == ind1)
+-						{
+-							//mt_a1 = &(* it1);
+-							crd1 = this->traj_frame_cdata[dim];
+-						}
+-
+-						if (ind == ind2)
+-						{
+-							//mt_a2 = &(* it1);
+-							crd2 = this->traj_frame_cdata[dim];
+-						}
++			this->ReadTrajectoryFrameAtom(it1);
++			if (ind == ind1)
++			{
++				coordinate_1 = this->traj_frame_cdata[dim];
++				if (coordinate_1 - previouse_coordinate_1 > boundary[dim])
++				{
++					shift_1 -= 1;
++					printf("coordinate_1 %e - previouse_coordinate_1 %e > boundary[dim] %e shift_1 %d\n", coordinate_1, previouse_coordinate_1, boundary[dim], shift_1);
++				}
++				if (coordinate_1 - previouse_coordinate_1 < -boundary[dim])
++				{
++					shift_1 += 1;
++					printf("coordinate_1 %e - previouse_coordinate_1 %f < boundary[dim] %e shift_1 %d\n", coordinate_1, previouse_coordinate_1, boundary[dim], shift_1);
++				}
++			}
+ 
+-			/*if (ind == indc)
++			if (ind == ind2)
+ 			{
+-				mt_a3 = &(* it1);
+-			}*/
++				coordinate_2 = this->traj_frame_cdata[dim];
++				if (coordinate_2 - previouse_coordinate_2 > boundary[dim])
++				{
++					shift_2 -= 1;
++					printf("coordinate_2 %e - previouse_coordinate_2 %e > boundary[dim] %e shift_2 %d\n", coordinate_2, previouse_coordinate_2, boundary[dim], shift_2);
++				}
++				if (coordinate_2 - previouse_coordinate_2 < -boundary[dim])
++				{
++					shift_2 += 1;
++					printf("coordinate_2 %e - previouse_coordinate_2 %f < boundary[dim] %e shift_2 %d\n", coordinate_2, previouse_coordinate_2, boundary[dim], shift_2);
++				}
++			}
+ 
+ 			ind++;
+ 		}
+ 
+-		f64 crd = crd1-crd2;
++		previouse_coordinate_1 = coordinate_1;
++		previouse_coordinate_2 = coordinate_2;
+ 
++		f64 crd_1 = coordinate_1 + 2 * shift_1 * boundary[dim];
++		f64 crd_2 = coordinate_2 + 2 * shift_2 * boundary[dim];
+ 
+-		f64 value = crd;
++		f64 value = crd_1 - crd_2;
+ 		plot->AddData(loop, value);
+ 
+ 		mt_a1 = mt_a2 = mt_a3 = NULL;
