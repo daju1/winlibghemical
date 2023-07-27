@@ -105,7 +105,7 @@ int main(int argc, char ** argv)
 			flags++;
 			break;
 		case 'T':
-			temperature = strtod_l(argv[2+flags], &end, 0);
+			temperature = strtod(argv[2+flags], &end);
 			if (*end) {
 				fprintf(stderr, "Error: temperature argment not a "
 					"number!\n");
@@ -115,7 +115,7 @@ int main(int argc, char ** argv)
 			flags++;
 			break;
 		case 't':
-			timestep = strtod_l(argv[2+flags], &end, 0);
+			timestep = strtod(argv[2+flags], &end);
 			if (*end) {
 				fprintf(stderr, "Error: timestep argment not a "
 					"number!\n");
