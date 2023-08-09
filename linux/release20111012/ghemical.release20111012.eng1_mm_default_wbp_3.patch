@@ -1,0 +1,120 @@
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2023-08-09 08:32:23.991144459 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-08-09 08:51:25.171140106 +0000
+@@ -55,7 +55,8 @@
+ 	
+ 	_("eng1_mm_default_bp : The default engine (under construction)"),
+ 	_("eng1_mm_default_mim : The periodic engine (minimum image model)"),
+-	_("eng1_mm_default_wbp : The periodic engine X and wall boundary potential Y, Z"),
++	_("eng1_mm_default_wbp_y : The periodic engine X and wall boundary potential Y"),
++	_("eng1_mm_default_wbp_yz : The periodic engine X and wall boundary potential Y, Z"),
+ 	_("eng1_mm_default_mim_hex : The hexagonal periodic engine (minimum image model)"),
+ 	
+ 	_("eng1_mm_prmfit : Experimental"),
+@@ -170,11 +171,17 @@
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+ 		return new eng1_mm_default_mim(this, 1);
+ 
+-		case ENG1_MM_PERIODIC_WBP:
++		case ENG1_MM_PERIODIC_WBP_Y:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+ 	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+-		return new eng1_mm_default_wbp(this, 1);
++		return new eng1_mm_default_wbp(this, 1, wbp_y);
++
++		case ENG1_MM_PERIODIC_WBP_YZ:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_yz);
+ 
+ 		case ENG1_MM_PERIODIC_HEX:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2023-08-09 08:32:23.991144459 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.h	2023-08-09 08:37:05.067143387 +0000
+@@ -50,7 +50,8 @@
+ #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
+ #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
+ #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
+-#define ENG1_MM_PERIODIC_WBP	0x0102		// eng1_mm_default_wbp
++#define ENG1_MM_PERIODIC_WBP_Y	0x0102		// eng1_mm_default_wbp y
++#define ENG1_MM_PERIODIC_WBP_YZ	0x0103		// eng1_mm_default_wbp yz
+ #define ENG1_MM_PERIODIC_HEX	0x0111		// eng1_mm_default_mim
+ 
+ #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.cpp ./libghemical-3.0.0/src/eng1_mm_default.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.cpp	2023-08-09 08:32:23.991144459 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.cpp	2023-08-09 08:52:38.719139825 +0000
+@@ -1905,8 +1905,8 @@
+ 
+ /*################################################################################################*/
+ 
+-eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2),
+-	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2)
++eng1_mm_default_wbp::eng1_mm_default_wbp(setup * p1, i32u p2, wbp_type p3) : engine(p1, p2), eng1_mm(p1, p2),
++	engine_wbp(p1, p2), eng1_mm_default_bt(p1, p2), eng1_mm_default_nbt_wbp(p1, p2, p3)
+ 	// , eng1_mm_default_nbt_sl(p1, p2)
+ {
+ }
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2023-08-09 08:32:23.991144459 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.h	2023-08-09 08:43:49.583141844 +0000
+@@ -220,6 +220,12 @@
+ 
+ #define WBP_COPIED_FROM_MIM 1
+ 
++enum wbp_type
++{
++	wbp_y = 1,
++	wbp_yz = 2,
++};
++
+ class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
+ {
+ 	protected:
+@@ -237,7 +243,7 @@
+ 
+ 	public:
+ 
+-	eng1_mm_default_nbt_wbp(setup *, i32u);
++	eng1_mm_default_nbt_wbp(setup *, i32u, wbp_type);
+ 	virtual ~eng1_mm_default_nbt_wbp(void);
+ 
+ 	protected:
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp	2023-08-09 08:32:23.991144459 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp	2023-08-09 08:46:51.443141150 +0000
+@@ -29,7 +29,7 @@
+ }
+ 
+ /*################################################################################################*/
+-eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2) : engine(p1, p2), eng1_mm(p1, p2), engine_wbp(p1, p2)
++eng1_mm_default_nbt_wbp::eng1_mm_default_nbt_wbp(setup * p1, i32u p2, wbp_type p3) : engine(p1, p2), eng1_mm(p1, p2), engine_wbp(p1, p2)
+ {
+ //	atom ** atmtab = GetSetup()->GetMMAtoms();
+ //	bond ** bndtab = GetSetup()->GetMMBonds();
+@@ -71,8 +71,20 @@
+ 
+ #if SEVERAL_WBP
+ 	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
+-	mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
+-	//mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++	switch (p3)
++	{
++	case wbp_y:
++		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
++		break;
++
++	case wbp_yz:
++		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
++		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++		break;
++
++	default:
++		break;
++	}
+ #else
+ 	N2 = 2;//индекс стенки = 2 for Z!!!
+ 	N2 = 1;//индекс стенки = 1 for Y!!!
