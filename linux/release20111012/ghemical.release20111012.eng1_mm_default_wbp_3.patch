@@ -1,17 +1,27 @@
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2023-08-09 08:32:23.991144459 +0000
-+++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-08-09 08:51:25.171140106 +0000
-@@ -55,7 +55,8 @@
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-08-09 09:09:48.911135895 +0000
+@@ -41,7 +41,8 @@
+ 	
+ 	ENG1_MM_DEFAULT,
+ 	ENG1_MM_PERIODIC,
+-	ENG1_MM_PERIODIC_WBP,
++	ENG1_MM_PERIODIC_WBP_Y,
++	ENG1_MM_PERIODIC_WBP_YZ,
+ 	ENG1_MM_PERIODIC_HEX,
+ 	
+ 	ENG1_MM_EXPERIMENTAL,
+@@ -55,7 +56,8 @@
  	
  	_("eng1_mm_default_bp : The default engine (under construction)"),
  	_("eng1_mm_default_mim : The periodic engine (minimum image model)"),
 -	_("eng1_mm_default_wbp : The periodic engine X and wall boundary potential Y, Z"),
-+	_("eng1_mm_default_wbp_y : The periodic engine X and wall boundary potential Y"),
-+	_("eng1_mm_default_wbp_yz : The periodic engine X and wall boundary potential Y, Z"),
++	_("eng1_mm_default_wbp_y : The periodic X, Z engine and wall boundary potential Y"),
++	_("eng1_mm_default_wbp_yz : The periodic X engine and wall boundary potential Y, Z"),
  	_("eng1_mm_default_mim_hex : The hexagonal periodic engine (minimum image model)"),
  	
  	_("eng1_mm_prmfit : Experimental"),
-@@ -170,11 +171,17 @@
+@@ -170,11 +172,17 @@
  	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
  		return new eng1_mm_default_mim(this, 1);
  
@@ -83,6 +93,15 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0
  	virtual ~eng1_mm_default_nbt_wbp(void);
  
  	protected:
+@@ -348,7 +354,7 @@
+ {
+ 	public:
+ 
+-	eng1_mm_default_wbp(setup *, i32u);
++	eng1_mm_default_wbp(setup *, i32u, wbp_type);
+ 	~eng1_mm_default_wbp(void);
+ };
+ 
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp	2023-08-09 08:32:23.991144459 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp	2023-08-09 08:46:51.443141150 +0000
