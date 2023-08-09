@@ -401,7 +401,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		}
 +	}
 +
-+	printf("molgroups size = %d\n", molgroups.size());
++	printf("molgroups size = %lu\n", molgroups.size());
 +	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
 +		it_mlgr != molgroups.end(); ++it_mlgr)
 +	{
