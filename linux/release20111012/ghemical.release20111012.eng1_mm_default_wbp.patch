@@ -1138,10 +1138,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			for (i32s n3 = 0;n3 < 3;n3++)
 +			{
 +	#if SEVERAL_WBP
-+				map<int, int>::iterator found = eng_wbp->mN2.find(n3);
-+				if (found == eng_wbp->mN2.end())
++				// map<int, int>::iterator found = eng_wbp->mN2.find(n3);
++				// if (found == eng_wbp->mN2.end())
 +	#else
-+				if (n3 != N2)
++				// if (n3 != N2)
 +	#endif
 +				{
 +					f64 xyz = t1a[n3];
