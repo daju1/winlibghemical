@@ -1,0 +1,38 @@
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2023-08-09 10:33:25.103116760 +0000
++++ ./libghemical-3.0.0/src/engine.h	2023-08-14 21:20:41.138991320 +0000
+@@ -48,6 +48,7 @@
+ using namespace std;
+ 
+ #include "typedef.h"
++#include <stdio.h>
+ 
+ /*################################################################################################*/
+ 
+@@ -417,7 +418,7 @@
+ 
+ 	virtual void log_box_optimization()
+ 	{
+-		cout << "box_optimization  [" << box_HALFdim[0] << " " << box_HALFdim[1] << " " << box_HALFdim[2] << "]" << endl;
++		printf("box_optimization [%0.16f %0.16f %0.16f]\n", box_HALFdim[0], box_HALFdim[1], box_HALFdim[2]);
+ 	}
+ 
+ 	virtual void set_saved_periodic_box(model * mdl);
+@@ -474,7 +475,7 @@
+ 
+ 	virtual void log_box_optimization()
+ 	{
+-		cout << "box_optimization [" << box_HALFdim[0] * 2/3 * sqrt(3.0) << " " << box_HALFdim[0] << " " << box_HALFdim[1] << "]" << endl;
++		printf("box_optimization [%0.16f %0.16f %0.16f]\n", box_HALFdim[0] * 2/3 * sqrt(3.0), box_HALFdim[1], box_HALFdim[2]);
+ 	}
+ 
+ 	virtual void set_saved_periodic_box(model * mdl);
+@@ -543,7 +544,7 @@
+ 
+ 	virtual void log_box_optimization()
+ 	{
+-		cout << "box_optimization  [" << box_HALFdim[0] << " " << box_HALFdim[1] << " " << box_HALFdim[2] << "]" << endl;
++		printf("box_optimization [%0.16f %0.16f %0.16f]\n", box_HALFdim[0], box_HALFdim[1], box_HALFdim[2]);
+ 	}
+ 
+ 	virtual f64 cellVolume()
