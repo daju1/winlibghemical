@@ -1,0 +1,219 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-08-14 21:49:13.182955790 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-08-14 22:10:39.730929091 +0000
+@@ -136,6 +136,33 @@
+   return file;
+ }
+ 
++bool ReadTargetListFile(const char * filename, vector<i32s>& target_list)
++{
++	target_list.clear();
++	if (filename)
++	{
++		FILE * stream = fopen(filename, "rt");
++		if (stream)
++		{
++			const int n = 256;
++			char szBuff[n];
++			while (!feof(stream))
++			{
++				char * ch = fgets(szBuff,n,stream);
++				if( ch != NULL && strlen(szBuff) > 1)
++				{
++					i32s v = atoi(szBuff);
++					target_list.push_back(v);
++				}
++			}
++
++			fclose(stream);
++			return true;
++		}
++	}
++	return false;
++}
++
+ model::model(void)
+ {
+ 	current_setup = new setup1_mm(this);
+@@ -305,6 +332,48 @@
+ 	exit(EXIT_FAILURE);
+ }
+ 
++void model::LoadSelected(const char * filename)
++{
++	vector<i32s> selected_atoms_list;
++	ReadTargetListFile(filename, selected_atoms_list);
++	i32s index = 0;
++	for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
++	{
++		bool selected = false;
++		for (vector<i32s>::iterator it = selected_atoms_list.begin();
++			it != selected_atoms_list.end(); it++)
++		{
++			if (index == (*it))
++			{
++				selected = true;
++				break;
++			}
++		}
++		if (selected)
++			(* itx).flags |= ATOMFLAG_USER_SELECTED;
++		else
++			(* itx).flags &= (~ATOMFLAG_USER_SELECTED);
++
++		index++;
++	}
++}
++
++void model::SaveSelected(const char * filename)
++{
++	FILE * stream;
++	stream = fopen(filename, "wt");
++	if(stream)
++	{
++		int index = 0;
++		for (iter_al itx = GetAtomsBegin();itx != GetAtomsEnd();itx++)
++		{
++			bool selected = ((* itx).flags & ATOMFLAG_USER_SELECTED);
++			if (selected) fprintf(stream, "%d\n", index);
++			index++;
++		}
++		fclose(stream);
++	}
++}
+ 
+ void model::SaveBox(const char * boxfilename)
+ {
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-08-14 21:49:13.182955790 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-08-14 22:08:25.634931874 +0000
+@@ -237,6 +237,9 @@
+ 	
+ 	static void OpenLibDataFile(ifstream &, bool, const char *);
+ 
++	void LoadSelected(const char * filename);
++	void SaveSelected(const char * filename);
++
+     void SaveBox(const char * boxfilename);
+     bool LoadBox(const char * boxfilename);
+ 
+diff -Nur ./ghemical-3.0.0.original/src/gtk_oglview_wnd.cpp ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp
+--- ./ghemical-3.0.0.original/src/gtk_oglview_wnd.cpp	2023-08-14 22:24:54.858911345 +0000
++++ ./ghemical-3.0.0/src/gtk_oglview_wnd.cpp	2023-08-14 22:25:35.834910495 +0000
+@@ -52,7 +52,7 @@
+ 	// ^^^^^^^^^^^^^
+ 	{ "FileExtra1", NULL, N_("Import PDB"), NULL, N_("Import a PDB file"), (GCallback) gtk_project::popup_FileExtra1 },
+ 	{ "FileExtra2", NULL, N_("Import Box"), NULL, N_("Import a Box file"), (GCallback) gtk_project::popup_FileExtra2 },
+-//	{ "FileExtra3", NULL, N_("Import ???"), NULL, N_("Import a ??? file"), (GCallback) gtk_project::popup_FileExtra3 },
++	{ "FileExtra3", NULL, N_("Import Sel"), NULL, N_("Import a Sel file"), (GCallback) gtk_project::popup_FileExtra3 },
+ 	
+ 	{ "SelectMenu", NULL, N_("Select") },
+ 	// ^^^^^^^^^^
+@@ -214,7 +214,7 @@
+ "      <menu action='FileExtraMenu'>"
+ "        <menuitem action='FileExtra1'/>"
+ "        <menuitem action='FileExtra2'/>"
+-//"        <menuitem action='FileExtra3'/>"
++"        <menuitem action='FileExtra3'/>"
+ "      </menu>"
+ "      <separator/>"
+ "      <menuitem action='Close'/>"
+diff -Nur ./ghemical-3.0.0.original/src/gtk_project.cpp ./ghemical-3.0.0/src/gtk_project.cpp
+--- ./ghemical-3.0.0.original/src/gtk_project.cpp	2023-08-14 21:49:13.174955791 +0000
++++ ./ghemical-3.0.0/src/gtk_project.cpp	2023-08-14 22:26:34.346909281 +0000
+@@ -506,14 +506,8 @@
+ {
+ 	gtk_project * prj = gtk_app::GetPrjX();
+ 	
+-// this is just a stub for a new "extra"-item...
+-// this is just a stub for a new "extra"-item...
+-// this is just a stub for a new "extra"-item...
+-	
+-	if (prj)
+-	{
+-		prj->Message("this is not yet implemented...");
+-	}
++	// will call delete itself...
++	if (prj) new gtk_importsel_dialog(prj);
+ }
+ 
+ void gtk_project::popup_SelectAll(GtkWidget *, gpointer data)
+diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp
+--- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.cpp	2023-08-14 21:49:13.174955791 +0000
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.cpp	2023-08-14 22:29:42.662905373 +0000
+@@ -529,7 +529,7 @@
+ 
+ /*################################################################################################*/
+ 
+-const char gtk_importbox_dialog::title[] = "Import File - Brookhaven PDB/ENT";
++const char gtk_importbox_dialog::title[] = "Import File - Box";
+ gtk_project * gtk_importbox_dialog::prj = NULL;
+ 
+ gtk_importbox_dialog::gtk_importbox_dialog(gtk_project * p1) :
+@@ -559,6 +559,38 @@
+ {
+ }
+ 
++/*################################################################################################*/
++
++const char gtk_importsel_dialog::title[] = "Import File - Sel";
++gtk_project * gtk_importsel_dialog::prj = NULL;
++
++gtk_importsel_dialog::gtk_importsel_dialog(gtk_project * p1) :
++	gtk_file_dialog(title, BOXFILENAME_FILTER, make_box_filename(p1))
++{
++	prj = p1;
++}
++
++gtk_importsel_dialog::~gtk_importsel_dialog(void)
++{
++}
++
++bool gtk_importsel_dialog::OkEvent(const char * filename)
++{
++	if (prj != NULL)
++	{
++		prj->LoadSelected(filename);
++
++		prj->UpdateAllGraphicsViews();
++		custom_app::GetAppC()->UpdateAllWindowTitles();
++	}
++
++	return true;
++}
++
++void gtk_importsel_dialog::CancelEvent(void)
++{
++}
++
+ /*################################################################################################*/
+ 
+ gtk_project * gtk_command_dialog::prj;
+diff -Nur ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h ./ghemical-3.0.0/src/gtk_simple_dialogs.h
+--- ./ghemical-3.0.0.original/src/gtk_simple_dialogs.h	2023-08-14 21:49:13.174955791 +0000
++++ ./ghemical-3.0.0/src/gtk_simple_dialogs.h	2023-08-14 22:30:26.874904455 +0000
+@@ -225,6 +225,24 @@
+ 
+ /*################################################################################################*/
+ 
++class gtk_importsel_dialog : public gtk_file_dialog
++{
++	private:
++
++	static const char title[];
++	static gtk_project * prj;
++
++	public:
++
++	gtk_importsel_dialog(gtk_project *);
++	~gtk_importsel_dialog(void);
++
++	bool OkEvent(const char *);	// virtual
++	void CancelEvent(void);		// virtual
++};
++
++/*################################################################################################*/
++
+ class gtk_command_dialog
+ {
+ 	private:
