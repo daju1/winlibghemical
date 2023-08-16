@@ -1,0 +1,44 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-08-15 14:30:57.247641267 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-08-15 15:01:42.431602974 +0000
+@@ -2474,6 +2474,40 @@
+ 		
+ 		glEnd();
+ 	}
++
++	if (use_periodic_boundary_conditions && 
++		rm == Normal)
++	{
++		glLineWidth(2.0);
++		glColor3f(1.0, 0.0, 1.0);
++		glBegin(GL_LINES);
++
++		ostringstream strX, strY, strZ;
++		double len = 0.25;
++		fGL x, y, z;
++
++		glVertex3f(-saved_periodic_box_HALFdim[0]-len, -saved_periodic_box_HALFdim[1]-len, -saved_periodic_box_HALFdim[2]-len);
++		glVertex3f(-saved_periodic_box_HALFdim[0],     -saved_periodic_box_HALFdim[1]-len, -saved_periodic_box_HALFdim[2]-len);
++		
++		glVertex3f(-saved_periodic_box_HALFdim[0]-len, -saved_periodic_box_HALFdim[1]-len, -saved_periodic_box_HALFdim[2]-len);
++		glVertex3f(-saved_periodic_box_HALFdim[0]-len, -saved_periodic_box_HALFdim[1]-len, -saved_periodic_box_HALFdim[2]);
++		
++		glVertex3f(-saved_periodic_box_HALFdim[0]-len, -saved_periodic_box_HALFdim[1]-len, -saved_periodic_box_HALFdim[2]-len);
++		glVertex3f(-saved_periodic_box_HALFdim[0]-len, -saved_periodic_box_HALFdim[1],     -saved_periodic_box_HALFdim[2]-len);
++		glEnd();
++		
++		strX << "X" << ends;
++		x = -saved_periodic_box_HALFdim[0];     y = -saved_periodic_box_HALFdim[1]-len; z = -saved_periodic_box_HALFdim[2]-len;
++		wcl->ogl_WriteString3D(strX.str().c_str(), x, y, z);
++		
++		strY << "Y" << ends;
++		x = -saved_periodic_box_HALFdim[0]-len; y = -saved_periodic_box_HALFdim[1];     z = -saved_periodic_box_HALFdim[2]-len;
++		wcl->ogl_WriteString3D(strY.str().c_str(), x, y, z);
++		
++		strZ << "Z" << ends;
++		x = -saved_periodic_box_HALFdim[0]-len; y = -saved_periodic_box_HALFdim[1]-len; z = -saved_periodic_box_HALFdim[2];
++		wcl->ogl_WriteString3D(strZ.str().c_str(), x, y, z);
++	}
+ 	
+ 	if (wcl->enable_fog) glEnable(GL_FOG);
+ 	
