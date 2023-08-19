@@ -1,0 +1,83 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-08-16 09:09:34.151752544 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-08-16 09:10:41.943751137 +0000
+@@ -3857,6 +3857,9 @@
+ 	f64 previouse_acceleration = 0.0;
+ 	f64 sum_acceleration = 0.0;
+ 	f64 sum_force = 0.0;
++	f64 coordinate_cumsum_velocity = 0.0;
++	f64 coordinate_cumsum_acceleration = 0.0;
++	f64 coordinate_cumsum_velocity_and_acceleration = 0.0;
+ 
+ 	std::list<struct molgroup> molgroups;
+ 	this->MakeMoleculesGroups(molgroups);
+@@ -4279,12 +4282,12 @@
+ 			if (coordinate - previouse_coordinate > boundary[dim])
+ 			{
+ 				shift -= 1;
+-				printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+ 			}
+ 			if (coordinate - previouse_coordinate < -boundary[dim])
+ 			{
+ 				shift += 1;
+-				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
+ 			}
+ 			sum_coordinate = (coordinate + 2 * shift * boundary[dim]) - first_coordinate;
+ 		}
+@@ -4315,10 +4318,16 @@
+ 		*/
+ 
+ 		f64 tstep1 = /*0.5*/traj_tstep1, tstep2 = tstep1 * tstep1;
++		f64 the_trajectory_current_time_ns = loop > 1 ? time_step_between_traj_records * (loop - 1) / 1000000 : time_step_between_traj_records / 1000000;
++
+ 		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
+ 		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
+ 		f64 dc     = dcv + dca;
+ 
++		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
++		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
++		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
++
+ 		f64 dv1 = tstep1 * previouse_acceleration * 0.5e-6;
+ 		f64 dv2 = tstep1 * acceleration * 0.5e-6;
+ 		f64 dv  = dv1 + dv2;
+@@ -4398,6 +4407,19 @@
+ 			value = gas_atom_went_up_out_from_memrane;
+ 			break;
+ 
++		case 17:
++			value = coordinate_cumsum_velocity;
++			break;
++		case 18:
++			value = coordinate_cumsum_acceleration;
++			break;
++		case 19:
++			value = coordinate_cumsum_velocity_and_acceleration;
++			break;
++		case 20:
++			value = coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns;
++			break;
++
+ 		default:
+ 			break;
+ 		}
+@@ -4432,10 +4454,17 @@
+ 	f64 mean_d_coordinate_error = sum_d_coordinate_error / max_frames;
+ 	f64 mean_d_velocity_error   = sum_d_velocity_error   / max_frames;
+ 
++	// the trajectory common time (1.0E-9 s)
++	f64 the_trajectory_common_time_ns = time_step_between_traj_records * (total_traj_frames - 1) / 1000000;
++
+ 	printf("sum_d_coordinate_error / sum_coordinate %f\n", sum_d_coordinate_error / sum_coordinate);
+ 	printf("sum_coordinate - sum_d_coordinate_error %f\n", sum_coordinate - sum_d_coordinate_error);
+ 
+ 	printf("sum_coordinate  %f (nm)\n",  sum_coordinate);
++	printf("coordinate_cumsum_velocity                    %f (nm)\n", coordinate_cumsum_velocity);
++	printf("coordinate_cumsum_acceleration                %f (nm)\n", coordinate_cumsum_acceleration);
++	printf("coordinate_cumsum_velocity_and_acceleration   %f (nm)\n", coordinate_cumsum_velocity_and_acceleration);
++	printf("crd_per_time_cumsum_velocity_and_acceleration %f (m/s)\n", coordinate_cumsum_velocity_and_acceleration / the_trajectory_common_time_ns);
+ 	printf("mean_coordinate %e (nm/frame)\n", mean_coordinate);
+ 
+ 	printf("sum_d_coordinate_error  %f \n",  sum_d_coordinate_error);

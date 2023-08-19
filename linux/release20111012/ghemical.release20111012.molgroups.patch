@@ -1919,12 +1919,12 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +			if (coordinate - previouse_coordinate > boundary[dim])
 +			{
 +				shift -= 1;
-+				printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
 +			}
 +			if (coordinate - previouse_coordinate < -boundary[dim])
 +			{
 +				shift += 1;
-+				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
++				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
 +			}
 +			sum_coordinate = (coordinate + 2 * shift * boundary[dim]) - first_coordinate;
 +		}
@@ -1954,7 +1954,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
 +		*/
 +
-+		f64 tstep1 = 0.5, tstep2 = tstep1 * tstep1;
++		f64 tstep1 = /*0.5*/traj_tstep1, tstep2 = tstep1 * tstep1;
 +		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
 +		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
 +		f64 dc     = dcv + dca;
