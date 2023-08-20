@@ -99,6 +99,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.render_xyz_axis.patch
 	patch -p1 < ./ghemical.release20111012.molgroups_coordinate_cumsum_velocity_and_acceleration.patch
 	patch -p1 < ./ghemical.release20111012.molgroups_read_trajectory_frame_atom.patch
+	patch -p1 < ./ghemical.release20111012.molgroups_make_mol_plot_in_model.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

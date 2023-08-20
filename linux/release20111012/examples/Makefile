@@ -26,6 +26,7 @@ PKG_CONFIG_PATH=$(dirname $(pwd))/${LOCAL}/lib/pkgconfig
 EX1 =		example1
 EX2 =		example2
 EX3 =		example_moldyn
+EX4 =		example_make_mol_plots
 
 MOPAC7LIBS = $(shell pkg-config --libs libmopac7)
 LIBS       = $(MOPAC7LIBS) -lghemical -loglappth -linchi -lopenbabel -lm -lGLU -lGL -lglib-2.0 
@@ -33,13 +34,14 @@ LIBS       = $(MOPAC7LIBS) -lghemical -loglappth -linchi -lopenbabel -lm -lGLU -
 EX1SRC =	fileio.cpp example1.cpp
 EX2SRC =	fileio.cpp example2.cpp
 EX3SRC =	streamio.cpp example3.cpp
+EX4SRC =	example_make_mol_plots.cpp
 
 OBJ = $(SRC:.cpp=.o)
 OBJ = fileio.o 
 
 ####################################################################################################
 
-all:		$(EX1) $(EX2) $(EX3)
+all:		$(EX1) $(EX2) $(EX3) $(EX4)
 
 $(EX1):	$(OBJ) $(EX1).o
 		$(CC) -o $(EX1) $(OBJ) $(EX1).o $(LDFLAGS) $(MPQCLIBS) $(LIBS)
@@ -49,6 +51,9 @@ $(EX2):	$(OBJ) $(EX2).o
 
 $(EX3):	$(OBJ) $(EX3).o
 		$(CC) -o $(EX3) $(OBJ) $(EX3).o $(MPQCLIBS) $(LDFLAGS) $(LIBS)
+
+$(EX4):	$(OBJ) $(EX4).o
+		$(CC) -o $(EX4) $(OBJ) $(EX4).o $(MPQCLIBS) $(LDFLAGS) $(LIBS)
 
 %.o: %.cpp
 		$(CC) $(BASEFLAGS) $(CFLAGS) $(MPQCFLAGS) $(@:.o=.cpp)
