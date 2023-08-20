@@ -1,0 +1,209 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2023-08-19 22:55:28.410420868 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2023-08-19 23:48:46.450408669 +0000
+@@ -3836,11 +3836,20 @@
+ 		return;
+ 	}
+ 
+-	const char * crd_name [] = {"coordinate", "velocity", "acceleration", "force"};
++	const char * crd_name [] = {
++		"coordinate", "velocity", "acceleration", "force",
++		"d_coordinate_error", "d_velocity_error", "sum_d_coordinate_error", "sum_d_velocity_error",
++		"cumsum_velocity", "cumsum_acceleration", "cumsum_force",
++		"gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane",
++		"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",
++		"gas_atom_went_down_out_from_membrane", "gas_atom_went_up_into_memrane", "gas_atom_went_down_into_membrane",
++		"gas_atom_went_up_out_from_memrane", "coordinate_cumsum_velocity", "coordinate_cumsum_acceleration",
++		"coordinate_cumsum_velocity_and_acceleration", "coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns"
++		};
+ 
+ 	const char * s1 = "frame(num)"; const char * sv = "distance (nm)";
+ 	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
+-	std::string title = std::string("Molecule Coordinate plot of ") + traj_filename;
++	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < 20 ? crd_name[crd_type] : "coordinate") + std::string("plot of ") + traj_filename;
+ 	plot->SetTitle(title.c_str());
+ 
+ 	float ekin;
+@@ -3912,156 +3921,20 @@
+ 
+ 		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
+ 		{
+-			f64 cdata[3];
+-			f64 vdata[3];
+-			f64 adata[3];
+-			f64 fdata[3];
++			this->ReadTrajectoryFrameAtom(it1);
+ 
+-			if (trajectory_version < 15 || 16 == trajectory_version)
++			for (i32s t4 = 0;t4 < 3;t4++)
+ 			{
+-				float t1a;
+-				for (i32s t4 = 0;t4 < 3;t4++)
+-				{
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					cdata[t4] = t1a;
+-					c_data[3 * ind + t4] = t1a;
+-				}
+-
+-				if (trajectory_version > 12)
+-				{
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						vdata[t4] = t1a;
+-						v_data[3 * ind + t4] = t1a;
+-					}
+-				}
+-
+-				if (trajectory_version > 13)
+-				{
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						adata[t4] = t1a;
+-						a_data[3 * ind + t4] = t1a;
+-					}
+-				}
+-
+-				if (trajectory_version > 11)
+-				{
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						fdata[t4] = t1a;
+-						f_data[3 * ind + t4] = t1a;
+-					}
+-				}
+-
+-				if (16 == trajectory_version)
+-				{
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						vdata[t4] = t1a;
+-						cumsum_v_data[3 * ind + t4] = t1a;
+-					}
+-
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						adata[t4] = t1a;
+-						cumsum_a_data[3 * ind + t4] = t1a;
+-					}
+-
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						fdata[t4] = t1a;
+-						cumsum_f_data[3 * ind + t4] = t1a;
+-					}
+-				}
+-			}
+-			else if (15 == trajectory_version || 17 == trajectory_version)
+-			{
+-				f64 t1a;
+-				for (i32s t4 = 0;t4 < 3;t4++)
+-				{
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					cdata[t4] = t1a;
+-					c_data[3 * ind + t4] = t1a;
+-				}
+-
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					vdata[t4] = t1a;
+-					v_data[3 * ind + t4] = t1a;
+-				}
+-
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					adata[t4] = t1a;
+-					a_data[3 * ind + t4] = t1a;
+-				}
+-
+-				for (i32s t4 = 0; t4 < 3; t4++)
+-				{
+-					trajfile->read((char *) & t1a, sizeof(t1a));
+-					fdata[t4] = t1a;
+-					f_data[3 * ind + t4] = t1a;
+-				}
+-
+-				if (17 == trajectory_version)
+-				{
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						vdata[t4] = t1a;
+-						cumsum_v_data[3 * ind + t4] = t1a;
+-					}
+-
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						adata[t4] = t1a;
+-						cumsum_a_data[3 * ind + t4] = t1a;
+-					}
+-
+-					for (i32s t4 = 0; t4 < 3; t4++)
+-					{
+-						trajfile->read((char *) & t1a, sizeof(t1a));
+-						fdata[t4] = t1a;
+-						cumsum_f_data[3 * ind + t4] = t1a;
+-					}
+-				}
++				c_data[3 * ind + t4] = this->traj_frame_cdata[t4];
++				v_data[3 * ind + t4] = this->traj_frame_vdata[t4];
++				a_data[3 * ind + t4] = this->traj_frame_adata[t4];
++				f_data[3 * ind + t4] = this->traj_frame_fdata[t4];
++
++				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
++				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
++				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
+ 			}
+ 
+-			//printf("%d -f/a %f %f %f\n", ind
+-			//	, -fdata[0]/adata[0]
+-			//	, -fdata[1]/adata[1]
+-			//	, -fdata[2]/adata[2]
+-			//	);
+-
+-			//printf("%d -f / a %f %f %f %f %f\n", ind
+-			//	, -f_data[3 * ind + 0]/a_data[3 * ind + 0]
+-			//	, -f_data[3 * ind + 1]/a_data[3 * ind + 1]
+-			//	, -f_data[3 * ind + 2]/a_data[3 * ind + 2]
+-			//	, -f_data[3 * ind + 2],a_data[3 * ind + 2]
+-			//	);
+-
+-			/*printf("v, a %f %f %f %f %f %f\n"
+-				, vdata[0],adata[0]
+-				, vdata[1],adata[1]
+-				, vdata[2],adata[2]
+-				);*/
+-
+-			/*
+-			acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
+-			acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
+-			acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
+-			*/
+-
+ 			ind++;
+ 		}
+ 
+@@ -4116,15 +3989,6 @@
+ 				pre_loop_crd = previouse_c_data[3 * ind + dim];
+ 				pre_loop_vel = previouse_v_data[3 * ind + dim];
+ 
+-			//printf("crd vel acc frc %f %f %f %f\n"
+-			//	, crd, vel, acc, frc
+-			//	);
+-
+-			//printf("ind %d dim %d -frc/acc %f %f %f\n", ind, dim
+-			//	, -frc/acc
+-			//	, -frc, acc
+-			//	);
+-
+ 				//if (0 == crd_type)
+ 				{
+ 					//this->apply_periodic_cond(eng, test2);

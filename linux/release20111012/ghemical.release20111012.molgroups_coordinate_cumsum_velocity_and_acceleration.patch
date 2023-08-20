@@ -11,21 +11,6 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  
  	std::list<struct molgroup> molgroups;
  	this->MakeMoleculesGroups(molgroups);
-@@ -4279,12 +4282,12 @@
- 			if (coordinate - previouse_coordinate > boundary[dim])
- 			{
- 				shift -= 1;
--				printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
-+				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %e > boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
- 			}
- 			if (coordinate - previouse_coordinate < -boundary[dim])
- 			{
- 				shift += 1;
--				printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
-+				if (loop  ==  max_frames - 1) printf("coordinate %e - previouse_coordinate %f < boundary[dim] %e shift %d\n", coordinate, previouse_coordinate, boundary[dim], shift);
- 			}
- 			sum_coordinate = (coordinate + 2 * shift * boundary[dim]) - first_coordinate;
- 		}
 @@ -4315,10 +4318,16 @@
  		*/
  
