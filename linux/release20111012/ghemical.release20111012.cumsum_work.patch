@@ -1,0 +1,357 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-08-22 07:03:56.603995367 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-08-22 08:46:15.015971951 +0000
+@@ -5116,7 +5116,7 @@
+ 
+ void model::ReadTrajectoryFrameAtom(iter_al it1)
+ {
+-	if (15 == trajectory_version || 17 == trajectory_version)
++	if (15 == trajectory_version || 17 == trajectory_version || 19 == trajectory_version)
+ 	{
+ 		f64 tmp;
+ 
+@@ -5146,7 +5146,7 @@
+ 			traj_frame_fdata[t4] = tmp;
+ 		}
+ 
+-		if (17 == trajectory_version)
++		if (17 == trajectory_version || 19 == trajectory_version)
+ 		{
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+@@ -5166,6 +5166,15 @@
+ 				traj_frame_cumsum_fdata[t4] = tmp;
+ 			}
+ 		}
++
++		if (19 == trajectory_version)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_wdata[t4] = tmp;
++			}
++		}
+ 	}
+ 	else /* if (15 == trajectory_version || 17 == trajectory_version) */
+ 	{
+@@ -5207,9 +5216,8 @@
+ 			}
+ 		}
+ 
+-		if (16 == trajectory_version)
++		if (16 == trajectory_version || 18 == trajectory_version)
+ 		{
+-
+ 			for (i32s t4 = 0; t4 < 3; t4++)
+ 			{
+ 				trajfile->read((char *) & tmp, sizeof(tmp));
+@@ -5228,6 +5236,15 @@
+ 				traj_frame_cumsum_fdata[t4] = tmp;
+ 			}
+ 		}
++
++		if (18 == trajectory_version)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_wdata[t4] = tmp;
++			}
++		}
+ 	}
+ }
+ 
+@@ -5347,7 +5364,6 @@
+ 			+ 12 * traj_num_atoms * sizeof(f64)); //crd + force + vel + acc
+ 	}
+ 
+-
+ 	if (trajectory_version == 16) {
+ 		return (GetTrajectoryEnergySize()
+ 			+ 3  * sizeof(float) // boundary
+@@ -5362,6 +5378,20 @@
+ 			+ 9  * traj_num_atoms * sizeof(f64)); //cumsum_force + cumsum_vel + cumsum_acc
+ 	}
+ 
++	if (trajectory_version == 18) {
++		return (GetTrajectoryEnergySize()
++			+ 3  * sizeof(float) // boundary
++			+ 12 * traj_num_atoms * sizeof(float) //crd + force + vel + acc
++			+ 12 * traj_num_atoms * sizeof(float)); //cumsum_force + cumsum_vel + cumsum_acc + cumsum_work
++	}
++
++	if (trajectory_version == 19) {
++		return (GetTrajectoryEnergySize()
++			+ 3  * sizeof(float) // boundary
++			+ 12 * traj_num_atoms * sizeof(f64) //crd + force + vel + acc
++			+ 12 * traj_num_atoms * sizeof(f64)); //cumsum_force + cumsum_vel + cumsum_acc + cumsum_work
++	}
++
+ 	return -1;
+ }
+ 
+@@ -5469,7 +5499,7 @@
+ 	const char * crd_names [][2] = {
+ 		{"coordinate", "nm"}, {"velocity", "1.0e+3 m/s"}, {"acceleration", "1.0e+12 m/s^2"}, {"force",""},
+ 		{"d_coordinate_error",""}, {"d_velocity_error",""}, {"sum_d_coordinate_error",""}, {"sum_d_velocity_error",""},
+-		{"cumsum_velocity",""}, {"cumsum_acceleration",""}, {"cumsum_force",""},
++		{"cumsum_velocity",""}, {"cumsum_acceleration",""}, {"cumsum_force",""}, {"cumsum_work",""},
+ 		{"gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane",""},
+ 		{"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",""},
+ 		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
+@@ -5477,7 +5507,7 @@
+ 		{"coordinate_cumsum_velocity_and_acceleration",""}, {"coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns",""}
+ 		};
+ 	
+-	size_t crd_names_len = 21;
++	size_t crd_names_len = 22;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+@@ -5513,6 +5543,7 @@
+ 	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
+ 	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
+ 	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
++	std::vector<f64> cumsum_w_data; cumsum_w_data.resize(natoms * 3);
+ 
+ 	int64_t gas_atom_went_down_out_from_membrane = 0,
+ 			gas_atom_went_up_into_memrane = 0,
+@@ -5561,6 +5592,7 @@
+ 				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
+ 				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
+ 				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
++				cumsum_w_data[3 * ind + t4] = this->traj_frame_cumsum_wdata[t4];
+ 			}
+ 
+ 			ind++;
+@@ -5574,6 +5606,7 @@
+ 		f64 cumsum_velocity = 0;
+ 		f64 cumsum_acceleration = 0;
+ 		f64 cumsum_force = 0;
++		f64 cumsum_work = 0;
+ 
+ 		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX;
+ 		bool is_membrane_cutted_by_boundary = false;
+@@ -5594,10 +5627,10 @@
+ 			}
+ 
+ 			f64 crd, vel, acc, frc,
+-				cumsum_vel, cumsum_acc, cumsum_frc,
++				cumsum_vel, cumsum_acc, cumsum_frc, cumsum_fds,
+ 				max_crd = -FLT_MAX, min_crd = FLT_MAX,
+-				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0,
+-				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
++				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0,
++				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0, sum_cumsum_fds = 0.0,
+ 				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
+ 				pre_loop_crd = 0.0;
+ 
+@@ -5614,6 +5647,7 @@
+ 				cumsum_vel = cumsum_v_data[3 * ind + dim];
+ 				cumsum_acc = cumsum_a_data[3 * ind + dim];
+ 				cumsum_frc = cumsum_f_data[3 * ind + dim];
++				cumsum_fds = cumsum_w_data[3 * ind + dim];
+ 				pre_loop_crd = previouse_c_data[3 * ind + dim];
+ 				pre_loop_vel = previouse_v_data[3 * ind + dim];
+ 
+@@ -5651,6 +5685,7 @@
+ 				sum_cumsum_vel += cumsum_vel;
+ 				sum_cumsum_acc += cumsum_acc;
+ 				sum_cumsum_frc += cumsum_frc;
++				sum_cumsum_fds += cumsum_fds;
+ 			}
+ 
+ 			//if (crd_type < 3) // crd, vel and acc, but not force
+@@ -5669,6 +5704,7 @@
+ 			cumsum_velocity     = sum_cumsum_vel;
+ 			cumsum_acceleration = sum_cumsum_acc;
+ 			cumsum_force        = sum_cumsum_frc;
++			cumsum_work         = sum_cumsum_fds;
+ 
+ 			if (MEMBRANE_OR_GLOBULE == it_mlgr->molgrouptype)
+ 			{
+@@ -5885,35 +5921,38 @@
+ 				value = cumsum_force;
+ 				break;
+ 			case 11:
+-				value = gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane;
++				value = cumsum_work;
+ 				break;
+ 			case 12:
++				value = gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane;
++				break;
++			case 13:
+ 				value = gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane;
+ 				break;
+ 
+-			case 13:
++			case 14:
+ 				value = gas_atom_went_down_out_from_membrane;
+ 				break;
+-			case 14:
++			case 15:
+ 				value = gas_atom_went_up_into_memrane;
+ 				break;
+-			case 15:
++			case 16:
+ 				value = gas_atom_went_down_into_membrane;
+ 				break;
+-			case 16:
++			case 17:
+ 				value = gas_atom_went_up_out_from_memrane;
+ 				break;
+ 
+-			case 17:
++			case 18:
+ 				value = coordinate_cumsum_velocity;
+ 				break;
+-			case 18:
++			case 19:
+ 				value = coordinate_cumsum_acceleration;
+ 				break;
+-			case 19:
++			case 20:
+ 				value = coordinate_cumsum_velocity_and_acceleration;
+ 				break;
+-			case 20:
++			case 21:
+ 				value = coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns;
+ 				break;
+ 
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2023-08-22 07:03:56.603995367 +0000
++++ ./libghemical-3.0.0/src/model.h	2023-08-22 08:35:38.103974380 +0000
+@@ -132,6 +132,7 @@
+ 	f64 traj_frame_cumsum_vdata[3];
+ 	f64 traj_frame_cumsum_adata[3];
+ 	f64 traj_frame_cumsum_fdata[3];
++	f64 traj_frame_cumsum_wdata[3];
+ 
+ 	
+ 	public:
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-08-22 07:03:56.603995367 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2023-08-22 08:08:55.803980493 +0000
+@@ -44,7 +44,8 @@
+ 
+ 	cumsum_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+ 	cumsum_acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+-	cumsum_f   = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
++	cumsum_f   = new f64[eng->GetAtomCount() * 3];
++	cumsum_fds = new f64[eng->GetAtomCount() * 3];
+ 
+ 	mass = new f64[eng->GetAtomCount()];			// [kg/mol]
+ 	
+@@ -81,6 +82,7 @@
+ 			cumsum_vel[counter * 3 + n1] = 0.0;
+ 			cumsum_acc[counter * 3 + n1] = 0.0;
+ 			cumsum_f  [counter * 3 + n1] = 0.0;
++			cumsum_fds[counter * 3 + n1] = 0.0;
+ 		}
+ 		
+ 		counter++;
+@@ -106,6 +108,7 @@
+ 	delete[] cumsum_vel;
+ 	delete[] cumsum_acc;
+ 	delete[] cumsum_f;
++	delete[] cumsum_fds;
+ 
+ 	delete[] mass;
+ 	
+@@ -143,6 +146,7 @@
+ 				eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
+ 				
+ 				vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
++				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
+ 			}
+ 		}
+ 	}
+@@ -162,8 +166,13 @@
+ 		}
+ 		else
+ 		{
++
+ 			for (i32s n2 = 0;n2 < 3;n2++)
+ 			{
++				f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
++				f64 tmp2 = tstep2 * acc[n1 * 3 + n2] * 0.5e-9;
++				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
++
+ 				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
+ 				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
+ 
+@@ -483,7 +492,7 @@
+ 
+ void moldyn::SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version)
+ {
+-	if (trajectory_version < 15 || 16 == trajectory_version)
++	if (trajectory_version < 15 || 16 == trajectory_version || 18 == trajectory_version)
+ 	{
+ 		float t1a;
+ 		const int number_of_atoms = eng->GetAtomCount();
+@@ -522,7 +531,7 @@
+ 				}
+ 			}
+ 
+-			if (16 == trajectory_version)
++			if (16 == trajectory_version || 18 == trajectory_version)
+ 			{
+ 				for (i32s tt2 = 0;tt2 < 3;tt2++)
+ 				{
+@@ -542,9 +551,18 @@
+ 					ofile.write((char *) & t1a, sizeof(t1a));
+ 				}
+ 			}
++
++			if (18 == trajectory_version)
++			{
++				for (i32s tt2 = 0;tt2 < 3;tt2++)
++				{
++					t1a = cumsum_fds[tt1 * 3 + tt2];
++					ofile.write((char *) & t1a, sizeof(t1a));
++				}
++			}
+ 		}
+ 	}
+-	else if (15 == trajectory_version || 17 == trajectory_version)
++	else if (15 == trajectory_version || 17 == trajectory_version || 19 == trajectory_version)
+ 	{
+ 		f64 t1a;
+ 		const int number_of_atoms = eng->GetAtomCount();
+@@ -574,7 +592,7 @@
+ 				ofile.write((char *) & t1a, sizeof(t1a));
+ 			}
+ 
+-			if (17 == trajectory_version)
++			if (17 == trajectory_version || 19 == trajectory_version)
+ 			{
+ 				for (i32s tt2 = 0;tt2 < 3;tt2++)
+ 				{
+@@ -594,6 +612,15 @@
+ 					ofile.write((char *) & t1a, sizeof(t1a));
+ 				}
+ 			}
++
++			if (19 == trajectory_version)
++			{
++				for (i32s tt2 = 0;tt2 < 3;tt2++)
++				{
++					t1a = cumsum_fds[tt1 * 3 + tt2];
++					ofile.write((char *) & t1a, sizeof(t1a));
++				}
++			}
+ 		}
+ 	}
+ }
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2023-08-22 07:03:56.603995367 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2023-08-22 07:17:36.867992238 +0000
+@@ -178,6 +178,7 @@
+ 	f64 * cumsum_vel;
+ 	f64 * cumsum_acc;
+ 	f64 * cumsum_f;
++	f64 * cumsum_fds;
+ 
+ 	f64 * mass;			// [kg/mol]
+ 	

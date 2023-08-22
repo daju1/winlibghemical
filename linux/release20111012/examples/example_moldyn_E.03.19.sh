@@ -14,7 +14,7 @@ export LD_LIBRARY_PATH=$lib_dir
 
 infile_gpr="$moldyn_dir/conicnanotube.03/conicnanotube.membrana Ne 14.gpr"
 infile_box="$moldyn_dir/conicnanotube.03/box"
-outfile_traj="$moldyn_dir/conicnanotube.03/first_frame_E.traj_v17"
+outfile_traj="$moldyn_dir/conicnanotube.03/v19/first_frame_E.traj_v19"
 
 make all
-./example_moldyn -E -N 2000000000 -f 1000 -v 17 "$infile_gpr" "$infile_box" "$outfile_traj" &
+./example_moldyn -E -N 2000000000 -f 1000 -v 19 "$infile_gpr" "$infile_box" "$outfile_traj" &

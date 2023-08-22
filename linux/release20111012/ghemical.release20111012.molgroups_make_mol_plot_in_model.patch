@@ -23,7 +23,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	}
 +
 +	const char * crd_names [][2] = {
-+		{"coordinate", "nm"}, {"velocity", ""}, {"acceleration",""}, {"force",""},
++		{"coordinate", "nm"}, {"velocity", "1.0e+3 m/s"}, {"acceleration", "1.0e+12 m/s^2"}, {"force",""},
 +		{"d_coordinate_error",""}, {"d_velocity_error",""}, {"sum_d_coordinate_error",""}, {"sum_d_velocity_error",""},
 +		{"cumsum_velocity",""}, {"cumsum_acceleration",""}, {"cumsum_force",""},
 +		{"gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane",""},
@@ -152,8 +152,8 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			f64 crd, vel, acc, frc,
 +				cumsum_vel, cumsum_acc, cumsum_frc,
 +				max_crd = -FLT_MAX, min_crd = FLT_MAX,
-+				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0, 
-+				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0, 
++				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0,
++				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
 +				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
 +				pre_loop_crd = 0.0;
 +
@@ -627,7 +627,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	const char * s1 = "frame(num)"; 
 +	std::string sv = std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string("(") + std::string(crd_type < crd_names_len ? crd_names[crd_type][1] : "nm") + std::string(")");
 +	p1dview_wcl * plot = prj->AddPlot1DClient(s1, sv.c_str(), true);
-+	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string("plot of ") + prj->GetTrajectoryFileName();
++	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string(" plot of ") + prj->GetTrajectoryFileName();
  	plot->SetTitle(title.c_str());
 +	return plot;
 +}
