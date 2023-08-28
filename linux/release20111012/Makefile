@@ -102,6 +102,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.molgroups_make_mol_plot_in_model.patch
 	patch -p1 < ./ghemical.release20111012.cumsum_work.patch
 	patch -p1 < ./ghemical.release20111012.cumsum_work_power.patch
+	patch -p1 < ./ghemical.release20111012.cumulative_mean_force.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
