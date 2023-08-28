@@ -29,8 +29,8 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		{"gas_atom_went_down_out_from_membrane - gas_atom_went_up_into_memrane",""},
 +		{"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",""},
 +		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
-+		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity",""}, {"coordinate_cumsum_acceleration",""},
-+		{"coordinate_cumsum_velocity_and_acceleration",""}, {"coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns",""}
++		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
++		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}
 +		};
 +	
 +	size_t crd_names_len = 21;
@@ -596,7 +596,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
 diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
 --- ./ghemical-3.0.0.original/src/project.cpp	2023-08-20 08:22:51.567997877 +0000
 +++ ./ghemical-3.0.0/src/project.cpp	2023-08-20 12:15:19.944247988 +0000
-@@ -3828,535 +3828,30 @@
+@@ -3828,535 +3828,31 @@
  	Message(str.str().c_str());
  }
  
@@ -624,8 +624,9 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 -	p1dview_wcl * plot = AddPlot1DClient(s1, sv, true);
 -	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < 20 ? crd_name[crd_type] : "coordinate") + std::string("plot of ") + traj_filename;
 +	project * prj = (project *) p;
-+	const char * s1 = "frame(num)"; 
-+	std::string sv = std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string("(") + std::string(crd_type < crd_names_len ? crd_names[crd_type][1] : "nm") + std::string(")");
++	const char * s1 = "frame(num)";
++	if (crd_type >= crd_names_len) crd_type = 0;
++	std::string sv = std::string(crd_names[crd_type][0]) + (strlen(crd_names[i][1]) > 0 ? std::string("(") + std::string(crd_names[crd_type][1]) + std::string(")") : std::string("");
 +	p1dview_wcl * plot = prj->AddPlot1DClient(s1, sv.c_str(), true);
 +	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string(" plot of ") + prj->GetTrajectoryFileName();
  	plot->SetTitle(title.c_str());

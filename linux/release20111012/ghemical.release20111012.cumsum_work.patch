@@ -101,7 +101,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		{"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",""},
  		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
 @@ -5477,7 +5507,7 @@
- 		{"coordinate_cumsum_velocity_and_acceleration",""}, {"coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns",""}
+ 		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}
  		};
  	
 -	size_t crd_names_len = 21;

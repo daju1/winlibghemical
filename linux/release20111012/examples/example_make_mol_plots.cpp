@@ -36,7 +36,11 @@ void * MolCrdPrintHeader(void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i3
     cout << s1;
     for (size_t i = 0; i < crd_names_len; ++i)
     {
-        std::string sv = crd_names[i][0] + std::string("(") + std::string(crd_names[i][1]) + std::string(")");
+        std::string sv = crd_names[i][0];
+		if (strlen(crd_names[i][1]) > 0)
+		{
+			sv += std::string("(") + std::string(crd_names[i][1]) + std::string(")");
+		}
         cout << "," << sv;
     }
 
