@@ -1,0 +1,36 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-08-25 18:08:22.046854523 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2023-08-25 18:21:47.758851449 +0000
+@@ -5104,7 +5104,7 @@
+ 			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
+ 			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
+ 			stringstream str;
+-			str << _("traj_frame_save_frq ") << traj_frame_save_frq 
++			str << _("traj_frame_save_frq ") << (traj_frame_save_frq 
+ 				<< _(" traj_tstep1 ") << traj_tstep1 << endl
+ 				<< _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
+ 				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
+@@ -5505,10 +5505,10 @@
+ 		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
+ 		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity",""}, {"coordinate_cumsum_acceleration",""},
+ 		{"coordinate_cumsum_velocity_and_acceleration",""}, {"coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns",""},
+-		{"power", ""}
++		{"power", ""}, {"cumulative_mean_force",""}
+ 		};
+ 	
+-	size_t crd_names_len = 23;
++	size_t crd_names_len = 24;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+@@ -5980,6 +5980,9 @@
+ 			case 22:
+ 				value = power;
+ 				break;
++			case 23:
++				value = cumsum_force / (traj_frame_save_frq * (0 == loop ? 1 : loop));
++				break;
+ 
+ 			default:
+ 				break;
+
