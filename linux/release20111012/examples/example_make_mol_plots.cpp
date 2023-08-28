@@ -102,6 +102,17 @@ int main(int argc, char ** argv)
 	while (1+flags < argc && argv[1+flags][0] == '-') {
 		switch (argv[1+flags][1]) {
 
+		case 'i':
+			ind_mol = strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: i argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
+
 		case 't':
 			molgrouptype = strtol(argv[2+flags], &end, 0);
 			if (*end) {

@@ -626,7 +626,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	project * prj = (project *) p;
 +	const char * s1 = "frame(num)";
 +	if (crd_type >= crd_names_len) crd_type = 0;
-+	std::string sv = std::string(crd_names[crd_type][0]) + (strlen(crd_names[i][1]) > 0 ? std::string("(") + std::string(crd_names[crd_type][1]) + std::string(")") : std::string("");
++	std::string sv = std::string(crd_names[crd_type][0]) + (strlen(crd_names[crd_type][1]) > 0 ? std::string("(") + std::string(crd_names[crd_type][1]) + std::string(")") : std::string(""));
 +	p1dview_wcl * plot = prj->AddPlot1DClient(s1, sv.c_str(), true);
 +	std::string title = std::string(GAS == molgrouptype ? "Gas_" : "Membrane_") + std::string(crd_type < crd_names_len ? crd_names[crd_type][0] : "coordinate") + std::string(" plot of ") + prj->GetTrajectoryFileName();
  	plot->SetTitle(title.c_str());
