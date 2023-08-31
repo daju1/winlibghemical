@@ -103,6 +103,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.cumsum_work.patch
 	patch -p1 < ./ghemical.release20111012.cumsum_work_power.patch
 	patch -p1 < ./ghemical.release20111012.cumulative_mean_force.patch
+	patch -p1 < ./ghemical.release20111012.eng1_mm_default_wbp_4.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

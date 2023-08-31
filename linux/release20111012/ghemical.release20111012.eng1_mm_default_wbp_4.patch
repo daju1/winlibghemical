@@ -1,0 +1,153 @@
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2023-08-31 18:22:04.152662602 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-08-31 18:48:02.732630258 +0000
+@@ -41,8 +41,12 @@
+ 	
+ 	ENG1_MM_DEFAULT,
+ 	ENG1_MM_PERIODIC,
++	ENG1_MM_PERIODIC_WBP_X,
+ 	ENG1_MM_PERIODIC_WBP_Y,
++	ENG1_MM_PERIODIC_WBP_Z,
+ 	ENG1_MM_PERIODIC_WBP_YZ,
++	ENG1_MM_PERIODIC_WBP_XZ,
++	ENG1_MM_PERIODIC_WBP_XY,
+ 	ENG1_MM_PERIODIC_HEX,
+ 	
+ 	ENG1_MM_EXPERIMENTAL,
+@@ -56,8 +60,13 @@
+ 	
+ 	_("eng1_mm_default_bp : The default engine (under construction)"),
+ 	_("eng1_mm_default_mim : The periodic engine (minimum image model)"),
++	_("eng1_mm_default_wbp_x : The periodic Y, Z engine and wall boundary potential X"),
+ 	_("eng1_mm_default_wbp_y : The periodic X, Z engine and wall boundary potential Y"),
++	_("eng1_mm_default_wbp_z : The periodic X, Y engine and wall boundary potential Z"),
+ 	_("eng1_mm_default_wbp_yz : The periodic X engine and wall boundary potential Y, Z"),
++	_("eng1_mm_default_wbp_xz : The periodic Y engine and wall boundary potential X, Z"),
++	_("eng1_mm_default_wbp_xy : The periodic Z engine and wall boundary potential X, Y"),
++	_("eng1_mm_default_wbp_xyz : Wall boundary potential X, Y, Z"),
+ 	_("eng1_mm_default_mim_hex : The hexagonal periodic engine (minimum image model)"),
+ 	
+ 	_("eng1_mm_prmfit : Experimental"),
+@@ -172,18 +181,48 @@
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+ 		return new eng1_mm_default_mim(this, 1);
+ 
++		case ENG1_MM_PERIODIC_WBP_X:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_x);
++
+ 		case ENG1_MM_PERIODIC_WBP_Y:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+ 	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+ 		return new eng1_mm_default_wbp(this, 1, wbp_y);
+ 
++		case ENG1_MM_PERIODIC_WBP_Z:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_z);
++
+ 		case ENG1_MM_PERIODIC_WBP_YZ:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+ 	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+ 	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
+ 		return new eng1_mm_default_wbp(this, 1, wbp_yz);
+ 
++		case ENG1_MM_PERIODIC_WBP_XZ:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_xz);
++
++		case ENG1_MM_PERIODIC_WBP_XY:
++		GetModel()->use_periodic_boundary_conditions = true;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_xy);
++
++		case ENG1_MM_PERIODIC_WBP_XYZ:
++		GetModel()->use_periodic_boundary_conditions = false;
++	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
++	if (!GetModel()->IsGroupsSorted()) GetModel()->SortGroups();
++		return new eng1_mm_default_wbp(this, 1, wbp_xyz);
++
+ 		case ENG1_MM_PERIODIC_HEX:
+ 		GetModel()->use_periodic_boundary_conditions = true;
+ 	if (!GetModel()->IsGroupsClean()) GetModel()->UpdateGroups();
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.h ./libghemical-3.0.0/src/eng1_mm.h
+--- ./libghemical-3.0.0.original/src/eng1_mm.h	2023-08-31 18:22:04.152662602 +0000
++++ ./libghemical-3.0.0/src/eng1_mm.h	2023-08-31 18:46:23.196632323 +0000
+@@ -50,8 +50,13 @@
+ #define ENG1_MM_DEFAULT		0x0001		// eng1_mm_default
+ #define ENG1_MM_TRIPOS52	0x0050		// eng1_mm_tripos52
+ #define ENG1_MM_PERIODIC	0x0101		// eng1_mm_default_mim
++#define ENG1_MM_PERIODIC_WBP_X	0x0100		// eng1_mm_default_wbp x
+ #define ENG1_MM_PERIODIC_WBP_Y	0x0102		// eng1_mm_default_wbp y
++#define ENG1_MM_PERIODIC_WBP_Z	0x0104		// eng1_mm_default_wbp z
+ #define ENG1_MM_PERIODIC_WBP_YZ	0x0103		// eng1_mm_default_wbp yz
++#define ENG1_MM_PERIODIC_WBP_XZ	0x0105		// eng1_mm_default_wbp xz
++#define ENG1_MM_PERIODIC_WBP_XY	0x0107		// eng1_mm_default_wbp xy
++#define ENG1_MM_PERIODIC_WBP_XYZ 0x0108		// eng1_mm_default_wbp xyz
+ #define ENG1_MM_PERIODIC_HEX	0x0111		// eng1_mm_default_mim
+ 
+ #define ENG1_MM_EXPERIMENTAL	0x00F1		// eng1_mm_prmfit ; ALWAYS THE LAST ONE (disable in standard setup???)
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default.h ./libghemical-3.0.0/src/eng1_mm_default.h
+--- ./libghemical-3.0.0.original/src/eng1_mm_default.h	2023-08-31 18:40:06.840640133 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default.h	2023-08-31 18:40:56.872639095 +0000
+@@ -222,8 +222,13 @@
+ 
+ enum wbp_type
+ {
+-	wbp_y = 1,
+-	wbp_yz = 2,
++	wbp_x = 0,
++	wbp_y,
++	wbp_z,
++	wbp_yz,
++	wbp_xz,
++	wbp_xy,
++	wbp_xyz,
+ };
+ 
+ class eng1_mm_default_nbt_wbp : virtual public eng1_mm, virtual public engine_wbp
+diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp
+--- ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp	2023-08-31 18:46:30.148632179 +0000
++++ ./libghemical-3.0.0/src/eng1_mm_default_nbt_wbp.cpp	2023-08-31 18:44:09.552635097 +0000
+@@ -73,14 +73,34 @@
+ 	//если второй индекс равен нулю, то стенка является абсолютно прозрачной для атомов растворителя
+ 	switch (p3)
+ 	{
++	case wbp_x:
++		mN2.insert(map<int,int>::value_type(0,0));//индекс стенки = 0 for X!!!
++		break;
+ 	case wbp_y:
+ 		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
+ 		break;
++	case wbp_z:
++		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++		break;
+ 
+ 	case wbp_yz:
+ 		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
+ 		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
+ 		break;
++	case wbp_xz:
++		mN2.insert(map<int,int>::value_type(0,0));//индекс стенки = 0 for X!!!
++		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++		break;
++	case wbp_xy:
++		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 0 for X!!!
++		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 1 for Y!!!
++		break;
++
++	case wbp_xyz:
++		mN2.insert(map<int,int>::value_type(0,0));//индекс стенки = 1 for Y!!!
++		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
++		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
++		break;
+ 
+ 	default:
+ 		break;
