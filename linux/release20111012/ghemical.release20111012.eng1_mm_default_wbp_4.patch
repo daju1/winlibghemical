@@ -139,8 +139,8 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm_default_nbt_wbp.cpp ./libghem
 +		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 2 for Z!!!
 +		break;
 +	case wbp_xy:
-+		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 0 for X!!!
-+		mN2.insert(map<int,int>::value_type(2,0));//индекс стенки = 1 for Y!!!
++		mN2.insert(map<int,int>::value_type(0,0));//индекс стенки = 0 for X!!!
++		mN2.insert(map<int,int>::value_type(1,0));//индекс стенки = 1 for Y!!!
 +		break;
 +
 +	case wbp_xyz:
