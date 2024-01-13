@@ -1,0 +1,307 @@
+diff -Nur ./libghemical-3.0.0.original/src/libghemicaldefine.h ./libghemical-3.0.0/src/libghemicaldefine.h
+--- ./libghemical-3.0.0.original/src/libghemicaldefine.h	2023-09-24 19:00:03.506061563 +0000
++++ ./libghemical-3.0.0/src/libghemicaldefine.h	2024-01-13 10:57:25.157350522 +0000
+@@ -35,6 +35,10 @@
+ 
+ #define GLNAME_UNREGISTERED 0
+ 
++#ifndef M_2PI
++#    define M_2PI 6.28318530717958647692
++#endif
++
+ /*################################################################################################*/
+ 
+ // the platform specific stuff is here...
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2023-09-24 19:00:03.506061563 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-01-13 13:47:12.525139109 +0000
+@@ -3608,7 +3608,9 @@
+ 	str1 << "ts= " << param.timestep << " ";
+ 	str1 << "T= " << param.target_T << " (rt " << param.T_rtime_hc << " " << param.T_rtime_es << ") ";
+ 	str1 << "P= " << param.target_P << " (rt " << param.P_rtime << " beta " << param.P_beta << ") ";
+-	str1 << "cT= " << param.constant_T << " cP= " << param.constant_P << " ";
++	str1 << "cbT= " << param.constant_T_Berendsen << " ";
++	str1 << "cnhT= " << param.constant_T_NoseHoover << " ";
++	str1 << "cP= " << param.constant_P << " ";
+ 	str1 << endl << ends;
+ 	
+ 	PrintToLog(str1.str().c_str());
+@@ -3730,20 +3732,20 @@
+ 	// check if entering heating stage.
+ 		if (n1 == 0)
+ 		{
+-			dyn->temperature_rtime = param.T_rtime_hc;
++			dyn->set_temperature_rtime(param.T_rtime_hc);
+ 		}
+ 		
+ 	// check if entering equilibration stage.
+ 		if (n1 == param.nsteps_h)
+ 		{
+-			dyn->target_temperature = param.target_T;
+-			dyn->temperature_rtime = param.T_rtime_es;
++			dyn->set_target_temperature(param.target_T);
++			dyn->set_temperature_rtime(param.T_rtime_es);
+ 		}
+ 		
+ 	// check if entering cooling stage.
+ 		if (n1 == param.nsteps_h + param.nsteps_e + param.nsteps_s)
+ 		{
+-			dyn->temperature_rtime = param.T_rtime_hc;
++			dyn->set_temperature_rtime(param.T_rtime_hc);
+ 		}
+ 		
+ 	// check if T adjustment is needed at heating stage.
+@@ -3752,8 +3754,8 @@
+ 			int tmp1 = n1;
+ 			int tmp2 = param.nsteps_h;
+ 			
+-			dyn->target_temperature = initial_T + (param.target_T - initial_T) * ((f64) tmp1 / (f64) tmp2);
+-			cout << _("setting T = ") << dyn->target_temperature << endl;
++			dyn->set_target_temperature(initial_T + (param.target_T - initial_T) * ((f64) tmp1 / (f64) tmp2));
++			cout << _("setting T = ") << dyn->get_target_temperature() << endl;
+ 		}
+ 		
+ 	// check if T adjustment is needed at cooling stage.
+@@ -3762,14 +3764,16 @@
+ 			int tmp1 = n1 - (param.nsteps_h + param.nsteps_e + param.nsteps_s);
+ 			int tmp2 = param.nsteps_c;
+ 			
+-			dyn->target_temperature = param.target_T * ((f64) (tmp2 - tmp1) / (f64) tmp2);
+-			cout << _("setting T = ") << dyn->target_temperature << endl;
++			dyn->set_target_temperature(param.target_T * ((f64) (tmp2 - tmp1) / (f64) tmp2));
++			cout << _("setting T = ") << dyn->get_target_temperature() << endl;
+ 		}
+ 		
+-		bool enable_Tc = false;
+-		if (n1 < param.nsteps_h + param.nsteps_e) enable_Tc = true;			// heating/equilibration
+-		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Tc = true;	// cooling
+-		if (param.constant_T) enable_Tc = true;
++		bool enable_bTc = false;
++		bool enable_nhTc = false;
++		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
++		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
++		if (param.constant_T_Berendsen) enable_bTc = true;
++		if (param.constant_T_NoseHoover) enable_nhTc = true;
+ 		
+ 		bool enable_Pc = param.constant_P;
+ 		if (n1 < param.nsteps_h) enable_Pc = false;					// heating
+@@ -3799,7 +3803,7 @@
+ 		}
+ #endif
+ 
+-		dyn->TakeMDStep(enable_Tc, enable_Pc);
++		dyn->TakeMDStep(enable_bTc, enable_nhTc, enable_Pc);
+ 		
+ 		if (enable_Pc)
+ 		{
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-09-24 19:00:03.518061564 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-01-13 13:39:08.989149143 +0000
+@@ -98,6 +98,10 @@
+ 	target_pressure = 1.000;	// [bar]
+ 	pressure_rtime = 1000.0;	// [fs] ; should be > 100x timestep.
+ 	isoth_compr = 4.57e-5;		// [1/bar]
++
++	calc_inv_Q_mass();
++	nosehoover_xi = 0.0;
++	nosehoover_vxi = 0.0;
+ }
+ 
+ moldyn::~moldyn(void)
+@@ -115,6 +119,24 @@
+ 	delete[] locked;
+ }
+ 
++void moldyn::set_target_temperature(f64 temperature)
++{
++	target_temperature = temperature;
++	calc_inv_Q_mass();
++}
++
++void moldyn::set_temperature_rtime(f64 rtime)
++{
++	temperature_rtime = rtime;
++	calc_inv_Q_mass();
++}
++
++void moldyn::calc_inv_Q_mass()
++{
++	inv_Q_mass =
++		1.0 / ((temperature_rtime / M_2PI) * (temperature_rtime / M_2PI) * target_temperature);
++}
++
+ void moldyn::MaxwellDistribution(f64 Temp, bool inverse_time)
+ {
+ 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+@@ -130,8 +152,10 @@
+ 	}
+ }
+ 
+-void moldyn::TakeMDStep(bool enable_temperature_control, bool enable_pressure_control)
++void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_NoseHoover_temperature_control, bool enable_pressure_control)
+ {
++	// https://en.wikipedia.org/wiki/Leapfrog_integration
++
+ 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+ 	{
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+@@ -143,8 +167,10 @@
+ 			
+ 			if (!locked[n1])
+ 			{
++				// x[i+1] = x[i] + v[i]*dt + a[i] * (dt^2/2)
+ 				eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
+ 				
++				// v[i+1/2] = v[i] + a[i] * (dt/2)
+ 				vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
+ 				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
+ 			}
+@@ -173,6 +199,8 @@
+ 				f64 tmp2 = tstep2 * acc[n1 * 3 + n2] * 0.5e-9;
+ 				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
+ 
++				// calc a[i+1]
++				// v[i+1] = v[i+1/2] + a[i+1]*(dt/2)
+ 				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
+ 				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
+ 
+@@ -191,12 +219,12 @@
+ 	
+ 	f64 current_temperature = ConvEKinTemp(ekin);
+ 	
+-	if (enable_temperature_control)
++	if (enable_Berendsen_temperature_control)
+ 	{
+ 		// do a Berendsen-type temperature control step.
+ 		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 		
+-		const f64 tmp1 = (target_temperature / ConvEKinTemp(ekin)) - 1.0;
++		const f64 tmp1 = (target_temperature / current_temperature) - 1.0;
+ 		const f64 tmp2 = tstep1 / temperature_rtime;
+ 		const f64 delta = sqrt(1.0 + tmp2 * tmp1);
+ 		
+@@ -206,9 +234,18 @@
+ 		ekinCOMP[2] *= delta;
+ 		
+ 		SetEKin(ekin);
+-		current_temperature = ConvEKinTemp(ekin);
+ 	}
+-	
++	else if (enable_NoseHoover_temperature_control)
++	{
++		const f64 oldvxi = nosehoover_vxi;
++		nosehoover_vxi += tstep1 * inv_Q_mass * (current_temperature - target_temperature);
++		nosehoover_xi += tstep1 * (oldvxi + nosehoover_vxi) * 0.5;
++
++		const f64 factorNH = tstep1 * nosehoover_vxi;
++		setNoseHooverFactor(factorNH);
++	}
++	// current_temperature = ConvEKinTemp(ekin);
++
+ 	// the pressure computation is based on:
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	// Haile JM : "##Molecular dynamics simulation / Elementary methods"
+@@ -360,6 +397,25 @@
+ 	ForceModelMomentumToZero();
+ }
+ 
++void moldyn::setNoseHooverFactor(f64 factorNH)
++{
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		if (locked[n1])
++		{
++			vel[n1 * 3 + 0] = 0.0;
++			vel[n1 * 3 + 1] = 0.0;
++			vel[n1 * 3 + 2] = 0.0;
++		}
++		else
++		{
++			for (i32s dim = 0; dim < 3; ++dim)
++			{
++				vel[n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
++			}
++		}
++	}
++}
+ 
+ void moldyn::ForceModelMomentumToZero()
+ {
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2023-09-24 19:00:03.518061564 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-01-13 13:50:29.653135018 +0000
+@@ -64,7 +64,8 @@
+ 	f64 P_rtime;		// pressure relaxation time [fs]
+ 	f64 P_beta;		// isothermal compressibility [1/bar]
+ 	
+-	bool constant_T;
++	bool constant_T_Berendsen;
++	bool constant_T_NoseHoover;
+ 	bool constant_P;
+ 
+ 	bool maxwell_distribution_init;
+@@ -74,7 +75,8 @@
+ 
+ 	bool recalc_box;
+ 	box_optimization_moldyn_mode box_optimization;
+-	
++
++
+ 	public:
+ 	
+ 	moldyn_param(setup * su)
+@@ -101,7 +103,8 @@
+ 		P_rtime = 100.0 * timestep;
+ 		P_beta = 4.57e-5;
+ 		
+-		constant_T = true;
++		constant_T_Berendsen = false;
++		constant_T_NoseHoover = true;
+ 		constant_P = false;
+ 
+ 		maxwell_distribution_init = true;
+@@ -199,12 +202,22 @@
+ 	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn *, int);
+ 	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+ 	friend void molgroup::SumMoleculesMomentum(moldyn * );
+-	
+-	public:
+-	
++
+ 	f64 target_temperature;		// [K]
+ 	f64 temperature_rtime;		// [fs]
+-	
++	f64 inv_Q_mass;
++
++	f64 nosehoover_xi;
++	f64 nosehoover_vxi;
++
++	void calc_inv_Q_mass();
++
++	public:
++
++	void set_target_temperature(f64);
++	f64 get_target_temperature() {return target_temperature;}
++	void set_temperature_rtime(f64);
++
+ 	f64 target_pressure;		// [bar]
+ 	f64 pressure_rtime;		// [fs]
+ 	f64 isoth_compr;		// [1/bar]
+@@ -222,7 +235,7 @@
+ 	f64 GetEKin(void) { return ekin; }
+ 	f64 GetEPot(void) { return epot; }
+ 	
+-	virtual void TakeMDStep(bool, bool);
++	virtual void TakeMDStep(bool, bool, bool);
+ 	
+ 	f64 KineticEnergy(f64 * = NULL);
+ 	
+@@ -230,6 +243,7 @@
+ 	f64 ConvEKinTemp(f64);
+ 	
+ 	void SetEKin(f64);
++	void setNoseHooverFactor(f64 factorNH);
+ 	void SumModelMomentum(f64 * sum_p);
+ 	void ForceModelMomentumToZero();
+ 	void ForceMoleculesMomentumToZero();
+

@@ -1,0 +1,84 @@
+diff -Nur ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.cpp ./ghemical-3.0.0/src/gtk_moldyn_dialog.cpp
+--- ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.cpp	2023-09-24 19:00:03.470061563 +0000
++++ ./ghemical-3.0.0/src/gtk_moldyn_dialog.cpp	2024-01-13 14:48:02.553063361 +0000
+@@ -60,7 +60,8 @@
+ 	entry_P_rtime = glade_xml_get_widget(xml, "entry_P_rtime");
+ 	entry_P_beta = glade_xml_get_widget(xml, "entry_P_beta");
+ 	
+-	checkbutton_constant_T = glade_xml_get_widget(xml, "checkbutton_constant_T");
++	checkbutton_constant_T_Berendsen = glade_xml_get_widget(xml, "checkbutton_constant_T_Berendsen");
++	checkbutton_constant_T_NoseHoover = glade_xml_get_widget(xml, "checkbutton_constant_T_NoseHoover");
+ 	checkbutton_constant_P = glade_xml_get_widget(xml, "checkbutton_constant_P");
+ //checkbutton_langevin = glade_xml_get_widget(xml, "checkbutton_langevin");	// REMOVED
+ 
+@@ -130,7 +131,8 @@
+ 	gtk_entry_set_text(GTK_ENTRY(entry_P_beta), str.str().c_str());
+ 	
+ 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_constant_P), (param->constant_P ? TRUE : FALSE));
+-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_constant_T), (param->constant_T ? TRUE : FALSE));
++	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_constant_T_Berendsen), (param->constant_T_Berendsen ? TRUE : FALSE));
++	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_constant_T_NoseHoover), (param->constant_T_NoseHoover	 ? TRUE : FALSE));
+ //gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_langevin), (param->langevin ? TRUE : FALSE));	// REMOVED
+ 
+ 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton_maxwell_distribution_init), (param->maxwell_distribution_init ? TRUE : FALSE));
+@@ -236,7 +238,8 @@
+ 	istringstream istr4c(buffer);
+ 	istr4c >> ref->param->P_beta;
+ 	
+-	ref->param->constant_T = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_T)) == TRUE ? true : false);
++	ref->param->constant_T_Berendsen = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_T_Berendsen)) == TRUE ? true : false);
++	ref->param->constant_T_NoseHoover = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_T_NoseHoover)) == TRUE ? true : false);
+ 	ref->param->constant_P = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_constant_P)) == TRUE ? true : false);
+ //ref->param->langevin = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ref->checkbutton_langevin)) == TRUE ? true : false);	// REMOVED
+ 
+diff -Nur ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.h ./ghemical-3.0.0/src/gtk_moldyn_dialog.h
+--- ./ghemical-3.0.0.original/src/gtk_moldyn_dialog.h	2023-09-24 19:00:03.462061562 +0000
++++ ./ghemical-3.0.0/src/gtk_moldyn_dialog.h	2024-01-13 14:46:11.861065658 +0000
+@@ -51,7 +51,8 @@
+ 	GtkWidget * entry_P_rtime;
+ 	GtkWidget * entry_P_beta;
+ 	
+-	GtkWidget * checkbutton_constant_T;
++	GtkWidget * checkbutton_constant_T_Berendsen;
++	GtkWidget * checkbutton_constant_T_NoseHoover;
+ 	GtkWidget * checkbutton_constant_P;
+ 	//GtkWidget * checkbutton_langevin;	// removed 2008-07-18
+ 
+diff -Nur ./ghemical-3.0.0.original/src/res_gtk/gtk_moldyn_dialog.glade ./ghemical-3.0.0/src/res_gtk/gtk_moldyn_dialog.glade
+--- ./ghemical-3.0.0.original/src/res_gtk/gtk_moldyn_dialog.glade	2023-09-24 19:00:03.470061563 +0000
++++ ./ghemical-3.0.0/src/res_gtk/gtk_moldyn_dialog.glade	2024-01-13 14:44:47.737067404 +0000
+@@ -373,10 +373,10 @@
+               <placeholder/>
+             </child>
+             <child>
+-              <widget class="GtkCheckButton" id="checkbutton_constant_T">
++              <widget class="GtkCheckButton" id="checkbutton_constant_T_Berendsen">
+                 <property name="visible">True</property>
+                 <property name="can_focus">True</property>
+-                <property name="label" translatable="yes">Constant-T simulation (allow T-control at simulation stage)</property>
++                <property name="label" translatable="yes">Constant-T simulation (allow Berendsen T-control at simulation stage)</property>
+                 <property name="use_underline">True</property>
+                 <property name="response_id">0</property>
+                 <property name="draw_indicator">True</property>
+@@ -387,6 +387,21 @@
+                 <property name="position">15</property>
+               </packing>
+             </child>
++            <child>
++              <widget class="GtkCheckButton" id="checkbutton_constant_T_NoseHoover">
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="label" translatable="yes">Constant-T simulation (allow NoseHoover T-control at simulation stage)</property>
++                <property name="use_underline">True</property>
++                <property name="response_id">0</property>
++                <property name="draw_indicator">True</property>
++              </widget>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">False</property>
++                <property name="position">15</property>
++              </packing>
++            </child>
+             <child>
+               <widget class="GtkCheckButton" id="checkbutton_constant_P">
+                 <property name="visible">True</property>
