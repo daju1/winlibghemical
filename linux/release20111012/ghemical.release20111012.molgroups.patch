@@ -386,7 +386,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	molgroups.push_back(molgroup(GAS));
 +	for (itmol = molecules.begin(); itmol != molecules.end(); itmol++)
 +	{
-+		if ((*itmol).second.ncarbons > 2)
++		if ((*itmol).second.ncarbons > 18) // 18 - ncarbons in 5CB
 +		{
 +			molgroups.push_back(molgroup(MEMBRANE_OR_GLOBULE, (*itmol).second.natoms));
 +		}
