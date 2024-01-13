@@ -113,6 +113,17 @@ int main(int argc, char ** argv)
 			flags++;
 			break;
 
+		case 'd':
+			dim = strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: d argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
+
 		case 't':
 			molgrouptype = strtol(argv[2+flags], &end, 0);
 			if (*end) {
