@@ -1,0 +1,27 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-01-13 17:03:41.056894467 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-01-13 17:03:58.244894110 +0000
+@@ -5474,10 +5474,10 @@
+ 		{"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",""},
+ 		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
+ 		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
+-		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}
++		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""}
+ 		};
+ 	
+-	size_t crd_names_len = 21;
++	size_t crd_names_len = 22;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+@@ -5916,6 +5916,9 @@
+ 			case 20:
+ 				value = coordinate_cumsum_velocity_and_acceleration / the_trajectory_current_time_ns;
+ 				break;
++			case 21:
++				value = cumsum_force / (traj_frame_save_frq * (0 == loop ? 1 : loop));
++				break;
+ 
+ 			default:
+ 				break;
+

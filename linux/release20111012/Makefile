@@ -100,12 +100,12 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.molgroups_coordinate_cumsum_velocity_and_acceleration.patch
 	patch -p1 < ./ghemical.release20111012.molgroups_read_trajectory_frame_atom.patch
 	patch -p1 < ./ghemical.release20111012.molgroups_make_mol_plot_in_model.patch
-	patch -p1 < ./ghemical.release20111012.cumsum_work.patch
-	patch -p1 < ./ghemical.release20111012.cumsum_work_power.patch
-	patch -p1 < ./ghemical.release20111012.cumulative_mean_force.patch
+	# patch -p1 < ./ghemical.release20111012.cumsum_work.patch
+	# patch -p1 < ./ghemical.release20111012.cumsum_work_power.patch
+	patch -p1 < ./ghemical.release20111012.cumulative_mean_force.new.patch
 	patch -p1 < ./ghemical.release20111012.eng1_mm_default_wbp_4.patch
-	patch -p1 < ./ghemical.release20111012.hosehoover.patch
-	patch -p1 < ./ghemical.release20111012.hosehoover_app.patch
+	patch -p1 < ./ghemical.release20111012.nosehoover.patch
+	patch -p1 < ./ghemical.release20111012.nosehoover_app.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

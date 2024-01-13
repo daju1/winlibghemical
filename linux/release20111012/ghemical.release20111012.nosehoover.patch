@@ -1,6 +1,6 @@
 diff -Nur ./libghemical-3.0.0.original/src/libghemicaldefine.h ./libghemical-3.0.0/src/libghemicaldefine.h
---- ./libghemical-3.0.0.original/src/libghemicaldefine.h	2023-09-24 19:00:03.506061563 +0000
-+++ ./libghemical-3.0.0/src/libghemicaldefine.h	2024-01-13 10:57:25.157350522 +0000
+--- ./libghemical-3.0.0.original/src/libghemicaldefine.h	2024-01-13 17:11:13.644885074 +0000
++++ ./libghemical-3.0.0/src/libghemicaldefine.h	2024-01-13 17:11:50.248884315 +0000
 @@ -35,6 +35,10 @@
  
  #define GLNAME_UNREGISTERED 0
@@ -13,8 +13,8 @@ diff -Nur ./libghemical-3.0.0.original/src/libghemicaldefine.h ./libghemical-3.0
  
  // the platform specific stuff is here...
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2023-09-24 19:00:03.506061563 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2024-01-13 13:47:12.525139109 +0000
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-01-13 17:11:13.640885074 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-01-13 17:11:50.248884315 +0000
 @@ -3608,7 +3608,9 @@
  	str1 << "ts= " << param.timestep << " ";
  	str1 << "T= " << param.target_T << " (rt " << param.T_rtime_hc << " " << param.T_rtime_es << ") ";
@@ -95,9 +95,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		if (enable_Pc)
  		{
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
---- ./libghemical-3.0.0.original/src/moldyn.cpp	2023-09-24 19:00:03.518061564 +0000
-+++ ./libghemical-3.0.0/src/moldyn.cpp	2024-01-13 13:39:08.989149143 +0000
-@@ -98,6 +98,10 @@
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-01-13 17:11:13.644885074 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-01-13 17:11:50.248884315 +0000
+@@ -96,6 +96,10 @@
  	target_pressure = 1.000;	// [bar]
  	pressure_rtime = 1000.0;	// [fs] ; should be > 100x timestep.
  	isoth_compr = 4.57e-5;		// [1/bar]
@@ -108,7 +108,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  }
  
  moldyn::~moldyn(void)
-@@ -115,6 +119,24 @@
+@@ -112,6 +116,24 @@
  	delete[] locked;
  }
  
@@ -133,7 +133,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  void moldyn::MaxwellDistribution(f64 Temp, bool inverse_time)
  {
  	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
-@@ -130,8 +152,10 @@
+@@ -127,8 +149,10 @@
  	}
  }
  
@@ -145,7 +145,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
  	{
  		for (i32s n2 = 0;n2 < 3;n2++)
-@@ -143,8 +167,10 @@
+@@ -140,8 +164,10 @@
  			
  			if (!locked[n1])
  			{
@@ -154,18 +154,18 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  				
 +				// v[i+1/2] = v[i] + a[i] * (dt/2)
  				vel[n1 * 3 + n2] += tstep1 * tmpA * 0.5e-6;
- 				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
  			}
-@@ -173,6 +199,8 @@
- 				f64 tmp2 = tstep2 * acc[n1 * 3 + n2] * 0.5e-9;
- 				cumsum_fds[n1 * 3 + n2] += eng->d1[n1 * 3 + n2] * (tmp1 + tmp2) / 2;
- 
+ 		}
+@@ -164,6 +190,8 @@
+ 		{
+ 			for (i32s n2 = 0;n2 < 3;n2++)
+ 			{
 +				// calc a[i+1]
 +				// v[i+1] = v[i+1/2] + a[i+1]*(dt/2)
  				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
  				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
  
-@@ -191,12 +219,12 @@
+@@ -182,12 +210,12 @@
  	
  	f64 current_temperature = ConvEKinTemp(ekin);
  	
@@ -180,7 +180,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  		const f64 tmp2 = tstep1 / temperature_rtime;
  		const f64 delta = sqrt(1.0 + tmp2 * tmp1);
  		
-@@ -206,9 +234,18 @@
+@@ -197,9 +225,18 @@
  		ekinCOMP[2] *= delta;
  		
  		SetEKin(ekin);
@@ -201,7 +201,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	// the pressure computation is based on:
  	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  	// Haile JM : "##Molecular dynamics simulation / Elementary methods"
-@@ -360,6 +397,25 @@
+@@ -351,6 +388,25 @@
  	ForceModelMomentumToZero();
  }
  
@@ -228,8 +228,8 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  void moldyn::ForceModelMomentumToZero()
  {
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
---- ./libghemical-3.0.0.original/src/moldyn.h	2023-09-24 19:00:03.518061564 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2024-01-13 13:50:29.653135018 +0000
+--- ./libghemical-3.0.0.original/src/moldyn.h	2024-01-13 17:11:13.644885074 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-01-13 17:11:50.248884315 +0000
 @@ -64,7 +64,8 @@
  	f64 P_rtime;		// pressure relaxation time [fs]
  	f64 P_beta;		// isothermal compressibility [1/bar]
@@ -260,7 +260,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  		constant_P = false;
  
  		maxwell_distribution_init = true;
-@@ -199,12 +202,22 @@
+@@ -198,12 +201,22 @@
  	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn *, int);
  	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
  	friend void molgroup::SumMoleculesMomentum(moldyn * );
@@ -287,7 +287,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	f64 target_pressure;		// [bar]
  	f64 pressure_rtime;		// [fs]
  	f64 isoth_compr;		// [1/bar]
-@@ -222,7 +235,7 @@
+@@ -221,7 +234,7 @@
  	f64 GetEKin(void) { return ekin; }
  	f64 GetEPot(void) { return epot; }
  	
@@ -296,7 +296,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	
  	f64 KineticEnergy(f64 * = NULL);
  	
-@@ -230,6 +243,7 @@
+@@ -229,6 +242,7 @@
  	f64 ConvEKinTemp(f64);
  	
  	void SetEKin(f64);
