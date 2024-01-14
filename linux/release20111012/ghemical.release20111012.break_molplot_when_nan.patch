@@ -1,0 +1,135 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-01-14 10:47:50.495569429 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-01-14 11:07:48.467544568 +0000
+@@ -62,6 +62,9 @@
+ #include <time.h>
+ #endif	// WIN32
+ 
++extern bool custom_isnan(double var);
++extern bool custom_isnan(float var);
++
+ /*################################################################################################*/
+ 
+ const char model::libversion[16] = LIBVERSION;
+@@ -3709,6 +3712,12 @@
+ 	
+ 	for (i32s n1 = 0;n1 < tot_nsteps;n1++)
+ 	{
++		if (custom_isnan(dyn->GetEKin()))
++		{
++			cout << _("ekin is nan so break") << endl;
++			break;
++		}
++
+ 	// check if trajectory output should be made.
+ 		if (!(n1 % frame_save_frq))
+ 		{
+@@ -3770,8 +3779,18 @@
+ 		
+ 		bool enable_bTc = false;
+ 		bool enable_nhTc = false;
+-		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
+-		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
++		if (n1 < param.nsteps_h + param.nsteps_e) // heating/equilibration
++		{
++			if (param.constant_T_Berendsen) enable_bTc = true;
++			else if (param.constant_T_NoseHoover) enable_nhTc = true;
++			else enable_bTc = true;
++		}
++		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) // cooling
++		{
++			if (param.constant_T_Berendsen) enable_bTc = true;
++			else if (param.constant_T_NoseHoover) enable_nhTc = true;
++			else enable_bTc = true;
++		}
+ 		if (param.constant_T_Berendsen) enable_bTc = true;
+ 		if (param.constant_T_NoseHoover) enable_nhTc = true;
+ 		
+@@ -5461,6 +5480,10 @@
+ 	dyn->SaveTrajectoryFrame(ofile, trajectory_version);
+ }
+ 
++float ConvEKinTemp(float ekin, size_t natoms)
++{
++	return (2.0 / 3.0) * ekin * 1000.0 / ((natoms /*- num_locked*/) * 8.314510);
++}
+ 
+ void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
+ {
+@@ -5478,14 +5501,15 @@
+ 		{"gas_atom_went_down_into_membrane - gas_atom_went_up_out_from_memrane",""},
+ 		{"gas_atom_went_down_out_from_membrane",""}, {"gas_atom_went_up_into_memrane",""}, {"gas_atom_went_down_into_membrane",""},
+ 		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
+-		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""}
++		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""},
++		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
+ 		};
+ 	
+ 	size_t crd_names_len = 22;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+-	float ekin;
++	float ekin, temperature, previouse_temperature = 0.0;
+ 	float epot;
+ 
+ 	i32s shift = 0;
+@@ -5523,6 +5547,8 @@
+ 			gas_atom_went_down_into_membrane = 0,
+ 			gas_atom_went_up_out_from_memrane = 0;
+ 
++	float boundary[3];
++
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0; loop < max_frames; loop++)
+ 	{
+@@ -5537,7 +5563,22 @@
+ 		trajfile->read((char *) & ekin, sizeof(ekin));
+ 		trajfile->read((char *) & epot, sizeof(epot));
+ 
+-		float boundary[3];
++		if (custom_isnan(ekin))
++		{
++			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			printf("ekin nan: break\n");
++			break;
++		}
++
++		temperature = ConvEKinTemp(ekin, natoms);
++
++		if (loop > 0 && (temperature / previouse_temperature) > 10 )
++		{
++			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			printf("temperature %f: break\n", temperature);
++			break;
++		}
++
+ 		if (trajectory_version > 10)
+ 		{
+ 			float tmp;
+@@ -5924,6 +5965,16 @@
+ 				value = cumsum_force / (traj_frame_save_frq * (0 == loop ? 1 : loop));
+ 				break;
+ 
++			case 22:
++				value = ekin;
++				break;
++			case 23:
++				value = epot;
++				break;
++			case 24:
++				value = temperature;
++				break;
++
+ 			default:
+ 				break;
+ 			}
+@@ -5945,6 +5996,8 @@
+ 		previouse_velocity     = velocity;
+ 		previouse_acceleration = acceleration;
+ 
++		previouse_temperature  = temperature;
++
+ 		if (0 == loop)
+ 		{
+ 			first_coordinate = coordinate;

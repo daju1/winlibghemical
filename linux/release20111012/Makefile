@@ -106,6 +106,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.eng1_mm_default_wbp_4.patch
 	patch -p1 < ./ghemical.release20111012.nosehoover.patch
 	patch -p1 < ./ghemical.release20111012.nosehoover_app.patch
+	patch -p1 < ./ghemical.release20111012.break_molplot_when_nan.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed

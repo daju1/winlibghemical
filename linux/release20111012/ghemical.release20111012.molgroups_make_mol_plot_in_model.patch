@@ -14,7 +14,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
 +
-+void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)                                                                                                                                                                                                      
++void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
 +{
 +	if (!this->GetTrajectoryFile())
 +	{
