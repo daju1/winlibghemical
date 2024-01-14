@@ -24,27 +24,6 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	// check if trajectory output should be made.
  		if (!(n1 % frame_save_frq))
  		{
-@@ -3770,8 +3779,18 @@
- 		
- 		bool enable_bTc = false;
- 		bool enable_nhTc = false;
--		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
--		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
-+		if (n1 < param.nsteps_h + param.nsteps_e) // heating/equilibration
-+		{
-+			if (param.constant_T_Berendsen) enable_bTc = true;
-+			else if (param.constant_T_NoseHoover) enable_nhTc = true;
-+			else enable_bTc = true;
-+		}
-+		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) // cooling
-+		{
-+			if (param.constant_T_Berendsen) enable_bTc = true;
-+			else if (param.constant_T_NoseHoover) enable_nhTc = true;
-+			else enable_bTc = true;
-+		}
- 		if (param.constant_T_Berendsen) enable_bTc = true;
- 		if (param.constant_T_NoseHoover) enable_nhTc = true;
- 		
 @@ -5461,6 +5480,10 @@
  	dyn->SaveTrajectoryFrame(ofile, trajectory_version);
  }
@@ -65,7 +44,8 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
  		};
  	
- 	size_t crd_names_len = 22;
+-	size_t crd_names_len = 22;
++	size_t crd_names_len = 25;
  
  	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
  
