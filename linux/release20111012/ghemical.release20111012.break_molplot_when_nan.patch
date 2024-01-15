@@ -80,7 +80,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		if (loop > 0 && (temperature / previouse_temperature) > 10 )
 +		{
 +			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
-+			printf("temperature %f: break\n", temperature);
++			printf("loop %d, temperature %f, previouse_temperature %f% break\n", loop, temperature, previouse_temperature);
 +			break;
 +		}
 +
