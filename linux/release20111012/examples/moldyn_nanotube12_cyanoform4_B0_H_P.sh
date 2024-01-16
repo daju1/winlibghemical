@@ -14,6 +14,6 @@ export LD_LIBRARY_PATH=$lib_dir
 
 infile_gpr="$moldyn_dir/nanotube_12_membrane_4_tricyanomethyl/12.0_4cyanoforms_O2_.gpr"
 infile_box="$moldyn_dir/nanotube_12_membrane_4_tricyanomethyl/box4"
-outfile_traj="$moldyn_dir/nanotube_12_membrane_4_tricyanomethyl/12.0_4cyanoforms_O2_.B0_T_H_P.traj"
+outfile_traj="$moldyn_dir/nanotube_12_membrane_4_tricyanomethyl/12.0_4cyanoforms_O2_.B0_H_P.traj"
 
 ./example_moldyn -H -P -B 0 -N 2000000000 -f 1000 -v 17 -t 2 "$infile_gpr" "$infile_box" "$outfile_traj" &
