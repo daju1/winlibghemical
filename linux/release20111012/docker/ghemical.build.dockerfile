@@ -16,7 +16,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Install build-essential package (for cross compilation)
 RUN apt-get update
-RUN apt-get -y install build-essential aptitude
+RUN apt-get -y install build-essential
 
 # Install vim, nano
 RUN apt-get -y install vim nano
