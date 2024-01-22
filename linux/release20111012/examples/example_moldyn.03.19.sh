@@ -17,4 +17,4 @@ infile_box="$moldyn_dir/conicnanotube.03/box"
 outfile_traj="$moldyn_dir/conicnanotube.03/v19/first_frame.traj_v19"
 
 make all
-./example_moldyn -N 2000000000 -f 1000 -v 19 "$infile_gpr" "$infile_box" "$outfile_traj" &
+./example_moldyn -N 2000000000 -f 1000 -v 17 "$infile_gpr" "$infile_box" "$outfile_traj" &
