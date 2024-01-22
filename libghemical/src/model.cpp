@@ -6391,11 +6391,11 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 	boundary_opt * b_opt = new boundary_opt(this, eng, 100, 0.025, 10.0);
 #endif
 	// открываем лог файл
-	char datfilename[1024];
-	sprintf(datfilename, "%s.dat", commonfilename);
-	printf("datfilename = %s\n", datfilename);
+	//char datfilename[1024];
+	//sprintf(datfilename, "%s.dat", commonfilename);
+	//printf("datfilename = %s\n", datfilename);
 
-	FILE * dat = fopen(datfilename, "wt");
+	//FILE * dat = fopen(datfilename, "wt");
 
 
 
@@ -6534,7 +6534,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		char buffer[1024];
 		f64  last_energy = 0.0;		// this is for output and delta_e test...
 		
-		PrintToLog("Cycle    Energy            Gradient       Step        Delta E\n");
+		printf("Cycle    Energy            Gradient       Step        Delta E\n");
 		
 		//ThreadUnlock();
 		
@@ -6561,7 +6561,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 			//printf("eng->GetEnergy() = %f\n", eng->GetEnergy());
 			//ThreadLock();
 
-			fprintf(dat, "%d,%d,%e\n", iframe, n1, eng->GetEnergy());
+			//fprintf(dat, "%d,%d,%e\n", iframe, n1, eng->GetEnergy());
 			
 			if (!(n1 % 5))
 			{
@@ -6583,7 +6583,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 					opt->optval, eng->GetGradientVectorLength(), opt->optstp);
 				}
 				
-				PrintToLog(buffer);
+				printf(buffer);
 			}
 			
 			bool terminate = false;
@@ -6593,7 +6593,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 				if (n1 >= param.treshold_nsteps)
 				{
 					terminate = true;
-					PrintToLog("the nsteps termination test was passed.\n");
+					printf("the nsteps termination test was passed.\n");
 				}
 			}
 			
@@ -6602,7 +6602,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 				if (eng->GetGradientVectorLength() < param.treshold_grad)
 				{
 					terminate = true;
-					PrintToLog("the grad termination test was passed.\n");
+					printf("the grad termination test was passed.\n");
 				}
 			}
 			
@@ -6616,7 +6616,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 				if (flag)
 				{
 					terminate = true;
-					PrintToLog("the delta_e termination test was passed.\n");
+					printf("the delta_e termination test was passed.\n");
 				}
 			}
 
@@ -6712,7 +6712,7 @@ void model::working_prob_atom_GeomOpt(geomopt_param & param, char *infile_name, 
 		str2b << endl << ends;
 
 		logfile2 << mbuff1; logfile2.flush();
-		PrintToLog(mbuff1);
+		printf(mbuff1);
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 		//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""//
 
@@ -6751,7 +6751,7 @@ cin >> old;*/
 	}
 	ofile.close();
 	logfile2.close();
-	fclose(dat);
+	//fclose(dat);
 
 	delete opt;
 #if USE_BOUNDARY_OPT_ON_PROBNIY_ATOM_GEOMOPT
