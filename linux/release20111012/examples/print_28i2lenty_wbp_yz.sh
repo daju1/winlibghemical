@@ -17,7 +17,7 @@ folder="$moldyn_dir/laboro/new_LC/5CB/28i2lenty_wbp_yz"
 infile_gpr="$folder/28i2lenty_wbp_yz.gpr"
 infile_box="$folder/28i2lenty_wbp_yz.box"
 
-dim=1
+dim=0
 
 for infile_traj in $(ls $folder/*.traj); do
 
