@@ -20,6 +20,6 @@ infile_gpr="$folder/28i2lenty_wbp_yz.gpr"
 infile_box="$folder/28i2lenty_wbp_yz.box"
 outfile="$folder/28i2lenty_""$T""_H"
 
-./example_moldyn -P -H    -T $T -B 0 -N 2000000000 -f 200000 -v 17 "$infile_gpr" "$infile_box" "$outfile"_P.traj &
-./example_moldyn -P -H -I -T $T -B 0 -N 2000000000 -f 200000 -v 17 "$infile_gpr" "$infile_box" "$outfile"_P_I.traj &
+./example_moldyn -H    -T $T -B 0 -N 2000000000 -f 200000 -v 17 "$infile_gpr" "$infile_box" "$outfile".traj &
+./example_moldyn -H -I -T $T -B 0 -N 2000000000 -f 200000 -v 17 "$infile_gpr" "$infile_box" "$outfile"_I.traj &
 
