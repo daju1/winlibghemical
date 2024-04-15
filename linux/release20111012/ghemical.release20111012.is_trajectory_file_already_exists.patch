@@ -1,0 +1,200 @@
+diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
+--- ./libghemical-3.0.0.original/src/engine.h	2024-04-13 13:12:22.091323195 +0000
++++ ./libghemical-3.0.0/src/engine.h	2024-04-14 04:20:45.370544661 +0000
+@@ -41,6 +41,7 @@
+ class bond;	// bond.h
+ 
+ class model;	// model.h
++class moldyn;	// moldyn.h
+ 
+ #include <stdlib.h>
+ 
+@@ -237,6 +238,8 @@
+ 	friend class monte_carlo_search;
+ 	friend class transition_state_search;
+ 	friend class stationary_state_search;
++
++	friend void CopyTrajectoryFrameFromModel(model *, moldyn *, i32s atom_number);
+ 	
+ 	public:
+ 	
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-04-13 13:12:21.919321144 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-04-14 04:02:56.514089601 +0000
+@@ -3638,8 +3638,18 @@
+ 	}
+ #endif
+ 
++	bool trajectory_file_already_exists = false;
++
++	long_ofstream ofile;		// the trajectory file...
++	ofile.open(param.filename, ios_base::out | ios_base::in);  // will not create file
++	if (ofile.is_open())
++	{
++		trajectory_file_already_exists = true;
++		ofile.close();
++	}
++
+ 	f64 initial_T = 0.;		// initial temperature [K]
+-	if (param.maxwell_distribution_init)
++	if (param.maxwell_distribution_init && !trajectory_file_already_exists)
+ 	{
+ 		dyn->MaxwellDistribution(param.target_T, param.inverse_time_init);
+ 
+@@ -3687,14 +3697,31 @@
+ 	logfile.open(logfilename, ios::out);
+ 
+ 	logfile << str1;
+-	
+-	long_ofstream ofile;		// the trajectory file...
+-	ofile.open(param.filename, ios::out | ios::binary);
+-	
+-	const int total_frames = param.nsteps_s / frame_save_frq;
+-	
+-	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
+-	ofile.close();
++
++	const i32s tot_nsteps = param.nsteps_h + param.nsteps_e + param.nsteps_s + param.nsteps_c;
++	i32s n1 = 0;
++
++	if ( trajectory_file_already_exists )
++	{
++		OpenTrajectory(param.filename);
++
++		i32s frame = this->GetTotalFrames() - 1;
++		n1 = frame * frame_save_frq;
++		printf("n1 (%d) = frame (%d) * frame_save_frq (%d)\n", n1, frame, frame_save_frq);
++		this->SetCurrentFrame(frame);
++		this->ReadTrajectoryFrame(dyn);
++
++ 		CloseTrajectory();
++	}
++	else
++	{
++		ofile.open(param.filename, ios::out | ios::binary);
++
++		const int total_frames = tot_nsteps / frame_save_frq;
++
++		WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
++		ofile.close();
++	}
+ 	
+ 	ThreadUnlock();
+ 	
+@@ -3708,9 +3735,7 @@
+ 		dyn->isoth_compr = param.P_beta;
+ 	}
+ 	
+-	const i32s tot_nsteps = param.nsteps_h + param.nsteps_e + param.nsteps_s + param.nsteps_c;
+-	
+-	for (i32s n1 = 0;n1 < tot_nsteps;n1++)
++	for (;n1 < tot_nsteps;n1++)
+ 	{
+ 		if (custom_isnan(dyn->GetEKin()))
+ 		{
+@@ -5244,7 +5269,7 @@
+ 	}
+ }
+ 
+-void model::ReadTrajectoryFrame(void)
++void model::ReadTrajectoryFrame(moldyn * dyn)
+ {
+ 	size_t place = GetTrajectoryHeaderSize();						// skip the header...
+ 	size_t trajectory_frame_size = GetTrajectoryFrameSize();
+@@ -5275,11 +5300,17 @@
+ 		}
+ 	}
+ 
++	i32s atom_number = 0;
+ 
+ 	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
+ 	{
+ 		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
+ 		ReadTrajectoryFrameAtom(it1);
++		if (dyn)
++		{
++			CopyTrajectoryFrameFromModel(this, dyn, atom_number);
++			atom_number++;
++		}
+ 	}
+ 	this->UpdateAllGraphicsViews();
+ }
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2024-04-13 13:12:24.111347282 +0000
++++ ./libghemical-3.0.0/src/model.h	2024-04-14 04:06:48.492699367 +0000
+@@ -178,6 +178,8 @@
+ 	static sequencebuilder * amino_builder;
+ 	static sequencebuilder * nucleic_builder;
+ 	
++	friend void CopyTrajectoryFrameFromModel(model *, moldyn *, i32s atom_number);
++
+ 	friend void CopyCRD(model *, engine *, i32u);
+ 	friend void CopyCRD(engine *, model *, i32u);
+ 	
+@@ -453,7 +455,7 @@
+ // methods related to MD trajectories...
+ // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	void OpenTrajectory(const char *);
+-	void ReadTrajectoryFrame(void);
++	void ReadTrajectoryFrame(moldyn * dyn = NULL);
+ 	void ReadTrajectoryFrameAtom(iter_al it1);
+ 	void CloseTrajectory(void);
+ 
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-04-13 13:12:21.967321716 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-04-14 03:44:55.132795998 +0000
+@@ -32,6 +32,8 @@
+ 
+ /*################################################################################################*/
+ 
++
++
+ moldyn::moldyn(engine * p1, f64 p2)
+ {
+ 	eng = p1;
+@@ -506,9 +508,9 @@
+ 
+ 		SumMoleculesMomentum(mld);
+ 
+-		for (i32s n2 = 0; n2 < 3; n2++) {
+-			printf ("%d sum_p[%d] %0.48e\n", n1, n2, sum_p[n2]);
+-		}
++		//for (i32s n2 = 0; n2 < 3; n2++) {
++		//	printf ("%d sum_p[%d] %0.48e\n", n1, n2, sum_p[n2]);
++		//}
+ 	}
+ }
+ 
+@@ -654,6 +656,21 @@
+ 	}
+ }
+ 
++void CopyTrajectoryFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number)
++{
++	for (i32s tt2 = 0;tt2 < 3;tt2++)
++	{
++		dyn->eng->crd[atom_number * 3 + tt2] = mdl->traj_frame_cdata[tt2];
++		dyn->vel[atom_number * 3 + tt2] = mdl->traj_frame_vdata[tt2];
++		dyn->acc[atom_number * 3 + tt2] = mdl->traj_frame_adata[tt2];
++		//dyn->eng->d1[atom_number * 3 + tt2] = mdl->traj_frame_fdata[tt2];
++
++		dyn->cumsum_vel[atom_number * 3 + tt2] = mdl->traj_frame_cumsum_vdata[tt2];
++		dyn->cumsum_acc[atom_number * 3 + tt2] = mdl->traj_frame_cumsum_adata[tt2];
++		dyn->cumsum_f[atom_number * 3 + tt2] = mdl->traj_frame_fdata[tt2];
++	}
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2024-04-13 13:12:23.955345422 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-04-14 05:21:26.810498896 +0000
+@@ -248,6 +248,7 @@
+ 	void ForceMoleculesMomentumToZero();
+ 
+ 	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
++	friend void CopyTrajectoryFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
+ };
+ 
+ /*################################################################################################*/
