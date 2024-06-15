@@ -1,6 +1,50 @@
+diff -Nur ./libghemical-3.0.0.original/src/engine.cpp ./libghemical-3.0.0/src/engine.cpp
+--- ./libghemical-3.0.0.original/src/engine.cpp	2024-04-25 03:19:24.961355869 +0000
++++ ./libghemical-3.0.0/src/engine.cpp	2024-04-27 08:13:17.964535835 +0000
+@@ -954,6 +954,13 @@
+ 	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[2];
+ }
+ 
++void engine_pbc_cartesian::recover_from_traj_frame_boundary(model * mdl)
++{
++	box_HALFdim[0] = mdl->traj_frame_boundary[0];
++	box_HALFdim[1] = mdl->traj_frame_boundary[1];
++	box_HALFdim[2] = mdl->traj_frame_boundary[2];
++}
++
+ /*################################################################################################*/
+ 
+ engine_pbc_hexagonal::engine_pbc_hexagonal(setup * p1, i32u p2)
+@@ -1018,6 +1025,12 @@
+ 	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[1];
+ }
+ 
++void engine_pbc_hexagonal::recover_from_traj_frame_boundary(model * mdl)
++{
++	box_HALFdim[0] = mdl->traj_frame_boundary[1];
++	box_HALFdim[1] = mdl->traj_frame_boundary[2];
++}
++
+ /*################################################################################################*/
+ 
+ engine_wbp::engine_wbp(setup * p1, i32u p2) : engine(p1, p2)
+@@ -1234,6 +1247,13 @@
+ 	mdl->saved_periodic_box_HALFdim[2] = box_HALFdim[2];
+ }
+ 
++void engine_wbp::recover_from_traj_frame_boundary(model * mdl)
++{
++	box_HALFdim[0] = mdl->traj_frame_boundary[0];
++	box_HALFdim[1] = mdl->traj_frame_boundary[1];
++	box_HALFdim[2] = mdl->traj_frame_boundary[2];
++}
++
+ /*################################################################################################*/
+ 
+ number_density_evaluator::number_density_evaluator(engine_bp * p1, bool p2, i32s p3)
 diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
---- ./libghemical-3.0.0.original/src/engine.h	2024-04-13 13:12:22.091323195 +0000
-+++ ./libghemical-3.0.0/src/engine.h	2024-04-14 04:20:45.370544661 +0000
+--- ./libghemical-3.0.0.original/src/engine.h	2024-04-25 03:19:24.821355869 +0000
++++ ./libghemical-3.0.0/src/engine.h	2024-06-13 23:30:19.891621696 +0000
 @@ -41,6 +41,7 @@
  class bond;	// bond.h
  
@@ -18,14 +62,61 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
  	
  	public:
  	
+@@ -380,6 +383,8 @@
+ 
+ 	virtual void set_saved_periodic_box(model * mdl) = 0;
+ 
++	virtual void recover_from_traj_frame_boundary(model * mdl) = 0;
++
+ 	virtual f64 cellVolume() = 0;
+ 
+ 	virtual void scaleBox(f64 delta) = 0;
+@@ -423,6 +428,8 @@
+ 
+ 	virtual void set_saved_periodic_box(model * mdl);
+ 
++	virtual void recover_from_traj_frame_boundary(model * mdl);
++
+ 	virtual f64 cellVolume()
+ 	{
+ 		f64 tmpVOL = box_HALFdim[0] * box_HALFdim[1] * box_HALFdim[2];
+@@ -480,6 +487,8 @@
+ 
+ 	virtual void set_saved_periodic_box(model * mdl);
+ 
++	virtual void recover_from_traj_frame_boundary(model * mdl);
++
+ 	virtual f64 cellVolume()
+ 	{
+ 		f64 tmpVOL = 2 * sqrt(3) * box_HALFdim[0] * box_HALFdim[0] * box_HALFdim[1];
+@@ -566,6 +575,8 @@
+ 		boundary[1] = box_HALFdim[1];
+ 		boundary[2] = box_HALFdim[2];
+ 	}
++
++	void recover_from_traj_frame_boundary(model * mdl);
+ };
+ 
+ 
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2024-04-13 13:12:21.919321144 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2024-04-14 04:02:56.514089601 +0000
-@@ -3638,8 +3638,18 @@
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-04-25 03:19:24.733355870 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-06-14 20:47:13.629956816 +0000
+@@ -196,6 +196,9 @@
+ 	nmol = NOT_DEFINED;
+ 	ref_civ = NULL;
+ 	
++	nosehooverfile = NULL;
++	num_tcoupling_groups = 1;
++
+ 	trajfile = NULL;
+ 	traj_num_atoms = NOT_DEFINED;
+ 	total_traj_frames = NOT_DEFINED;
+@@ -3638,8 +3641,27 @@
  	}
  #endif
  
 +	bool trajectory_file_already_exists = false;
++	bool nose_hoover_file_already_exists = false;
 +
 +	long_ofstream ofile;		// the trajectory file...
 +	ofile.open(param.filename, ios_base::out | ios_base::in);  // will not create file
@@ -35,13 +126,21 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		ofile.close();
 +	}
 +
++	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
++	nhfile.open(NoseHooverFileName(param.filename), ios_base::out | ios_base::in);  // will not create file
++	if (nhfile.is_open())
++	{
++		nose_hoover_file_already_exists = true;
++		nhfile.close();
++	}
++
  	f64 initial_T = 0.;		// initial temperature [K]
 -	if (param.maxwell_distribution_init)
 +	if (param.maxwell_distribution_init && !trajectory_file_already_exists)
  	{
  		dyn->MaxwellDistribution(param.target_T, param.inverse_time_init);
  
-@@ -3687,14 +3697,31 @@
+@@ -3687,14 +3709,57 @@
  	logfile.open(logfilename, ios::out);
  
  	logfile << str1;
@@ -54,20 +153,28 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 -	WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
 -	ofile.close();
 +
-+	const i32s tot_nsteps = param.nsteps_h + param.nsteps_e + param.nsteps_s + param.nsteps_c;
++	const i32s tot_nsteps = param.nsteps_h + param.nsteps_e + param.nsteps_s;// + param.nsteps_c;
 +	i32s n1 = 0;
 +
++	i32s frame = 0;
 +	if ( trajectory_file_already_exists )
 +	{
 +		OpenTrajectory(param.filename);
 +
-+		i32s frame = this->GetTotalFrames() - 1;
-+		n1 = frame * frame_save_frq;
-+		printf("n1 (%d) = frame (%d) * frame_save_frq (%d)\n", n1, frame, frame_save_frq);
++		frame = this->GetTotalFrames() - 1;
++		n1 = frame * frame_save_frq + 1;
++		printf("n1 (%d) = frame (%d) * frame_save_frq (%d) tot_nsteps %d\n", n1, frame, frame_save_frq, tot_nsteps);
 +		this->SetCurrentFrame(frame);
 +		this->ReadTrajectoryFrame(dyn);
 +
 + 		CloseTrajectory();
++
++	// check if entering equilibration stage.
++		dyn->set_target_temperature(param.target_T);
++		dyn->set_temperature_rtime(param.T_rtime_es);
++
++		if (eng_pbc) eng_pbc->recover_from_traj_frame_boundary(this);
++		if (eng_wbp) eng_wbp->recover_from_traj_frame_boundary(this);
 +	}
 +	else
 +	{
@@ -78,21 +185,193 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		WriteTrajectoryHeader(ofile, total_frames, dyn, frame_save_frq);
 +		ofile.close();
 +	}
++
++	if (nose_hoover_file_already_exists)
++	{
++		OpenNoseHoover(param.filename);
++		current_nosehoover_frame = total_nosehoover_frames - 1;
++		ReadNoseHooverFrame(dyn);
++		dyn->loadNoseHooverTemperatureControlParams(this);
++		CloseNoseHoover();
++	}
++	else
++	{
++		nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary);
++
++		const int total_frames = tot_nsteps / frame_save_frq;
++
++		dyn->WriteNoseHooverHeader(nhfile, total_frames);
++		nhfile.close();
++	}
  	
  	ThreadUnlock();
  	
-@@ -3708,9 +3735,7 @@
+@@ -3708,9 +3773,7 @@
  		dyn->isoth_compr = param.P_beta;
  	}
  	
 -	const i32s tot_nsteps = param.nsteps_h + param.nsteps_e + param.nsteps_s + param.nsteps_c;
 -	
 -	for (i32s n1 = 0;n1 < tot_nsteps;n1++)
-+	for (;n1 < tot_nsteps;n1++)
++	for (;n1 <= tot_nsteps;n1++)
  	{
  		if (custom_isnan(dyn->GetEKin()))
  		{
-@@ -5244,7 +5269,7 @@
+@@ -3718,15 +3781,6 @@
+ 			break;
+ 		}
+ 
+-	// check if trajectory output should be made.
+-		if (!(n1 % frame_save_frq))
+-		{
+-			CopyCRD(eng, this, 0);
+-			ofile.open(param.filename, ios::out | ios::binary | ios::app);
+-			WriteTrajectoryFrame(ofile, dyn);
+-			ofile.close();
+-		}
+-
+ 		bool checked_terms = true;
+ 		if (NULL != eng_mm)
+ 			checked_terms = eng_mm->CheckTerms(eng_pbc);
+@@ -3752,10 +3806,10 @@
+ 		}
+ 		
+ 	// check if entering cooling stage.
+-		if (n1 == param.nsteps_h + param.nsteps_e + param.nsteps_s)
+-		{
+-			dyn->set_temperature_rtime(param.T_rtime_hc);
+-		}
++	//	if (n1 == param.nsteps_h + param.nsteps_e + param.nsteps_s)
++	//	{
++	//		dyn->set_temperature_rtime(param.T_rtime_hc);
++	//	}
+ 		
+ 	// check if T adjustment is needed at heating stage.
+ 		if (n1 < param.nsteps_h && !(n1 % 50))
+@@ -3768,25 +3822,25 @@
+ 		}
+ 		
+ 	// check if T adjustment is needed at cooling stage.
+-		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s && !(n1 % 50))
+-		{
+-			int tmp1 = n1 - (param.nsteps_h + param.nsteps_e + param.nsteps_s);
+-			int tmp2 = param.nsteps_c;
+-			
+-			dyn->set_target_temperature(param.target_T * ((f64) (tmp2 - tmp1) / (f64) tmp2));
+-			cout << _("setting T = ") << dyn->get_target_temperature() << endl;
+-		}
++	//	if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s && !(n1 % 50))
++	//	{
++	//		int tmp1 = n1 - (param.nsteps_h + param.nsteps_e + param.nsteps_s);
++	//		int tmp2 = param.nsteps_c;
++	//
++	//		dyn->set_target_temperature(param.target_T * ((f64) (tmp2 - tmp1) / (f64) tmp2));
++	//		cout << _("setting T = ") << dyn->get_target_temperature() << endl;
++	//	}
+ 		
+ 		bool enable_bTc = false;
+ 		bool enable_nhTc = false;
+ 		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
+-		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
++		//if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
+ 		if (param.constant_T_Berendsen) enable_bTc = true;
+ 		if (param.constant_T_NoseHoover) enable_nhTc = true;
+ 		
+ 		bool enable_Pc = param.constant_P;
+ 		if (n1 < param.nsteps_h) enable_Pc = false;					// heating
+-		if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
++		//if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_Pc = false;	// cooling
+ 
+ #if USE_BOUNDARY_OPT_ON_MOLDYN
+ 		if (b_opt && (!(n1 % 10) || !checked_terms)){
+@@ -3840,6 +3894,19 @@
+ 			}
+ 		}
+ 
++	// check if trajectory output should be made.
++		if (!(n1 % frame_save_frq) && ( n1 != frame * frame_save_frq || 0 == frame) )
++		{
++			CopyCRD(eng, this, 0);
++			ofile.open(param.filename, ios::out | ios::binary | ios::app);
++			WriteTrajectoryFrame(ofile, dyn);
++			ofile.close();
++
++			nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
++			dyn->saveNoseHooverTemperatureControlParams(nhfile);
++			nhfile.close();
++		}
++
+ 	// check if log/progressbar output should be made.
+ 		if (!(n1 % 100))
+ 		{
+@@ -5053,6 +5120,23 @@
+ 		traj_path = std::string(fn);
+ 		traj_filename = split_filename(traj_path);
+ 		trajfile = new long_ifstream(fn, ios::in | ios::binary);
++
++		// CalcTotalFrames
++		size_t start_pos = trajfile->tellg();
++		trajfile->seekg(0, std::ios::end);
++		size_t end_pos = trajfile->tellg();
++		trajfile->seekg(start_pos, ios::beg);
++		size_t traj_body_size = end_pos - start_pos;
++		printf("traj_body_size %d = end_pos %d - start_pos %d;\n",
++				traj_body_size, end_pos, start_pos);
++
++		size_t traj_real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
++		printf("traj_real_frames = %d (traj_body_size %d - GetTrajectoryHeaderSize() %d) / GetTrajectoryFrameSize() %d;\n",
++				traj_real_frames, traj_body_size, GetTrajectoryHeaderSize(), GetTrajectoryFrameSize());
++
++		int traj_size_test = ((int)traj_body_size) - GetTrajectoryFrameSize() * traj_real_frames - GetTrajectoryHeaderSize();
++		printf("traj_size_test = %d\n", traj_size_test);
++
+ 		//trajfile->seekg(8, ios::beg);	// skip the file id...
+ 		char file_id[10];
+ 		trajfile->read((char *) & file_id, 8);
+@@ -5084,21 +5168,11 @@
+ 		
+ 		current_traj_frame = 0;
+ 
+-		// CalcTotalFrames
+-		size_t start_pos = trajfile->tellg();
+-		trajfile->seekg(0, std::ios::end);
+-		size_t end_pos = trajfile->tellg();
+-		trajfile->seekg(start_pos, ios::beg);
+-		size_t traj_body_size = end_pos - start_pos;
+-
+-		i32s max_frames = GetTotalFrames();
+-		size_t real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize() - 1;
+-
+-		if (total_traj_frames != real_frames)
++		if (total_traj_frames != traj_real_frames)
+ 		{
+ 			stringstream str;
+-			str << _("the trajectory real_frames ") << real_frames << _(" does not correspond to ") <<  total_traj_frames <<_(" frames. Will be reset") << endl << ends;
+-			total_traj_frames = real_frames;
++			str << _("the trajectory real_frames ") << traj_real_frames << _(" does not correspond to ") <<  total_traj_frames <<_(" frames. Will be reset") << endl << ends;
++			total_traj_frames = traj_real_frames;
+ 
+ 			PrintToLog(str.str().c_str());
+ 		}
+@@ -5108,7 +5182,7 @@
+ 			trajfile->read((char *) & time_step_between_traj_records, sizeof(time_step_between_traj_records));
+ 			stringstream str;
+ 			str << _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
+-				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++				<< _("the trajectory common time is ") << (time_step_between_traj_records * (traj_real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
+ 			PrintToLog(str.str().c_str());
+ 		}
+ 		else if (trajectory_version > 15)
+@@ -5120,7 +5194,7 @@
+ 			str << _("traj_frame_save_frq ") << traj_frame_save_frq
+ 				<< _(" traj_tstep1 ") << traj_tstep1 << endl
+ 				<< _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
+-				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
++				<< _("the trajectory common time is ") << (time_step_between_traj_records * (traj_real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;
+ 			PrintToLog(str.str().c_str());
+ 		}
+ 	}
+@@ -5244,7 +5318,7 @@
  	}
  }
  
@@ -101,7 +380,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  {
  	size_t place = GetTrajectoryHeaderSize();						// skip the header...
  	size_t trajectory_frame_size = GetTrajectoryFrameSize();
-@@ -5275,11 +5300,17 @@
+@@ -5275,11 +5349,17 @@
  		}
  	}
  
@@ -119,10 +398,150 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  	this->UpdateAllGraphicsViews();
  }
+@@ -5438,6 +5518,8 @@
+ 	const float ekin = dyn->GetEKin();
+ 	const float epot = dyn->GetEPot();
+ 
++	printf("WriteTrajectoryFrame ekin=%f, epot=%f\n", ekin, epot);
++
+ 	float boundary[3] = { -1.0, -1.0, -1.0 };
+ 
+ 	engine_bp * eng_bp = dynamic_cast<engine_bp *>(dyn->eng);
+@@ -5470,6 +5552,103 @@
+ 	dyn->SaveTrajectoryFrame(ofile, trajectory_version);
+ }
+ 
++const char * model::NoseHooverFileName(const char * fn)
++{
++	traj_path = std::string(fn);
++	traj_filename = split_filename(traj_path);
++	nosehoover_path = traj_path + std::string(".nh");
++	nosehoover_filename = split_filename(nosehoover_path);
++	return nosehoover_path.c_str();
++}
++
++void model::OpenNoseHoover(const char * fn)
++{
++	if (!nosehooverfile)
++	{
++		nosehooverfile = new long_ifstream(NoseHooverFileName(fn), ios::in | ios::binary);
++
++		// CalcTotalFrames
++		size_t start_pos = nosehooverfile->tellg();
++		nosehooverfile->seekg(0, std::ios::end);
++		size_t end_pos = nosehooverfile->tellg();
++		nosehooverfile->seekg(start_pos, ios::beg);
++		size_t nosehoover_body_size = end_pos - start_pos;
++		printf("nosehoover_body_size %d = end_pos %d - start_pos %d\n",
++		        nosehoover_body_size, end_pos, start_pos);
++
++		size_t nosehoover_real_frames = (nosehoover_body_size - GetNoseHooverHeaderSize()) / GetNoseHooverFrameSize();
++		printf("nosehoover_real_frames %d = (nosehoover_body_size %d - GetNoseHooverHeaderSize() %d) / GetNoseHooverFrameSize() %d;\n",
++				nosehoover_real_frames, nosehoover_body_size, GetNoseHooverHeaderSize(), GetNoseHooverFrameSize());
++
++		int nosehoover_size_test = ((int)nosehoover_body_size) - GetNoseHooverFrameSize() * nosehoover_real_frames - GetNoseHooverHeaderSize();
++		printf("nosehoover_size_test = %d\n", nosehoover_size_test);
++
++
++		//nosehooverfile->seekg(8, ios::beg);	// skip the file id...
++		char file_id[10];
++		nosehooverfile->read((char *) & file_id, 8);
++		sscanf(file_id, "noho_v%02d", &nosehoover_version);
++
++		nosehooverfile->read((char *) & total_nosehoover_frames, sizeof(total_nosehoover_frames));
++		nosehooverfile->read((char *) & num_tcoupling_groups, sizeof(num_tcoupling_groups));
++		nosehooverfile->read((char *) & nosehoover_reserved, sizeof(nosehoover_reserved));
++
++
++		if (total_nosehoover_frames != nosehoover_real_frames)
++		{
++			stringstream str;
++			str << _("the nosehoover real_frames ") << nosehoover_real_frames << _(" does not correspond to ") <<  total_nosehoover_frames <<_(" frames. Will be reset") << endl << ends;
++			total_nosehoover_frames = nosehoover_real_frames;
++
++			PrintToLog(str.str().c_str());
++		}
++
++	}
++	else PrintToLog(_("nosehoover file is already open!\n"));
++}
++
++size_t model::GetNoseHooverHeaderSize()
++{
++	// file_id
++	// total_frames, num_tcoupling_groups, nosehoover_reserved
++	return (8 + 3 * sizeof(i32s));
++}
++
++size_t model::GetNoseHooverFrameSize()
++{
++	return 2 * sizeof(f64) * num_tcoupling_groups;
++}
++
++void model::ReadNoseHooverFrame(moldyn * dyn)
++{
++	size_t place = GetNoseHooverHeaderSize();						// skip the header...
++	size_t nosehoover_frame_size = GetNoseHooverFrameSize();
++	place += nosehoover_frame_size * current_nosehoover_frame;		// get the correct frame...
++
++	printf("ReadNoseHooverFrame current_nosehoover_frame = %d\n", current_nosehoover_frame);
++
++	nosehooverfile->seekg(place, ios::beg);
++
++	f64 tmp;
++	for (i32s t4 = 0; t4 < 2; t4++)
++	{
++		nosehooverfile->read((char *) & tmp, sizeof(tmp));
++		nosehoover_frame_data[t4] = tmp;
++		printf("ReadNoseHooverFrame nosehoover_frame_data[%d] = %f\n", t4, tmp);
++	}
++}
++
++void model::CloseNoseHoover(void)
++{
++	if (nosehooverfile != NULL)
++	{
++		nosehooverfile->close();
++		delete nosehooverfile;
++
++		nosehooverfile = NULL;
++	}
++}
++
+ float ConvEKinTemp(float ekin, size_t natoms)
+ {
+ 	return (2.0 / 3.0) * ekin * 1000.0 / ((natoms /*- num_locked*/) * 8.314510);
+@@ -5540,7 +5719,7 @@
+ 	float boundary[3];
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+-	for (i32s loop = 0; loop < max_frames; loop++)
++	for (i32s loop = 0; loop <= max_frames; loop++)
+ 	{
+ 		this->SetCurrentFrame(loop);
+ 
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
---- ./libghemical-3.0.0.original/src/model.h	2024-04-13 13:12:24.111347282 +0000
-+++ ./libghemical-3.0.0/src/model.h	2024-04-14 04:06:48.492699367 +0000
-@@ -178,6 +178,8 @@
+--- ./libghemical-3.0.0.original/src/model.h	2024-04-25 03:19:24.961355869 +0000
++++ ./libghemical-3.0.0/src/model.h	2024-06-14 22:28:36.222070733 +0000
+@@ -108,6 +108,17 @@
+ 
+ 	i32s nmol;
+ 	vector<chn_info> * ref_civ;	// vector<chn_info *> ?!?!?!
++
++	long_ifstream * nosehooverfile;	    // nosehoover files...
++	f64 nosehoover_frame_data[2];
++	std::string nosehoover_path;
++	std::string nosehoover_filename;
++	i32s total_nosehoover_frames;		// nosehoover files...
++	i32s current_nosehoover_frame;	    // nosehoover files...
++	i32s num_tcoupling_groups;
++	i32s nosehoover_reserved;
++	i32s nosehoover_version;
++
+ 	
+ 	long_ifstream * trajfile;	// trajectory files...
+ 	i32s traj_num_atoms;		// trajectory files...
+@@ -178,6 +189,8 @@
  	static sequencebuilder * amino_builder;
  	static sequencebuilder * nucleic_builder;
  	
@@ -131,7 +550,17 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	friend void CopyCRD(model *, engine *, i32u);
  	friend void CopyCRD(engine *, model *, i32u);
  	
-@@ -453,7 +455,7 @@
+@@ -450,10 +463,17 @@
+ 	i32s readpdb_ReadData_sub1(vector<readpdb_data_atom> &, i32s *, const char *, bool);
+ 	void readpdb_ReadData_sub2(vector<readpdb_data_atom> &, i32s *, const char *, const char *, char);
+ 	
++	const char * NoseHooverFileName(const char *);
++	void OpenNoseHoover(const char *);
++	size_t GetNoseHooverHeaderSize();
++	size_t GetNoseHooverFrameSize();
++	void ReadNoseHooverFrame(moldyn * dyn = NULL);
++	void CloseNoseHoover(void);
++
  // methods related to MD trajectories...
  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  	void OpenTrajectory(const char *);
@@ -141,18 +570,55 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void CloseTrajectory(void);
  
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
---- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-04-13 13:12:21.967321716 +0000
-+++ ./libghemical-3.0.0/src/moldyn.cpp	2024-04-14 03:44:55.132795998 +0000
-@@ -32,6 +32,8 @@
- 
- /*################################################################################################*/
- 
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-04-25 03:19:24.761355869 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-06-14 20:51:01.901961091 +0000
+@@ -100,6 +100,9 @@
+ 	calc_inv_Q_mass();
+ 	nosehoover_xi = 0.0;
+ 	nosehoover_vxi = 0.0;
 +
++	num_tcoupling_groups = 1;
++	nosehoover_reserved = 1;
+ }
+ 
+ moldyn::~moldyn(void)
+@@ -439,6 +447,35 @@
+ 	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
+ }
+ 
++void moldyn::loadNoseHooverTemperatureControlParams(model * mdl)
++{
++	nosehoover_xi  = mdl->nosehoover_frame_data[0];
++	nosehoover_vxi = mdl->nosehoover_frame_data[1];
 +
- moldyn::moldyn(engine * p1, f64 p2)
++	printf("loadNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
++}
++
++void moldyn::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames)
++{
++	char file_id[10];
++	int version = 1;
++	snprintf(file_id, 9, "noho_v%02d", version);
++	cout << "file_id = \"" << file_id << "\"" << endl;
++
++	ofile.write((char *) file_id, 8);					// file id, 8 chars.
++	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
++	ofile.write((char *) & num_tcoupling_groups, sizeof(num_tcoupling_groups));		// number of tcoupling groups, int.
++	ofile.write((char *) & nosehoover_reserved, sizeof(nosehoover_reserved));
++}
++
++void moldyn::saveNoseHooverTemperatureControlParams(long_ofstream & ofile)
++{
++	printf("saveNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
++
++	ofile.write((char *) & nosehoover_xi, sizeof(nosehoover_xi));
++	ofile.write((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
++}
++
+ molgroup::molgroup(enum molgrouptype _molgrouptype)
  {
- 	eng = p1;
-@@ -506,9 +508,9 @@
+ 	molgrouptype = _molgrouptype;
+@@ -506,9 +543,9 @@
  
  		SumMoleculesMomentum(mld);
  
@@ -165,7 +631,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	}
  }
  
-@@ -654,6 +656,21 @@
+@@ -654,6 +691,21 @@
  	}
  }
  
@@ -188,9 +654,29 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  
  // eof
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
---- ./libghemical-3.0.0.original/src/moldyn.h	2024-04-13 13:12:23.955345422 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2024-04-14 05:21:26.810498896 +0000
-@@ -248,6 +248,7 @@
+--- ./libghemical-3.0.0.original/src/moldyn.h	2024-04-25 03:19:24.953355869 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-06-14 20:46:39.917956185 +0000
+@@ -208,6 +208,8 @@
+ 
+ 	f64 nosehoover_xi;
+ 	f64 nosehoover_vxi;
++	i32s num_tcoupling_groups;
++	i32s nosehoover_reserved;
+ 
+ 	void calc_inv_Q_mass();
+ 
+@@ -217,6 +219,10 @@
+ 	f64 get_target_temperature() {return target_temperature;}
+ 	void set_temperature_rtime(f64);
+ 
++	void loadNoseHooverTemperatureControlParams(model * mdl);
++	void WriteNoseHooverHeader(long_ofstream & ofile, int total_frames);
++	void saveNoseHooverTemperatureControlParams(long_ofstream & ofile);
++
+ 	f64 target_pressure;		// [bar]
+ 	f64 pressure_rtime;		// [fs]
+ 	f64 isoth_compr;		// [1/bar]
+@@ -248,6 +254,7 @@
  	void ForceMoleculesMomentumToZero();
  
  	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
