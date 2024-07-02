@@ -640,13 +640,13 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +	for (i32s tt2 = 0;tt2 < 3;tt2++)
 +	{
 +		dyn->eng->crd[atom_number * 3 + tt2] = mdl->traj_frame_cdata[tt2];
-+		dyn->vel[atom_number * 3 + tt2] = mdl->traj_frame_vdata[tt2];
-+		dyn->acc[atom_number * 3 + tt2] = mdl->traj_frame_adata[tt2];
++		dyn->vel     [atom_number * 3 + tt2] = mdl->traj_frame_vdata[tt2];
++		dyn->acc     [atom_number * 3 + tt2] = mdl->traj_frame_adata[tt2];
 +		//dyn->eng->d1[atom_number * 3 + tt2] = mdl->traj_frame_fdata[tt2];
 +
 +		dyn->cumsum_vel[atom_number * 3 + tt2] = mdl->traj_frame_cumsum_vdata[tt2];
 +		dyn->cumsum_acc[atom_number * 3 + tt2] = mdl->traj_frame_cumsum_adata[tt2];
-+		dyn->cumsum_f[atom_number * 3 + tt2] = mdl->traj_frame_fdata[tt2];
++		dyn->cumsum_f  [atom_number * 3 + tt2] = mdl->traj_frame_cumsum_fdata[tt2];
 +	}
 +}
 +
