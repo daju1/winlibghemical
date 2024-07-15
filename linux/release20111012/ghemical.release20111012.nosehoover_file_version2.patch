@@ -1,7 +1,15 @@
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
 --- ./libghemical-3.0.0.original/src/model.cpp	2024-07-15 09:08:18.315558280 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2024-07-15 15:28:18.419085120 +0000
-@@ -3757,7 +3757,7 @@
++++ ./libghemical-3.0.0/src/model.cpp	2024-07-15 16:32:26.187005270 +0000
+@@ -204,6 +204,7 @@
+ 	total_traj_frames = NOT_DEFINED;
+ 	current_traj_frame = NOT_DEFINED;
+ 	trajectory_version = 17;
++	nosehoover_version = 2;
+ 	frame_save_frq = 10000;
+ 	
+ 	verbosity = 3;
+@@ -3757,7 +3758,7 @@
  
  		const int total_frames = tot_nsteps / frame_save_frq;
  
@@ -10,7 +18,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		nhfile.close();
  	}
  	
-@@ -3904,6 +3904,7 @@
+@@ -3904,6 +3905,7 @@
  
  			nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
  			dyn->saveNoseHooverTemperatureControlParams(nhfile);
@@ -18,7 +26,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			nhfile.close();
  		}
  
-@@ -5614,11 +5615,21 @@
+@@ -5614,11 +5616,21 @@
  	return (8 + 3 * sizeof(i32s));
  }
  
@@ -41,7 +49,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::ReadNoseHooverFrame(moldyn * dyn)
  {
  	size_t place = GetNoseHooverHeaderSize();						// skip the header...
-@@ -5636,6 +5647,36 @@
+@@ -5636,6 +5648,36 @@
  		nosehoover_frame_data[t4] = tmp;
  		printf("ReadNoseHooverFrame nosehoover_frame_data[%d] = %f\n", t4, tmp);
  	}
@@ -78,7 +86,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
  void model::CloseNoseHoover(void)
-@@ -5662,6 +5703,8 @@
+@@ -5662,6 +5704,8 @@
  		return NULL;
  	}
  
@@ -87,7 +95,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	const char * crd_names [][2] = {
  		{"coordinate", "nm"}, {"velocity", "1.0e+3 m/s"}, {"acceleration", "1.0e+12 m/s^2"}, {"force",""},
  		{"d_coordinate_error",""}, {"d_velocity_error",""}, {"sum_d_coordinate_error",""}, {"sum_d_velocity_error",""},
-@@ -5672,15 +5715,19 @@
+@@ -5672,15 +5716,19 @@
  		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
  		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""},
  		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
@@ -108,7 +116,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	i32s shift = 0;
  	f64 first_coordinate = 0.0;
  	f64 previouse_coordinate = 0.0;
-@@ -5692,6 +5739,7 @@
+@@ -5692,6 +5740,7 @@
  	f64 previouse_acceleration = 0.0;
  	f64 sum_acceleration = 0.0;
  	f64 sum_force = 0.0;
@@ -116,7 +124,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	f64 coordinate_cumsum_velocity = 0.0;
  	f64 coordinate_cumsum_acceleration = 0.0;
  	f64 coordinate_cumsum_velocity_and_acceleration = 0.0;
-@@ -5700,6 +5748,7 @@
+@@ -5700,6 +5749,7 @@
  	this->MakeMoleculesGroups(molgroups);
  
  	size_t natoms = atom_list.size();
@@ -124,7 +132,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	std::vector<f64> c_data; c_data.resize(natoms * 3);
  	std::vector<f64> previouse_c_data; previouse_c_data.resize(natoms * 3, 0.0);
  	std::vector<f64> v_data; v_data.resize(natoms * 3);
-@@ -5707,6 +5756,8 @@
+@@ -5707,6 +5757,8 @@
  	std::vector<f64> a_data; a_data.resize(natoms * 3);
  	std::vector<f64> f_data; f_data.resize(natoms * 3);
  
@@ -133,7 +141,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
  	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
  	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
-@@ -5763,6 +5814,9 @@
+@@ -5763,6 +5815,9 @@
  
  		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
  		{
@@ -143,7 +151,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			this->ReadTrajectoryFrameAtom(it1);
  
  			for (i32s t4 = 0;t4 < 3;t4++)
-@@ -5775,16 +5829,48 @@
+@@ -5775,16 +5830,48 @@
  				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
  				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
  				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
@@ -192,7 +200,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		f64 cumsum_velocity = 0;
  		f64 cumsum_acceleration = 0;
  		f64 cumsum_force = 0;
-@@ -5808,10 +5894,10 @@
+@@ -5808,10 +5895,10 @@
  			}
  
  			f64 crd, vel, acc, frc,
@@ -205,7 +213,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
  				pre_loop_crd = 0.0;
  
-@@ -5825,6 +5911,7 @@
+@@ -5825,6 +5912,7 @@
  				vel = v_data[3 * ind + dim];
  				acc = a_data[3 * ind + dim];
  				frc = f_data[3 * ind + dim];
@@ -213,7 +221,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				cumsum_vel = cumsum_v_data[3 * ind + dim];
  				cumsum_acc = cumsum_a_data[3 * ind + dim];
  				cumsum_frc = cumsum_f_data[3 * ind + dim];
-@@ -5862,7 +5949,9 @@
+@@ -5862,7 +5950,9 @@
  				sum_acc += acc;
  				sum_frc += frc;
  
@@ -223,7 +231,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				sum_cumsum_acc += cumsum_acc;
  				sum_cumsum_frc += cumsum_frc;
  			}
-@@ -5872,6 +5961,7 @@
+@@ -5872,6 +5962,7 @@
  			sum_vel /= it_mlgr->natoms.size();
  			sum_acc /= it_mlgr->natoms.size();
  
@@ -231,7 +239,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			sum_cumsum_vel /= it_mlgr->natoms.size();
  			sum_cumsum_acc /= it_mlgr->natoms.size();
  
-@@ -5880,6 +5970,8 @@
+@@ -5880,6 +5971,8 @@
  			acceleration = sum_acc;
  			force        = sum_frc;
  
@@ -240,7 +248,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			cumsum_velocity     = sum_cumsum_vel;
  			cumsum_acceleration = sum_cumsum_acc;
  			cumsum_force        = sum_cumsum_frc;
-@@ -6030,6 +6122,7 @@
+@@ -6030,6 +6123,7 @@
  		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
  		f64 dc     = dcv + dca;
  
@@ -248,7 +256,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
  		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
  		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
-@@ -6144,6 +6237,19 @@
+@@ -6144,6 +6238,19 @@
  				value = temperature;
  				break;
  
