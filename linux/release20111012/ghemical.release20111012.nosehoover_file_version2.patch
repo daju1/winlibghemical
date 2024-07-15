@@ -132,7 +132,13 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
  	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
  	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
-@@ -5763,6 +5813,9 @@
+@@ -5759,10 +5809,15 @@
+ 			}
+ 		}
+ 
++		bool break_if_cumsum_f_cumsum_acc_seems_wrong = false;
++
+ 		i32s ind = 0;
  
  		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
  		{
@@ -142,27 +148,31 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			this->ReadTrajectoryFrameAtom(it1);
  
  			for (i32s t4 = 0;t4 < 3;t4++)
-@@ -5775,16 +5828,54 @@
+@@ -5775,16 +5830,58 @@
  				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
  				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
  				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
 +
-+
 +				if (fabs(f_data[3 * ind + t4] / m_data[ind] + a_data[3 * ind + t4]) > 1e-3)
 +				{
 +					printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4] / m_data[ind], a_data[3 * ind + t4]);
-+					break;
++					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
 +				}
 +				if (fabs(cumsum_f_data[3 * ind + t4] / m_data[ind] + cumsum_a_data[3 * ind + t4]) > 1e-3)
 +				{
 +					printf("%d %d cumsum_f/m=%f cumsum_a=%f\n", ind, t4, cumsum_f_data[3 * ind + t4] / m_data[ind], cumsum_a_data[3 * ind + t4]);
-+					break;
++					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
 +				}
  			}
  
  			ind++;
  		}
  
++		if (break_if_cumsum_f_cumsum_acc_seems_wrong)
++		{
++			break;
++		}
++
 +		if (nosehooverfile)
 +		{
 +			size_t place_nh = GetNoseHooverHeaderSize();						// skip the header...
@@ -197,7 +207,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		f64 cumsum_velocity = 0;
  		f64 cumsum_acceleration = 0;
  		f64 cumsum_force = 0;
-@@ -5808,10 +5899,10 @@
+@@ -5808,10 +5905,10 @@
  			}
  
  			f64 crd, vel, acc, frc,
@@ -210,7 +220,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
  				pre_loop_crd = 0.0;
  
-@@ -5825,6 +5916,7 @@
+@@ -5825,6 +5922,7 @@
  				vel = v_data[3 * ind + dim];
  				acc = a_data[3 * ind + dim];
  				frc = f_data[3 * ind + dim];
@@ -218,7 +228,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				cumsum_vel = cumsum_v_data[3 * ind + dim];
  				cumsum_acc = cumsum_a_data[3 * ind + dim];
  				cumsum_frc = cumsum_f_data[3 * ind + dim];
-@@ -5862,7 +5954,9 @@
+@@ -5862,7 +5960,9 @@
  				sum_acc += acc;
  				sum_frc += frc;
  
@@ -228,7 +238,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				sum_cumsum_acc += cumsum_acc;
  				sum_cumsum_frc += cumsum_frc;
  			}
-@@ -5872,6 +5966,7 @@
+@@ -5872,6 +5972,7 @@
  			sum_vel /= it_mlgr->natoms.size();
  			sum_acc /= it_mlgr->natoms.size();
  
@@ -236,7 +246,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			sum_cumsum_vel /= it_mlgr->natoms.size();
  			sum_cumsum_acc /= it_mlgr->natoms.size();
  
-@@ -5880,6 +5975,8 @@
+@@ -5880,6 +5981,8 @@
  			acceleration = sum_acc;
  			force        = sum_frc;
  
@@ -245,7 +255,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			cumsum_velocity     = sum_cumsum_vel;
  			cumsum_acceleration = sum_cumsum_acc;
  			cumsum_force        = sum_cumsum_frc;
-@@ -6030,6 +6127,7 @@
+@@ -6030,6 +6133,7 @@
  		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
  		f64 dc     = dcv + dca;
  
@@ -253,7 +263,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
  		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
  		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
-@@ -6144,6 +6242,19 @@
+@@ -6144,6 +6248,19 @@
  				value = temperature;
  				break;
  
