@@ -553,7 +553,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			trajfile->read((char *) & traj_tstep1, sizeof(traj_tstep1));
 +			time_step_between_traj_records = traj_tstep1 * traj_frame_save_frq;
 +			stringstream str;
-+			str << _("traj_frame_save_frq ") << traj_frame_save_frq 
++			str << _("traj_frame_save_frq ") << traj_frame_save_frq
 +				<< _(" traj_tstep1 ") << traj_tstep1 << endl
 +				<< _("time step between traj records ") << (time_step_between_traj_records / 1000) << _(" * 1.0E-12 s") << endl
 +				<< _("the trajectory common time is ") << (time_step_between_traj_records * (real_frames - 1) / 1000000) << _(" * 1.0E-9 s") << endl << ends;

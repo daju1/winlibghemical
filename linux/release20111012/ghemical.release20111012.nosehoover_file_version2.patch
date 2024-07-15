@@ -1,0 +1,422 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-07-15 09:08:18.315558280 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-07-15 15:28:18.419085120 +0000
+@@ -3757,7 +3757,7 @@
+ 
+ 		const int total_frames = tot_nsteps / frame_save_frq;
+ 
+-		dyn->WriteNoseHooverHeader(nhfile, total_frames);
++		dyn->WriteNoseHooverHeader(nhfile, total_frames, nosehoover_version);
+ 		nhfile.close();
+ 	}
+ 	
+@@ -3904,6 +3904,7 @@
+ 
+ 			nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
+ 			dyn->saveNoseHooverTemperatureControlParams(nhfile);
++			dyn->saveNoseHooverFrame(nhfile, nosehoover_version);
+ 			nhfile.close();
+ 		}
+ 
+@@ -5614,11 +5615,21 @@
+ 	return (8 + 3 * sizeof(i32s));
+ }
+ 
+-size_t model::GetNoseHooverFrameSize()
++size_t model::GetNoseHooverTemperatureControlParamsSize()
+ {
+ 	return 2 * sizeof(f64) * num_tcoupling_groups;
+ }
+ 
++size_t model::GetNoseHooverFrameSize()
++{
++	if (nosehoover_version == 2) {
++		return (GetNoseHooverTemperatureControlParamsSize()
++			+ 3  * traj_num_atoms * sizeof(f64)); //cumsum_nosenoover_vel
++	}
++
++	return GetNoseHooverTemperatureControlParamsSize();
++}
++
+ void model::ReadNoseHooverFrame(moldyn * dyn)
+ {
+ 	size_t place = GetNoseHooverHeaderSize();						// skip the header...
+@@ -5636,6 +5647,36 @@
+ 		nosehoover_frame_data[t4] = tmp;
+ 		printf("ReadNoseHooverFrame nosehoover_frame_data[%d] = %f\n", t4, tmp);
+ 	}
++
++	if (nosehoover_version > 1)
++	{
++		i32s atom_number = 0;
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++			//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			ReadNoseHooverFrameAtom(it1);
++			if (dyn)
++			{
++				CopyNoseHooverFrameFromModel(this, dyn, atom_number);
++				atom_number++;
++			}
++		}
++	}
++}
++
++void model::ReadNoseHooverFrameAtom(iter_al it1)
++{
++	f64 tmp;
++
++	if (nosehoover_version == 2)
++	{
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			nosehooverfile->read((char *) & tmp, sizeof(tmp));
++			noho_frame_cumsum_vdata[t4] = tmp;
++		}
++	}
+ }
+ 
+ void model::CloseNoseHoover(void)
+@@ -5662,6 +5703,8 @@
+ 		return NULL;
+ 	}
+ 
++	bool logging = true;
++
+ 	const char * crd_names [][2] = {
+ 		{"coordinate", "nm"}, {"velocity", "1.0e+3 m/s"}, {"acceleration", "1.0e+12 m/s^2"}, {"force",""},
+ 		{"d_coordinate_error",""}, {"d_velocity_error",""}, {"sum_d_coordinate_error",""}, {"sum_d_velocity_error",""},
+@@ -5672,15 +5715,19 @@
+ 		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
+ 		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""},
+ 		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
++		{"nosehoover_xi", ""}, {"nosehoover_vxi", ""}, {"cumsum_nosehoover_velocity", ""}, {"coordinate_cumsum_nosehoover_velocity", "nm"},
+ 		};
+ 	
+-	size_t crd_names_len = 25;
++	size_t crd_names_len = 29;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+ 	float ekin, temperature, previouse_temperature = 0.0;
+ 	float epot;
+ 
++	f64 nosehoover_xi = 0.0;
++	f64 nosehoover_vxi = 0.0;
++
+ 	i32s shift = 0;
+ 	f64 first_coordinate = 0.0;
+ 	f64 previouse_coordinate = 0.0;
+@@ -5692,6 +5739,7 @@
+ 	f64 previouse_acceleration = 0.0;
+ 	f64 sum_acceleration = 0.0;
+ 	f64 sum_force = 0.0;
++	f64 coordinate_cumsum_nosehoover_velocity = 0.0;
+ 	f64 coordinate_cumsum_velocity = 0.0;
+ 	f64 coordinate_cumsum_acceleration = 0.0;
+ 	f64 coordinate_cumsum_velocity_and_acceleration = 0.0;
+@@ -5700,6 +5748,7 @@
+ 	this->MakeMoleculesGroups(molgroups);
+ 
+ 	size_t natoms = atom_list.size();
++	std::vector<f64> m_data; m_data.resize(natoms);
+ 	std::vector<f64> c_data; c_data.resize(natoms * 3);
+ 	std::vector<f64> previouse_c_data; previouse_c_data.resize(natoms * 3, 0.0);
+ 	std::vector<f64> v_data; v_data.resize(natoms * 3);
+@@ -5707,6 +5756,8 @@
+ 	std::vector<f64> a_data; a_data.resize(natoms * 3);
+ 	std::vector<f64> f_data; f_data.resize(natoms * 3);
+ 
++	std::vector<f64> cumsum_noho_v_data; cumsum_noho_v_data.resize(natoms * 3);
++
+ 	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
+ 	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
+ 	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
+@@ -5763,6 +5814,9 @@
+ 
+ 		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
+ 		{
++			m_data[ind] = it1->mass;
++			m_data[ind] *= 1.6605402e-27 * 6.0221367e+23;
++
+ 			this->ReadTrajectoryFrameAtom(it1);
+ 
+ 			for (i32s t4 = 0;t4 < 3;t4++)
+@@ -5775,16 +5829,48 @@
+ 				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
+ 				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
+ 				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
++
++				if (logging)
++				{
++					printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4] / m_data[ind], a_data[3 * ind + t4]);
++					printf("%d %d cumsum_f/m=%f cumsum_a=%f\n", ind, t4, cumsum_f_data[3 * ind + t4] / m_data[ind], cumsum_a_data[3 * ind + t4]);
++				}
+ 			}
+ 
+ 			ind++;
+ 		}
+ 
++		if (nosehooverfile)
++		{
++			size_t place_nh = GetNoseHooverHeaderSize();						// skip the header...
++			place_nh += GetNoseHooverFrameSize() * current_traj_frame;		// get the correct frame...
++
++			nosehooverfile->seekg(place_nh, ios::beg);
++
++			nosehooverfile->read((char *) & nosehoover_xi,  sizeof(nosehoover_xi));
++			nosehooverfile->read((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
++
++			i32s ind = 0;
++
++			for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
++			{
++				this->ReadNoseHooverFrameAtom(it1);
++
++				for (i32s t4 = 0;t4 < 3;t4++)
++				{
++					cumsum_noho_v_data[3 * ind + t4] = this->noho_frame_cumsum_vdata[t4];
++				}
++
++				ind++;
++			}			
++		}
++
+ 		f64 coordinate = 0;
+ 		f64 velocity = 0;
+ 		f64 acceleration = 0;
+ 		f64 force = 0;
+ 
++		f64 cumsum_nosehoover_velocity = 0;
+ 		f64 cumsum_velocity = 0;
+ 		f64 cumsum_acceleration = 0;
+ 		f64 cumsum_force = 0;
+@@ -5808,10 +5894,10 @@
+ 			}
+ 
+ 			f64 crd, vel, acc, frc,
+-				cumsum_vel, cumsum_acc, cumsum_frc,
++				cumsum_noho_vel, cumsum_vel, cumsum_acc, cumsum_frc,
+ 				max_crd = -FLT_MAX, min_crd = FLT_MAX,
+ 				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0,
+-				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
++				sum_cumsum_noho_vel = 0.0, sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
+ 				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
+ 				pre_loop_crd = 0.0;
+ 
+@@ -5825,6 +5911,7 @@
+ 				vel = v_data[3 * ind + dim];
+ 				acc = a_data[3 * ind + dim];
+ 				frc = f_data[3 * ind + dim];
++				cumsum_noho_vel = cumsum_noho_v_data[3 * ind + dim];
+ 				cumsum_vel = cumsum_v_data[3 * ind + dim];
+ 				cumsum_acc = cumsum_a_data[3 * ind + dim];
+ 				cumsum_frc = cumsum_f_data[3 * ind + dim];
+@@ -5862,7 +5949,9 @@
+ 				sum_acc += acc;
+ 				sum_frc += frc;
+ 
++				sum_cumsum_noho_vel += cumsum_noho_vel;
+ 				sum_cumsum_vel += cumsum_vel;
++
+ 				sum_cumsum_acc += cumsum_acc;
+ 				sum_cumsum_frc += cumsum_frc;
+ 			}
+@@ -5872,6 +5961,7 @@
+ 			sum_vel /= it_mlgr->natoms.size();
+ 			sum_acc /= it_mlgr->natoms.size();
+ 
++			sum_cumsum_noho_vel /= it_mlgr->natoms.size();
+ 			sum_cumsum_vel /= it_mlgr->natoms.size();
+ 			sum_cumsum_acc /= it_mlgr->natoms.size();
+ 
+@@ -5880,6 +5970,8 @@
+ 			acceleration = sum_acc;
+ 			force        = sum_frc;
+ 
++			cumsum_nosehoover_velocity = sum_cumsum_noho_vel;
++
+ 			cumsum_velocity     = sum_cumsum_vel;
+ 			cumsum_acceleration = sum_cumsum_acc;
+ 			cumsum_force        = sum_cumsum_frc;
+@@ -6030,6 +6122,7 @@
+ 		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
+ 		f64 dc     = dcv + dca;
+ 
++		coordinate_cumsum_nosehoover_velocity       = tstep1 * cumsum_nosehoover_velocity * 1.0e-3;
+ 		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
+ 		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
+ 		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
+@@ -6144,6 +6237,19 @@
+ 				value = temperature;
+ 				break;
+ 
++			case 25:
++				value = nosehoover_xi;
++				break;
++			case 26:
++				value = nosehoover_vxi;
++				break;
++			case 27:
++				value = cumsum_nosehoover_velocity;
++				break;
++			case 28:
++				value = coordinate_cumsum_nosehoover_velocity;
++				break;
++
+ 			default:
+ 				break;
+ 			}
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2024-07-15 09:08:18.311558280 +0000
++++ ./libghemical-3.0.0/src/model.h	2024-07-15 15:35:47.755075796 +0000
+@@ -144,6 +144,7 @@
+ 	f64 traj_frame_cumsum_adata[3];
+ 	f64 traj_frame_cumsum_fdata[3];
+ 
++	f64 noho_frame_cumsum_vdata[3];
+ 	
+ 	public:
+ 	
+@@ -190,6 +191,7 @@
+ 	static sequencebuilder * nucleic_builder;
+ 	
+ 	friend void CopyTrajectoryFrameFromModel(model *, moldyn *, i32s atom_number);
++	friend void CopyNoseHooverFrameFromModel(model *, moldyn *, i32s atom_number);
+ 
+ 	friend void CopyCRD(model *, engine *, i32u);
+ 	friend void CopyCRD(engine *, model *, i32u);
+@@ -466,8 +468,10 @@
+ 	const char * NoseHooverFileName(const char *);
+ 	void OpenNoseHoover(const char *);
+ 	size_t GetNoseHooverHeaderSize();
++	size_t GetNoseHooverTemperatureControlParamsSize();
+ 	size_t GetNoseHooverFrameSize();
+ 	void ReadNoseHooverFrame(moldyn * dyn = NULL);
++	void ReadNoseHooverFrameAtom(iter_al it1);
+ 	void CloseNoseHoover(void);
+ 
+ // methods related to MD trajectories...
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-07-15 13:30:58.395231219 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-07-15 15:28:18.419085120 +0000
+@@ -42,6 +42,8 @@
+ 	vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+ 	acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+ 
++	cumsum_noho_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
++
+ 	cumsum_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+ 	cumsum_acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+ 	cumsum_f   = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+@@ -78,6 +80,8 @@
+ 			vel[counter * 3 + n1] = 0.0;
+ 			acc[counter * 3 + n1] = 0.0;
+ 
++			cumsum_noho_vel[counter * 3 + n1] = 0.0;
++
+ 			cumsum_vel[counter * 3 + n1] = 0.0;
+ 			cumsum_acc[counter * 3 + n1] = 0.0;
+ 			cumsum_f  [counter * 3 + n1] = 0.0;
+@@ -110,6 +114,8 @@
+ 	delete[] vel;
+ 	delete[] acc;
+ 	
++	delete[] cumsum_noho_vel;
++
+ 	delete[] cumsum_vel;
+ 	delete[] cumsum_acc;
+ 	delete[] cumsum_f;
+@@ -405,7 +411,8 @@
+ 		{
+ 			for (i32s dim = 0; dim < 3; ++dim)
+ 			{
+-				vel[n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
++				vel            [n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
++				cumsum_noho_vel[n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
+ 			}
+ 		}
+ 	}
+@@ -450,10 +457,9 @@
+ 	printf("loadNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
+ }
+ 
+-void moldyn::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames)
++void moldyn::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version)
+ {
+ 	char file_id[10];
+-	int version = 1;
+ 	snprintf(file_id, 9, "noho_v%02d", version);
+ 	cout << "file_id = \"" << file_id << "\"" << endl;
+ 
+@@ -471,6 +477,23 @@
+ 	ofile.write((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
+ }
+ 
++void moldyn::saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version)
++{
++	f64 t1a;
++	const int number_of_atoms = eng->GetAtomCount();
++	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
++	{
++		if (2 == nosehoover_version)
++		{
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = cumsum_noho_vel[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++		}
++	}
++}
++
+ molgroup::molgroup(enum molgrouptype _molgrouptype)
+ {
+ 	molgrouptype = _molgrouptype;
+@@ -701,6 +724,14 @@
+ 	}
+ }
+ 
++void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number)
++{
++	for (i32s tt2 = 0;tt2 < 3;tt2++)
++	{
++		dyn->cumsum_noho_vel[atom_number * 3 + tt2] = mdl->noho_frame_cumsum_vdata[tt2];
++	}
++}
++
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2024-07-15 09:08:18.311558280 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-07-15 15:28:18.419085120 +0000
+@@ -178,6 +178,8 @@
+ 	f64 * vel;			// [1.0e+3 m/s]
+ 	f64 * acc;			// [1.0e+12 m/s^2]
+ 
++	f64 * cumsum_noho_vel;
++
+ 	f64 * cumsum_vel;
+ 	f64 * cumsum_acc;
+ 	f64 * cumsum_f;
+@@ -220,8 +222,9 @@
+ 	void set_temperature_rtime(f64);
+ 
+ 	void loadNoseHooverTemperatureControlParams(model * mdl);
+-	void WriteNoseHooverHeader(long_ofstream & ofile, int total_frames);
++	void WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version);
+ 	void saveNoseHooverTemperatureControlParams(long_ofstream & ofile);
++	void saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version);
+ 
+ 	f64 target_pressure;		// [bar]
+ 	f64 pressure_rtime;		// [fs]
+@@ -255,6 +258,7 @@
+ 
+ 	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
+ 	friend void CopyTrajectoryFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
++	friend void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
+ };
+ 
+ /*################################################################################################*/

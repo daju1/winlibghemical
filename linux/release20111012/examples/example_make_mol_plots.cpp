@@ -172,7 +172,7 @@ int main(int argc, char ** argv)
 		cout << "failed!!!" << endl;
 		
 		ifile.close();
-        help(argc, argv);
+		help(argc, argv);
 		return -1;
 	}
 
@@ -183,11 +183,27 @@ int main(int argc, char ** argv)
 	cout << "trying to apply a box " << infile_box << " ; ";
 	mdl->LoadBox(infile_box);
 
-    mdl->OpenTrajectory(infile_traj);
+	bool nose_hoover_file_exists = false;
+
+	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
+	nhfile.open(mdl->NoseHooverFileName(infile_traj), ios_base::out | ios_base::in);  // will not create file
+	if (nhfile.is_open())
+	{
+		nose_hoover_file_exists = true;
+		nhfile.close();
+	}
+
+	mdl->OpenTrajectory(infile_traj);
+	if (nose_hoover_file_exists) {
+		mdl->OpenNoseHoover(infile_traj);
+	}
 
 	mdl->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, MolCrdPrintHeader, MolCrdPrintValue, MolCrdPrintValues, mdl);
 
-    mdl->CloseTrajectory();
+	mdl->CloseTrajectory();
+	if (nose_hoover_file_exists) {
+		mdl->CloseNoseHoover();
+	}
 	
 	// finally release all allocated memory and leave.
 	
