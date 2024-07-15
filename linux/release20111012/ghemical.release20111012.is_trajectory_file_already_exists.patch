@@ -511,15 +511,6 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  float ConvEKinTemp(float ekin, size_t natoms)
  {
  	return (2.0 / 3.0) * ekin * 1000.0 / ((natoms /*- num_locked*/) * 8.314510);
-@@ -5540,7 +5719,7 @@
- 	float boundary[3];
- 
- 	i32s max_frames = this->GetTotalFrames();
--	for (i32s loop = 0; loop < max_frames; loop++)
-+	for (i32s loop = 0; loop <= max_frames; loop++)
- 	{
- 		this->SetCurrentFrame(loop);
- 
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
 --- ./libghemical-3.0.0.original/src/model.h	2024-04-25 03:19:24.961355869 +0000
 +++ ./libghemical-3.0.0/src/model.h	2024-06-14 22:28:36.222070733 +0000
