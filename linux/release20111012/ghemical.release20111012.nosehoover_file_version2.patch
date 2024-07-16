@@ -86,15 +86,16 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
  void model::CloseNoseHoover(void)
-@@ -5672,15 +5714,19 @@
+@@ -5672,15 +5714,20 @@
  		{"gas_atom_went_up_out_from_memrane",""}, {"coordinate_cumsum_velocity","nm"}, {"coordinate_cumsum_acceleration","nm"},
  		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""},
  		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
 +		{"nosehoover_xi", ""}, {"nosehoover_vxi", ""}, {"cumsum_nosehoover_velocity", ""}, {"coordinate_cumsum_nosehoover_velocity", "nm"},
++		{"cumsum_acceleration_times_mass", ""}
  		};
  	
 -	size_t crd_names_len = 25;
-+	size_t crd_names_len = 29;
++	size_t crd_names_len = 30;
  
  	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
  
@@ -107,7 +108,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	i32s shift = 0;
  	f64 first_coordinate = 0.0;
  	f64 previouse_coordinate = 0.0;
-@@ -5692,6 +5738,7 @@
+@@ -5692,6 +5739,7 @@
  	f64 previouse_acceleration = 0.0;
  	f64 sum_acceleration = 0.0;
  	f64 sum_force = 0.0;
@@ -115,7 +116,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	f64 coordinate_cumsum_velocity = 0.0;
  	f64 coordinate_cumsum_acceleration = 0.0;
  	f64 coordinate_cumsum_velocity_and_acceleration = 0.0;
-@@ -5700,6 +5747,7 @@
+@@ -5700,6 +5748,7 @@
  	this->MakeMoleculesGroups(molgroups);
  
  	size_t natoms = atom_list.size();
@@ -123,7 +124,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	std::vector<f64> c_data; c_data.resize(natoms * 3);
  	std::vector<f64> previouse_c_data; previouse_c_data.resize(natoms * 3, 0.0);
  	std::vector<f64> v_data; v_data.resize(natoms * 3);
-@@ -5707,10 +5755,16 @@
+@@ -5707,10 +5756,16 @@
  	std::vector<f64> a_data; a_data.resize(natoms * 3);
  	std::vector<f64> f_data; f_data.resize(natoms * 3);
  
@@ -140,7 +141,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	int64_t gas_atom_went_down_out_from_membrane = 0,
  			gas_atom_went_up_into_memrane = 0,
  			gas_atom_went_down_into_membrane = 0,
-@@ -5759,14 +5813,23 @@
+@@ -5759,14 +5814,23 @@
  			}
  		}
  
@@ -164,7 +165,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				c_data[3 * ind + t4] = this->traj_frame_cdata[t4];
  				v_data[3 * ind + t4] = this->traj_frame_vdata[t4];
  				a_data[3 * ind + t4] = this->traj_frame_adata[t4];
-@@ -5775,16 +5838,75 @@
+@@ -5775,18 +5839,78 @@
  				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
  				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
  				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
@@ -177,7 +178,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				if (fabs(cumsum_f_data[3 * ind + t4] / m_data[ind] + cumsum_a_data[3 * ind + t4]) > 1e-3)
 +				{
 +					printf("%d %d cumsum_f/m=%f cumsum_a=%f\n", ind, t4, cumsum_f_data[3 * ind + t4] / m_data[ind], cumsum_a_data[3 * ind + t4]);
-+					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
++					// break_if_cumsum_f_cumsum_acc_seems_wrong = true;
 +				}
  			}
  
@@ -239,39 +240,46 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		f64 cumsum_nosehoover_velocity = 0;
  		f64 cumsum_velocity = 0;
  		f64 cumsum_acceleration = 0;
++		f64 cumsum_acceleration_times_mass = 0;
  		f64 cumsum_force = 0;
-@@ -5808,10 +5930,10 @@
+ 
+ 		f64 max_membrane_crd = -FLT_MAX, min_membrane_crd = FLT_MAX;
+@@ -5808,10 +5932,10 @@
  			}
  
  			f64 crd, vel, acc, frc,
 -				cumsum_vel, cumsum_acc, cumsum_frc,
-+				cumsum_noho_vel, cumsum_vel, cumsum_acc, cumsum_frc,
++				cumsum_noho_vel, cumsum_vel, cumsum_acc, cumsum_a_m, cumsum_frc,
  				max_crd = -FLT_MAX, min_crd = FLT_MAX,
  				sum_crd = 0.0, sum_vel = 0.0, sum_acc = 0.0, sum_frc = 0.0,
 -				sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
-+				sum_cumsum_noho_vel = 0.0, sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_frc = 0.0,
++				sum_cumsum_noho_vel = 0.0, sum_cumsum_vel = 0.0, sum_cumsum_acc = 0.0, sum_cumsum_a_m = 0.0, sum_cumsum_frc = 0.0,
  				pre_atom_crd = 0.0, pre_loop_vel = 0.0,
  				pre_loop_crd = 0.0;
  
-@@ -5825,6 +5947,7 @@
+@@ -5825,8 +5949,10 @@
  				vel = v_data[3 * ind + dim];
  				acc = a_data[3 * ind + dim];
  				frc = f_data[3 * ind + dim];
 +				cumsum_noho_vel = cumsum_noho_v_data[3 * ind + dim];
  				cumsum_vel = cumsum_v_data[3 * ind + dim];
  				cumsum_acc = cumsum_a_data[3 * ind + dim];
++				cumsum_a_m = cumsum_a_data[3 * ind + dim] * m_data[ind];
  				cumsum_frc = cumsum_f_data[3 * ind + dim];
-@@ -5862,7 +5985,9 @@
+ 				pre_loop_crd = previouse_c_data[3 * ind + dim];
+ 				pre_loop_vel = previouse_v_data[3 * ind + dim];
+@@ -5862,7 +5988,10 @@
  				sum_acc += acc;
  				sum_frc += frc;
  
 +				sum_cumsum_noho_vel += cumsum_noho_vel;
  				sum_cumsum_vel += cumsum_vel;
 +
++				sum_cumsum_a_m += cumsum_a_m;
  				sum_cumsum_acc += cumsum_acc;
  				sum_cumsum_frc += cumsum_frc;
  			}
-@@ -5872,6 +5997,7 @@
+@@ -5872,6 +6001,7 @@
  			sum_vel /= it_mlgr->natoms.size();
  			sum_acc /= it_mlgr->natoms.size();
  
@@ -279,7 +287,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			sum_cumsum_vel /= it_mlgr->natoms.size();
  			sum_cumsum_acc /= it_mlgr->natoms.size();
  
-@@ -5880,6 +6006,8 @@
+@@ -5880,9 +6010,12 @@
  			acceleration = sum_acc;
  			force        = sum_frc;
  
@@ -288,7 +296,11 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			cumsum_velocity     = sum_cumsum_vel;
  			cumsum_acceleration = sum_cumsum_acc;
  			cumsum_force        = sum_cumsum_frc;
-@@ -6030,6 +6158,7 @@
++			cumsum_acceleration_times_mass = sum_cumsum_a_m;
+ 
+ 			if (MEMBRANE_OR_GLOBULE == it_mlgr->molgrouptype)
+ 			{
+@@ -6030,6 +6163,7 @@
  		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
  		f64 dc     = dcv + dca;
  
@@ -296,7 +308,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
  		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
  		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
-@@ -6144,6 +6273,19 @@
+@@ -6144,6 +6278,22 @@
  				value = temperature;
  				break;
  
@@ -311,6 +323,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				break;
 +			case 28:
 +				value = coordinate_cumsum_nosehoover_velocity;
++				break;
++			case 29:
++				value = cumsum_acceleration_times_mass;
 +				break;
 +
  			default:
