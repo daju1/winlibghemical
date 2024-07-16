@@ -91,11 +91,11 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		{"coordinate_cumsum_velocity_and_acceleration","nm"}, {"cumulative_mean_velocity","m/s"}, {"cumulative_mean_force",""},
  		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
 +		{"nosehoover_xi", ""}, {"nosehoover_vxi", ""}, {"cumsum_nosehoover_velocity", ""}, {"coordinate_cumsum_nosehoover_velocity", "nm"},
-+		{"cumsum_acceleration_times_mass", ""}
++		{"cumsum_acceleration_times_mass", ""}, {"cumulative_mean_acceleration_times_mass",""},
  		};
  	
 -	size_t crd_names_len = 25;
-+	size_t crd_names_len = 30;
++	size_t crd_names_len = 31;
  
  	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
  
@@ -177,7 +177,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				}
 +				if (fabs(cumsum_f_data[3 * ind + t4] / m_data[ind] + cumsum_a_data[3 * ind + t4]) > 1e-3)
 +				{
-+					printf("%d %d cumsum_f/m=%f cumsum_a=%f\n", ind, t4, cumsum_f_data[3 * ind + t4] / m_data[ind], cumsum_a_data[3 * ind + t4]);
++					// printf("%d %d cumsum_f/m=%f cumsum_a=%f\n", ind, t4, cumsum_f_data[3 * ind + t4] / m_data[ind], cumsum_a_data[3 * ind + t4]);
 +					// break_if_cumsum_f_cumsum_acc_seems_wrong = true;
 +				}
  			}
@@ -308,7 +308,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		coordinate_cumsum_velocity                  = tstep1 * cumsum_velocity * 1.0e-3;
  		coordinate_cumsum_acceleration              = tstep2 * cumsum_acceleration * 0.5e-9;
  		coordinate_cumsum_velocity_and_acceleration = coordinate_cumsum_velocity + coordinate_cumsum_acceleration;
-@@ -6144,6 +6278,22 @@
+@@ -6144,6 +6278,25 @@
  				value = temperature;
  				break;
  
@@ -326,6 +326,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				break;
 +			case 29:
 +				value = cumsum_acceleration_times_mass;
++				break;
++			case 30:
++				value = cumsum_acceleration_times_mass / (traj_frame_save_frq * (0 == loop ? 1 : loop));
 +				break;
 +
  			default:
