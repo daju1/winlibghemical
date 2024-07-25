@@ -31,11 +31,6 @@ EX4 =		example_make_mol_plots
 MOPAC7LIBS = $(shell pkg-config --libs libmopac7)
 LIBS       = $(MOPAC7LIBS) -lghemical -loglappth -linchi -lopenbabel -lm -lGLU -lGL -lglib-2.0 
 
-EX1SRC =	fileio.cpp example1.cpp
-EX2SRC =	fileio.cpp example2.cpp
-EX3SRC =	streamio.cpp example3.cpp
-EX4SRC =	example_make_mol_plots.cpp
-
 OBJ = $(SRC:.cpp=.o)
 OBJ = fileio.o 
 

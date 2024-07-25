@@ -1,0 +1,98 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-07-25 20:10:14.974548712 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-07-25 20:23:18.614532449 +0000
+@@ -5716,9 +5716,10 @@
+ 		{"ekin", ""}, {"epot", ""}, {"temperature", "K"},
+ 		{"nosehoover_xi", ""}, {"nosehoover_vxi", ""}, {"cumsum_nosehoover_velocity", ""}, {"coordinate_cumsum_nosehoover_velocity", "nm"},
+ 		{"cumsum_acceleration_times_mass", ""}, {"cumulative_mean_acceleration_times_mass",""},
++		{"volume", ""},
+ 		};
+ 	
+-	size_t crd_names_len = 31;
++	size_t crd_names_len = 32;
+ 
+ 	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type, crd_names, crd_names_len);
+ 
+@@ -5772,6 +5773,7 @@
+ 			gas_atom_went_up_out_from_memrane = 0;
+ 
+ 	float boundary[3];
++	float volume = 0.f;
+ 
+ 	i32s max_frames = this->GetTotalFrames();
+ 	for (i32s loop = 0; loop < max_frames; loop++)
+@@ -5812,6 +5814,7 @@
+ 			if (loop  ==  max_frames - 1) {
+ 				printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
+ 			}
++			volume = boundary[0] * boundary[1] * boundary[2];
+ 		}
+ 
+ 		bool break_if_cumsum_f_cumsum_acc_seems_wrong = false;
+@@ -6297,6 +6300,10 @@
+ 				value = cumsum_acceleration_times_mass / (traj_frame_save_frq * (0 == loop ? 1 : loop));
+ 				break;
+ 
++			case 31:
++				value = volume;
++				break;
++
+ 			default:
+ 				break;
+ 			}
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2024-07-25 20:10:14.970548712 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2024-07-25 20:10:51.930547945 +0000
+@@ -250,6 +250,7 @@
+ 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 	// Haile JM : "##Molecular dynamics simulation / Elementary methods"
+ 	// the GROMACS manual (v3) ; www.gromacs.org / documentation / manuals
++	// https://manual.gromacs.org/documentation/2019-rc1/reference-manual/algorithms/molecular-dynamics.html#pressure-coupling
+ 	
+ 	if (enable_pressure_control)
+ 	{
+@@ -289,6 +290,27 @@
+ 			}
+ 		}
+ 		
++		engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
++		if (eng_wbp != NULL)
++		{
++			f64 tmpVOL = eng_wbp->cellVolume();
++
++			// exponent = 23 - 9 - 9 - 9 = -4
++			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++			// -9 comes from nanometers (in all tree dimensions).
++
++			tmpVOL *= 8.0 * 6.0221367e-4;	// 2^3 = 8 for half-dimensions.
++			volume = tmpVOL;		// store it as m^3 / mol...
++
++			// +3 comes from the kilo prefix of Ekin and virial.
++			// -5 comes from Pa -> bar conversion.
++
++			for (i32s n1 = 0;n1 < 3;n1++)
++			{
++				pressure[n1] = 1.0e-2 * (2.0 * ekinCOMP[n1] + eng->virial[n1]) / tmpVOL;
++			}
++		}
++
+ 		// the pressure components are now in bar units.
+ 		// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 		
+@@ -313,7 +335,15 @@
+ 			model * mdl = eng->GetSetup()->GetModel();
+ 			eng_pbc->set_saved_periodic_box(mdl);
+ 		}
+-		
++
++		if (eng_wbp != NULL)
++		{
++			eng_wbp->scaleBox(delta);
++
++			model * mdl = eng->GetSetup()->GetModel();
++			eng_wbp->set_saved_periodic_box(mdl);
++		}
++
+ 		saved_pressure = tot_P;
+ 		saved_density = 0.001 * sum_of_masses / volume;		// kg/dm^3
+ 	}

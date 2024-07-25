@@ -109,6 +109,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.break_molplot_when_nan.patch
 	patch -p1 < ./ghemical.release20111012.is_trajectory_file_already_exists.patch
 	patch -p1 < ./ghemical.release20111012.nosehoover_file_version2.patch
+	patch -p1 < ./ghemical.release20111012.pressure-coupling.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
