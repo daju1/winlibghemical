@@ -1,7 +1,7 @@
 diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/eng1_mm.cpp
 --- ./libghemical-3.0.0.original/src/eng1_mm.cpp	2023-08-31 18:22:04.152662602 +0000
 +++ ./libghemical-3.0.0/src/eng1_mm.cpp	2023-08-31 18:48:02.732630258 +0000
-@@ -41,8 +41,12 @@
+@@ -41,8 +41,13 @@
  	
  	ENG1_MM_DEFAULT,
  	ENG1_MM_PERIODIC,
@@ -11,6 +11,7 @@ diff -Nur ./libghemical-3.0.0.original/src/eng1_mm.cpp ./libghemical-3.0.0/src/e
  	ENG1_MM_PERIODIC_WBP_YZ,
 +	ENG1_MM_PERIODIC_WBP_XZ,
 +	ENG1_MM_PERIODIC_WBP_XY,
++	ENG1_MM_PERIODIC_WBP_XYZ,
  	ENG1_MM_PERIODIC_HEX,
  	
  	ENG1_MM_EXPERIMENTAL,
