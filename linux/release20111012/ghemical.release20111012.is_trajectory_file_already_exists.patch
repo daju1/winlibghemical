@@ -304,7 +304,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	// check if log/progressbar output should be made.
  		if (!(n1 % 100))
  		{
-@@ -5053,6 +5120,23 @@
+@@ -5053,11 +5120,28 @@
  		traj_path = std::string(fn);
  		traj_filename = split_filename(traj_path);
  		trajfile = new long_ifstream(fn, ios::in | ios::binary);
@@ -318,6 +318,11 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		printf("traj_body_size %lu = end_pos %lu - start_pos %lu;\n",
 +				traj_body_size, end_pos, start_pos);
 +
+ 		//trajfile->seekg(8, ios::beg);	// skip the file id...
+ 		char file_id[10];
+ 		trajfile->read((char *) & file_id, 8);
+ 		sscanf(file_id, "traj_v%02d", &trajectory_version);
+ 
 +		size_t traj_real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
 +		printf("traj_real_frames = %lu (traj_body_size %lu - GetTrajectoryHeaderSize() %lu) / GetTrajectoryFrameSize() %lu;\n",
 +				traj_real_frames, traj_body_size, GetTrajectoryHeaderSize(), GetTrajectoryFrameSize());
@@ -325,9 +330,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		int traj_size_test = ((int)traj_body_size) - GetTrajectoryFrameSize() * traj_real_frames - GetTrajectoryHeaderSize();
 +		printf("traj_size_test = %d\n", traj_size_test);
 +
- 		//trajfile->seekg(8, ios::beg);	// skip the file id...
- 		char file_id[10];
- 		trajfile->read((char *) & file_id, 8);
+ 		{
+ 			stringstream str;
+ 			str << _("the trajectory file version ") << trajectory_version << endl << ends;
 @@ -5084,21 +5168,11 @@
  		
  		current_traj_frame = 0;
@@ -573,7 +578,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  }
  
  moldyn::~moldyn(void)
-@@ -439,6 +447,35 @@
+@@ -439,6 +442,35 @@
  	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
  }
  
@@ -609,7 +614,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  molgroup::molgroup(enum molgrouptype _molgrouptype)
  {
  	molgrouptype = _molgrouptype;
-@@ -506,9 +543,9 @@
+@@ -506,9 +538,9 @@
  
  		SumMoleculesMomentum(mld);
  
@@ -622,7 +627,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	}
  }
  
-@@ -654,6 +691,21 @@
+@@ -654,6 +686,21 @@
  	}
  }
  
