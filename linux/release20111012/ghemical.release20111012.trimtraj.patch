@@ -1,0 +1,418 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-12-18 21:33:52.434725684 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-12-20 03:45:34.620779842 +0000
+@@ -3571,6 +3571,136 @@
+ 	ThreadUnlock();
+ }
+ 
++void model::TrimTraj(moldyn_param & param, int n_frames_trim)
++{
++	ThreadLock();
++
++	engine * eng = GetCurrentSetup()->GetCurrentEngine();
++	if (eng == NULL) GetCurrentSetup()->CreateCurrentEngine();
++	eng = GetCurrentSetup()->GetCurrentEngine();
++	if (eng == NULL)
++	{
++		ThreadUnlock();
++		return;
++	}
++
++// eng_bp != NULL if we will use a system with boundary potential...
++	engine_bp * eng_bp = dynamic_cast<engine_bp *>(eng);
++
++// eng_pbc != NULL if we will use a system with periodic boundary conditions...
++	engine_pbc * eng_pbc = dynamic_cast<engine_pbc *>(eng);
++
++// eng_wbp != NULL if we will use a system with wall boundary potential...
++	engine_wbp * eng_wbp = dynamic_cast<engine_wbp *>(eng);
++
++	eng1_mm * eng_mm = dynamic_cast<eng1_mm *>(eng);
++
++	ostringstream filename2;
++	filename2 << param.filename;
++	filename2 << "." << n_frames_trim;
++
++	CopyCRD(this, eng, 0);
++
++	moldyn * dyn = new moldyn(eng, param.timestep);
++
++	bool trajectory_file_already_exists = false;
++	bool nose_hoover_file_already_exists = false;
++
++	long_ofstream ofile;		// the trajectory file...
++	ofile.open(param.filename, ios_base::out | ios_base::in);  // will not create file
++	if (ofile.is_open())
++	{
++		trajectory_file_already_exists = true;
++		ofile.close();
++	}
++
++	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
++	nhfile.open(NoseHooverFileName(param.filename), ios_base::out | ios_base::in);  // will not create file
++	if (nhfile.is_open())
++	{
++		nose_hoover_file_already_exists = true;
++		nhfile.close();
++	}
++
++	long_ofstream ofile2;		// the trajectory file...
++	ofile2.open(filename2.str().c_str(), ios_base::out | ios::binary | ios_base::trunc);  // will create file
++
++	long_ofstream nhfile2;		// NoseHooverTemperatureControlParams file...
++	nhfile2.open(NoseHooverFileName(filename2.str().c_str()), ios_base::out | ios::binary | ios_base::trunc);  // will create file
++
++	int total_frames = 0;
++	int total_nh_frames = 0;
++
++	i32s frame = 0;
++	if ( trajectory_file_already_exists )
++	{
++		OpenTrajectory(param.filename);
++
++		total_frames = this->GetTotalFrames() - n_frames_trim;
++
++		dyn->tstep1 = traj_tstep1;
++
++		WriteTrajectoryHeader(ofile2, total_frames, dyn, traj_frame_save_frq);
++		ofile2.close();
++	}
++
++	if (nose_hoover_file_already_exists)
++	{
++		OpenNoseHoover(param.filename);
++		printf("nosehoover_version = %d\n", nosehoover_version);
++
++		total_nh_frames = total_nosehoover_frames - n_frames_trim;
++
++		dyn->WriteNoseHooverHeader(nhfile2, total_nh_frames, nosehoover_version);
++		nhfile2.close();
++	}
++
++	ThreadUnlock();
++
++	for (i32s n1 = 0; n1 <= total_nh_frames; n1++)
++	{
++		{
++		current_nosehoover_frame = n1;
++
++			nhfile2.open(NoseHooverFileName(filename2.str().c_str()), ios::out | ios::binary | ios::app);
++			CopyNoseHooverFrame(&nhfile2, dyn);
++			nhfile2.close();
++		}
++	}
++
++	for (i32s n1 = 0; n1 <= total_frames; n1++)
++	{
++		{
++		this->SetCurrentFrame(n1);
++
++			CopyCRD(eng, this, 0);
++			ofile2.open(filename2.str().c_str(), ios::out | ios::binary | ios::app);
++			CopyTrajectoryFrame(&ofile2, dyn);
++			ofile2.close();
++		}
++
++		{
++			ThreadLock();
++
++			CopyCRD(eng, this, 0);
++
++			ThreadUnlock();
++
++			// the update frequency here matches with log/progressbar frequency,
++			// so that there is no need to call NoThreadsIterate() again...
++		}
++	}
++
++ 	CloseTrajectory();
++	CloseNoseHoover();
++
++	delete dyn;
++
++	ThreadLock();
++	CopyCRD(this, eng, 0);
++	ThreadUnlock();
++}
++
+ void model::DoMolDyn(moldyn_param & param, bool updt)
+ {
+ // make this thread-safe since this can be called from project::process_job_WhatEver() at the app side...
+@@ -5366,6 +5496,181 @@
+ 	this->UpdateAllGraphicsViews();
+ }
+ 
++void model::CopyTrajectoryFrameAtom(long_ofstream * trajfile2, iter_al it1)
++{
++	if (15 == trajectory_version || 17 == trajectory_version)
++	{
++		f64 tmp;
++
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			trajfile2->write((char *) & tmp, sizeof(tmp));
++			traj_frame_cdata[t4] = tmp;
++		}
++
++		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
++
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			trajfile2->write((char *) & tmp, sizeof(tmp));
++			traj_frame_vdata[t4] = tmp;
++		}
++
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			trajfile2->write((char *) & tmp, sizeof(tmp));
++			traj_frame_adata[t4] = tmp;
++		}
++
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			trajfile2->write((char *) & tmp, sizeof(tmp));
++			traj_frame_fdata[t4] = tmp;
++		}
++
++		if (17 == trajectory_version)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_vdata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_adata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_fdata[t4] = tmp;
++			}
++		}
++	}
++	else /* if (15 == trajectory_version || 17 == trajectory_version) */
++	{
++
++		float tmp;
++
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			trajfile->read((char *) & tmp, sizeof(tmp));
++			trajfile2->write((char *) & tmp, sizeof(tmp));
++			traj_frame_cdata[t4] = tmp;
++		}
++
++		(* it1).SetCRD(0, traj_frame_cdata[0], traj_frame_cdata[1], traj_frame_cdata[2]);
++
++		if (trajectory_version > 12)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_vdata[t4] = tmp;
++			}
++		}
++
++		if (trajectory_version > 13)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_adata[t4] = tmp;
++			}
++		}
++
++		if (trajectory_version > 11)
++		{
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_fdata[t4] = tmp;
++			}
++		}
++
++		if (16 == trajectory_version)
++		{
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_vdata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_adata[t4] = tmp;
++			}
++
++			for (i32s t4 = 0; t4 < 3; t4++)
++			{
++				trajfile->read((char *) & tmp, sizeof(tmp));
++				trajfile2->write((char *) & tmp, sizeof(tmp));
++				traj_frame_cumsum_fdata[t4] = tmp;
++			}
++		}
++	}
++}
++
++void model::CopyTrajectoryFrame(long_ofstream * trajfile2, moldyn * dyn)
++{
++	size_t place = GetTrajectoryHeaderSize();						// skip the header...
++	size_t trajectory_frame_size = GetTrajectoryFrameSize();
++	size_t trajectory_energy_size = GetTrajectoryEnergySize();
++	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
++	place += trajectory_energy_size;							// skip epot and ekin...
++
++	trajfile->seekg(place, ios::beg);
++
++
++	if (trajectory_version > 10) {
++
++		float tmp;
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[0] = tmp;
++		trajfile2->write((char *) & tmp, sizeof(tmp));
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[1] = tmp;
++		trajfile2->write((char *) & tmp, sizeof(tmp));
++		trajfile->read((char *) & tmp, sizeof(tmp)); traj_frame_boundary[2] = tmp;
++		trajfile2->write((char *) & tmp, sizeof(tmp)); traj_frame_boundary[2] = tmp;
++
++		if (traj_frame_boundary[0] >= 0.0)
++		{
++			saved_periodic_box_HALFdim[0] = traj_frame_boundary[0];
++			saved_periodic_box_HALFdim[1] = traj_frame_boundary[1];
++			saved_periodic_box_HALFdim[2] = traj_frame_boundary[2];
++		}
++		else if (traj_frame_boundary[1] >= 0.0)
++		{
++			saved_boundary_potential_rad_solute = traj_frame_boundary[1];
++			saved_boundary_potential_rad_solvent = traj_frame_boundary[2];
++		}
++	}
++
++	i32s atom_number = 0;
++
++	for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++	{
++		//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++		CopyTrajectoryFrameAtom(trajfile2, it1);
++	}
++	this->UpdateAllGraphicsViews();
++}
++
+ void model::CloseTrajectory(void)
+ {
+ 	if (trajfile != NULL)
+@@ -5631,6 +5936,52 @@
+ 	return GetNoseHooverTemperatureControlParamsSize();
+ }
+ 
++void model::CopyNoseHooverFrame(long_ofstream * nosehooverfile2, moldyn * dyn)
++{
++	size_t place = GetNoseHooverHeaderSize();						// skip the header...
++	size_t nosehoover_frame_size = GetNoseHooverFrameSize();
++	place += nosehoover_frame_size * current_nosehoover_frame;		// get the correct frame...
++
++	printf("CopyNoseHooverFrame current_nosehoover_frame = %d\n", current_nosehoover_frame);
++
++	nosehooverfile->seekg(place, ios::beg);
++
++	f64 tmp;
++	for (i32s t4 = 0; t4 < 2; t4++)
++	{
++		nosehooverfile->read((char *) & tmp, sizeof(tmp));
++		nosehooverfile2->write((char *) & tmp, sizeof(tmp));
++		nosehoover_frame_data[t4] = tmp;
++		printf("CopyNoseHooverFrame nosehoover_frame_data[%d] = %f\n", t4, tmp);
++	}
++
++	if (nosehoover_version > 1)
++	{
++		i32s atom_number = 0;
++
++		for (iter_al it1 = atom_list.begin();it1 != atom_list.end();it1++)
++		{
++			//	if ((* it1).flags & ATOMFLAG_IS_HIDDEN) continue;	// currently all coordinates are written...
++			CopyNoseHooverFrameAtom(nosehooverfile2, it1);
++		}
++	}
++}
++
++void model::CopyNoseHooverFrameAtom(long_ofstream * nosehooverfile2, iter_al it1)
++{
++	f64 tmp;
++
++	if (nosehoover_version == 2)
++	{
++		for (i32s t4 = 0; t4 < 3; t4++)
++		{
++			nosehooverfile->read((char *) & tmp, sizeof(tmp));
++			nosehooverfile2->write((char *) & tmp, sizeof(tmp));
++			noho_frame_cumsum_vdata[t4] = tmp;
++		}
++	}
++}
++
+ void model::ReadNoseHooverFrame(moldyn * dyn)
+ {
+ 	size_t place = GetNoseHooverHeaderSize();						// skip the header...
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2024-12-18 21:33:52.438725725 +0000
++++ ./libghemical-3.0.0/src/model.h	2024-12-20 02:14:39.471244784 +0000
+@@ -438,7 +438,8 @@
+ 	
+ /** This will perform molecular dynamics. */
+ 	void DoMolDyn(moldyn_param &, bool);
+-	
++	void TrimTraj(moldyn_param & param, int n_frames_trim);
++
+ /** This will perform a random search using torsions as variables. */
+ 	void DoRandomSearch(i32s, i32s, bool);
+ 	
+@@ -472,6 +473,8 @@
+ 	size_t GetNoseHooverFrameSize();
+ 	void ReadNoseHooverFrame(moldyn * dyn = NULL);
+ 	void ReadNoseHooverFrameAtom(iter_al it1);
++	void CopyNoseHooverFrame(long_ofstream * nosehooverfile2, moldyn * dyn = NULL);
++	void CopyNoseHooverFrameAtom(long_ofstream * nosehooverfile2, iter_al it1);
+ 	void CloseNoseHoover(void);
+ 
+ // methods related to MD trajectories...
+@@ -479,6 +482,8 @@
+ 	void OpenTrajectory(const char *);
+ 	void ReadTrajectoryFrame(moldyn * dyn = NULL);
+ 	void ReadTrajectoryFrameAtom(iter_al it1);
++	void CopyTrajectoryFrame(long_ofstream * trajfile2, moldyn * dyn = NULL);
++	void CopyTrajectoryFrameAtom(long_ofstream * trajfile2, iter_al it1);
+ 	void CloseTrajectory(void);
+ 
+ 	size_t GetTrajectoryHeaderSize();
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2024-12-18 21:33:52.454725886 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2024-12-20 03:22:17.230839498 +0000
+@@ -201,6 +201,7 @@
+ 	
+ 	friend void model::WriteTrajectoryFrame(long_ofstream &, moldyn *);
+ 	friend void model::WriteTrajectoryHeader(long_ofstream & ofile, int, moldyn *, int);
++	friend void model::TrimTraj(moldyn_param & param, int n_frames_trim);
+ 	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
+ 	friend void molgroup::SumMoleculesMomentum(moldyn * );
+ 
+

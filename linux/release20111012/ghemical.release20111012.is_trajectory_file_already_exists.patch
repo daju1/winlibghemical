@@ -315,11 +315,11 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		size_t end_pos = trajfile->tellg();
 +		trajfile->seekg(start_pos, ios::beg);
 +		size_t traj_body_size = end_pos - start_pos;
-+		printf("traj_body_size %d = end_pos %d - start_pos %d;\n",
++		printf("traj_body_size %lu = end_pos %lu - start_pos %lu;\n",
 +				traj_body_size, end_pos, start_pos);
 +
 +		size_t traj_real_frames = (traj_body_size - GetTrajectoryHeaderSize()) / GetTrajectoryFrameSize();
-+		printf("traj_real_frames = %d (traj_body_size %d - GetTrajectoryHeaderSize() %d) / GetTrajectoryFrameSize() %d;\n",
++		printf("traj_real_frames = %lu (traj_body_size %lu - GetTrajectoryHeaderSize() %lu) / GetTrajectoryFrameSize() %lu;\n",
 +				traj_real_frames, traj_body_size, GetTrajectoryHeaderSize(), GetTrajectoryFrameSize());
 +
 +		int traj_size_test = ((int)traj_body_size) - GetTrajectoryFrameSize() * traj_real_frames - GetTrajectoryHeaderSize();
@@ -431,22 +431,22 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		nosehooverfile->seekg(0, std::ios::end);
 +		size_t end_pos = nosehooverfile->tellg();
 +		nosehooverfile->seekg(start_pos, ios::beg);
-+		size_t nosehoover_body_size = end_pos - start_pos;
-+		printf("nosehoover_body_size %d = end_pos %d - start_pos %d\n",
-+		        nosehoover_body_size, end_pos, start_pos);
-+
-+		size_t nosehoover_real_frames = (nosehoover_body_size - GetNoseHooverHeaderSize()) / GetNoseHooverFrameSize();
-+		printf("nosehoover_real_frames %d = (nosehoover_body_size %d - GetNoseHooverHeaderSize() %d) / GetNoseHooverFrameSize() %d;\n",
-+				nosehoover_real_frames, nosehoover_body_size, GetNoseHooverHeaderSize(), GetNoseHooverFrameSize());
-+
-+		int nosehoover_size_test = ((int)nosehoover_body_size) - GetNoseHooverFrameSize() * nosehoover_real_frames - GetNoseHooverHeaderSize();
-+		printf("nosehoover_size_test = %d\n", nosehoover_size_test);
-+
 +
 +		//nosehooverfile->seekg(8, ios::beg);	// skip the file id...
 +		char file_id[10];
 +		nosehooverfile->read((char *) & file_id, 8);
 +		sscanf(file_id, "noho_v%02d", &nosehoover_version);
++
++		size_t nosehoover_body_size = end_pos - start_pos;
++		printf("nosehoover_body_size %lu = end_pos %lu - start_pos %lu\n",
++		        nosehoover_body_size, end_pos, start_pos);
++
++		size_t nosehoover_real_frames = (nosehoover_body_size - GetNoseHooverHeaderSize()) / GetNoseHooverFrameSize();
++		printf("nosehoover_real_frames %lu = (nosehoover_body_size %lu - GetNoseHooverHeaderSize() %lu) / GetNoseHooverFrameSize() %lu;\n",
++				nosehoover_real_frames, nosehoover_body_size, GetNoseHooverHeaderSize(), GetNoseHooverFrameSize());
++
++		int nosehoover_size_test = ((int)nosehoover_body_size) - GetNoseHooverFrameSize() * nosehoover_real_frames - GetNoseHooverHeaderSize();
++		printf("nosehoover_size_test = %d\n", nosehoover_size_test);
 +
 +		nosehooverfile->read((char *) & total_nosehoover_frames, sizeof(total_nosehoover_frames));
 +		nosehooverfile->read((char *) & num_tcoupling_groups, sizeof(num_tcoupling_groups));
