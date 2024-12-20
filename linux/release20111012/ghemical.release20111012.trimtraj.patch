@@ -149,31 +149,19 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			ErrorMessage(_("The trajectory is incompatible with the current structure/setup!!!"));
  			PrintToLog(_("incompatible file : different number of atoms!\n"));
  			CloseTrajectory(); return;
-@@ -5324,12 +5458,19 @@
- {
- 	size_t place = GetTrajectoryHeaderSize();						// skip the header...
- 	size_t trajectory_frame_size = GetTrajectoryFrameSize();
--	size_t trajectory_energy_size = GetTrajectoryEnergySize();
-+	// size_t trajectory_energy_size = GetTrajectoryEnergySize();
+@@ -5327,9 +5461,8 @@
+ 	size_t trajectory_energy_size = GetTrajectoryEnergySize();
  	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
--	place += trajectory_energy_size;							// skip epot and ekin...
+ 	place += trajectory_energy_size;							// skip epot and ekin...
 -	
 -	trajfile->seekg(place, ios::beg);
-+	// place += trajectory_energy_size;							// skip epot and ekin...
- 
-+	float ekin;
-+	float epot;
+-
 + 
 + 	trajfile->seekg(place, ios::beg);
-+ 
-+	trajfile->read((char *) & ekin, sizeof(ekin));
-+	trajfile->read((char *) & epot, sizeof(epot));
-+	trajfile2->write((char *) & ekin, sizeof(ekin));
-+	trajfile2->write((char *) & epot, sizeof(epot));
  
  	if (trajectory_version > 10) {
  
-@@ -5366,6 +5507,181 @@
+@@ -5366,6 +5499,188 @@
  	this->UpdateAllGraphicsViews();
  }
  
@@ -312,12 +300,19 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +{
 +	size_t place = GetTrajectoryHeaderSize();						// skip the header...
 +	size_t trajectory_frame_size = GetTrajectoryFrameSize();
-+	size_t trajectory_energy_size = GetTrajectoryEnergySize();
++	// size_t trajectory_energy_size = GetTrajectoryEnergySize();
 +	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
-+	place += trajectory_energy_size;							// skip epot and ekin...
++	// place += trajectory_energy_size;							// skip epot and ekin...
 +
-+	trajfile->seekg(place, ios::beg);
-+
++	float ekin;
++	float epot;
++ 
++ 	trajfile->seekg(place, ios::beg);
++ 
++	trajfile->read((char *) & ekin, sizeof(ekin));
++	trajfile->read((char *) & epot, sizeof(epot));
++	trajfile2->write((char *) & ekin, sizeof(ekin));
++	trajfile2->write((char *) & epot, sizeof(epot));
 +
 +	if (trajectory_version > 10) {
 +
@@ -355,7 +350,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::CloseTrajectory(void)
  {
  	if (trajfile != NULL)
-@@ -5497,7 +5813,9 @@
+@@ -5497,7 +5812,9 @@
  	cout << "file_id = \"" << file_id << "\"" << endl;
  
  	const int number_of_atoms = GetAtomCount();
@@ -366,7 +361,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	ofile.write((char *) file_id, 8);					// file id, 8 chars.
  	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
  	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
-@@ -5631,6 +5949,52 @@
+@@ -5631,6 +5948,52 @@
  	return GetNoseHooverTemperatureControlParamsSize();
  }
  
@@ -461,4 +456,3 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
  	friend void molgroup::ForceMoleculesMomentumToZero(moldyn * );
  	friend void molgroup::SumMoleculesMomentum(moldyn * );
  
-
