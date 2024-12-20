@@ -405,7 +405,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	for ( std::list<molgroup>::iterator it_mlgr = molgroups.begin();
 +		it_mlgr != molgroups.end(); ++it_mlgr)
 +	{
-+		printf("%s natoms size = %d\n", (GAS == (*it_mlgr).molgrouptype ? "gas" : "membrane or globule"), (*it_mlgr).natoms.size());
++		printf("%s natoms size = %lu\n", (GAS == (*it_mlgr).molgrouptype ? "gas" : "membrane or globule"), (*it_mlgr).natoms.size());
 +	}
 +}
 +
@@ -434,7 +434,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			it_mlgr != molgroups.end(); ++it_mlgr)
 +		{
 +			it_mlgr->SumMoleculesMomentum(dyn);
-+			printf("molgrouptype = %d, atoms number = %d\n", it_mlgr->molgrouptype, it_mlgr->natoms.size());
++			printf("molgrouptype = %d, atoms number = %lu\n", it_mlgr->molgrouptype, it_mlgr->natoms.size());
 +			for (i32s n2 = 0; n2 < 3; n2++) {
 +				printf ("sum_p[%d]\t%e\n", n2,  it_mlgr->sum_p[n2]);
 +			}
