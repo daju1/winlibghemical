@@ -31,7 +31,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +	ostringstream filename2;
 +	filename2 << param.filename;
-+	filename2 << "." << n_frames_trim;
++	filename2 << "." << n_frames_trim << "_trim";
 +
 +	CopyCRD(this, eng, 0);
 +
@@ -138,7 +138,42 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::DoMolDyn(moldyn_param & param, bool updt)
  {
  // make this thread-safe since this can be called from project::process_job_WhatEver() at the app side...
-@@ -5366,6 +5496,181 @@
+@@ -5155,6 +5285,10 @@
+ 		
+ 		if (natoms != traj_num_atoms)
+ 		{
++			ostringstream errstr;
++			errstr << "natoms = " << natoms << " traj_num_atoms = " << traj_num_atoms;
++			ErrorMessage(errstr.str().c_str());
++
+ 			ErrorMessage(_("The trajectory is incompatible with the current structure/setup!!!"));
+ 			PrintToLog(_("incompatible file : different number of atoms!\n"));
+ 			CloseTrajectory(); return;
+@@ -5324,12 +5458,19 @@
+ {
+ 	size_t place = GetTrajectoryHeaderSize();						// skip the header...
+ 	size_t trajectory_frame_size = GetTrajectoryFrameSize();
+-	size_t trajectory_energy_size = GetTrajectoryEnergySize();
++	// size_t trajectory_energy_size = GetTrajectoryEnergySize();
+ 	place += trajectory_frame_size * current_traj_frame;		// get the correct frame...
+-	place += trajectory_energy_size;							// skip epot and ekin...
+-	
+-	trajfile->seekg(place, ios::beg);
++	// place += trajectory_energy_size;							// skip epot and ekin...
+ 
++	float ekin;
++	float epot;
++ 
++ 	trajfile->seekg(place, ios::beg);
++ 
++	trajfile->read((char *) & ekin, sizeof(ekin));
++	trajfile->read((char *) & epot, sizeof(epot));
++	trajfile2->write((char *) & ekin, sizeof(ekin));
++	trajfile2->write((char *) & epot, sizeof(epot));
+ 
+ 	if (trajectory_version > 10) {
+ 
+@@ -5366,6 +5507,181 @@
  	this->UpdateAllGraphicsViews();
  }
  
@@ -320,7 +355,18 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::CloseTrajectory(void)
  {
  	if (trajfile != NULL)
-@@ -5631,6 +5936,52 @@
+@@ -5497,7 +5813,9 @@
+ 	cout << "file_id = \"" << file_id << "\"" << endl;
+ 
+ 	const int number_of_atoms = GetAtomCount();
+-
++	printf("WriteTrajectoryHeader trajectory_version = %d number_of_atoms = %d total_frames = %d frame_save_freq = %d\n",
++		trajectory_version, number_of_atoms, total_frames, frame_save_freq);
++ 
+ 	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+ 	ofile.write((char *) & number_of_atoms, sizeof(number_of_atoms));	// number of atoms, int.
+ 	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+@@ -5631,6 +5949,52 @@
  	return GetNoseHooverTemperatureControlParamsSize();
  }
  
