@@ -192,13 +192,13 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			{
 +				for (i32s t4 = 0;t4 < 3;t4++)
 +				{
-+					printf("cumsum_v - cumsum_v_preloop = %f\n", ind, t4,
++					printf("ind %d, t4 %d, cumsum_v - cumsum_v_preloop = %f\n", ind, t4,
 +						cumsum_v_data[3 * ind + t4] - cumsum_v_data_preloop[3 * ind + t4]);
-+					printf("cumsum_a - cumsum_a_preloop = %f\n", ind, t4,
++					printf("ind %d, t4 %d, cumsum_a - cumsum_a_preloop = %f\n", ind, t4,
 +						cumsum_a_data[3 * ind + t4] - cumsum_a_data_preloop[3 * ind + t4]);
-+					printf("cumsum_f/m - cumsum_f_preloop/m = %f\n", ind, t4,
++					printf("ind %d, t4 %d, cumsum_f/m - cumsum_f_preloop/m = %f\n", ind, t4,
 +						cumsum_f_data[3 * ind + t4] / m_data[ind] - cumsum_f_data_preloop[3 * ind + t4] / m_data[ind]);
-+					printf("cumsum_f - cumsum_f_preloop = %f\n", ind, t4,
++					printf("ind %d, t4 %d, cumsum_f - cumsum_f_preloop = %f\n", ind, t4,
 +						cumsum_f_data[3 * ind + t4] - cumsum_f_data_preloop[3 * ind + t4]);
 +				}
 +
