@@ -1,0 +1,130 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2024-12-24 20:37:10.803224713 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2024-12-29 11:32:15.995697219 +0000
+@@ -1718,7 +1718,39 @@
+ 		TrajView_CoordinatePlot(inda, dim);
+ 		return;
+ 	}
+-	
++
++	// make_plot_tcf 0 0 2 1 2 1 1 1000
++
++	if (!strcmp("make_plot_tcf", kw1))
++	{
++		char kw2[32]; istr >> kw2;	// molgrouptype
++		char kw3[32]; istr >> kw3;	// ind_mol
++		char kw4[32]; istr >> kw4;	// dim
++		char kw5[32]; istr >> kw5;	// crd_type1
++		char kw6[32]; istr >> kw6;	// crd_type2
++		char kw7[32]; istr >> kw7;	// directed_tcf
++		char kw8[32]; istr >> kw8;	// integrated_tcf
++		char kw9[32]; istr >> kw9;	// tcf_frames
++
++		char ** endptr = NULL;
++
++		i32s molgrouptype   = strtol(kw2, endptr, 10);
++		i32s ind_mol        = strtol(kw3, endptr, 10);
++		i32s dim            = strtol(kw4, endptr, 10);
++		i32s crd_type1      = strtol(kw5, endptr, 10);
++		i32s crd_type2      = strtol(kw6, endptr, 10);
++		i32s directed_tcf   = strtol(kw7, endptr, 10);
++		i32s integrated_tcf = strtol(kw8, endptr, 10);
++		i32s tcf_frames     = strtol(kw9, endptr, 10);
++
++		TrajView_TimeCorrelationFunctionPlot((enum molgrouptype)molgrouptype,
++											ind_mol, dim, crd_type1, crd_type2,
++											directed_tcf, integrated_tcf,
++											tcf_frames);
++		return;
++	}
++
++	// make_plot_mol_crd 0 0 2 19
+ 
+ 	if (!strcmp("make_plot_mol_crd", kw1))
+ 	{
+@@ -3828,6 +3860,47 @@
+ 	Message(str.str().c_str());
+ }
+ 
++void * MolTcfPlotHeader(void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type1, i32s crd_type2, i32s show_directed_tcf, i32s show_integrated_tcf, const char * crd_names [][2], size_t crd_names_len)
++{
++	if (NULL == p)
++	{
++		return NULL;
++	}
++
++	project * prj = (project *) p;
++	const char * s1 = "frame(num)";
++	if (crd_type1 >= crd_names_len) crd_type1 = 1;
++	if (crd_type2 >= crd_names_len) crd_type2 = 1;
++	std::string sv1 = std::string(crd_names[crd_type1][0])
++	               + (strlen(crd_names[crd_type1][1]) > 0
++				   ? std::string("(") + std::string(crd_names[crd_type1][1]) + std::string(")")
++				   : std::string(""));
++	std::string sv2 = std::string(crd_names[crd_type2][0])
++	               + (strlen(crd_names[crd_type2][1]) > 0
++				   ? std::string("(") + std::string(crd_names[crd_type2][1]) + std::string(")")
++				   : std::string(""));
++
++	std::string name = "";
++	if (show_directed_tcf)
++	{
++		name += "directed ";
++	}
++	if (show_integrated_tcf)
++	{
++		name += "integrated ";
++	}
++
++	std::string sv = name + "TCF (" + sv1 + " " + sv2 + ")";
++	p1dview_wcl * plot = prj->AddPlot1DClient(s1, sv.c_str(), true);
++	std::string title =
++	    std::string(GAS == molgrouptype ? "Gas " : "Membrane ")
++		+ sv
++		+ std::string(" plot of ")
++		+ prj->GetTrajectoryFileName();
++	plot->SetTitle(title.c_str());
++	return plot;
++}
++
+ void * MolCrdPlotHeader(void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, const char * crd_names [][2], size_t crd_names_len)
+ {
+ 	project * prj = (project *) p;
+@@ -3846,6 +3919,23 @@
+ 	plot->AddData(loop, value);
+ }
+ 
++void project::TrajView_TimeCorrelationFunctionPlot(enum molgrouptype molgrouptype,
++												   i32s ind_mol, i32s dim, i32s crd_type1, i32s crd_type2,
++												   i32s show_directed_tcf, i32s show_integrated_tcf,
++												   i32s tcf_frames)
++{
++	p1dview_wcl * plot =
++		(p1dview_wcl *)
++			this->TimeCorrelationFunctionPlot(molgrouptype,
++											 ind_mol, dim, crd_type1, crd_type2,
++											 show_directed_tcf, show_integrated_tcf,
++											 tcf_frames, MolTcfPlotHeader, MolCrdPlotValue, NULL, this);
++	if (plot) {
++		plot->Finalize();
++		plot->GetWnd()->RequestUpdate(false);
++	}
++}
++
+ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
+ {
+ 	p1dview_wcl * plot = (p1dview_wcl *) this->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, MolCrdPlotHeader, MolCrdPlotValue, NULL, this);
+diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
+--- ./ghemical-3.0.0.original/src/project.h	2024-12-24 20:37:10.799224713 +0000
++++ ./ghemical-3.0.0/src/project.h	2024-12-29 11:10:49.627701516 +0000
+@@ -387,6 +387,10 @@
+ 	void TrajView_VeloncityDistribution2D(i32s divx, i32s divy, f64 dt);
+ 	void TrajView_CoordinateDifferencePlot(i32s ind1, i32s ind2, i32s dim);
+ 	void TrajView_CoordinatePlot(i32s ind, i32s dim);
++	void TrajView_TimeCorrelationFunctionPlot(enum molgrouptype molgrouptype,
++											  i32s ind_mol, i32s dim, i32s crd_type1, i32s crd_type2,
++											  i32s show_directed_tcf, i32s show_integrated_tcf,
++											  i32s tcf_frames);
+ 	void TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type);
+ 	void TrajView_DistancePlot(i32s inda, i32s indb);
+ 	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);

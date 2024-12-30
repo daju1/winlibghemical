@@ -1,0 +1,336 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2024-12-28 20:22:15.955414730 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2024-12-29 11:27:37.579698149 +0000
+@@ -6059,6 +6059,309 @@
+ 	return (2.0 / 3.0) * ekin * 1000.0 / ((natoms /*- num_locked*/) * 8.314510);
+ }
+ 
++void * model::TimeCorrelationFunctionPlot(i32s molgrouptype, i32s ind_mol, i32s dim,
++										  i32s crd_type1, i32s crd_type2,
++										  i32s show_directed_tcf, i32s show_integrated_tcf,
++										  i32s tcf_frames,
++										  MolTCFHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
++{
++	if (!this->GetTrajectoryFile())
++	{
++		this->ErrorMessage(_("Trajectory file does not opened?"));
++		return NULL;
++	}
++
++	const char * crd_names [][2] =
++		{
++			{"coordinate", "nm"},
++			{"velocity", "1.0e+3 m/s"},
++			{"acceleration", "1.0e+12 m/s^2"},
++			{"force",""},
++		};
++
++	size_t crd_names_len = 4;
++
++	void * plot = fn_header(p, molgrouptype, ind_mol, dim, crd_type1, crd_type2, show_directed_tcf, show_integrated_tcf, crd_names, crd_names_len);
++
++	float ekin, temperature, previouse_temperature = 0.0;
++	float epot;
++
++	f64 nosehoover_xi = 0.0;
++	f64 nosehoover_vxi = 0.0;
++
++	i32s shift = 0;
++	f64 first_coordinate = 0.0;
++	f64 previouse_coordinate = 0.0;
++	f64 sum_coordinate = 0.0;
++	f64 sum_velocity = 0.0;
++	f64 sum_acceleration = 0.0;
++	f64 sum_force = 0.0;
++
++	std::list<struct molgroup> molgroups;
++	this->MakeMoleculesGroups(molgroups);
++
++	size_t natoms = atom_list.size();
++	i32s max_frames = this->GetTotalFrames();
++	std::vector<f64> m_data; m_data.resize(natoms);
++	std::vector<std::vector<f64> > c_data; c_data.resize(natoms * 3);
++	std::vector<std::vector<f64> > v_data; v_data.resize(natoms * 3);
++	std::vector<std::vector<f64> > a_data; a_data.resize(natoms * 3);
++	std::vector<std::vector<f64> > f_data; f_data.resize(natoms * 3);
++
++	{
++		i32s ind = 0;
++		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
++		{
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				c_data[3 * ind + t4].resize(max_frames);
++				v_data[3 * ind + t4].resize(max_frames);
++				a_data[3 * ind + t4].resize(max_frames);;
++				f_data[3 * ind + t4].resize(max_frames);
++			}
++			ind++;
++		}
++	}
++
++	float boundary[3];
++	float volume = 0.f;
++
++	for (i32s loop = 0; loop < max_frames; loop++)
++	{
++		this->SetCurrentFrame(loop);
++
++		size_t place = GetTrajectoryHeaderSize();					// skip the header...
++		place += GetTrajectoryFrameSize() * current_traj_frame;		// get the correct frame...
++		//place += GetTrajectoryEnergySize();						// skip epot and ekin...
++
++		trajfile->seekg(place, ios::beg);
++
++		trajfile->read((char *) & ekin, sizeof(ekin));
++		trajfile->read((char *) & epot, sizeof(epot));
++
++		if (custom_isnan(ekin))
++		{
++			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			printf("ekin nan: break\n");
++			break;
++		}
++
++		temperature = ConvEKinTemp(ekin, natoms);
++
++		if (loop > 1 && (temperature / previouse_temperature) > 10 )
++		{
++			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			printf("loop %d, temperature %f, previouse_temperature %f break\n", loop, temperature, previouse_temperature);
++			break;
++		}
++		previouse_temperature  = temperature;
++
++		if (trajectory_version > 10)
++		{
++			float tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[0] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[1] = tmp;
++			trajfile->read((char *) & tmp, sizeof(tmp)); boundary[2] = tmp;
++			if (loop  ==  max_frames - 1) {
++				printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
++			}
++			volume = boundary[0] * boundary[1] * boundary[2];
++		}
++
++		bool break_if_cumsum_f_cumsum_acc_seems_wrong = false;
++
++		i32s ind = 0;
++
++		for (iter_al it1 = atom_list.begin(); it1 != atom_list.end(); it1++)
++		{
++			m_data[ind] = it1->mass;
++			m_data[ind] *= 1.6605402e-27 * 6.0221367e+23;
++
++			this->ReadTrajectoryFrameAtom(it1);
++
++			for (i32s t4 = 0;t4 < 3;t4++)
++			{
++				c_data[3 * ind + t4][loop] = this->traj_frame_cdata[t4];
++				v_data[3 * ind + t4][loop] = this->traj_frame_vdata[t4];
++				a_data[3 * ind + t4][loop] = this->traj_frame_adata[t4];
++				f_data[3 * ind + t4][loop] = this->traj_frame_fdata[t4];
++
++				if (fabs(f_data[3 * ind + t4][loop] / m_data[ind] + a_data[3 * ind + t4][loop]) > 1e-3)
++				{
++					printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4][loop] / m_data[ind], a_data[3 * ind + t4][loop]);
++					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
++				}
++			}
++
++			ind++;
++		}
++	}
++
++	if (tcf_frames >= max_frames)
++	{
++		tcf_frames = max_frames;
++	}
++
++	f64 crd1, vel1, acc1, frc1;
++	f64 crd2, vel2, acc2, frc2;
++	f64 value1, value2;
++	int direction_at_zero_time;
++
++	for (i32s i_crd_type_1 = 1; i_crd_type_1 < crd_names_len; ++i_crd_type_1)
++	{
++		for (i32s i_crd_type_2 = 1; i_crd_type_2 < crd_names_len; ++i_crd_type_2)
++		{
++			fn_header(NULL, molgrouptype, ind_mol, dim, i_crd_type_1, i_crd_type_2, show_directed_tcf, show_integrated_tcf, crd_names, crd_names_len);
++
++			// histogram's array for time correlation function
++			std::vector<f64> tcf; tcf.resize(tcf_frames, 0.0);
++			// histogram's array for directed time correlation function
++			std::vector<f64> dtcf; dtcf.resize(tcf_frames, 0.0);
++			// normalisation numbers for TCF and DTCF
++			std::vector<size_t> ntcf; ntcf.resize(tcf_frames, 0);
++
++			i32s indmol=0;
++			for (std::list<molgroup>::iterator it_mlgr = molgroups.begin();
++				it_mlgr != molgroups.end(); ++it_mlgr)
++			{
++				if (molgrouptype != it_mlgr->molgrouptype)
++				{
++					continue;
++				}
++
++				if (ind_mol != indmol)
++				{
++					indmol++;
++					continue;
++				}
++
++				i32s ind;
++				for (std::list<i32s>::iterator it = it_mlgr->natoms.begin();
++					it != it_mlgr->natoms.end(); ++it)
++				{
++					ind = *it;
++					for (i32s loop1 = 0; loop1 < max_frames; loop1++)
++					{
++						i32s max_loop2 = loop1 + tcf_frames;
++						if (max_loop2 >= max_frames)
++						{
++							max_loop2 = max_frames;
++						}
++						for (i32s loop2 = loop1; loop2 < max_loop2; loop2++)
++						{
++							crd1 = c_data[3 * ind + dim][loop1];
++							vel1 = v_data[3 * ind + dim][loop1];
++							acc1 = a_data[3 * ind + dim][loop1];
++							frc1 = f_data[3 * ind + dim][loop1];
++
++							crd2 = c_data[3 * ind + dim][loop2];
++							vel2 = v_data[3 * ind + dim][loop2];
++							acc2 = a_data[3 * ind + dim][loop2];
++							frc2 = f_data[3 * ind + dim][loop2];
++
++							switch (i_crd_type_1)
++							{
++							case 1:
++								value1 = vel1;
++								break;
++							case 2:
++								value1 = acc1;
++								break;
++							case 3:
++								value1 = frc1;
++								break;
++							}
++
++							switch (i_crd_type_2)
++							{
++							case 1:
++								value2 = vel2;
++								break;
++							case 2:
++								value2 = acc2;
++								break;
++							case 3:
++								value2 = frc2;
++								break;
++							}
++
++							// directed time correlation function
++							direction_at_zero_time = 1;
++							if (value1 < 0)
++							{
++								direction_at_zero_time = -1;
++							}
++
++							i32s tcf_index = loop2 - loop1;
++							tcf [tcf_index] += value1 * value2;
++							dtcf[tcf_index] += direction_at_zero_time * value1 * value2;
++							ntcf[tcf_index] += 1;
++						}
++					}
++				}
++			}
++
++			f64 tcf_value = 0.0;
++			f64 dtcf_value = 0.0;
++			f64 sum_tcf_value = 0.0;
++			f64 sum_dtcf_value = 0.0;
++
++			if (tcf_frames > max_frames - 1)
++			{
++				tcf_frames = max_frames - 1;
++			}
++
++			for (i32s loop = 0; loop < tcf_frames; loop++)
++			{
++				tcf_value = tcf[loop] / ntcf[loop];
++				dtcf_value = dtcf[loop] / ntcf[loop];
++				sum_tcf_value += tcf_value;
++				sum_dtcf_value += dtcf_value;
++
++				if (i_crd_type_1 == crd_type1 && i_crd_type_2 == crd_type2)
++				{
++					if (show_integrated_tcf)
++					{
++						if (show_directed_tcf)
++						{
++							fn_value(plot, loop, sum_dtcf_value);
++						}
++						else
++						{
++							fn_value(plot, loop, sum_tcf_value);
++						}
++					}
++					else
++					{
++						if (show_directed_tcf)
++						{
++							fn_value(plot, loop, dtcf_value);
++						}
++						else
++						{
++							fn_value(plot, loop, tcf_value);
++						}
++					}
++				}
++
++				std::list<f64> values;
++
++				values.push_back(tcf_value);
++				values.push_back(dtcf_value);
++				values.push_back(sum_tcf_value);
++				values.push_back(sum_dtcf_value);
++
++				if (fn_values)
++				{
++					fn_values(p, loop, values);
++				}
++			}
++		}
++	}
++
++	return plot;
++}
++
+ void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
+ {
+ 	if (!this->GetTrajectoryFile())
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2024-12-24 20:37:10.851224713 +0000
++++ ./libghemical-3.0.0/src/model.h	2024-12-29 11:06:01.039702480 +0000
+@@ -69,6 +69,7 @@
+ /*################################################################################################*/
+ 
+ 
++typedef void* (*MolTCFHead)  (void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type1, i32s crd_type2, i32s directed_tcf, i32s integrated_tcf, const char * crd_names [][2], size_t crd_names_len);
+ typedef void* (*MolCrdHead)  (void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, const char * crd_names [][2], size_t crd_names_len);
+ typedef void  (*MolCrdVal)   (void * p, i32s loop, f64 value);
+ typedef void  (*MolCrdValues)(void * p, i32s loop, std::list<f64> & values);
+@@ -502,6 +503,11 @@
+ 	void WriteTrajectoryHeader(long_ofstream &, int, moldyn *, int);
+ 	void WriteTrajectoryFrame(long_ofstream &, moldyn *);
+ 
++	void* TimeCorrelationFunctionPlot(i32s molgrouptype, i32s ind_mol, i32s dim,
++									  i32s crd_type1, i32s crd_type2,
++									  i32s show_directed_tcf, i32s show_integrated_tcf,
++									  i32s tcf_frames,
++									  MolTCFHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p);
+ 	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
+ 	
+ 	void EvaluateBFact(void);

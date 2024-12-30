@@ -27,7 +27,8 @@ EX1 =		example1
 EX2 =		example2
 EX3 =		example_moldyn
 EX4 =		example_make_mol_plots
-EX5 =		example_trimtraj
+EX5 =		example_make_tcf_plots
+EX6 =		example_trimtraj
 
 MOPAC7LIBS = $(shell pkg-config --libs libmopac7)
 LIBS       = $(MOPAC7LIBS) -lghemical -loglappth -linchi -lopenbabel -lm -lGLU -lGL -lglib-2.0 
@@ -37,7 +38,7 @@ OBJ = fileio.o
 
 ####################################################################################################
 
-all:		$(EX1) $(EX2) $(EX3) $(EX4) $(EX5)
+all:		$(EX1) $(EX2) $(EX3) $(EX4) $(EX5) $(EX6)
 
 $(EX1):	$(OBJ) $(EX1).o
 		$(CC) -o $(EX1) $(OBJ) $(EX1).o $(LDFLAGS) $(MPQCLIBS) $(LIBS)
@@ -53,6 +54,9 @@ $(EX4):	$(OBJ) $(EX4).o
 
 $(EX5):	$(OBJ) $(EX5).o
 		$(CC) -o $(EX5) $(OBJ) $(EX5).o $(MPQCLIBS) $(LDFLAGS) $(LIBS)
+
+$(EX6):	$(OBJ) $(EX6).o
+		$(CC) -o $(EX6) $(OBJ) $(EX6).o $(MPQCLIBS) $(LDFLAGS) $(LIBS)
 
 %.o: %.cpp
 		$(CC) $(BASEFLAGS) $(CFLAGS) $(MPQCFLAGS) $(@:.o=.cpp)
