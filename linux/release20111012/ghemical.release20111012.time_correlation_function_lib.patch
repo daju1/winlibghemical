@@ -62,7 +62,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			{
 +				c_data[3 * ind + t4].resize(max_frames);
 +				v_data[3 * ind + t4].resize(max_frames);
-+				a_data[3 * ind + t4].resize(max_frames);;
++				a_data[3 * ind + t4].resize(max_frames);
 +				f_data[3 * ind + t4].resize(max_frames);
 +			}
 +			ind++;
@@ -153,9 +153,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	f64 value1, value2;
 +	int direction_at_zero_time;
 +
-+	for (i32s i_crd_type_1 = 1; i_crd_type_1 < crd_names_len; ++i_crd_type_1)
++	for (i32s i_crd_type_1 = 1; i_crd_type_1 < 2 /*crd_names_len*/; ++i_crd_type_1)
 +	{
-+		for (i32s i_crd_type_2 = 1; i_crd_type_2 < crd_names_len; ++i_crd_type_2)
++		for (i32s i_crd_type_2 = 1; i_crd_type_2 < 3 /*crd_names_len*/; ++i_crd_type_2)
 +		{
 +			fn_header(NULL, molgrouptype, ind_mol, dim, i_crd_type_1, i_crd_type_2, show_directed_tcf, show_integrated_tcf, crd_names, crd_names_len);
 +
