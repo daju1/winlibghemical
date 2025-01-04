@@ -1,0 +1,483 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2025-01-03 20:35:46.754145194 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2025-01-03 23:59:44.530104314 +0000
+@@ -3701,6 +3701,9 @@
+ 	ThreadUnlock();
+ }
+ 
++#define LANGEVIN_RANDOM_FC	4850.0		// see moldyn.cpp ; for langevin_frict_fc 16.0e-6 ; 20050124
++#define LANGEVIN_COUPLING	0.0005		// see moldyn.cpp ; this is 1/100 temperature coupling...
++
+ void model::DoMolDyn(moldyn_param & param, bool updt)
+ {
+ // make this thread-safe since this can be called from project::process_job_WhatEver() at the app side...
+@@ -3748,6 +3751,7 @@
+ 	str1 << "cbT= " << param.constant_T_Berendsen << " ";
+ 	str1 << "cnhT= " << param.constant_T_NoseHoover << " ";
+ 	str1 << "cP= " << param.constant_P << " ";
++	str1 << "LA= " << param.langevin << " ";
+ 	str1 << endl << ends;
+ 	
+ 	PrintToLog(str1.str().c_str());
+@@ -3757,7 +3761,11 @@
+ 	if (param.recalc_box && !maxMinCRDCalculed)
+ 		CalcMaxMinCoordinates(this, eng, 0);
+ 	
+-	moldyn * dyn = new moldyn(eng, param.timestep);
++	moldyn * dyn = NULL;
++	if (!param.langevin) dyn = new moldyn(eng, param.timestep);
++	else dyn = new moldyn_langevin(eng, param.timestep);
++	
++	moldyn_langevin * dyn_l = dynamic_cast<moldyn_langevin *>(dyn);
+ #if USE_BOUNDARY_OPT_ON_MOLDYN
+ 	boundary_opt * b_opt = NULL;
+ 	if (param.box_optimization)
+@@ -3784,11 +3792,14 @@
+ 	}
+ 
+ 	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
+-	nhfile.open(NoseHooverFileName(param.filename), ios_base::out | ios_base::in);  // will not create file
+-	if (nhfile.is_open())
++	if (param.nosehoover)
+ 	{
+-		nose_hoover_file_already_exists = true;
+-		nhfile.close();
++		nhfile.open(NoseHooverFileName(param.filename), ios_base::out | ios_base::in);  // will not create file
++		if (nhfile.is_open())
++		{
++			nose_hoover_file_already_exists = true;
++			nhfile.close();
++		}
+ 	}
+ 
+ 	f64 initial_T = 0.;		// initial temperature [K]
+@@ -3874,22 +3885,25 @@
+ 		ofile.close();
+ 	}
+ 
+-	if (nose_hoover_file_already_exists)
+-	{
+-		OpenNoseHoover(param.filename);
+-		current_nosehoover_frame = total_nosehoover_frames - 1;
+-		ReadNoseHooverFrame(dyn);
+-		dyn->loadNoseHooverTemperatureControlParams(this);
+-		CloseNoseHoover();
+-	}
+-	else
++	if (param.nosehoover)
+ 	{
+-		nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary);
++		if (nose_hoover_file_already_exists)
++		{
++			OpenNoseHoover(param.filename);
++			current_nosehoover_frame = total_nosehoover_frames - 1;
++			ReadNoseHooverFrame(dyn);
++			dyn->loadNoseHooverTemperatureControlParams(this);
++			CloseNoseHoover();
++		}
++		else
++		{
++			nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary);
+ 
+-		const int total_frames = tot_nsteps / frame_save_frq;
++			const int total_frames = tot_nsteps / frame_save_frq;
+ 
+-		dyn->WriteNoseHooverHeader(nhfile, total_frames, nosehoover_version);
+-		nhfile.close();
++			dyn->WriteNoseHooverHeader(nhfile, total_frames, nosehoover_version);
++			nhfile.close();
++		}
+ 	}
+ 	
+ 	ThreadUnlock();
+@@ -3927,6 +3941,10 @@
+ 		if (n1 == 0)
+ 		{
+ 			dyn->set_temperature_rtime(param.T_rtime_hc);
++			if (dyn_l != NULL)
++			{
++				dyn_l->langevin_coupling = 0.000;
++			}
+ 		}
+ 		
+ 	// check if entering equilibration stage.
+@@ -3934,12 +3952,23 @@
+ 		{
+ 			dyn->set_target_temperature(param.target_T);
+ 			dyn->set_temperature_rtime(param.T_rtime_es);
++
++			if (dyn_l != NULL)
++			{
++				dyn_l->langevin_random_fc = LANGEVIN_RANDOM_FC;
++				dyn_l->langevin_coupling = LANGEVIN_COUPLING;
++			}
+ 		}
+ 		
+ 	// check if entering cooling stage.
+ 	//	if (n1 == param.nsteps_h + param.nsteps_e + param.nsteps_s)
+ 	//	{
+ 	//		dyn->set_temperature_rtime(param.T_rtime_hc);
++	//
++	//		if (dyn_l != NULL)
++	//		{
++	//			dyn_l->langevin_coupling = 0.000;
++	//		}
+ 	//	}
+ 		
+ 	// check if T adjustment is needed at heating stage.
+@@ -3950,6 +3979,11 @@
+ 			
+ 			dyn->set_target_temperature(initial_T + (param.target_T - initial_T) * ((f64) tmp1 / (f64) tmp2));
+ 			cout << _("setting T = ") << dyn->get_target_temperature() << endl;
++
++			if (dyn_l != NULL)
++			{
++				dyn_l->langevin_random_fc = ((f64) n1 / (f64) param.nsteps_h) * LANGEVIN_RANDOM_FC;
++			}
+ 		}
+ 		
+ 	// check if T adjustment is needed at cooling stage.
+@@ -3967,6 +4001,7 @@
+ 		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
+ 		//if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
+ 		if (param.constant_T_Berendsen) enable_bTc = true;
++		if (param.constant_T_Langevin) enable_bTc = true;
+ 		if (param.constant_T_NoseHoover) enable_nhTc = true;
+ 		
+ 		bool enable_Pc = param.constant_P;
+@@ -4033,10 +4068,13 @@
+ 			WriteTrajectoryFrame(ofile, dyn);
+ 			ofile.close();
+ 
+-			nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
+-			dyn->saveNoseHooverTemperatureControlParams(nhfile);
+-			dyn->saveNoseHooverFrame(nhfile, nosehoover_version);
+-			nhfile.close();
++			if (param.nosehoover)
++			{
++				nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
++				dyn->saveNoseHooverTemperatureControlParams(nhfile);
++				dyn->saveNoseHooverFrame(nhfile, nosehoover_version);
++				nhfile.close();
++			}
+ 		}
+ 
+ 	// check if log/progressbar output should be made.
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-03 20:35:46.754145194 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-04 01:20:02.150088221 +0000
+@@ -764,4 +764,228 @@
+ 
+ /*################################################################################################*/
+ 
++moldyn_langevin::moldyn_langevin(engine * p1, f64 p2) : moldyn(p1, p2)
++{
++	if (num_locked != 0)
++	{
++		cout << "locked atoms not supported in moldyn_langevin!" << endl;
++		exit(EXIT_FAILURE);
++	}
++
++	eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
++
++	// at the moment this code is limited to SF implicit solvation motion damping...
++	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++	//if (engsf == NULL) { cout << "engsf cast failed!" << endl; exit(EXIT_FAILURE); }
++	//if (!engsf->use_implicit_solvent) { cout << "engsf must use implicit solvation!" << endl; exit(EXIT_FAILURE); }
++
++	langevin_r_forces = new f64[eng->GetAtomCount() * 3];
++
++	langevin_weight = new f64[eng->GetAtomCount()];
++	langevin_frict = new f64[eng->GetAtomCount()];
++
++	i32s counter = 0;
++	while (counter < eng->GetAtomCount())
++	{
++		langevin_weight[counter] = NOT_DEFINED;		// this is -1.0 -> disabled!!!
++		langevin_frict[counter] = 0.0;
++		
++		counter++;
++	}
++
++	// the rest are just default values; can be modified...
++	// the rest are just default values; can be modified...
++	// the rest are just default values; can be modified...
++
++// Pastor RW, Brooks BR, Szabo A : "An analysis of the accuracy of Langevin
++// and molecular dynamics algorithm", Mol Phys, 65, 1409-1419 (1988)
++
++// the above article says frict should be 50 ps^-1 for H2O???
++// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++// not sure what it means but seems that the constant here should be much more than that...
++// setting langevin_frict_fc = 4.0e-6 1/s will yield v_loss/stp = 1.0% ; roughly at range then.
++
++//	langevin_frict_fc = 8.0e-6;	// see model::DoMolDyn() ; v_loss/stp = 2.0% ; Bfact ??? ; 20050124
++	langevin_frict_fc = 16.0e-6;	// see model::DoMolDyn() ; v_loss/stp = 4.0% ; Bfact OK ; 20050124
++
++	langevin_random_fc = 0.00;	// see model::DoMolDyn() ; 3450.0
++	langevin_coupling = 0.00;	// see model::DoMolDyn() ; 0.0005
++
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		f64 weight = 1.0;	// make this depend on SA??? update dynamically below then.
++
++		langevin_weight[n1] = weight;
++		langevin_frict[n1] = weight * langevin_frict_fc;
++	}
++}
++
++moldyn_langevin::~moldyn_langevin(void)
++{
++	delete[] langevin_r_forces;
++
++	delete[] langevin_weight;
++	delete[] langevin_frict;
++}
++
++void moldyn_langevin::TakeMDStep(bool enable_temperature_control, bool, bool)
++{
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			f64 tmp1 = tstep1 * vel[n1 * 3 + n2] * 1.0e-3;
++			f64 tmp2 = tstep2 * acc[n1 * 3 + n2] * 0.5e-9;
++			eng->crd[n1 * 3 + n2] += tmp1 + tmp2;
++
++			vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
++		}
++	}
++
++	const bool report_shake = !(step_counter % 1000);
++	eng->DoSHAKE(report_shake);
++
++	eng->Compute(1);
++	epot = eng->energy;
++
++// maintaining the correct temperature in langevin dynamics seems to be a bit problematic.
++// constant energy simulations are very difficult, but it's quite easy to calculate the energy loss.
++
++// the friction term will gain strength when T is increased, while the random term only depends on
++// the force constant -> for each pair of friction/random settings, there is an equilibrium temperature
++// that will be maintained without any heating.
++
++// strategy: find friction/random settings with equilibrium T a bit below simulation temperature,
++// and use mild temperature control to maintain the simulation temperature???
++
++	// how to make sure that the random numbers really stay random???
++	// a lot of rand() calls are used here -> periodicity near/after RAND_MAX numbers!!!
++	//////////////////////
++	//srand(time(NULL));
++	//////////////////////
++
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		if (langevin_weight[n1] >= 0.0)
++		{
++			// generate gaussian random numbers using a (modified???) Box-Muller transformation:
++			// y = sqrt(-2*ln(x1))*cos(2*pi*x2)	// x1 and x2 = linear random numbers ]0..1].
++
++			i32u rnum;	// return value 0 from rand() would lead to ln(0.0)...
++			do { rnum = rand(); } while (rnum == 0); f64 r1 = (f64) rnum / (f64) RAND_MAX;
++			do { rnum = rand(); } while (rnum == 0); f64 r2 = (f64) rnum / (f64) RAND_MAX;
++			do { rnum = rand(); } while (rnum == 0); f64 r3 = (f64) rnum / (f64) RAND_MAX;
++
++			f64 rA = sqrt(-2.0 * log(r1)) * cos(2.0 * M_PI * r2);
++			f64 rB = sqrt(-2.0 * log(r2)) * cos(2.0 * M_PI * r3);
++			f64 rC = sqrt(-2.0 * log(r3)) * cos(2.0 * M_PI * r1);
++
++			langevin_r_forces[n1 * 3 + 0] = rA * langevin_weight[n1];
++			langevin_r_forces[n1 * 3 + 1] = rB * langevin_weight[n1];
++			langevin_r_forces[n1 * 3 + 2] = rC * langevin_weight[n1];
++		}
++	}
++
++	f64 net_random_x = 0.0;
++	f64 net_random_y = 0.0;
++	f64 net_random_z = 0.0;
++
++	i32s langevin_counter = 0;
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		if (langevin_weight[n1] >= 0.0)
++		{
++			net_random_x += langevin_r_forces[n1 * 3 + 0];
++			net_random_y += langevin_r_forces[n1 * 3 + 1];
++			net_random_z += langevin_r_forces[n1 * 3 + 2];
++
++			langevin_counter++;
++		}
++	}
++
++	if (langevin_counter > 0)
++	{
++		net_random_x /= (f64) langevin_counter;
++		net_random_y /= (f64) langevin_counter;
++		net_random_z /= (f64) langevin_counter;
++	}
++
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		acc[n1 * 3 + 0] = -eng->d1[n1 * 3 + 0] / mass[n1];
++		acc[n1 * 3 + 1] = -eng->d1[n1 * 3 + 1] / mass[n1];
++		acc[n1 * 3 + 2] = -eng->d1[n1 * 3 + 2] / mass[n1];
++
++		if (langevin_weight[n1] >= 0.0)
++		{
++			// ma = -grad - bmv + f(t)	;; b = frictional constant
++			// a = -grad/m - bv + f(t)/m	;; b = frictional constant
++
++			// the frictional constant b must have a unit 1/s ; [b] = 1/s
++			// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++			// is the effect independent of MD timestep??? should be...
++
++			// friction...
++			// friction...
++			// friction...
++
++			f64 frict_const = langevin_frict[n1] * 1.0e+9;
++			acc[n1 * 3 + 0] -= frict_const * vel[n1 * 3 + 0];
++			acc[n1 * 3 + 1] -= frict_const * vel[n1 * 3 + 1];
++			acc[n1 * 3 + 2] -= frict_const * vel[n1 * 3 + 2];
++
++//static int lcnt = 0; if (n1 == 15 && !(lcnt++ % 1000)) {
++//cout << "ATOM " << n1 << " velocity losses = ";
++//cout << (frict_const * vel[n1 * 3 + 0] * tstep1 * 0.5e-6) / vel[n1 * 3 + 0] << " ";
++//cout << (frict_const * vel[n1 * 3 + 1] * tstep1 * 0.5e-6) / vel[n1 * 3 + 1] << " ";
++//cout << (frict_const * vel[n1 * 3 + 2] * tstep1 * 0.5e-6) / vel[n1 * 3 + 2] << endl; }
++
++			// random forces...
++			// random forces... NOT WORKING CORRECTLY YET???
++			// random forces...
++
++			f64 random_fc = langevin_random_fc / (tstep1 * mass[n1]);
++			acc[n1 * 3 + 0] += (langevin_r_forces[n1 * 3 + 0] - net_random_x) * random_fc;
++			acc[n1 * 3 + 1] += (langevin_r_forces[n1 * 3 + 1] - net_random_y) * random_fc;
++			acc[n1 * 3 + 2] += (langevin_r_forces[n1 * 3 + 2] - net_random_z) * random_fc;
++		}
++
++		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
++		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
++		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
++
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
++			cumsum_acc[n1 * 3 + n2] += acc[n1 * 3 + n2];
++			cumsum_f  [n1 * 3 + n2] += eng->d1[n1 * 3 + n2];
++		}
++	}
++
++	ekin = KineticEnergy();
++	if (enable_temperature_control)
++	{
++		f64 delta = (target_temperature / ConvEKinTemp(ekin)) - 1.0;
++
++		f64 tc = sqrt(1.0 + temperature_coupling * delta);
++		SetEKin(ekin * tc);
++
++		if (langevin_coupling > 0.0)
++		{
++			f64 lc = sqrt(1.0 + langevin_coupling * delta);
++			langevin_random_fc *= lc;
++
++			if (!(step_counter%100))
++			{
++				cout << "langevin_random_fc = " << langevin_random_fc << endl;
++			}
++		}
++	}
++
++	step_counter++;
++}
++
++/*################################################################################################*/
++
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-03 20:35:46.750145194 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2025-01-03 21:58:19.426128650 +0000
+@@ -24,6 +24,7 @@
+ class moldyn_param;
+ 
+ class moldyn;
++class moldyn_langevin;
+ 
+ /*################################################################################################*/
+ 
+@@ -64,12 +65,16 @@
+ 	f64 P_rtime;		// pressure relaxation time [fs]
+ 	f64 P_beta;		// isothermal compressibility [1/bar]
+ 	
++	bool constant_T_Langevin;
+ 	bool constant_T_Berendsen;
+ 	bool constant_T_NoseHoover;
+ 	bool constant_P;
+ 
+ 	bool maxwell_distribution_init;
+ 	bool inverse_time_init;
++
++	bool nosehoover;
++	bool langevin;
+ 	
+ 	char filename[256];
+ 
+@@ -104,9 +109,13 @@
+ 		P_beta = 4.57e-5;
+ 		
+ 		constant_T_Berendsen = false;
++		constant_T_Langevin = false;
+ 		constant_T_NoseHoover = true;
+ 		constant_P = false;
+ 
++		langevin = false;
++		nosehoover = true;
++
+ 		maxwell_distribution_init = true;
+ 		inverse_time_init = false;
+ 
+@@ -263,6 +272,43 @@
+ };
+ 
+ /*################################################################################################*/
++
++/**	A molecular dynamics class for Langevin dynamics.
++	
++	This is not any of the well-known LD integrators, just LD stuff added
++	on top of a "velocity Verlet" MD integrator.
++	
++	TODO : convert this is into a "BBK"-type integrator???
++*/
++
++class moldyn_langevin : public moldyn
++{
++	protected:
++
++	eng1_sf * engsf;
++
++	public:
++
++	f64 * langevin_r_forces;
++
++	f64 langevin_frict_fc;
++	f64 langevin_random_fc;
++
++	f64 temperature_coupling;
++	f64 langevin_coupling;
++
++	f64 * langevin_weight;
++	f64 * langevin_frict;
++
++	public:
++
++	moldyn_langevin(engine *, f64);
++	virtual ~moldyn_langevin(void);
++
++	virtual void TakeMDStep(bool, bool, bool);		// virtual...
++};
++
++/*################################################################################################*/
+ 
+ #endif	// MOLDYN_H
+ 

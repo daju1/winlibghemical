@@ -49,10 +49,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	size_t natoms = atom_list.size();
 +	i32s max_frames = this->GetTotalFrames();
 +	std::vector<f64> m_data; m_data.resize(natoms);
-+	std::vector<std::vector<f64> > c_data; c_data.resize(natoms * 3);
++	// std::vector<std::vector<f64> > c_data; c_data.resize(natoms * 3);
 +	std::vector<std::vector<f64> > v_data; v_data.resize(natoms * 3);
 +	std::vector<std::vector<f64> > a_data; a_data.resize(natoms * 3);
-+	std::vector<std::vector<f64> > f_data; f_data.resize(natoms * 3);
++	// std::vector<std::vector<f64> > f_data; f_data.resize(natoms * 3);
 +
 +	{
 +		i32s ind = 0;
@@ -60,10 +60,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		{
 +			for (i32s t4 = 0;t4 < 3;t4++)
 +			{
-+				c_data[3 * ind + t4].resize(max_frames);
++				// c_data[3 * ind + t4].resize(max_frames);
 +				v_data[3 * ind + t4].resize(max_frames);
 +				a_data[3 * ind + t4].resize(max_frames);
-+				f_data[3 * ind + t4].resize(max_frames);
++				// f_data[3 * ind + t4].resize(max_frames);
 +			}
 +			ind++;
 +		}
@@ -127,16 +127,16 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +			for (i32s t4 = 0;t4 < 3;t4++)
 +			{
-+				c_data[3 * ind + t4][loop] = this->traj_frame_cdata[t4];
++				// c_data[3 * ind + t4][loop] = this->traj_frame_cdata[t4];
 +				v_data[3 * ind + t4][loop] = this->traj_frame_vdata[t4];
 +				a_data[3 * ind + t4][loop] = this->traj_frame_adata[t4];
-+				f_data[3 * ind + t4][loop] = this->traj_frame_fdata[t4];
++				// f_data[3 * ind + t4][loop] = this->traj_frame_fdata[t4];
 +
-+				if (fabs(f_data[3 * ind + t4][loop] / m_data[ind] + a_data[3 * ind + t4][loop]) > 1e-3)
-+				{
-+					printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4][loop] / m_data[ind], a_data[3 * ind + t4][loop]);
-+					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
-+				}
++				//if (fabs(f_data[3 * ind + t4][loop] / m_data[ind] + a_data[3 * ind + t4][loop]) > 1e-3)
++				//{
++					// printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4][loop] / m_data[ind], a_data[3 * ind + t4][loop]);
++					// break_if_cumsum_f_cumsum_acc_seems_wrong = true;
++				//}
 +			}
 +
 +			ind++;
@@ -195,15 +195,15 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +						}
 +						for (i32s loop2 = loop1; loop2 < max_loop2; loop2++)
 +						{
-+							crd1 = c_data[3 * ind + dim][loop1];
++							//crd1 = c_data[3 * ind + dim][loop1];
 +							vel1 = v_data[3 * ind + dim][loop1];
 +							acc1 = a_data[3 * ind + dim][loop1];
-+							frc1 = f_data[3 * ind + dim][loop1];
++							//frc1 = f_data[3 * ind + dim][loop1];
 +
-+							crd2 = c_data[3 * ind + dim][loop2];
++							//crd2 = c_data[3 * ind + dim][loop2];
 +							vel2 = v_data[3 * ind + dim][loop2];
 +							acc2 = a_data[3 * ind + dim][loop2];
-+							frc2 = f_data[3 * ind + dim][loop2];
++							//frc2 = f_data[3 * ind + dim][loop2];
 +
 +							switch (i_crd_type_1)
 +							{
@@ -213,9 +213,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +							case 2:
 +								value1 = acc1;
 +								break;
-+							case 3:
-+								value1 = frc1;
-+								break;
++							//case 3:
++							//	value1 = frc1;
++							//	break;
 +							}
 +
 +							switch (i_crd_type_2)
@@ -226,9 +226,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +							case 2:
 +								value2 = acc2;
 +								break;
-+							case 3:
-+								value2 = frc2;
-+								break;
++							//case 3:
++							//	value2 = frc2;
++							//	break;
 +							}
 +
 +							// directed time correlation function

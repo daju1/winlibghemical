@@ -54,6 +54,7 @@ int main(int argc, char ** argv)
 	int traj_version = 15;
 	int frame_save_frq = 10000;
 	bool Berendsen = true;
+	bool Langevin = false;
 	bool NoseHoover = false;
 	bool const_E = false;
 	bool const_P = false;
@@ -65,7 +66,8 @@ int main(int argc, char ** argv)
 		switch (argv[1+flags][1]) {
 		case 'E': const_E = true; break;
 		case 'P': const_P = true; break;
-		case 'H': {Berendsen = false; NoseHoover = true;} break;
+		case 'H': {Berendsen = false; Langevin = false; NoseHoover = true;} break;
+		case 'L': {Berendsen = false; Langevin = true; NoseHoover = false;} break;
 		case 'I': inverse_time = true; break;
 		case 'B':
 			box_optimization = (box_optimization_moldyn_mode) strtol(argv[2+flags], &end, 0);
@@ -194,22 +196,38 @@ int main(int argc, char ** argv)
 		if (const_E)
 		{
 			param.constant_T_Berendsen = false;
+			param.constant_T_Langevin = false;
 			param.constant_T_NoseHoover = false;
 		}
 		else
 		{
 			if (Berendsen)
 			{
+				param.langevin = false;
+				param.nosehoover = false;
 				param.constant_T_Berendsen = true;
+				param.constant_T_Langevin = false;
+				param.constant_T_NoseHoover = false;
+			}
+			if (Langevin)
+			{
+				param.langevin = true;
+				param.nosehoover = false;
+				param.constant_T_Berendsen = false;
+				param.constant_T_Langevin = true;
 				param.constant_T_NoseHoover = false;
 			}
 			if (NoseHoover)
 			{
+				param.langevin = false;
+				param.nosehoover = true;
 				param.constant_T_Berendsen = false;
+				param.constant_T_Langevin = false;
 				param.constant_T_NoseHoover = true;
 			}
 		}
 		cout << "constant_T_Berendsen =" << param.constant_T_Berendsen << endl;
+		cout << "constant_T_Langevin =" << param.constant_T_Langevin << endl;
 		cout << "constant_T_NoseHoover =" << param.constant_T_NoseHoover << endl;
 
 		if (const_P)

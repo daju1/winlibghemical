@@ -41,12 +41,46 @@ libghemical_lib_path=$(install_dir)/lib
 MOPAC7_INCDIR=$(install_dir)/include
 mopac7_lib_path=$(install_dir)/lib
 
-download:
+download_archive:
+	wget https://www.bioinformatics.org/ghemical/download/archive/gt2-w32-100500.zip
+	wget https://www.bioinformatics.org/ghemical/download/archive/ghemical-1.90.tgz
+	wget https://www.bioinformatics.org/ghemical/download/archive/ghemical-2.00.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/archive/libghemical-1.90.tgz
+
+#  [DIR], release20070923/, 31-Jul-2008 06:49 ;
+download_295:
+	wget https://www.bioinformatics.org/ghemical/download/release20070923/ghemical-2.95.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20070923/libghemical-2.95.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20070923/liboglappth-0.96.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20070923/ghemical-2.96a-w32-setup.exe
+
+#  [DIR], release20080731/, 31-Jul-2008 06:49 ;
+download_298:
+	wget https://www.bioinformatics.org/ghemical/download/release20080731/ghemical-2.98.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20080731/libghemical-2.98.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20080731/liboglappth-0.98.tar.gz
+
+# [DIR], release20090904/, 04-Sep-2009 08:51 ;
+download_299:
+	wget https://www.bioinformatics.org/ghemical/download/release20090904/ghemical-2.99.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20090904/libghemical-2.99.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20090904/liboglappth-0.98.tar.gz
+
+# [DIR], release20090911/, 04-Nov-2009 06:31 ;
+download_2991:
+	wget https://www.bioinformatics.org/ghemical/download/release20090911/ghemical-2.99.1.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20090911/ghemical-2.99.2.tar.gz
+	wget https://www.bioinformatics.org/ghemical/download/release20090911/libghemical-2.99.1.tar.gz
+
+# [DIR], release20111012/, 12-Oct-2011 15:36 ...
+download_300:
 	wget https://www.bioinformatics.org/ghemical/download/release20111012/ghemical-3.0.0.tar.gz
 	wget https://www.bioinformatics.org/ghemical/download/release20111012/libghemical-3.0.0.tar.gz
 	wget https://www.bioinformatics.org/ghemical/download/release20111012/liboglappth-1.0.0.tar.gz
 	wget https://www.bioinformatics.org/ghemical/download/release20111012/mopac7-1.15.tar.gz
 	wget https://www.bioinformatics.org/ghemical/download/archive/openbabel-2.0.0.tar.gz
+
+download: download_300
 
 all: mopac7 liboglappth libghemical ghemical openbabel ghemical_examples
 all_configure: mopac7_configure liboglappth_configure libghemical_configure ghemical_configure openbabel_configure
@@ -113,6 +147,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.trimtraj.patch
 	patch -p1 < ./ghemical.release20111012.time_correlation_function_lib.patch
 	patch -p1 < ./ghemical.release20111012.time_correlation_function_proj.patch
+	patch -p1 < ./ghemical.release20111012.moldyn_langevin.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
@@ -220,6 +255,10 @@ clean_before_patch:
 	$(call clear_before_patch, openbabel-2.0.0)
 	$(call clear_before_patch, mopac7-1.15)
 
+do_patch_295:
+	diff -Nur ./libghemical-2.95 ./libghemical-3.0.0 > file_295.patch
+
+
 do_patch1:
 	diff -Nur ./ghemical-3.0.0.original    ./ghemical-3.0.0 > file1.patch
 
@@ -254,7 +293,15 @@ untar_ghemical: ghemical-3.0.0.tar.gz
 	tar -xzmf $?
 	echo > $@
 
+untar_ghemical_295: ghemical-2.95.tar.gz
+	tar -xzmf $?
+	echo > $@
+
 untar_libghemical: libghemical-3.0.0.tar.gz
+	tar -xzmf $?
+	echo > $@
+
+untar_libghemical_295: libghemical-2.95.tar.gz
 	tar -xzmf $?
 	echo > $@
 
@@ -288,7 +335,7 @@ libghemical_configure:
 	#(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 --enable-mpqc)
 	(cd libghemical-3.0.0 && ./configure --prefix=${install_dir} --enable-mopac7 MOPAC7_CFLAGS="-I${MOPAC7_INCDIR}" MOPAC7_LIBS="-L${mopac7_lib_path} -lmopac7")
 
-ghemical_examples: mopac7 liboglappth libghemical openbabel
+ghemical_examples: # mopac7 liboglappth libghemical openbabel
 	(cd examples && make clean && make all)
 
 libghemical: mopac7

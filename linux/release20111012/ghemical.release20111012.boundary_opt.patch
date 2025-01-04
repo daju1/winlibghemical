@@ -432,7 +432,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	CopyCRD(this, eng, 0);
 +
 +	if (param.recalc_box && !maxMinCRDCalculed)
-+		CalcMaxMinCoordinates(this, eng, 0);	
++		CalcMaxMinCoordinates(this, eng, 0);
  	
  	moldyn * dyn = new moldyn(eng, param.timestep);
 -	

@@ -172,8 +172,8 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +				if (fabs(f_data[3 * ind + t4] / m_data[ind] + a_data[3 * ind + t4]) > 1e-3)
 +				{
-+					printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4] / m_data[ind], a_data[3 * ind + t4]);
-+					break_if_cumsum_f_cumsum_acc_seems_wrong = true;
++					// printf("%d %d f/m=%f a=%f\n", ind, t4, f_data[3 * ind + t4] / m_data[ind], a_data[3 * ind + t4]);
++					// break_if_cumsum_f_cumsum_acc_seems_wrong = true;
 +				}
 +				if (fabs(cumsum_f_data[3 * ind + t4] / m_data[ind] + cumsum_a_data[3 * ind + t4]) > 1e-3)
 +				{
