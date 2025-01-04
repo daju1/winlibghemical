@@ -104,6 +104,7 @@ int main(int argc, char ** argv)
 	i32s molgrouptype = 1;
 	i32s ind_mol = 0;
 	i32s dim = 2;
+	i32s start_from = 1000;
 	i32s tcf_frames = 1000;
 
 	i32s crd_type1 = 0;
@@ -149,6 +150,17 @@ int main(int argc, char ** argv)
 			molgrouptype = strtol(argv[2+flags], &end, 0);
 			if (*end) {
 				fprintf(stderr, "Error: t argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
+
+		case 's':
+			start_from = strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: start_from argment not a "
 					"number!\n");
 				help(argc, argv);
 				exit(1);
@@ -221,7 +233,7 @@ int main(int argc, char ** argv)
 	mdl->TimeCorrelationFunctionPlot(molgrouptype, ind_mol, dim,
 									crd_type1, crd_type2,
 									show_directed_tcf, show_integrated_tcf,
-									tcf_frames,
+									start_from, tcf_frames,
 									MolTcfPlotHeader, MolCrdPrintValue, MolCrdPrintValues, mdl);
 
 	mdl->CloseTrajectory();

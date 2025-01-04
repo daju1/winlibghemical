@@ -8,7 +8,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +void * model::TimeCorrelationFunctionPlot(i32s molgrouptype, i32s ind_mol, i32s dim,
 +										  i32s crd_type1, i32s crd_type2,
 +										  i32s show_directed_tcf, i32s show_integrated_tcf,
-+										  i32s tcf_frames,
++										  i32s start_from, i32s tcf_frames,
 +										  MolTCFHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
 +{
 +	if (!this->GetTrajectoryFile())
@@ -60,10 +60,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		{
 +			for (i32s t4 = 0;t4 < 3;t4++)
 +			{
-+				// c_data[3 * ind + t4].resize(max_frames);
-+				v_data[3 * ind + t4].resize(max_frames);
-+				a_data[3 * ind + t4].resize(max_frames);
-+				// f_data[3 * ind + t4].resize(max_frames);
++				// c_data[3 * ind + t4].resize(max_frames - start_from);
++				v_data[3 * ind + t4].resize(max_frames - start_from);
++				a_data[3 * ind + t4].resize(max_frames - start_from);
++				// f_data[3 * ind + t4].resize(max_frames - start_from);
 +			}
 +			ind++;
 +		}
@@ -72,7 +72,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	float boundary[3];
 +	float volume = 0.f;
 +
-+	for (i32s loop = 0; loop < max_frames; loop++)
++	for (i32s loop = start_from; loop < max_frames; loop++)
 +	{
 +		this->SetCurrentFrame(loop);
 +
@@ -94,7 +94,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +		temperature = ConvEKinTemp(ekin, natoms);
 +
-+		if (loop > 1 && (temperature / previouse_temperature) > 10 )
++		if (loop > start_from && (temperature / previouse_temperature) > 10 )
 +		{
 +			printf("boundary %f %f %f\n", boundary[0], boundary[1], boundary[2]);
 +			printf("loop %d, temperature %f, previouse_temperature %f break\n", loop, temperature, previouse_temperature);
@@ -127,10 +127,10 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +			for (i32s t4 = 0;t4 < 3;t4++)
 +			{
-+				// c_data[3 * ind + t4][loop] = this->traj_frame_cdata[t4];
-+				v_data[3 * ind + t4][loop] = this->traj_frame_vdata[t4];
-+				a_data[3 * ind + t4][loop] = this->traj_frame_adata[t4];
-+				// f_data[3 * ind + t4][loop] = this->traj_frame_fdata[t4];
++				// c_data[3 * ind + t4][loop - start_from] = this->traj_frame_cdata[t4];
++				v_data[3 * ind + t4][loop - start_from] = this->traj_frame_vdata[t4];
++				a_data[3 * ind + t4][loop - start_from] = this->traj_frame_adata[t4];
++				// f_data[3 * ind + t4][loop - start_from] = this->traj_frame_fdata[t4];
 +
 +				//if (fabs(f_data[3 * ind + t4][loop] / m_data[ind] + a_data[3 * ind + t4][loop]) > 1e-3)
 +				//{
@@ -186,12 +186,12 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +					it != it_mlgr->natoms.end(); ++it)
 +				{
 +					ind = *it;
-+					for (i32s loop1 = 0; loop1 < max_frames; loop1++)
++					for (i32s loop1 = 0; loop1 < max_frames - start_from; loop1++)
 +					{
 +						i32s max_loop2 = loop1 + tcf_frames;
-+						if (max_loop2 >= max_frames)
++						if (max_loop2 >= max_frames - start_from)
 +						{
-+							max_loop2 = max_frames;
++							max_loop2 = max_frames - start_from;
 +						}
 +						for (i32s loop2 = loop1; loop2 < max_loop2; loop2++)
 +						{
@@ -252,9 +252,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			f64 sum_tcf_value = 0.0;
 +			f64 sum_dtcf_value = 0.0;
 +
-+			if (tcf_frames > max_frames - 1)
++			if (tcf_frames > max_frames - start_from - 1)
 +			{
-+				tcf_frames = max_frames - 1;
++				tcf_frames = max_frames - start_from - 1;
 +			}
 +
 +			for (i32s loop = 0; loop < tcf_frames; loop++)
@@ -329,7 +329,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
 +	void* TimeCorrelationFunctionPlot(i32s molgrouptype, i32s ind_mol, i32s dim,
 +									  i32s crd_type1, i32s crd_type2,
 +									  i32s show_directed_tcf, i32s show_integrated_tcf,
-+									  i32s tcf_frames,
++									  i32s start_from, i32s tcf_frames,
 +									  MolTCFHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p);
  	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
  	
