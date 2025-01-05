@@ -90,7 +90,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  #endif
  
 -		dyn->TakeMDStep(enable_Tc, enable_Pc);
-+		dyn->TakeMDStep(enable_bTc, enable_nhTc, enable_Pc);
++		dyn->TakeMDStep(enable_bTc, enable_Pc, enable_nhTc);
  		
  		if (enable_Pc)
  		{
@@ -138,7 +138,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  }
  
 -void moldyn::TakeMDStep(bool enable_temperature_control, bool enable_pressure_control)
-+void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_NoseHoover_temperature_control, bool enable_pressure_control)
++void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_pressure_control, bool enable_NoseHoover_temperature_control)
  {
 +	// https://en.wikipedia.org/wiki/Leapfrog_integration
 +
