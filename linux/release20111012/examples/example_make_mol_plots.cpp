@@ -164,7 +164,7 @@ int main(int argc, char ** argv)
 	}
 
 	cout << "trying to open a file " << infile_name << " ; ";
-	
+
 	ifstream ifile;
 	ifile.open(infile_name, ios::in);
 	if (ifile.fail())

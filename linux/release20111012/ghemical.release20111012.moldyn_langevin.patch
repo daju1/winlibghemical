@@ -178,7 +178,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +		exit(EXIT_FAILURE);
 +	}
 +
-+	eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
++	// eng1_sf * engsf = dynamic_cast<eng1_sf *>(eng);
 +
 +	// at the moment this code is limited to SF implicit solvation motion damping...
 +	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -454,7 +454,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +{
 +	protected:
 +
-+	eng1_sf * engsf;
++	// eng1_sf * engsf;
 +
 +	public:
 +
