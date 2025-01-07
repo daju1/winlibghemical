@@ -288,7 +288,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  {
  	// https://en.wikipedia.org/wiki/Leapfrog_integration
  
-@@ -427,7 +445,7 @@
+@@ -427,7 +456,7 @@
  	ForceModelMomentumToZero();
  }
  

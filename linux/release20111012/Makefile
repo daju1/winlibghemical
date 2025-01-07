@@ -148,6 +148,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.time_correlation_function_lib.patch
 	patch -p1 < ./ghemical.release20111012.time_correlation_function_proj.patch
 	patch -p1 < ./ghemical.release20111012.moldyn_langevin.patch
+	patch -p1 < ./ghemical.release20111012.moldyn_nosehoover.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
