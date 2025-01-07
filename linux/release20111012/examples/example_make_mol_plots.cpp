@@ -89,6 +89,7 @@ int main(int argc, char ** argv)
     i32s ind_mol = 0;
     i32s dim = 2;
     i32s crd_type = 0;
+    i32s start_from = 1000;
 
 	char * infile_name;
 	char * infile_box;
@@ -128,6 +129,17 @@ int main(int argc, char ** argv)
 			molgrouptype = strtol(argv[2+flags], &end, 0);
 			if (*end) {
 				fprintf(stderr, "Error: t argment not a "
+					"number!\n");
+				help(argc, argv);
+				exit(1);
+			}
+			flags++;
+			break;
+
+		case 's':
+			start_from = strtol(argv[2+flags], &end, 0);
+			if (*end) {
+				fprintf(stderr, "Error: start_from argment not a "
 					"number!\n");
 				help(argc, argv);
 				exit(1);
@@ -198,7 +210,7 @@ int main(int argc, char ** argv)
 		mdl->OpenNoseHoover(infile_traj);
 	}
 
-	mdl->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, MolCrdPrintHeader, MolCrdPrintValue, MolCrdPrintValues, mdl);
+	mdl->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, start_from, MolCrdPrintHeader, MolCrdPrintValue, MolCrdPrintValues, mdl);
 
 	mdl->CloseTrajectory();
 	if (nose_hoover_file_exists) {

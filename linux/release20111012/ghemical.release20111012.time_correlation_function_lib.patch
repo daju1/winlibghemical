@@ -308,7 +308,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +	return plot;
 +}
 +
- void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
+ void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
  {
  	if (!this->GetTrajectoryFile())
 diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
@@ -331,6 +331,6 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
 +									  i32s show_directed_tcf, i32s show_integrated_tcf,
 +									  i32s start_from, i32s tcf_frames,
 +									  MolTCFHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p);
- 	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
+ 	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
  	
  	void EvaluateBFact(void);

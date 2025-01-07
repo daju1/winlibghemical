@@ -14,7 +14,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  }
  
 +
-+void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
++void * model::MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from, MolCrdHead fn_header, MolCrdVal fn_value, MolCrdValues fn_values, void * p)
 +{
 +	if (!this->GetTrajectoryFile())
 +	{
@@ -76,7 +76,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +			gas_atom_went_up_out_from_memrane = 0;
 +
 +	i32s max_frames = this->GetTotalFrames();
-+	for (i32s loop = 0; loop < max_frames; loop++)
++	for (i32s loop = start_from; loop < max_frames; loop++)
 +	{
 +		this->SetCurrentFrame(loop);
 +
@@ -253,7 +253,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +				crd = c_data[3 * ind + dim];
 +				pre_loop_crd = previouse_c_data[3 * ind + dim];
 +
-+				if (loop > 0)
++				if (loop > start_from)
 +				{
 +					if (is_membrane_cutted_by_boundary)
 +					{
@@ -366,7 +366,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +		*/
 +
 +		f64 tstep1 = /*0.5*/traj_tstep1, tstep2 = tstep1 * tstep1;
-+		f64 the_trajectory_current_time_ns = loop > 1 ? time_step_between_traj_records * (loop - 1) / 1000000 : time_step_between_traj_records / 1000000;
++		f64 the_trajectory_current_time_ns = loop > start_from + 1 ? time_step_between_traj_records * (loop - start_from - 1) / 1000000 : time_step_between_traj_records / 1000000;
 +
 +		f64 dcv    = tstep1 * previouse_velocity * 1.0e-3;
 +		f64 dca    = tstep2 * previouse_acceleration * 0.5e-9;
@@ -479,7 +479,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +			if (i_crd_type == crd_type)
 +			{
-+				fn_value(plot, loop, value);
++				fn_value(plot, loop - start_from, value);
 +			}
 +
 +			values.push_back(value);
@@ -487,14 +487,14 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
 +		if (fn_values)
 +		{
-+			fn_values(p, loop, values);
++			fn_values(p, loop - start_from, values);
 +		}
 +
 +		previouse_coordinate   = coordinate;
 +		previouse_velocity     = velocity;
 +		previouse_acceleration = acceleration;
 +
-+		if (0 == loop)
++		if (start_from == loop)
 +		{
 +			first_coordinate = coordinate;
 +		}
@@ -589,7 +589,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void WriteTrajectoryHeader(long_ofstream &, int, moldyn *, int);
  	void WriteTrajectoryFrame(long_ofstream &, moldyn *);
 +
-+	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
++	void* MoleculeCoordinatePlot(i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from, MolCrdHead fn1, MolCrdVal fn2, MolCrdValues fn3, void * prj);
  	
  	void EvaluateBFact(void);
  	void EvaluateDiffConst(double);
@@ -600,7 +600,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  	Message(str.str().c_str());
  }
  
--void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
+-void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from)
 +void * MolCrdPlotHeader(void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, const char * crd_names [][2], size_t crd_names_len)
  {
 -	if (!this->GetTrajectoryFile())
@@ -1092,9 +1092,9 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 -			previouse_c_data[t4] = c_data[t4];
 -			previouse_v_data[t4] = v_data[t4];
 -		}
-+void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
++void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from)
 +{
-+	p1dview_wcl * plot = (p1dview_wcl *) this->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, MolCrdPlotHeader, MolCrdPlotValue, NULL, this);
++	p1dview_wcl * plot = (p1dview_wcl *) this->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, start_from, MolCrdPlotHeader, MolCrdPlotValue, NULL, this);
 +	if (plot) {
 +		plot->Finalize();
 +		plot->GetWnd()->RequestUpdate(false);

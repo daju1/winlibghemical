@@ -19,7 +19,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				value = power;
  				break;
 +			case 23:
-+				value = cumsum_force / (traj_frame_save_frq * (0 == loop ? 1 : loop));
++				value = cumsum_force / (traj_frame_save_frq * (start_from == loop ? 1 : loop - start_from));
 +				break;
  
  			default:

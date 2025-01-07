@@ -44,7 +44,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  
  	if (!strcmp("make_plot_mol_crd", kw1))
  	{
-@@ -3828,6 +3862,47 @@
+@@ -3830,6 +3864,47 @@
  	Message(str.str().c_str());
  }
  
@@ -92,7 +92,7 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
  void * MolCrdPlotHeader(void * p, i32s molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, const char * crd_names [][2], size_t crd_names_len)
  {
  	project * prj = (project *) p;
-@@ -3846,6 +3921,23 @@
+@@ -3848,6 +3923,23 @@
  	plot->AddData(loop, value);
  }
  
@@ -113,9 +113,9 @@ diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project
 +	}
 +}
 +
- void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type)
+ void project::TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from)
  {
- 	p1dview_wcl * plot = (p1dview_wcl *) this->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, MolCrdPlotHeader, MolCrdPlotValue, NULL, this);
+ 	p1dview_wcl * plot = (p1dview_wcl *) this->MoleculeCoordinatePlot(molgrouptype, ind_mol, dim, crd_type, start_from, MolCrdPlotHeader, MolCrdPlotValue, NULL, this);
 diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
 --- ./ghemical-3.0.0.original/src/project.h	2025-01-04 08:19:41.326004111 +0000
 +++ ./ghemical-3.0.0/src/project.h	2025-01-04 08:32:01.670001637 +0000
@@ -127,6 +127,6 @@ diff -Nur ./ghemical-3.0.0.original/src/project.h ./ghemical-3.0.0/src/project.h
 +											  i32s ind_mol, i32s dim, i32s crd_type1, i32s crd_type2,
 +											  i32s show_directed_tcf, i32s show_integrated_tcf,
 +											  i32s start_from, i32s tcf_frames);
- 	void TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type);
+ 	void TrajView_MoleculeCoordinatePlot(enum molgrouptype molgrouptype, i32s ind_mol, i32s dim, i32s crd_type, i32s start_from);
  	void TrajView_DistancePlot(i32s inda, i32s indb);
  	void TrajView_AnglePlot(i32s inda, i32s indb, i32s indc);
