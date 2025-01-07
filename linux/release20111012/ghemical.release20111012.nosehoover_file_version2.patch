@@ -130,9 +130,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  
 +	std::vector<f64> cumsum_noho_v_data; cumsum_noho_v_data.resize(natoms * 3);
 +
- 	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3);
- 	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3);
- 	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3);
+	std::vector<f64> cumsum_v_data; cumsum_v_data.resize(natoms * 3); std::vector<f64> cumsum_v_data_start_from; cumsum_v_data_start_from.resize(natoms * 3);
+	std::vector<f64> cumsum_a_data; cumsum_a_data.resize(natoms * 3); std::vector<f64> cumsum_a_data_start_from; cumsum_a_data_start_from.resize(natoms * 3);
+	std::vector<f64> cumsum_f_data; cumsum_f_data.resize(natoms * 3); std::vector<f64> cumsum_f_data_start_from; cumsum_f_data_start_from.resize(natoms * 3);
  
 +	std::vector<f64> cumsum_v_data_preloop; cumsum_v_data_preloop.resize(natoms * 3);
 +	std::vector<f64> cumsum_a_data_preloop; cumsum_a_data_preloop.resize(natoms * 3);
@@ -141,7 +141,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	int64_t gas_atom_went_down_out_from_membrane = 0,
  			gas_atom_went_up_into_memrane = 0,
  			gas_atom_went_down_into_membrane = 0,
-@@ -5759,14 +5814,23 @@
+@@ -5759,24 +5814,33 @@
  			}
  		}
  
@@ -156,6 +156,16 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 +
  			this->ReadTrajectoryFrameAtom(it1);
  
+			if (loop == start_from)
+			{
+				for (i32s t4 = 0;t4 < 3;t4++)
+				{
+					cumsum_v_data_start_from[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
+					cumsum_a_data_start_from[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
+					cumsum_f_data_start_from[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
+				}
+			}
+
  			for (i32s t4 = 0;t4 < 3;t4++)
  			{
 +				cumsum_v_data_preloop[3 * ind + t4] = cumsum_v_data[3 * ind + t4];
@@ -166,9 +176,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				v_data[3 * ind + t4] = this->traj_frame_vdata[t4];
  				a_data[3 * ind + t4] = this->traj_frame_adata[t4];
 @@ -5775,18 +5839,78 @@
- 				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4];
- 				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4];
- 				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4];
+				cumsum_v_data[3 * ind + t4] = this->traj_frame_cumsum_vdata[t4] - cumsum_v_data_start_from[3 * ind + t4];
+				cumsum_a_data[3 * ind + t4] = this->traj_frame_cumsum_adata[t4] - cumsum_a_data_start_from[3 * ind + t4];
+				cumsum_f_data[3 * ind + t4] = this->traj_frame_cumsum_fdata[t4] - cumsum_f_data_start_from[3 * ind + t4];
 +
 +				if (fabs(f_data[3 * ind + t4] / m_data[ind] + a_data[3 * ind + t4]) > 1e-3)
 +				{
