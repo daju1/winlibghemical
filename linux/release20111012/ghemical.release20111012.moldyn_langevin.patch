@@ -11,8 +11,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::DoMolDyn(moldyn_param & param, bool updt)
  {
  // make this thread-safe since this can be called from project::process_job_WhatEver() at the app side...
-@@ -3748,6 +3751,7 @@
+@@ -3748,6 +3751,8 @@
  	str1 << "cbT= " << param.constant_T_Berendsen << " ";
++	str1 << "clT= " << param.constant_T_Langevin << " ";
  	str1 << "cnhT= " << param.constant_T_NoseHoover << " ";
  	str1 << "cP= " << param.constant_P << " ";
 +	str1 << "LA= " << param.langevin << " ";
