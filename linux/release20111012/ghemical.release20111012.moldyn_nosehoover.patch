@@ -1,3 +1,69 @@
+diff -Nur ./libghemical-3.0.0.original/po/POTFILES.in ./libghemical-3.0.0/po/POTFILES.in
+--- ./libghemical-3.0.0.original/po/POTFILES.in	2025-01-08 14:06:54.723545191 +0000
++++ ./libghemical-3.0.0/po/POTFILES.in	2025-01-08 14:11:42.799539213 +0000
+@@ -22,6 +22,7 @@
+ src/model.cpp
+ src/moldyn.cpp
+ src/moldyn_langevin.cpp
++src/moldyn_nosehoover.cpp
+ src/notice.cpp
+ src/pop_ana.cpp
+ src/resonance.cpp
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.am ./libghemical-3.0.0/src/Makefile.am
+--- ./libghemical-3.0.0.original/src/Makefile.am	2025-01-08 14:06:54.723545191 +0000
++++ ./libghemical-3.0.0/src/Makefile.am	2025-01-08 14:12:24.707538343 +0000
+@@ -51,6 +51,7 @@
+ 	geomopt.cpp \
+ 	moldyn.cpp \
+ 	moldyn_langevin.cpp \
++	moldyn_nosehoover.cpp \
+ 	pop_ana.cpp \
+ 	sasaeval.cpp \
+ 	resonance.cpp
+@@ -95,6 +96,7 @@
+ 	geomopt.h \
+ 	moldyn.h \
+ 	moldyn_langevin.h \
++	moldyn_nosehoover.h \
+ 	pop_ana.h \
+ 	sasaeval.h \
+ 	resonance.h
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
+--- ./libghemical-3.0.0.original/src/Makefile.in	2025-01-08 19:50:17.799117625 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2025-01-09 01:13:26.134715268 +0000
+@@ -80,7 +80,7 @@
+ 	eng1_mm_default.lo eng1_mm_default_nbt_wbp.lo tab_mm_default.lo eng1_mm_prmfit.lo \
+ 	tab_mm_prmfit.lo eng1_sf.lo eng1_sf_ua.lo eng1_sf_cg.lo \
+ 	eng2_qm_mm.lo notice.lo conjgrad.lo intcrd.lo search.lo \
+-	boundary_opt.lo geomopt.lo moldyn.lo moldyn_langevin.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
++	boundary_opt.lo geomopt.lo moldyn.lo moldyn_langevin.lo moldyn_nosehoover.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
+ libghemical_la_OBJECTS = $(am_libghemical_la_OBJECTS)
+ libghemical_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+@@ -294,6 +294,7 @@
+ 	geomopt.cpp \
+ 	moldyn.cpp \
+ 	moldyn_langevin.cpp \
++	moldyn_nosehoover.cpp \
+ 	invnormaldistribution.cpp \
+ 	pop_ana.cpp \
+ 	sasaeval.cpp \
+@@ -339,6 +340,7 @@
+ 	geomopt.h \
+ 	moldyn.h \
+ 	moldyn_langevin.h \
++	moldyn_nosehoover.h \
+ 	invnormaldistribution.h \
+ 	pop_ana.h \
+ 	sasaeval.h \
+@@ -473,6 +475,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moldyn.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moldyn_langevin.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moldyn_nosehoover.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invnormaldistribution.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notice.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pop_ana.Plo@am__quote@
 diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engine.h
 --- ./libghemical-3.0.0.original/src/engine.h	2025-01-05 03:11:37.633740177 +0000
 +++ ./libghemical-3.0.0/src/engine.h	2025-01-06 17:32:09.550875665 +0000
@@ -11,9 +77,17 @@ diff -Nur ./libghemical-3.0.0.original/src/engine.h ./libghemical-3.0.0/src/engi
  	
  	friend class sasaeval;
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2025-01-05 03:11:37.633740177 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2025-01-06 20:50:36.442628567 +0000
-@@ -3601,7 +3601,13 @@
+--- ./libghemical-3.0.0.original/src/model.cpp	2025-01-08 19:50:17.895117623 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2025-01-08 22:54:38.702888083 +0000
+@@ -38,6 +38,7 @@
+ #include "geomopt.h"
+ #include "moldyn.h"
+ #include "moldyn_langevin.h"
++#include "moldyn_nosehoover.h"
+ #include "search.h"
+ 
+ #include "utility.h"
+@@ -3602,7 +3603,13 @@
  
  	CopyCRD(this, eng, 0);
  
@@ -28,7 +102,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  
  	bool trajectory_file_already_exists = false;
  	bool nose_hoover_file_already_exists = false;
-@@ -3651,7 +3657,7 @@
+@@ -3652,7 +3659,7 @@
  
  		total_nh_frames = total_nosehoover_frames - n_frames_trim;
  
@@ -37,7 +111,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		nhfile2.close();
  	}
  
-@@ -3663,7 +3669,7 @@
+@@ -3664,7 +3671,7 @@
  		current_nosehoover_frame = n1;
  
  			nhfile2.open(NoseHooverFileName(filename2.str().c_str()), ios::out | ios::binary | ios::app);
@@ -46,7 +120,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			nhfile2.close();
  		}
  	}
-@@ -3762,10 +3768,12 @@
+@@ -3764,10 +3771,12 @@
  		CalcMaxMinCoordinates(this, eng, 0);
  	
  	moldyn * dyn = NULL;
@@ -62,7 +136,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  #if USE_BOUNDARY_OPT_ON_MOLDYN
  	boundary_opt * b_opt = NULL;
  	if (param.box_optimization)
-@@ -3792,7 +3800,7 @@
+@@ -3794,7 +3803,7 @@
  	}
  
  	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
@@ -71,7 +145,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	{
  		nhfile.open(NoseHooverFileName(param.filename), ios_base::out | ios_base::in);  // will not create file
  		if (nhfile.is_open())
-@@ -3885,14 +3893,14 @@
+@@ -3887,14 +3896,14 @@
  		ofile.close();
  	}
  
@@ -89,7 +163,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			CloseNoseHoover();
  		}
  		else
-@@ -3901,7 +3909,7 @@
+@@ -3903,7 +3912,7 @@
  
  			const int total_frames = tot_nsteps / frame_save_frq;
  
@@ -98,7 +172,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  			nhfile.close();
  		}
  	}
-@@ -4068,11 +4076,11 @@
+@@ -4070,11 +4079,11 @@
  			WriteTrajectoryFrame(ofile, dyn);
  			ofile.close();
  
@@ -113,7 +187,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  				nhfile.close();
  			}
  		}
-@@ -5986,7 +5994,7 @@
+@@ -5988,7 +5997,7 @@
  	return GetNoseHooverTemperatureControlParamsSize();
  }
  
@@ -122,7 +196,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  {
  	size_t place = GetNoseHooverHeaderSize();						// skip the header...
  	size_t nosehoover_frame_size = GetNoseHooverFrameSize();
-@@ -6032,7 +6040,7 @@
+@@ -6034,7 +6043,7 @@
  	}
  }
  
@@ -172,9 +246,17 @@ diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model
  	void CloseNoseHoover(void);
  
 diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
---- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-05 03:11:37.633740177 +0000
-+++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-06 21:03:51.338612071 +0000
-@@ -30,6 +30,7 @@
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-08 19:50:17.823117624 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-08 23:02:16.870878575 +0000
+@@ -19,6 +19,7 @@
+ /*################################################################################################*/
+ 
+ #include "moldyn.h"
++#include "moldyn_nosehoover.h"
+ #include "invnormaldistribution.h"
+ 
+ #include "atom.h"
+@@ -30,6 +31,7 @@
  
  #define T_BUFF_SIZE	500
  
@@ -182,7 +264,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  /*################################################################################################*/
  
  moldyn::moldyn(engine * p1, f64 p2)
-@@ -42,8 +43,6 @@
+@@ -42,8 +44,6 @@
  	vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
  	acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
  
@@ -191,7 +273,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  	cumsum_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
  	cumsum_acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
  	cumsum_f   = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
-@@ -80,8 +79,6 @@
+@@ -80,8 +80,6 @@
  			vel[counter * 3 + n1] = 0.0;
  			acc[counter * 3 + n1] = 0.0;
  
@@ -200,7 +282,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  			cumsum_vel[counter * 3 + n1] = 0.0;
  			cumsum_acc[counter * 3 + n1] = 0.0;
  			cumsum_f  [counter * 3 + n1] = 0.0;
-@@ -100,21 +97,12 @@
+@@ -100,21 +98,12 @@
  	target_pressure = 1.000;	// [bar]
  	pressure_rtime = 1000.0;	// [fs] ; should be > 100x timestep.
  	isoth_compr = 4.57e-5;		// [1/bar]
@@ -222,10 +304,238 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
  
  	delete[] cumsum_vel;
  	delete[] cumsum_acc;
-@@ -125,6 +113,47 @@
- 	delete[] locked;
+@@ -137,11 +126,6 @@
+ 	calc_inv_Q_mass();
  }
  
+-void moldyn::calc_inv_Q_mass()
+-{
+-	inv_Q_mass =
+-		1.0 / ((temperature_rtime / M_2PI) * (temperature_rtime / M_2PI) * target_temperature);
+-}
+ 
+ void moldyn::MaxwellDistribution(f64 Temp, bool inverse_time)
+ {
+@@ -158,7 +142,7 @@
+ 	}
+ }
+ 
+-void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_pressure_control, bool enable_NoseHoover_temperature_control)
++void moldyn_old::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_pressure_control, bool enable_NoseHoover_temperature_control)
+ {
+ 	// https://en.wikipedia.org/wiki/Leapfrog_integration
+ 
+@@ -427,26 +411,6 @@
+ 	ForceModelMomentumToZero();
+ }
+ 
+-void moldyn::setNoseHooverFactor(f64 factorNH)
+-{
+-	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+-	{
+-		if (locked[n1])
+-		{
+-			vel[n1 * 3 + 0] = 0.0;
+-			vel[n1 * 3 + 1] = 0.0;
+-			vel[n1 * 3 + 2] = 0.0;
+-		}
+-		else
+-		{
+-			for (i32s dim = 0; dim < 3; ++dim)
+-			{
+-				vel            [n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
+-				cumsum_noho_vel[n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
+-			}
+-		}
+-	}
+-}
+ 
+ void moldyn::ForceModelMomentumToZero()
+ {
+@@ -479,51 +443,6 @@
+ 	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
+ }
+ 
+-void moldyn::loadNoseHooverTemperatureControlParams(model * mdl)
+-{
+-	nosehoover_xi  = mdl->nosehoover_frame_data[0];
+-	nosehoover_vxi = mdl->nosehoover_frame_data[1];
+-
+-	printf("loadNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
+-}
+-
+-void moldyn::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version)
+-{
+-	char file_id[10];
+-	snprintf(file_id, 9, "noho_v%02d", version);
+-	cout << "file_id = \"" << file_id << "\"" << endl;
+-
+-	ofile.write((char *) file_id, 8);					// file id, 8 chars.
+-	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
+-	ofile.write((char *) & num_tcoupling_groups, sizeof(num_tcoupling_groups));		// number of tcoupling groups, int.
+-	ofile.write((char *) & nosehoover_reserved, sizeof(nosehoover_reserved));
+-}
+-
+-void moldyn::saveNoseHooverTemperatureControlParams(long_ofstream & ofile)
+-{
+-	printf("saveNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
+-
+-	ofile.write((char *) & nosehoover_xi, sizeof(nosehoover_xi));
+-	ofile.write((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
+-}
+-
+-void moldyn::saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version)
+-{
+-	f64 t1a;
+-	const int number_of_atoms = eng->GetAtomCount();
+-	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
+-	{
+-		if (2 == nosehoover_version)
+-		{
+-			for (i32s tt2 = 0;tt2 < 3;tt2++)
+-			{
+-				t1a = cumsum_noho_vel[tt1 * 3 + tt2];
+-				ofile.write((char *) & t1a, sizeof(t1a));
+-			}
+-		}
+-	}
+-}
+-
+ molgroup::molgroup(enum molgrouptype _molgrouptype)
+ {
+ 	molgrouptype = _molgrouptype;
+@@ -754,14 +673,6 @@
+ 	}
+ }
+ 
+-void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number)
+-{
+-	for (i32s tt2 = 0;tt2 < 3;tt2++)
+-	{
+-		dyn->cumsum_noho_vel[atom_number * 3 + tt2] = mdl->noho_frame_cumsum_vdata[tt2];
+-	}
+-}
+-
+ /*################################################################################################*/
+ 
+ // eof
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-05 03:11:37.633740177 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2025-01-06 17:48:36.058855192 +0000
+@@ -73,6 +73,7 @@
+ 	bool maxwell_distribution_init;
+ 	bool inverse_time_init;
+ 
++	bool old;
+ 	bool nosehoover;
+ 	bool langevin;
+ 	
+@@ -113,6 +114,7 @@
+ 		constant_T_NoseHoover = true;
+ 		constant_P = false;
+ 
++		old = false;
+ 		langevin = false;
+ 		nosehoover = true;
+ 
+@@ -187,8 +189,6 @@
+ 	f64 * vel;			// [1.0e+3 m/s]
+ 	f64 * acc;			// [1.0e+12 m/s^2]
+ 
+-	f64 * cumsum_noho_vel;
+-
+ 	f64 * cumsum_vel;
+ 	f64 * cumsum_acc;
+ 	f64 * cumsum_f;
+@@ -216,14 +216,8 @@
+ 
+ 	f64 target_temperature;		// [K]
+ 	f64 temperature_rtime;		// [fs]
+-	f64 inv_Q_mass;
+-
+-	f64 nosehoover_xi;
+-	f64 nosehoover_vxi;
+-	i32s num_tcoupling_groups;
+-	i32s nosehoover_reserved;
+ 
+-	void calc_inv_Q_mass();
++	virtual void calc_inv_Q_mass() = 0;
+ 
+ 	public:
+ 
+@@ -231,11 +225,6 @@
+ 	f64 get_target_temperature() {return target_temperature;}
+ 	void set_temperature_rtime(f64);
+ 
+-	void loadNoseHooverTemperatureControlParams(model * mdl);
+-	void WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version);
+-	void saveNoseHooverTemperatureControlParams(long_ofstream & ofile);
+-	void saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version);
+-
+ 	f64 target_pressure;		// [bar]
+ 	f64 pressure_rtime;		// [fs]
+ 	f64 isoth_compr;		// [1/bar]
+@@ -253,7 +242,7 @@
+ 	f64 GetEKin(void) { return ekin; }
+ 	f64 GetEPot(void) { return epot; }
+ 	
+-	virtual void TakeMDStep(bool, bool, bool);
++	virtual void TakeMDStep(bool, bool, bool) = 0;
+ 	
+ 	f64 KineticEnergy(f64 * = NULL);
+ 	
+@@ -261,14 +250,12 @@
+ 	f64 ConvEKinTemp(f64);
+ 	
+ 	void SetEKin(f64);
+-	void setNoseHooverFactor(f64 factorNH);
+ 	void SumModelMomentum(f64 * sum_p);
+ 	void ForceModelMomentumToZero();
+ 	void ForceMoleculesMomentumToZero();
+ 
+ 	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
+ 	friend void CopyTrajectoryFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
+-	friend void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
+ };
+ 
+ /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/moldyn_nosehoover.cpp ./libghemical-3.0.0/src/moldyn_nosehoover.cpp
+--- ./libghemical-3.0.0.original/src/moldyn_nosehoover.cpp	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/moldyn_nosehoover.cpp	2025-01-09 01:43:09.754678253 +0000
+@@ -0,0 +1,351 @@
++// MOLDYN.CPP
++
++// Copyright (C) 1998 Tommi Hassinen.
++
++// This package is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++
++// This package is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License
++// along with this package; if not, write to the Free Software
++// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
++
++/*################################################################################################*/
++
++#include "moldyn.h"
++#include "moldyn_nosehoover.h"
++#include "invnormaldistribution.h"
++
++#include "atom.h"
++#include "model.h"
++
++#include <map>
++#include <sstream>
++using namespace std;
++
++#define T_BUFF_SIZE	500
++
 +
 +moldyn_nosehoover_base::moldyn_nosehoover_base(engine * p1, f64 p2)
 +	: moldyn(p1, p2)
@@ -267,85 +577,10 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +	delete[] cumsum_noho_vel;
 +}
 +
- void moldyn::set_target_temperature(f64 temperature)
- {
- 	target_temperature = temperature;
-@@ -137,7 +166,7 @@
- 	calc_inv_Q_mass();
- }
- 
--void moldyn::calc_inv_Q_mass()
 +void moldyn_nosehoover_base::calc_inv_Q_mass()
- {
- 	inv_Q_mass =
- 		1.0 / ((temperature_rtime / M_2PI) * (temperature_rtime / M_2PI) * target_temperature);
-@@ -158,7 +187,7 @@
- 	}
- }
- 
--void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_pressure_control, bool enable_NoseHoover_temperature_control)
-+void moldyn_old::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_pressure_control, bool enable_NoseHoover_temperature_control)
- {
- 	// https://en.wikipedia.org/wiki/Leapfrog_integration
- 
-@@ -427,7 +456,7 @@
- 	ForceModelMomentumToZero();
- }
- 
--void moldyn::setNoseHooverFactor(f64 factorNH)
-+void moldyn_nosehoover_base::setNoseHooverFactor(f64 factorNH)
- {
- 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
- 	{
-@@ -479,7 +508,7 @@
- 	//printf("ekin_3\t%f\t%f\t%f\t\t%f\n", ekin_1, ekin_2, ekin_3, ekin_3 - ekin_1);
- }
- 
--void moldyn::loadNoseHooverTemperatureControlParams(model * mdl)
-+void moldyn_nosehoover_base::loadNoseHooverTemperatureControlParams(model * mdl)
- {
- 	nosehoover_xi  = mdl->nosehoover_frame_data[0];
- 	nosehoover_vxi = mdl->nosehoover_frame_data[1];
-@@ -487,7 +516,7 @@
- 	printf("loadNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
- }
- 
--void moldyn::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version)
-+void moldyn_nosehoover_base::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version)
- {
- 	char file_id[10];
- 	snprintf(file_id, 9, "noho_v%02d", version);
-@@ -499,7 +528,7 @@
- 	ofile.write((char *) & nosehoover_reserved, sizeof(nosehoover_reserved));
- }
- 
--void moldyn::saveNoseHooverTemperatureControlParams(long_ofstream & ofile)
-+void moldyn_nosehoover_base::saveNoseHooverTemperatureControlParams(long_ofstream & ofile)
- {
- 	printf("saveNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
- 
-@@ -507,7 +536,7 @@
- 	ofile.write((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
- }
- 
--void moldyn::saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version)
-+void moldyn_nosehoover_base::saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version)
- {
- 	f64 t1a;
- 	const int number_of_atoms = eng->GetAtomCount();
-@@ -754,7 +783,7 @@
- 	}
- }
- 
--void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number)
-+void CopyNoseHooverFrameFromModel(model * mdl, moldyn_nosehoover_base * dyn, i32s atom_number)
- {
- 	for (i32s tt2 = 0;tt2 < 3;tt2++)
- 	{
-@@ -984,6 +1013,200 @@
- 	}
- 
- 	step_counter++;
++{
++	inv_Q_mass =
++		1.0 / ((temperature_rtime / M_2PI) * (temperature_rtime / M_2PI) * target_temperature);
 +}
 +
 +/*################################################################################################*/
@@ -363,6 +598,81 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +
 +moldyn_nosehoover::~moldyn_nosehoover(void)
 +{
++}
++
++
++void moldyn_nosehoover_base::setNoseHooverFactor(f64 factorNH)
++{
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		if (locked[n1])
++		{
++			vel[n1 * 3 + 0] = 0.0;
++			vel[n1 * 3 + 1] = 0.0;
++			vel[n1 * 3 + 2] = 0.0;
++		}
++		else
++		{
++			for (i32s dim = 0; dim < 3; ++dim)
++			{
++				vel            [n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
++				cumsum_noho_vel[n1 * 3 + dim] -= factorNH * vel[n1 * 3 + dim];
++			}
++		}
++	}
++}
++
++void moldyn_nosehoover_base::loadNoseHooverTemperatureControlParams(model * mdl)
++{
++	nosehoover_xi  = mdl->nosehoover_frame_data[0];
++	nosehoover_vxi = mdl->nosehoover_frame_data[1];
++
++	printf("loadNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
++}
++
++void moldyn_nosehoover_base::WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version)
++{
++	char file_id[10];
++	snprintf(file_id, 9, "noho_v%02d", version);
++	cout << "file_id = \"" << file_id << "\"" << endl;
++
++	ofile.write((char *) file_id, 8);					// file id, 8 chars.
++	ofile.write((char *) & total_frames, sizeof(total_frames));		// total number of frames, int.
++	ofile.write((char *) & num_tcoupling_groups, sizeof(num_tcoupling_groups));		// number of tcoupling groups, int.
++	ofile.write((char *) & nosehoover_reserved, sizeof(nosehoover_reserved));
++}
++
++void moldyn_nosehoover_base::saveNoseHooverTemperatureControlParams(long_ofstream & ofile)
++{
++	printf("saveNoseHooverTemperatureControlParams xi=%f, vxi=%f\n", nosehoover_xi, nosehoover_vxi);
++
++	ofile.write((char *) & nosehoover_xi, sizeof(nosehoover_xi));
++	ofile.write((char *) & nosehoover_vxi, sizeof(nosehoover_vxi));
++}
++
++void moldyn_nosehoover_base::saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version)
++{
++	f64 t1a;
++	const int number_of_atoms = eng->GetAtomCount();
++	for (i32s tt1 = 0;tt1 < number_of_atoms;tt1++)
++	{
++		if (2 == nosehoover_version)
++		{
++			for (i32s tt2 = 0;tt2 < 3;tt2++)
++			{
++				t1a = cumsum_noho_vel[tt1 * 3 + tt2];
++				ofile.write((char *) & t1a, sizeof(t1a));
++			}
++		}
++	}
++}
++
++void CopyNoseHooverFrameFromModel(model * mdl, moldyn_nosehoover_base * dyn, i32s atom_number)
++{
++	for (i32s tt2 = 0;tt2 < 3;tt2++)
++	{
++		dyn->cumsum_noho_vel[atom_number * 3 + tt2] = mdl->noho_frame_cumsum_vdata[tt2];
++	}
 +}
 +
 +void moldyn_nosehoover::TakeMDStep(bool enable_temperature_control, bool enable_pressure_control, bool)
@@ -540,88 +850,16 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +	}
 +
 +	step_counter++;
- }
- 
- /*################################################################################################*/
-diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
---- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-05 03:11:37.633740177 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2025-01-06 17:48:36.058855192 +0000
-@@ -73,6 +73,7 @@
- 	bool maxwell_distribution_init;
- 	bool inverse_time_init;
- 
-+	bool old;
- 	bool nosehoover;
- 	bool langevin;
- 	
-@@ -113,6 +114,7 @@
- 		constant_T_NoseHoover = true;
- 		constant_P = false;
- 
-+		old = false;
- 		langevin = false;
- 		nosehoover = true;
- 
-@@ -187,8 +189,6 @@
- 	f64 * vel;			// [1.0e+3 m/s]
- 	f64 * acc;			// [1.0e+12 m/s^2]
- 
--	f64 * cumsum_noho_vel;
--
- 	f64 * cumsum_vel;
- 	f64 * cumsum_acc;
- 	f64 * cumsum_f;
-@@ -216,14 +216,8 @@
- 
- 	f64 target_temperature;		// [K]
- 	f64 temperature_rtime;		// [fs]
--	f64 inv_Q_mass;
- 
--	f64 nosehoover_xi;
--	f64 nosehoover_vxi;
--	i32s num_tcoupling_groups;
--	i32s nosehoover_reserved;
--
--	void calc_inv_Q_mass();
-+	virtual void calc_inv_Q_mass() = 0;
- 
- 	public:
- 
-@@ -231,11 +225,6 @@
- 	f64 get_target_temperature() {return target_temperature;}
- 	void set_temperature_rtime(f64);
- 
--	void loadNoseHooverTemperatureControlParams(model * mdl);
--	void WriteNoseHooverHeader(long_ofstream & ofile, int total_frames, int version);
--	void saveNoseHooverTemperatureControlParams(long_ofstream & ofile);
--	void saveNoseHooverFrame(long_ofstream& ofile, i32s nosehoover_version);
--
- 	f64 target_pressure;		// [bar]
- 	f64 pressure_rtime;		// [fs]
- 	f64 isoth_compr;		// [1/bar]
-@@ -253,7 +242,7 @@
- 	f64 GetEKin(void) { return ekin; }
- 	f64 GetEPot(void) { return epot; }
- 	
--	virtual void TakeMDStep(bool, bool, bool);
-+	virtual void TakeMDStep(bool, bool, bool) = 0;
- 	
- 	f64 KineticEnergy(f64 * = NULL);
- 	
-@@ -261,16 +250,59 @@
- 	f64 ConvEKinTemp(f64);
- 	
- 	void SetEKin(f64);
--	void setNoseHooverFactor(f64 factorNH);
- 	void SumModelMomentum(f64 * sum_p);
- 	void ForceModelMomentumToZero();
- 	void ForceMoleculesMomentumToZero();
- 
- 	void SaveTrajectoryFrame(long_ofstream& ofile, i32s trajectory_version);
- 	friend void CopyTrajectoryFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
--	friend void CopyNoseHooverFrameFromModel(model * mdl, moldyn * dyn, i32s atom_number);
- };
- 
++}
++
++/*################################################################################################*/
++
+diff -Nur ./libghemical-3.0.0.original/src/moldyn_nosehoover.h ./libghemical-3.0.0/src/moldyn_nosehoover.h
+--- ./libghemical-3.0.0.original/src/moldyn_nosehoover.h	1970-01-01 00:00:00.000000000 +0000
++++ ./libghemical-3.0.0/src/moldyn_nosehoover.h	2025-01-08 13:41:11.547577216 +0000
+@@ -0,0 +1,72 @@
++/*################################################################################################*/
++
 +
 +class moldyn_nosehoover_base
 +	: public moldyn
@@ -667,21 +905,8 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +
 +
 +
- /*################################################################################################*/
- 
- /**	A molecular dynamics class for Langevin dynamics.
-@@ -286,6 +318,7 @@
- 	protected:
- 
- 	// eng1_sf * engsf;
-+	virtual void calc_inv_Q_mass(){}
- 
- 	public:
- 
-@@ -310,6 +343,30 @@
- 
- /*################################################################################################*/
- 
++/*################################################################################################*/
++
 +/**	A molecular dynamics class for Nose Hoover dynamics.
 + * 
 +*/
@@ -705,7 +930,3 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +
 +/*################################################################################################*/
 +
-+
- #endif	// MOLDYN_H
- 
- // eof

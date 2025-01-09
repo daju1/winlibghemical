@@ -1,7 +1,81 @@
+diff -Nur ./libghemical-3.0.0.original/po/POTFILES.in ./libghemical-3.0.0/po/POTFILES.in
+--- ./libghemical-3.0.0.original/po/POTFILES.in	2025-01-08 13:31:13.435589628 +0000
++++ ./libghemical-3.0.0/po/POTFILES.in	2025-01-08 13:57:47.423556549 +0000
+@@ -21,6 +21,7 @@
+ src/mfinder.cpp
+ src/model.cpp
+ src/moldyn.cpp
++src/moldyn_langevin.cpp
+ src/notice.cpp
+ src/pop_ana.cpp
+ src/resonance.cpp
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.am ./libghemical-3.0.0/src/Makefile.am
+--- ./libghemical-3.0.0.original/src/Makefile.am	2025-01-08 13:31:13.435589628 +0000
++++ ./libghemical-3.0.0/src/Makefile.am	2025-01-08 13:56:56.199557612 +0000
+@@ -50,6 +50,7 @@
+ 	boundary_opt.cpp \
+ 	geomopt.cpp \
+ 	moldyn.cpp \
++	moldyn_langevin.cpp \
+ 	pop_ana.cpp \
+ 	sasaeval.cpp \
+ 	resonance.cpp
+@@ -93,6 +94,7 @@
+ 	boundary_opt.h \
+ 	geomopt.h \
+ 	moldyn.h \
++	moldyn_langevin.h \
+ 	pop_ana.h \
+ 	sasaeval.h \
+ 	resonance.h
+diff -Nur ./libghemical-3.0.0.original/src/Makefile.in ./libghemical-3.0.0/src/Makefile.in
+--- ./libghemical-3.0.0.original/src/Makefile.in	2025-01-08 13:31:13.435589628 +0000
++++ ./libghemical-3.0.0/src/Makefile.in	2025-01-08 13:57:25.623557001 +0000
+@@ -80,7 +80,7 @@
+ 	eng1_mm_default.lo eng1_mm_default_nbt_wbp.lo tab_mm_default.lo eng1_mm_prmfit.lo \
+ 	tab_mm_prmfit.lo eng1_sf.lo eng1_sf_ua.lo eng1_sf_cg.lo \
+ 	eng2_qm_mm.lo notice.lo conjgrad.lo intcrd.lo search.lo \
+-	boundary_opt.lo geomopt.lo moldyn.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
++	boundary_opt.lo geomopt.lo moldyn.lo moldyn_langevin.lo invnormaldistribution.lo pop_ana.lo sasaeval.lo resonance.lo
+ libghemical_la_OBJECTS = $(am_libghemical_la_OBJECTS)
+ libghemical_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+@@ -293,6 +293,7 @@
+ 	boundary_opt.cpp \
+ 	geomopt.cpp \
+ 	moldyn.cpp \
++	moldyn_langevin.cpp \
+ 	invnormaldistribution.cpp \
+ 	pop_ana.cpp \
+ 	sasaeval.cpp \
+@@ -337,6 +338,7 @@
+ 	boundary_opt.h \
+ 	geomopt.h \
+ 	moldyn.h \
++	moldyn_langevin.h \
+ 	invnormaldistribution.h \
+ 	pop_ana.h \
+ 	sasaeval.h \
+@@ -470,6 +472,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfinder.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/model.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moldyn.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moldyn_langevin.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/invnormaldistribution.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notice.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pop_ana.Plo@am__quote@
 diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
---- ./libghemical-3.0.0.original/src/model.cpp	2025-01-03 20:35:46.754145194 +0000
-+++ ./libghemical-3.0.0/src/model.cpp	2025-01-03 23:59:44.530104314 +0000
-@@ -3701,6 +3701,9 @@
+--- ./libghemical-3.0.0.original/src/model.cpp	2025-01-08 19:07:52.875170439 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2025-01-08 19:10:52.979166701 +0000
+@@ -37,6 +37,7 @@
+ #include "boundary_opt.h"
+ #include "geomopt.h"
+ #include "moldyn.h"
++#include "moldyn_langevin.h"
+ #include "search.h"
+ 
+ #include "utility.h"
+@@ -3701,6 +3702,9 @@
  	ThreadUnlock();
  }
  
@@ -11,7 +85,9 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  void model::DoMolDyn(moldyn_param & param, bool updt)
  {
  // make this thread-safe since this can be called from project::process_job_WhatEver() at the app side...
-@@ -3748,6 +3751,8 @@
+@@ -3746,8 +3750,10 @@
+ 	str1 << "T= " << param.target_T << " (rt " << param.T_rtime_hc << " " << param.T_rtime_es << ") ";
+ 	str1 << "P= " << param.target_P << " (rt " << param.P_rtime << " beta " << param.P_beta << ") ";
  	str1 << "cbT= " << param.constant_T_Berendsen << " ";
 +	str1 << "clT= " << param.constant_T_Langevin << " ";
  	str1 << "cnhT= " << param.constant_T_NoseHoover << " ";
@@ -20,7 +96,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	str1 << endl << ends;
  	
  	PrintToLog(str1.str().c_str());
-@@ -3757,7 +3761,11 @@
+@@ -3757,7 +3763,11 @@
  	if (param.recalc_box && !maxMinCRDCalculed)
  		CalcMaxMinCoordinates(this, eng, 0);
  	
@@ -33,7 +109,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  #if USE_BOUNDARY_OPT_ON_MOLDYN
  	boundary_opt * b_opt = NULL;
  	if (param.box_optimization)
-@@ -3784,11 +3792,14 @@
+@@ -3784,11 +3794,14 @@
  	}
  
  	long_ofstream nhfile;		// NoseHooverTemperatureControlParams file...
@@ -52,12 +128,13 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  
  	f64 initial_T = 0.;		// initial temperature [K]
-@@ -3874,22 +3885,25 @@
+@@ -3874,22 +3887,25 @@
  		ofile.close();
  	}
  
 -	if (nose_hoover_file_already_exists)
--	{
++	if (param.nosehoover)
+ 	{
 -		OpenNoseHoover(param.filename);
 -		current_nosehoover_frame = total_nosehoover_frames - 1;
 -		ReadNoseHooverFrame(dyn);
@@ -65,8 +142,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
 -		CloseNoseHoover();
 -	}
 -	else
-+	if (param.nosehoover)
- 	{
+-	{
 -		nhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary);
 +		if (nose_hoover_file_already_exists)
 +		{
@@ -91,7 +167,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	}
  	
  	ThreadUnlock();
-@@ -3927,6 +3941,10 @@
+@@ -3927,6 +3943,10 @@
  		if (n1 == 0)
  		{
  			dyn->set_temperature_rtime(param.T_rtime_hc);
@@ -102,7 +178,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		}
  		
  	// check if entering equilibration stage.
-@@ -3934,12 +3952,23 @@
+@@ -3934,12 +3954,23 @@
  		{
  			dyn->set_target_temperature(param.target_T);
  			dyn->set_temperature_rtime(param.T_rtime_es);
@@ -126,7 +202,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  	//	}
  		
  	// check if T adjustment is needed at heating stage.
-@@ -3950,6 +3979,11 @@
+@@ -3950,6 +3981,11 @@
  			
  			dyn->set_target_temperature(initial_T + (param.target_T - initial_T) * ((f64) tmp1 / (f64) tmp2));
  			cout << _("setting T = ") << dyn->get_target_temperature() << endl;
@@ -138,7 +214,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		}
  		
  	// check if T adjustment is needed at cooling stage.
-@@ -3967,6 +4001,7 @@
+@@ -3967,6 +4003,7 @@
  		if (n1 < param.nsteps_h + param.nsteps_e) enable_bTc = true;			// heating/equilibration
  		//if (n1 >= param.nsteps_h + param.nsteps_e + param.nsteps_s) enable_bTc = true;	// cooling
  		if (param.constant_T_Berendsen) enable_bTc = true;
@@ -146,7 +222,7 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		if (param.constant_T_NoseHoover) enable_nhTc = true;
  		
  		bool enable_Pc = param.constant_P;
-@@ -4033,10 +4068,13 @@
+@@ -4033,10 +4070,13 @@
  			WriteTrajectoryFrame(ofile, dyn);
  			ofile.close();
  
@@ -164,13 +240,87 @@ diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/mod
  		}
  
  	// check if log/progressbar output should be made.
-diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
---- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-03 20:35:46.754145194 +0000
-+++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-04 01:20:02.150088221 +0000
-@@ -764,4 +764,228 @@
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-08 13:31:13.435589628 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2025-01-08 13:47:08.751569803 +0000
+@@ -24,6 +24,7 @@
+ class moldyn_param;
+ 
+ class moldyn;
++class moldyn_langevin;
  
  /*################################################################################################*/
  
+@@ -64,12 +65,16 @@
+ 	f64 P_rtime;		// pressure relaxation time [fs]
+ 	f64 P_beta;		// isothermal compressibility [1/bar]
+ 	
++	bool constant_T_Langevin;
+ 	bool constant_T_Berendsen;
+ 	bool constant_T_NoseHoover;
+ 	bool constant_P;
+ 
+ 	bool maxwell_distribution_init;
+ 	bool inverse_time_init;
++
++	bool nosehoover;
++	bool langevin;
+ 	
+ 	char filename[256];
+ 
+@@ -104,9 +109,13 @@
+ 		P_beta = 4.57e-5;
+ 		
+ 		constant_T_Berendsen = false;
++		constant_T_Langevin = false;
+ 		constant_T_NoseHoover = true;
+ 		constant_P = false;
+ 
++		langevin = false;
++		nosehoover = true;
++
+ 		maxwell_distribution_init = true;
+ 		inverse_time_init = false;
+ 
+diff -Nur ./libghemical-3.0.0/src/moldyn_langevin.cpp ./libghemical-3.0.0/src/moldyn_langevin.cpp
+--- null
++++ ./libghemical-3.0.0/src/moldyn_langevin.cpp	2025-01-08 13:43:23.175574484 +0000
+@@ -0,0 +1,258 @@
++// MOLDYN.CPP
++
++// Copyright (C) 1998 Tommi Hassinen.
++
++// This package is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++
++// This package is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License
++// along with this package; if not, write to the Free Software
++// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
++
++/*################################################################################################*/
++
++#include "moldyn.h"
++#include "moldyn_langevin.h"
++#include "invnormaldistribution.h"
++
++#include "atom.h"
++#include "model.h"
++
++#include <map>
++#include <sstream>
++using namespace std;
++
++#define T_BUFF_SIZE	500
++
++/*################################################################################################*/
++
 +moldyn_langevin::moldyn_langevin(engine * p1, f64 p2) : moldyn(p1, p2)
 +{
 +	if (num_locked != 0)
@@ -394,54 +544,11 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/mo
 +}
 +
 +/*################################################################################################*/
-+
- // eof
-diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
---- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-03 20:35:46.750145194 +0000
-+++ ./libghemical-3.0.0/src/moldyn.h	2025-01-03 21:58:19.426128650 +0000
-@@ -24,6 +24,7 @@
- class moldyn_param;
- 
- class moldyn;
-+class moldyn_langevin;
- 
- /*################################################################################################*/
- 
-@@ -64,12 +65,16 @@
- 	f64 P_rtime;		// pressure relaxation time [fs]
- 	f64 P_beta;		// isothermal compressibility [1/bar]
- 	
-+	bool constant_T_Langevin;
- 	bool constant_T_Berendsen;
- 	bool constant_T_NoseHoover;
- 	bool constant_P;
- 
- 	bool maxwell_distribution_init;
- 	bool inverse_time_init;
-+
-+	bool nosehoover;
-+	bool langevin;
- 	
- 	char filename[256];
- 
-@@ -104,9 +109,13 @@
- 		P_beta = 4.57e-5;
- 		
- 		constant_T_Berendsen = false;
-+		constant_T_Langevin = false;
- 		constant_T_NoseHoover = true;
- 		constant_P = false;
- 
-+		langevin = false;
-+		nosehoover = true;
-+
- 		maxwell_distribution_init = true;
- 		inverse_time_init = false;
- 
-@@ -263,6 +272,43 @@
- };
- 
- /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0/src/moldyn_langevin.h ./libghemical-3.0.0/src/moldyn_langevin.h
+--- null
++++ ./libghemical-3.0.0/src/moldyn_langevin.h	2025-01-08 13:39:33.299579255 +0000
+@@ -0,0 +1,39 @@
++/*################################################################################################*/
 +
 +/**	A molecular dynamics class for Langevin dynamics.
 +	
@@ -456,6 +563,7 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +	protected:
 +
 +	// eng1_sf * engsf;
++	virtual void calc_inv_Q_mass(){}
 +
 +	public:
 +
@@ -479,6 +587,3 @@ diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/mold
 +};
 +
 +/*################################################################################################*/
- 
- #endif	// MOLDYN_H
- 
