@@ -1,0 +1,15 @@
+diff -Nur ./ghemical-3.0.0.original/src/project.cpp ./ghemical-3.0.0/src/project.cpp
+--- ./ghemical-3.0.0.original/src/project.cpp	2025-01-16 11:00:28.550711717 +0000
++++ ./ghemical-3.0.0/src/project.cpp	2025-01-16 11:11:35.070697885 +0000
+@@ -1774,6 +1774,11 @@
+ 		return;
+ 	}
+ 
++	if (!strcmp("make_all_conjugate_carbon_bonds", kw1))
++	{
++		this->MakeAllConjugateCarbonBonds();
++	}
++
+ 	if (!strcmp("sel_atoms_with_flag", kw1))
+ 	{
+ 		char kw2[32]; istr >> kw2;	

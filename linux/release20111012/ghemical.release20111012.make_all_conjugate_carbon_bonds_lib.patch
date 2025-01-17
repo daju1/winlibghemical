@@ -1,0 +1,67 @@
+diff -Nur ./libghemical-3.0.0.original/src/bond.h ./libghemical-3.0.0/src/bond.h
+--- ./libghemical-3.0.0.original/src/bond.h	2025-01-16 11:00:28.558711717 +0000
++++ ./libghemical-3.0.0/src/bond.h	2025-01-16 11:08:03.106702284 +0000
+@@ -81,6 +81,7 @@
+ 	void operator--(void);
+ 	
+ //	friend ostream & operator<<(ostream &, bondtype &);	this is not needed...
++	void SetType(i32s t) { type = t; }
+ };
+ 
+ /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2025-01-16 11:00:28.558711717 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2025-01-17 22:01:52.210497434 +0000
+@@ -1312,6 +1312,41 @@
+ }
+ 
+ /*##############################################*/
++
++void model::MakeAllConjugateCarbonBonds()
++{
++	iter_bl itb;
++	bool iscarbon1;
++	bool iscarbon2;
++
++	UpdateIndex();
++
++	for (itb = this->GetBondsBegin();
++		itb != this->GetBondsEnd();
++		++itb)
++	{
++		atom * at1 = (* itb).atmr[0];
++		atom * at2 = (* itb).atmr[1];
++
++		iscarbon1 = 6 == at1->el.GetAtomicNumber();
++		iscarbon2 = 6 == at2->el.GetAtomicNumber();
++
++		if (iscarbon1 && iscarbon2)
++		{
++			if (at1->GetConnRecCount() == 3 && at2->GetConnRecCount() == 3)
++			{
++				(* itb).bt.SetType(0);
++			}
++			else
++			{
++				(* itb).bt.SetType(1);
++			}
++		}
++	}
++
++	UpdateAllGraphicsViews(true);
++}
++
+ /*##############################################*/
+ 
+ void model::MakeMoleculesGroups(std::list<struct molgroup>& molgroups)
+diff -Nur ./libghemical-3.0.0.original/src/model.h ./libghemical-3.0.0/src/model.h
+--- ./libghemical-3.0.0.original/src/model.h	2025-01-16 11:00:28.558711717 +0000
++++ ./libghemical-3.0.0/src/model.h	2025-01-16 11:04:27.566706757 +0000
+@@ -366,6 +366,7 @@
+ 	iter_al FindAtomByIndex(i32s);
+ 	iter_CDl FindAtomConstraint(atom &);
+ 	
++	void MakeAllConjugateCarbonBonds();
+ 	void MakeMoleculesGroups(std::list<struct molgroup>& molgroups);
+ 	
+ 	void GetRange(i32s, i32s, iter_al *);	///< This is just a default version of GetRange() using the full range of atom list iterators...
