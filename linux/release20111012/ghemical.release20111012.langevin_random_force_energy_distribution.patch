@@ -1,0 +1,290 @@
+diff -Nur ./libghemical-3.0.0.original/src/model.cpp ./libghemical-3.0.0/src/model.cpp
+--- ./libghemical-3.0.0.original/src/model.cpp	2025-01-31 10:43:35.603591614 +0000
++++ ./libghemical-3.0.0/src/model.cpp	2025-02-12 16:35:04.759112547 +0000
+@@ -3951,7 +3951,10 @@
+ 			nhfile.close();
+ 		}
+ 	}
+-	
++
++	i32s n1_start = n1;
++	dyn->SetPreviouseVel();
++
+ 	ThreadUnlock();
+ 	
+ 	double sum_pressure = 0.0;
+@@ -4123,6 +4126,18 @@
+ 			}
+ 		}
+ 
++	// check if langevin/histogram output should be made.
++		if (!(n1 % 100000 * frame_save_frq) && n1 > n1_start)
++		{
++			if (dyn_l != NULL)
++			{
++				//lhfile.open(NoseHooverFileName(param.filename), ios::out | ios::binary | ios::app);
++				dyn_l->PrintRandomForceEnergyDistribution(n1 - n1_start);
++				dyn_l->ResetPhotonTemperatureHist(); n1_start = n1;
++				//lhfile.close();
++			}
++		}
++
+ 	// check if log/progressbar output should be made.
+ 		if (!(n1 % 100))
+ 		{
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-31 10:43:35.599591614 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-31 11:12:36.799555480 +0000
+@@ -44,6 +44,9 @@
+ 	vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+ 	acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+ 
++	previouse_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
++	random_acc    = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
++
+ 	cumsum_vel = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+ 	cumsum_acc = new f64[eng->GetAtomCount() * 3];			// [1.0e+12 m/s^2]
+ 	cumsum_f   = new f64[eng->GetAtomCount() * 3];			// [1.0e+3 m/s]
+@@ -80,6 +83,8 @@
+ 			vel[counter * 3 + n1] = 0.0;
+ 			acc[counter * 3 + n1] = 0.0;
+ 
++			previouse_vel[counter * 3 + n1] = 0.0;
++
+ 			cumsum_vel[counter * 3 + n1] = 0.0;
+ 			cumsum_acc[counter * 3 + n1] = 0.0;
+ 			cumsum_f  [counter * 3 + n1] = 0.0;
+@@ -105,6 +110,9 @@
+ 	delete[] vel;
+ 	delete[] acc;
+ 
++	delete[] previouse_vel;
++	delete[] random_acc;
++
+ 	delete[] cumsum_vel;
+ 	delete[] cumsum_acc;
+ 	delete[] cumsum_f;
+@@ -382,6 +390,17 @@
+ 	return (2.0 / 3.0) * p1 * 1000.0 / ((eng->GetAtomCount() - num_locked) * 8.314510);
+ }
+ 
++void moldyn::SetPreviouseVel()
++{
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		for (i32s n2 = 0; n2 < 3; n2++)
++		{
++			previouse_vel[n1 * 3 + n2] = vel[n1 * 3 + n2];
++		}
++	}
++}
++
+ void moldyn::SetEKin(f64 p1)
+ {
+ 	f64 sum_p1[3];
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.h ./libghemical-3.0.0/src/moldyn.h
+--- ./libghemical-3.0.0.original/src/moldyn.h	2025-01-31 10:43:35.603591614 +0000
++++ ./libghemical-3.0.0/src/moldyn.h	2025-01-31 11:11:18.539557104 +0000
+@@ -189,6 +189,9 @@
+ 	f64 * vel;			// [1.0e+3 m/s]
+ 	f64 * acc;			// [1.0e+12 m/s^2]
+ 
++	f64 * previouse_vel;
++	f64 * random_acc;
++
+ 	f64 * cumsum_vel;
+ 	f64 * cumsum_acc;
+ 	f64 * cumsum_f;
+@@ -248,7 +251,9 @@
+ 	
+ 	f64 ConvTempEKin(f64);
+ 	f64 ConvEKinTemp(f64);
+-	
++
++	void SetPreviouseVel();
++
+ 	void SetEKin(f64);
+ 	void SumModelMomentum(f64 * sum_p);
+ 	void ForceModelMomentumToZero();
+diff -Nur ./libghemical-3.0.0.original/src/moldyn_langevin.cpp ./libghemical-3.0.0/src/moldyn_langevin.cpp
+--- ./libghemical-3.0.0.original/src/moldyn_langevin.cpp	2025-01-31 10:43:35.603591614 +0000
++++ ./libghemical-3.0.0/src/moldyn_langevin.cpp	2025-02-12 16:33:14.519114835 +0000
+@@ -32,6 +32,7 @@
+ #define T_BUFF_SIZE	500
+ 
+ /*################################################################################################*/
++i32s moldyn_langevin::N_degrees_in_temperature_hist = 10000;
+ 
+ moldyn_langevin::moldyn_langevin(engine * p1, f64 p2) : moldyn(p1, p2)
+ {
+@@ -54,6 +55,9 @@
+ 	langevin_weight = new f64[eng->GetAtomCount()];
+ 	langevin_frict = new f64[eng->GetAtomCount()];
+ 
++	photon_pos_temperature_hist = new f64[moldyn_langevin::N_degrees_in_temperature_hist];
++	photon_neg_temperature_hist = new f64[moldyn_langevin::N_degrees_in_temperature_hist];
++
+ 	i32s counter = 0;
+ 	while (counter < eng->GetAtomCount())
+ 	{
+@@ -88,6 +92,8 @@
+ 		langevin_weight[n1] = weight;
+ 		langevin_frict[n1] = weight * langevin_frict_fc;
+ 	}
++
++	ResetPhotonTemperatureHist();
+ }
+ 
+ moldyn_langevin::~moldyn_langevin(void)
+@@ -98,6 +104,15 @@
+ 	delete[] langevin_frict;
+ }
+ 
++void moldyn_langevin::ResetPhotonTemperatureHist()
++{
++	for (i32s n1 = 0; n1 < moldyn_langevin::N_degrees_in_temperature_hist; n1++)
++	{
++		photon_pos_temperature_hist[n1] = 0;
++		photon_neg_temperature_hist[n1] = 0;
++	}
++}
++
+ void moldyn_langevin::TakeMDStep(bool enable_temperature_control, bool, bool)
+ {
+ 	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
+@@ -215,15 +230,26 @@
+ 			// random forces...
+ 
+ 			f64 random_fc = langevin_random_fc / (tstep1 * mass[n1]);
+-			acc[n1 * 3 + 0] += (langevin_r_forces[n1 * 3 + 0] - net_random_x) * random_fc;
+-			acc[n1 * 3 + 1] += (langevin_r_forces[n1 * 3 + 1] - net_random_y) * random_fc;
+-			acc[n1 * 3 + 2] += (langevin_r_forces[n1 * 3 + 2] - net_random_z) * random_fc;
++			random_acc[n1 * 3 + 0] = (langevin_r_forces[n1 * 3 + 0] - net_random_x) * random_fc;
++			random_acc[n1 * 3 + 1] = (langevin_r_forces[n1 * 3 + 1] - net_random_y) * random_fc;
++			random_acc[n1 * 3 + 2] = (langevin_r_forces[n1 * 3 + 2] - net_random_z) * random_fc;
++
++			acc[n1 * 3 + 0] += random_acc[n1 * 3 + 0];
++			acc[n1 * 3 + 1] += random_acc[n1 * 3 + 1];
++			acc[n1 * 3 + 2] += random_acc[n1 * 3 + 2];
+ 		}
+ 
+ 		vel[n1 * 3 + 0] += tstep1 * acc[n1 * 3 + 0] * 0.5e-6;
+ 		vel[n1 * 3 + 1] += tstep1 * acc[n1 * 3 + 1] * 0.5e-6;
+ 		vel[n1 * 3 + 2] += tstep1 * acc[n1 * 3 + 2] * 0.5e-6;
++	}
++
++	CalcRandomForceEnergyDistribution();
+ 
++	SetPreviouseVel();
++	
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
+ 		for (i32s n2 = 0;n2 < 3;n2++)
+ 		{
+ 			cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
+@@ -255,4 +281,74 @@
+ 	step_counter++;
+ }
+ 
++void moldyn_langevin::CalcRandomForceEnergyDistribution()
++{
++	for (i32s n1 = 0;n1 < eng->GetAtomCount();n1++)
++	{
++		const f64 tmpX = 500.0 * mass[n1];
++
++		f64 energy_before = 0.0;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			const f64 tmp1 = previouse_vel[n1 * 3 + n2];
++			const f64 tmp2 = tmpX * tmp1 * tmp1;
++
++			energy_before += tmp2;
++		}
++
++		previouse_vel[n1 * 3 + 0] += tstep1 * random_acc[n1 * 3 + 0] * 1.0e-6;
++		previouse_vel[n1 * 3 + 1] += tstep1 * random_acc[n1 * 3 + 1] * 1.0e-6;
++		previouse_vel[n1 * 3 + 2] += tstep1 * random_acc[n1 * 3 + 2] * 1.0e-6;
++
++		f64 energy_after = 0.0;
++		for (i32s n2 = 0;n2 < 3;n2++)
++		{
++			const f64 tmp1 = previouse_vel[n1 * 3 + n2];
++			const f64 tmp2 = tmpX * tmp1 * tmp1;
++
++			energy_after += tmp2;
++		}
++
++		f64 energy_delta = energy_after - energy_before;
++// <Ekin> = 3/2 * k * T		// <Ekin> = <0.5 * m * v^2) = average kinetic energy of a molecule.
++	    f64 photon_temperature = (2.0 / 3.0) * energy_delta * 1000.0 / (8.314510);
++		// printf("energy_delta[%d] = %f photon_temperature = %f\n", n1, energy_delta, photon_temperature);
++		if (photon_temperature >= 0.0)
++		{
++			i32s i_photon_temperature = (i32s)(photon_temperature + 0.5);
++			if (i_photon_temperature < moldyn_langevin::N_degrees_in_temperature_hist)
++			{
++				photon_pos_temperature_hist[i_photon_temperature] += 1;
++			}
++		}
++		else
++		{
++			i32s i_photon_temperature = (i32s)(-photon_temperature - 0.5);
++			if (i_photon_temperature < moldyn_langevin::N_degrees_in_temperature_hist)
++			{
++				photon_neg_temperature_hist[i_photon_temperature] += 1;
++			}
++		}
++	}
++}
++
++void moldyn_langevin::PrintRandomForceEnergyDistribution(i32s nHistCallsNumber)
++{
++	printf("photon_pos_temperature_hist\n");
++	i32s i_photon_temperature = 0;
++	for ( ; i_photon_temperature < moldyn_langevin::N_degrees_in_temperature_hist;
++		++i_photon_temperature)
++	{
++		printf("%d %f\n", i_photon_temperature, photon_pos_temperature_hist[i_photon_temperature] / nHistCallsNumber);
++	}
++
++	printf("photon_neg_temperature_hist\n");
++	i_photon_temperature = 0;
++	for ( ; i_photon_temperature < moldyn_langevin::N_degrees_in_temperature_hist;
++		++i_photon_temperature)
++	{
++		printf("%d %f\n", i_photon_temperature, photon_neg_temperature_hist[i_photon_temperature] / nHistCallsNumber);
++	}
++}
++
+ /*################################################################################################*/
+diff -Nur ./libghemical-3.0.0.original/src/moldyn_langevin.h ./libghemical-3.0.0/src/moldyn_langevin.h
+--- ./libghemical-3.0.0.original/src/moldyn_langevin.h	2025-01-31 10:43:35.603591614 +0000
++++ ./libghemical-3.0.0/src/moldyn_langevin.h	2025-02-12 16:11:08.299142357 +0000
+@@ -15,6 +15,8 @@
+ 	// eng1_sf * engsf;
+ 	virtual void calc_inv_Q_mass(){}
+ 
++	void CalcRandomForceEnergyDistribution();
++
+ 	public:
+ 
+ 	f64 * langevin_r_forces;
+@@ -28,12 +30,18 @@
+ 	f64 * langevin_weight;
+ 	f64 * langevin_frict;
+ 
++	f64 * photon_pos_temperature_hist;
++	f64 * photon_neg_temperature_hist;
++	static i32s N_degrees_in_temperature_hist;
++
+ 	public:
+ 
+ 	moldyn_langevin(engine *, f64);
+ 	virtual ~moldyn_langevin(void);
+ 
+ 	virtual void TakeMDStep(bool, bool, bool);		// virtual...
++	void ResetPhotonTemperatureHist();
++	void PrintRandomForceEnergyDistribution(i32s nHistCallsNumber);
+ };
+ 
+ /*################################################################################################*/
