@@ -1,0 +1,217 @@
+--- ./libghemical-3.0.0.original/src/moldyn.cpp
++++ ./libghemical-3.0.0/src/moldyn.cpp
+@@ -21,6 +21,7 @@
+ #include "moldyn.h"
+ #include "moldyn_nosehoover.h"
+ #include "invnormaldistribution.h"
++#include "gravi_walls.h"	// GRAVI_WALLS (2026-11-06)
+ 
+ #include "atom.h"
+ #include "model.h"
+@@ -174,6 +175,9 @@
+ 		}
+ 	}
+ 	
++	// GRAVI_WALLS: тепловые стенки по z (ничего не делает без GW_ENABLE=1)
++	GW().walls(eng->crd, vel, mass, locked, eng->GetAtomCount());
++
+ 	const bool report_shake = !(step_counter % 1000);
+ 	eng->DoSHAKE(report_shake);
+ 	
+@@ -193,7 +197,7 @@
+ 			{
+ 				// calc a[i+1]
+ 				// v[i+1] = v[i+1/2] + a[i+1]*(dt/2)
+-				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
++				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1] + (n2 == 2 ? GW().gz() : 0.0);	// GRAVI_WALLS
+ 				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
+ 
+ 				cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
+@@ -340,6 +344,9 @@
+ 		saved_density = 0.001 * sum_of_masses / volume;		// kg/dm^3
+ 	}
+ 	
++	// GRAVI_WALLS: профиль T(z), тепло стенок
++	GW().sample_and_log(eng->crd, vel, mass, locked, eng->GetAtomCount(), tstep1);
++
+ 	step_counter++;
+ }
+ 
+--- ./libghemical-3.0.0.original/src/moldyn_nosehoover.cpp
++++ ./libghemical-3.0.0/src/moldyn_nosehoover.cpp
+@@ -21,6 +21,7 @@
+ #include "moldyn.h"
+ #include "moldyn_nosehoover.h"
+ #include "invnormaldistribution.h"
++#include "gravi_walls.h"	// GRAVI_WALLS (2026-11-06)
+ 
+ #include "atom.h"
+ #include "model.h"
+@@ -194,6 +195,9 @@
+ 		}
+ 	}
+ 
++	// GRAVI_WALLS: тепловые стенки по z (ничего не делает без GW_ENABLE=1)
++	GW().walls(eng->crd, vel, mass, locked, eng->GetAtomCount());
++
+ 	const bool report_shake = !(step_counter % 1000);
+ 	eng->DoSHAKE(report_shake);
+ 
+@@ -213,7 +217,7 @@
+ 			{
+ 				// calc a[i+1]
+ 				// v[i+1] = v[i+1/2] + a[i+1]*(dt/2)
+-				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1];
++				acc[n1 * 3 + n2] = -eng->d1[n1 * 3 + n2] / mass[n1] + (n2 == 2 ? GW().gz() : 0.0);	// GRAVI_WALLS
+ 				vel[n1 * 3 + n2] += tstep1 * acc[n1 * 3 + n2] * 0.5e-6;
+ 
+ 				cumsum_vel[n1 * 3 + n2] += vel[n1 * 3 + n2];
+@@ -344,6 +348,9 @@
+ 		saved_density = 0.001 * sum_of_masses / volume;		// kg/dm^3
+ 	}
+ 
++	// GRAVI_WALLS: профиль T(z), тепло стенок
++	GW().sample_and_log(eng->crd, vel, mass, locked, eng->GetAtomCount(), tstep1);
++
+ 	step_counter++;
+ }
+ 
+--- ./libghemical-3.0.0.original/src/gravi_walls.h
++++ ./libghemical-3.0.0/src/gravi_walls.h
+@@ -0,0 +1,136 @@
++// gravi_walls.h — однородная тяжесть вдоль z + тепловые стенки снизу/сверху
++// для проверки закона теплопроводности в поле тяжести (2026-11-06).
++//
++// Включается ТОЛЬКО переменной окружения GW_ENABLE=1; иначе ничего не делает,
++// и поведение программы не меняется.
++//
++// Переменные окружения (единицы ghemical: нм, 1e3 м/с, 1e12 м/с^2, К):
++//   GW_ENABLE=1
++//   GW_G      ускорение по z, 1e12 м/с^2 (отрицательное = вниз), по умолч. -6.0
++//   GW_ZLO    z нижней стенки, нм          (по умолч. -8.0)
++//   GW_ZHI    z верхней стенки, нм         (по умолч. +8.0)
++//   GW_TLO    температура нижней стенки, К (по умолч. 300)
++//   GW_THI    температура верхней стенки, К(по умолч. 300)
++//   GW_NBINS  число слоёв профиля          (по умолч. 16)
++//   GW_EVERY  писать строку лога каждые N шагов (по умолч. 1000)
++//   GW_OUT    файл лога                    (по умолч. gravi_walls.log)
++//   GW_SEED   зерно генератора             (по умолч. 12345)
++//
++// Стенки диффузные: атом, пересёкший стенку, отражается, и ему назначается
++// новая скорость из распределения потока Максвелла при температуре стенки.
++// Энергия, которую стенка при этом отдаёт газу, суммируется (Q_lo, Q_hi).
++// В объёме газа никакого термостата нет (запускать с -E).
++//
++// Лог: шаг, время [пс], Q_lo, Q_hi [кДж/моль, накопленно], число ударов,
++//      затем по слоям: z_центр, N_ср, T_ср [К]  (средние с начала записи),
++//      и кинетический поток энергии через середину столба [кДж/моль накопленно].
++
++#ifndef GRAVI_WALLS_H
++#define GRAVI_WALLS_H
++
++#include <cstdio>
++#include <cstdlib>
++#include <cmath>
++#include <vector>
++
++class gravi_walls
++{
++public:
++	bool on;
++	double g, zlo, zhi, Tlo, Thi;
++	int nbins, every;
++	long step;
++	double Qlo, Qhi; long hits_lo, hits_hi;
++	double Qmid;                       // кинетическая энергия, перенесённая через z_mid вверх (+) / вниз (-)
++	std::vector<double> sumE, sumN;    // по слоям: сумма 500*m*v^2 и число атомов
++	long nsamples;
++	std::vector<double> zprev;
++	FILE * out;
++	unsigned long long rng;
++
++	static double env(const char * k, double d) { const char * s = getenv(k); return s ? atof(s) : d; }
++
++	gravi_walls() : step(0), Qlo(0), Qhi(0), hits_lo(0), hits_hi(0), Qmid(0), nsamples(0), out(NULL)
++	{
++		const char * e = getenv("GW_ENABLE");
++		on = (e != NULL && atoi(e) != 0);
++		g = env("GW_G", -6.0); zlo = env("GW_ZLO", -8.0); zhi = env("GW_ZHI", 8.0);
++		Tlo = env("GW_TLO", 300.0); Thi = env("GW_THI", 300.0);
++		nbins = (int) env("GW_NBINS", 16); every = (int) env("GW_EVERY", 1000);
++		rng = (unsigned long long) env("GW_SEED", 12345) * 2862933555777941757ULL + 3037000493ULL;
++		sumE.assign(nbins, 0.0); sumN.assign(nbins, 0.0);
++		if (on)
++		{
++			const char * fn = getenv("GW_OUT"); out = fopen(fn ? fn : "gravi_walls.log", "w");
++			if (out) fprintf(out, "# GRAVI_WALLS g=%g zlo=%g zhi=%g Tlo=%g Thi=%g nbins=%d\n", g, zlo, zhi, Tlo, Thi, nbins);
++			printf("GRAVI_WALLS enabled: g=%g [1e12 m/s^2] walls z=%g..%g nm, T=%g/%g K\n", g, zlo, zhi, Tlo, Thi);
++		}
++	}
++	~gravi_walls() { if (out) fclose(out); }
++
++	double gz() const { return on ? g : 0.0; }
++
++	double uni() { rng = rng * 6364136223846793005ULL + 1442695040888963407ULL; return ((rng >> 11) + 0.5) * (1.0 / 9007199254740992.0); }
++	double gauss() { double u1 = uni(), u2 = uni(); return sqrt(-2.0 * log(u1)) * cos(6.283185307179586 * u2); }
++
++	// v в единицах 1e3 м/с: sigma = sqrt(R T / m)/1000, m в кг/моль
++	void thermal(double * v, double m, double T, int dir)
++	{
++		const double s = sqrt(8.314510 * T / m) / 1000.0;
++		v[0] = s * gauss(); v[1] = s * gauss();
++		v[2] = dir * s * sqrt(-2.0 * log(uni()));   // распределение потока: ~ v exp(-v^2/2s^2)
++	}
++
++	void walls(double * crd, double * vel, const double * mass, const char * locked, int n)
++	{
++		if (!on) return;
++		for (int i = 0; i < n; i++)
++		{
++			if (locked[i]) continue;
++			double * c = crd + 3 * i; double * v = vel + 3 * i;
++			if (c[2] < zlo || c[2] > zhi)
++			{
++				const bool lo = (c[2] < zlo);
++				const double e0 = 500.0 * mass[i] * (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
++				c[2] = lo ? 2.0 * zlo - c[2] : 2.0 * zhi - c[2];
++				thermal(v, mass[i], lo ? Tlo : Thi, lo ? +1 : -1);
++				const double e1 = 500.0 * mass[i] * (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
++				if (lo) { Qlo += e1 - e0; hits_lo++; } else { Qhi += e1 - e0; hits_hi++; }
++			}
++		}
++	}
++
++	void sample_and_log(const double * crd, const double * vel, const double * mass, const char * locked, int n, double dt_fs)
++	{
++		if (!on) return;
++		if ((int) zprev.size() != n) { zprev.assign(n, 0.0); for (int i = 0; i < n; i++) zprev[i] = crd[3*i+2]; }
++		const double zmid = 0.5 * (zlo + zhi), H = zhi - zlo;
++		for (int i = 0; i < n; i++)
++		{
++			if (locked[i]) continue;
++			const double * v = vel + 3 * i; const double z = crd[3*i+2];
++			const double e = 500.0 * mass[i] * (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
++			if (zprev[i] < zmid && z >= zmid) Qmid += e;
++			else if (zprev[i] >= zmid && z < zmid) Qmid -= e;
++			zprev[i] = z;
++			int b = (int) floor((z - zlo) / H * nbins);
++			if (b >= 0 && b < nbins) { sumE[b] += e; sumN[b] += 1.0; }
++		}
++		nsamples++; step++;
++		if (out && step % every == 0)
++		{
++			fprintf(out, "%ld %.6f %.6e %.6e %ld %ld %.6e", step, step * dt_fs * 1e-3, Qlo, Qhi, hits_lo, hits_hi, Qmid);
++			for (int b = 0; b < nbins; b++)
++			{
++				const double zc = zlo + (b + 0.5) * H / nbins;
++				const double T = sumN[b] > 0 ? (2.0 / 3.0) * sumE[b] * 1000.0 / (sumN[b] * 8.314510) : 0.0;
++				fprintf(out, " %.4f %.4f %.4f", zc, sumN[b] / nsamples, T);
++			}
++			fprintf(out, "\n"); fflush(out);
++		}
++	}
++};
++
++inline gravi_walls & GW() { static gravi_walls inst; return inst; }
++
++#endif
