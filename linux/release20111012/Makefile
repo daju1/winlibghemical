@@ -152,6 +152,7 @@ getcodes: untar
 	patch -p1 < ./ghemical.release20111012.make_all_conjugate_carbon_bonds_lib.patch
 	patch -p1 < ./ghemical.release20111012.make_all_conjugate_carbon_bonds_proj.patch
 	patch -p1 < ./ghemical.release20111012.langevin_random_force_energy_distribution.patch
+	patch -p1 < ./ghemical.release20111012.gravi_walls.patch
 
 cash:
 	mv ghemical-3.0.0    ghemical-3.0.0.cashed
