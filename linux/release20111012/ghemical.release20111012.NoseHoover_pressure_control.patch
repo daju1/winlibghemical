@@ -1,0 +1,49 @@
+diff -Nur ./libghemical-3.0.0.original/src/moldyn.cpp ./libghemical-3.0.0/src/moldyn.cpp
+--- ./libghemical-3.0.0.original/src/moldyn.cpp	2025-01-03 04:21:00.798340566 +0000
++++ ./libghemical-3.0.0/src/moldyn.cpp	2025-01-03 04:16:56.866341381 +0000
+@@ -158,7 +158,7 @@
+ 	}
+ }
+ 
+-void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_NoseHoover_temperature_control, bool enable_pressure_control)
++void moldyn::TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_NoseHoover_temperature_control, bool enable_Berendsen_pressure_control, bool enable_NoseHoover_pressure_and_temperature_control)
+ {
+ 	// https://en.wikipedia.org/wiki/Leapfrog_integration
+ 
+@@ -235,6 +235,15 @@
+ 		
+ 		SetEKin(ekin);
+ 	}
++	/* 3.5.4  Nose-Hoover Barostat
++		DLPOLY4 uses the Melchionna modification of the Nose-Hoover algorithm [62]
++		in which the equations of motion involve a Nose-Hoover thermostat
++		and a barostat in the same spirit. Additionally,as shown in [63],
++		a modification allowing for coupling between the thermostat and barostat is also introduced.*/
++	else if (enable_NoseHoover_pressure_and_temperature_control)
++	{
++
++	}
+ 	else if (enable_NoseHoover_temperature_control)
+ 	{
+ 		const f64 oldvxi = nosehoover_vxi;
+@@ -252,7 +261,7 @@
+ 	// the GROMACS manual (v3) ; www.gromacs.org / documentation / manuals
+ 	// https://manual.gromacs.org/documentation/2019-rc1/reference-manual/algorithms/molecular-dynamics.html#pressure-coupling
+ 	
+-	if (enable_pressure_control)
++	if (enable_Berendsen_pressure_control)
+ 	{
+ 		// the unit of virial is this:
+ 		// [nm] * [kJ / (mol * nm)] = [kJ/mol] ; the kilo must be handled.
+diff -Nur ./libghemical-3.0.0/src/moldyn.h ./libghemical-3.0.0.original/src/moldyn.h
+--- ./libghemical-3.0.0/src/moldyn.h	2025-01-03 04:16:56.870341381 +0000
++++ ./libghemical-3.0.0.original/src/moldyn.h	2025-01-03 04:27:06.738339343 +0000
+@@ -244,7 +244,7 @@
+ 	f64 GetEKin(void) { return ekin; }
+ 	f64 GetEPot(void) { return epot; }
+ 	
+-	virtual void TakeMDStep(bool, bool, bool);
++	virtual void TakeMDStep(bool enable_Berendsen_temperature_control, bool enable_NoseHoover_temperature_control, bool enable_Berendsen_pressure_control, bool enable_NoseHoover_pressure_control);
+ 	
+ 	f64 KineticEnergy(f64 * = NULL);
+ 	
